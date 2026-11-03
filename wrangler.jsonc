@@ -1,0 +1,12 @@
+{
+	// Placeholders: set the real name, domain and secrets when the client's Cloudflare account is ready.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "cartwright",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "cartwright" }],
+	"workers_dev": true,
+	"observability": { "enabled": true }
+}
