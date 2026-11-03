@@ -108,12 +108,51 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| FND-01 | Phase 0 (foundation, done before this roadmap) | Complete |
+| DES-01 | Phase 1 | Pending |
+| STK-01 | Phase 1 | Pending |
+| STK-02 | Phase 1 | Pending |
+| STK-03 | Phase 1 | Pending |
+| STK-04 | Phase 1 | Pending |
+| BRW-01 | Phase 1 | Pending |
+| BRW-02 | Phase 1 | Pending |
+| BRW-03 | Phase 1 | Pending |
+| BRW-04 | Phase 1 | Pending |
+| BRW-05 | Phase 1 | Pending |
+| CAR-01 | Phase 2 | Pending |
+| CAR-02 | Phase 2 | Pending |
+| CAR-03 | Phase 2 | Pending |
+| CAR-04 | Phase 2 | Pending |
+| CAR-05 | Phase 2 | Pending |
+| CAR-06 | Phase 2 | Pending |
+| LED-01 | Phase 3 | Pending |
+| LED-02 | Phase 3 | Pending |
+| LED-03 | Phase 3 | Pending |
+| LED-04 | Phase 3 | Pending |
+| LED-05 | Phase 3 | Pending |
+| LED-06 | Phase 3 | Pending |
+| FIN-01 | Phase 3 | Pending |
+| FIN-02 | Phase 3 | Pending |
+| FIN-03 | Phase 3 | Pending |
+| SAV-01 | Phase 3 | Pending |
+| SAV-02 | Phase 3 | Pending |
+| REV-01 | Phase 4 | Pending |
+| REV-02 | Phase 4 | Pending |
+| REV-03 | Phase 4 | Pending |
+| PGS-01 | Phase 4 | Pending |
+| PGS-02 | Phase 4 | Pending |
+| PGS-03 | Phase 4 | Pending |
+| PGS-04 | Phase 4 | Pending |
+| QLT-01 | Phase 5 | Pending |
+| QLT-02 | Phase 5 | Pending |
+| QLT-03 | Phase 5 | Pending |
+| QLT-04 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 39 total
-- Mapped to phases: 0
-- Unmapped: 39 ⚠️
+- Mapped to phases: 39 (38 across Phases 1-5, plus FND-01 already complete)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-11-03*
-*Last updated: 2026-11-03 after initial definition*
+*Last updated: 2026-11-03 after roadmap creation*
