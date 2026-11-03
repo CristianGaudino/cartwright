@@ -1,5 +1,5 @@
 {
-	// Placeholders: set the real name, domain and secrets when the client's Cloudflare account is ready.
+	// Demo domain on the cgaudino.com zone (already on Cloudflare). Swap for the client's domain at handover.
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "cartwright",
 	"main": ".open-next/worker.js",
@@ -7,6 +7,7 @@
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
 	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "cartwright" }],
-	"workers_dev": true,
+	"routes": [{ "pattern": "cartwright.cgaudino.com", "custom_domain": true }],
+	"workers_dev": false,
 	"observability": { "enabled": true }
 }
