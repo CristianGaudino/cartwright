@@ -36,7 +36,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can copy the stock page URL after filtering and sorting, open it in a new tab, and see the same results
   4. Each listing card shows several photos that swipe on a phone, load lazily and cause no layout shift while scrolling
   5. The CarsIreland/Carsie feed, auth, rate limits and terms are written up, and a second stock source can be added without changing any page
-**Plans**: TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — StockProvider contract, in-memory provider with disjunctive facets, contract suite, lint guard (#3; wave 1)
+- [ ] 01-02-PLAN.md — CarsIreland/Carsie investigation written up in docs/carsie-feed.md (#16; wave 1)
+- [ ] 01-03-PLAN.md — Demo data from the dealer's real listings: 3-car trial, owner checkpoint, full set (#3; wave 2)
+- [ ] 01-04-PLAN.md — /used-cars in the new design: browse, sort, page, states, car page, header and logo (#4; wave 3)
+- [ ] 01-05-PLAN.md — Every filter with honest counts, chips, and the mobile filter sheet (#4; wave 4)
+- [ ] 01-06-PLAN.md — Swipeable lazy photo carousel on listing cards (#5; wave 4)
 **UI hint**: yes
 
 ### Phase 2: Car Pages and Discovery
@@ -102,7 +110,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design and Stock Browsing | 0/TBD | Not started | - |
+| 1. Design and Stock Browsing | 0/6 | Planned | - |
 | 2. Car Pages and Discovery | 0/TBD | Not started | - |
 | 3. Leads, Finance and Saved Cars | 0/TBD | Not started | - |
 | 4. Reviews and Core Pages | 0/TBD | Not started | - |

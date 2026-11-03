@@ -34,6 +34,11 @@ The UI-SPEC (`01-UI-SPEC.md`, approved) already fixes palette, type, spacing, la
 ### CarsIreland/Carsie investigation (#16)
 - **D-09:** The write-up is **`docs/carsie-feed.md` in the repo**, linked from #16: feed and auth model, rate limits, terms, data fields mapped to the `StockProvider` types, what is unknown until the client has access. A real provider is built only if access exists (not assumed). #16 closes on the written investigation. — **Reversibility:** reversible.
 
+### Owner decisions after research (2026-11-03, before planning)
+- **D-10 (extends D-04):** The owner authorises **one scripted call** to cartwright.ie's own `POST /wp-json/api/v2/search/cars` (nonce read from the page, generic user agent) to list all the cars (about 57 at research time). The response shape is unverified: the scraper saves the raw response, inspects it, and fails loudly if it differs from what the code expects. No second call without the owner. — **Reversibility:** reversible (cached locally, one run).
+- **D-11 (amends D-03):** Photos are **6 per car, WebP quality 72, 900 x 675** (4:3). This replaces D-03's and the UI-SPEC's 1200 x 900 because the source photos are 938 x 704 and 1200 x 900 would be an upscale. A **3-car trial** runs first and its real size is reported to the owner at a blocking checkpoint **before** the full set is generated and committed. — **Reversibility:** costly (committed binaries stay in git history).
+- **D-12:** The site **header is not sticky**. On the stock page only the filter bar is sticky (and the desktop filter sidebar, per the UI-SPEC layout table). — **Reversibility:** reversible.
+
 ### Claude's Discretion
 - Photo format, per-car photo count and exact size budget (D-03), within the cap of 6 and the 1200 x 900 box.
 - `next/image` optimiser versus plain `<img>` on OpenNext/Workers (UI-SPEC says check `node_modules/next/dist/docs/` first). With pre-resized static files, plain `<img>` is likely enough.
