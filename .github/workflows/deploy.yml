@@ -1,19 +1,16 @@
 name: Deploy (Cloudflare Workers)
 
-# Production deploys only from a release tag (release.yml calls this). To roll back, run it from the
-# Actions tab with an older tag. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
+# Every merge to main deploys to production. To roll back, run it from the Actions tab with an older
+# tag or commit. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
 on:
-  workflow_call:
-    inputs:
-      ref:
-        description: 'The release tag to deploy'
-        required: true
-        type: string
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
   workflow_dispatch:
     inputs:
       ref:
-        description: 'The release tag to deploy, like v1.0.0'
-        required: true
+        description: 'A tag or commit to deploy (default: main)'
+        required: false
         type: string
 
 concurrency:

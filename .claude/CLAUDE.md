@@ -12,7 +12,7 @@ A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as 
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
 - Scope: v1 is issues #1-16 (Todo). Alerts, newsletters, social embeds and the admin/analytics work (#17-25) are Backlog and not part of v1.
-- Do not run GSD (`/gsd-*`) on this project. Planning lives in GitHub issues.
+- GSD (`/gsd-*`) is used for planning and execution (owner's decision, 2026-11-03). GitHub issues stay the source of scope and status: GSD phases map to issues, and PRs still `Closes #n`.
 
 ## Standards
 The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process. When unsure of a standard, follow it. If still unsure, ask the owner and ask for context rather than guessing.
@@ -37,7 +37,7 @@ Check by exit code, not by reading output for "error": `npm run lint; echo $?`, 
 This is not the Next.js in your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code, and heed deprecation notices. `next dev` writes an `AGENTS.md` block about this; commit it.
 
 ## Releases
-Production deploys only from a release tag, as in vintage. Roll back by deploying an older tag.
+Every merge to `main` deploys to production (deploy.yml). For now there are no release-tag deploys; the Release workflow only tags and publishes notes. Roll back by running Deploy from the Actions tab with an older tag or commit. Move to release-tag deploys, as in vintage, once there is a live client site.
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
