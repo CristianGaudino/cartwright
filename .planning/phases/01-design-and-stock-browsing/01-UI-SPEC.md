@@ -292,7 +292,7 @@ Number and money formats: `en-IE`. Price `€18,950`. Mileage `84,000 km`. Kilom
 
 ## UI Considerations
 
-Applicable state considerations resolved: 16 covered, 2 backstop, 0 unresolved. Empty-state and error-state copy lives in the Copywriting Contract above and is referenced here, not restated.
+Applicable state considerations resolved: 23 covered, 3 backstop, 1 dismissed, 0 unresolved. The UI-consideration probe ran 2026-11-03 on 9 surfaces (51 raised); rows below the header nav row were added by it, and the rest are dismissed with a reason in the last row. Empty-state and error-state copy lives in the Copywriting Contract above and is referenced here, not restated.
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
@@ -314,6 +314,15 @@ Applicable state considerations resolved: 16 covered, 2 backstop, 0 unresolved. 
 | partial | URL query params | ✅ covered | Unknown params and invalid values are ignored; a `page` past the end redirects to the last page |
 | loading | sheet "Show n cars" button | ✅ covered | Keeps the last known count with `aria-busy="true"` while results update, so it never flashes empty |
 | overflow | header nav | 🧪 backstop | Phase 1 has one item and fits; the multi-item collapse at < 1024px is specified in Phase 4, and a viewport test at 320px must show no horizontal scroll |
+| loading | search input | ✅ covered | Typing updates the URL after a 250ms pause; the grid uses the 60% opacity update, the input is never disabled |
+| error | search, sort and filter controls | ✅ covered | A failed results load shows the grid error state; every control stays enabled so the buyer can change a filter and retry |
+| error | filter sheet facet counts | ✅ covered | If counts fail to load, options render without counts and stay enabled, and the sheet button reads "Show cars" |
+| overflow | filter sheet body | ✅ covered | Sheet max height is 90dvh; the filter groups scroll inside it and the "Show n cars" button stays pinned at the bottom |
+| long-text | facet option labels and chips | ✅ covered | Labels clamp to one line with an ellipsis; the count and the chip remove icon never truncate |
+| empty | applied-filter chips | ✅ covered | The row and "Clear all filters" are not rendered when no filter is applied |
+| zero-one-many | applied-filter chips | ✅ covered | One chip renders normally; "Clear all filters" shows from one chip up |
+| error | listing card links | 🧪 backstop | Car pages arrive in Phase 2; until then the planner picks an interim target, and a test must show no card link ends in a 404 |
+| all | results updating, sort select, header nav, carousel arrows | dismissed | Remaining raised categories have no distinct Phase 1 state: updates reuse the 60% opacity rule, sort is five short fixed labels, nav is one static item, arrows are hidden on touch |
 
 ---
 
