@@ -499,15 +499,17 @@ Field mapping for the doc (cartwright.ie label to `Car` field): Make, Model, Yea
 | A8 | `public/_headers` rules apply to `/stock/*` alongside OpenNext's generated rules | Pattern 6 / structure | Photos revalidate each visit (slower repeat views, not broken); verify with `curl -I` on the deployed Worker |
 | A9 | `generateStaticParams` on `[slug]` prerenders all car pages under OpenNext without an incremental cache override | Pitfall 8 | Falls back to on-demand rendering, still correct, slightly slower |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How does the scraper enumerate all ~57 cars?**
+All four were answered before planning; the answers are owner decisions in `01-CONTEXT.md` or a rule in the plans.
+
+1. **How does the scraper enumerate all ~57 cars?** RESOLVED: CONTEXT D-10. The owner authorised one scripted `POST /wp-json/api/v2/search/cars` (nonce read from the page, generic user agent); the raw response is cached and the scraper fails loudly on an unexpected shape (plan 01-03 Task 1).
    - What we know: `/used-cars/` server-renders only the first 8 (`data-all-retrieved="0"`); the page header shows 57-58 matching vehicles; each car has a server-rendered detail page at `/car-details/?{id}={year}-{make}-{model}`.
    - What's unclear: the site's list endpoint (`POST /wp-json/api/v2/search/cars`, nonce in page) would give every id in one request, but it is the dealer site's private API and my attempt to probe it was blocked, so the response shape is unverified. The sitemap index lists only `page-sitemap.xml` (no cars).
    - Recommendation: owner decides. Preferred: one scripted POST (nonce read from the stock page, `offset` paging), a single run, generic user agent, documented in D-04 notes. Fallback: scrape the 8 SSR cars plus any extra ids the owner pastes, and say the demo has fewer cars than 60 in the plan (D-01 allows it).
-2. **Final photo count and format.** Recommended 6 per car, WebP q72, 900 x 675 (about 15.5 MB). Needs the owner's nod because it is permanent in git history; run a 3-car trial first and report the real size.
-3. **Header sticky behaviour** (Pitfall 10): confirm non-sticky header with sticky filter bar.
-4. **Odometer unit edge cases:** dealer pages show "Kms / Miles"; a car with only miles or no odometer must map to `mileageKm` undefined, not 0.
+2. **Final photo count and format.** Recommended 6 per car, WebP q72, 900 x 675 (about 15.5 MB). Needs the owner's nod because it is permanent in git history; run a 3-car trial first and report the real size. RESOLVED: CONTEXT D-11 (6 per car, WebP q72, 900 x 675, 3-car trial at a blocking checkpoint before any photo is committed; plan 01-03 Task 2).
+3. **Header sticky behaviour** (Pitfall 10): confirm non-sticky header with sticky filter bar. RESOLVED: CONTEXT D-12 (header not sticky; only the filter bar and the desktop sidebar stick; plans 01-04 and 01-05).
+4. **Odometer unit edge cases:** dealer pages show "Kms / Miles"; a car with only miles or no odometer must map to `mileageKm` undefined, not 0. RESOLVED: plan 01-03 build rule (`mileageKm` from the Kms figure only, undefined when there is none, never 0; enforced by `demo-cars.test.ts`).
 
 ## Environment Availability
 
@@ -579,7 +581,7 @@ Skipped: `workflow.nyquist_validation` is `false` in `.planning/config.json` [VE
 **Confidence breakdown:**
 - Standard stack: HIGH, nothing new beyond an explicit `sharp` devDependency; versions read from the repo and registry
 - Architecture: HIGH for provider seam, URL state, route-group/404 interaction (cited from the installed docs); MEDIUM for hydration-timing behaviour (A1) and Workers CPU/caching details (A7-A9)
-- Demo data pipeline: MEDIUM, spec parsing verified on one detail page; full listing enumeration unresolved (Open Question 1)
+- Demo data pipeline: MEDIUM, spec parsing verified on one detail page; full listing enumeration unverified at research time, resolved by owner decision D-10 (Open Question 1)
 - Pitfalls: HIGH for 1, 2, 4; MEDIUM for 3, 6
 
 **Research date:** 2026-11-03
