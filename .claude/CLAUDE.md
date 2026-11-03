@@ -6,7 +6,7 @@ Read automatically by Claude Code at the start of a session. Edit it like any ot
 A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as a speculative pitch and first sale for the owner's web business. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Cartwright project](https://github.com/users/CristianGaudino/projects/6). Read the issues before planning anything.
 
 ## Decisions already made
-- Stack: Next.js 16 (App Router, Cache Components), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
+- Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
 - Stock is not stored in a database. It sits behind a `StockProvider` interface: a generated file-backed provider for the demo, a CarsIreland/Carsie provider once the client has API access (#16). Reviews work the same way (`ReviewsProvider`, #13).
 - Neon Postgres + Drizzle only for leads and later alert/newsletter subscriptions. Clerk only for the future admin area (#20). The public site has no auth.
 - Saved cars live in localStorage.
