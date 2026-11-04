@@ -33,11 +33,12 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 ### Car pages
 
 - [ ] **CAR-01**: Each car has its own URL with gallery and spec table (#6)
-- [ ] **CAR-02**: A sold or removed car returns 410 or redirects (#6)
+- [ ] **CAR-02**: A removed car returns 410 or redirects. A sold car stays visible for a set period (see CAR-07), then returns 410 or redirects (#6)
 - [ ] **CAR-03**: Car pages have canonical URLs, are in the sitemap, and carry `Vehicle`/`Offer` JSON-LD (#6)
 - [ ] **CAR-04**: User can share a car with the native share sheet or a WhatsApp button (#7)
 - [ ] **CAR-05**: Each car has a generated OG image with photo, name and price that previews correctly in WhatsApp, iMessage and Facebook (#7)
 - [ ] **CAR-06**: Make, body-type and make+model landing pages exist (e.g. /used-cars/audi, /used-cars/suv) with unique metadata and copy, an empty state, internal links and sitemap entries (#8)
+- [ ] **CAR-07**: When the dealer marks a car sold, it stays on the site for a set period, clearly labelled Sold, so new visitors see what stock to expect. The period is one setting, to confirm with the dealer. Sold cars cannot be enquired about, booked or reserved, stay out of the default stock list unless the buyer opts in, and keep their page until the period ends (#6)
 
 ### Saved cars
 
@@ -126,6 +127,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CAR-04 | Phase 2 | Pending |
 | CAR-05 | Phase 2 | Pending |
 | CAR-06 | Phase 2 | Pending |
+| CAR-07 | Phase 2 | Pending |
 | LED-01 | Phase 3 | Pending |
 | LED-02 | Phase 3 | Pending |
 | LED-03 | Phase 3 | Pending |
@@ -150,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QLT-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 39 (38 across Phases 1-5, plus FND-01 already complete)
+- v1 requirements: 40 total
+- Mapped to phases: 40 (39 across Phases 1-5, plus FND-01 already complete)
 - Unmapped: 0
 
 ---

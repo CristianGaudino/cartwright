@@ -53,11 +53,11 @@ Plans:
 ### Phase 2: Car Pages and Discovery
 **Goal**: Every car has its own page that search engines can index and buyers can share, and buyers can land on a make or body-type page straight from search.
 **Depends on**: Phase 1
-**Requirements**: CAR-01, CAR-02, CAR-03, CAR-04, CAR-05, CAR-06
-**Issues**: #6 (CAR-01, CAR-02, CAR-03), #7 (CAR-04, CAR-05), #8 (CAR-06)
+**Requirements**: CAR-01, CAR-02, CAR-03, CAR-04, CAR-05, CAR-06, CAR-07
+**Issues**: #6 (CAR-01, CAR-02, CAR-03, CAR-07), #7 (CAR-04, CAR-05), #8 (CAR-06)
 **Success Criteria** (what must be TRUE):
   1. User can open a car from a card to its own URL and see a gallery and a spec table
-  2. A sold or removed car's URL returns 410 or redirects, never a broken page
+  2. A removed car's URL returns 410 or redirects, never a broken page. A car marked sold stays visible, labelled Sold, for a set period (one setting), then returns 410 or redirects
   3. User can share a car with the native share sheet or a WhatsApp button, and the link previews with the photo, name and price in WhatsApp, iMessage and Facebook
   4. User can open /used-cars/audi, /used-cars/suv and make+model pages that each have their own title and copy, link to related pages, and show a helpful empty state when there is no stock
   5. Every car and landing page has a canonical URL, `Vehicle`/`Offer` JSON-LD and a sitemap entry
