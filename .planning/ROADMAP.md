@@ -6,7 +6,7 @@ Rebuild cartwright.ie as a fast, modern, mobile-first used-car site that proves 
 
 The project foundation (#1: Next.js 16, Tailwind v4, Cloudflare Workers via OpenNext, CI, deploy on merge) is already done and validated (FND-01). It is not a phase to build.
 
-Scope source: GitHub issues #2-16 are v1. Each phase lists its issues so the phase PRs can say `Closes #n`. Issues #17-25 are Backlog (v2) and not in this roadmap.
+Scope source: GitHub issues #2-16 are v1. Each phase lists its issues so the phase PRs can say `Closes #n`. Issues #17-25 and #32 are Backlog (v2) and not in this roadmap.
 
 ## Phases
 

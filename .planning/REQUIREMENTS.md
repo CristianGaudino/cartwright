@@ -92,6 +92,7 @@ Backlog, paid enhancements. Tracked but not in the current roadmap.
 - **ANA-03**: Analytics: funnel and drop-off (#23)
 - **ANA-04**: Analytics: lead conversion and attribution (#24)
 - **ADM-02**: Admin extras, to scope (#25)
+- **SOC-02**: Admin generates and auto-posts Instagram and Facebook posts and ads for a car, with monthly usage tracking and billing (#32)
 
 ## Out of Scope
 
