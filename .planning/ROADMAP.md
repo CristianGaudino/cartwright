@@ -36,17 +36,18 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can copy the stock page URL after filtering and sorting, open it in a new tab, and see the same results
   4. Each listing card shows several photos that swipe on a phone, load lazily and cause no layout shift while scrolling
   5. The CarsIreland/Carsie feed, auth, rate limits and terms are written up, and a second stock source can be added without changing any page
-**Plans:** 8 plans
+**Plans:** 9 plans
 
 Plans:
 - [ ] 01-01-PLAN.md: StockProvider contract, in-memory provider with disjunctive facets, contract suite, lint guard (#3; wave 1)
 - [ ] 01-02-PLAN.md: CarsIreland/Carsie investigation written up in docs/carsie-feed.md (#16; wave 1)
 - [ ] 01-03-PLAN.md: Demo data from the dealer's real listings: 3-car trial with request count, owner checkpoint, full set (#3; wave 2)
 - [ ] 01-04-PLAN.md: Design tokens, ink header with the logo, URL contract and formatters (#4; wave 3)
-- [ ] 01-05-PLAN.md: /used-cars in the new design: browse, sort, page, loading, empty and error states, car page, CI worker checks (#4; wave 4)
-- [ ] 01-06-PLAN.md: Every filter with honest counts and chips in the desktop sidebar, usable when results fail (#4; wave 5)
+- [ ] 01-05-PLAN.md: /used-cars in the new design: browse, sort and page without reload, sticky bar, car page, CI worker checks (#4; wave 4)
+- [ ] 01-06-PLAN.md: Every filter with honest counts and chips in the desktop sidebar, usable when results fail (#4; wave 6)
 - [ ] 01-07-PLAN.md: Swipeable lazy photo carousel on listing cards (#5; wave 5)
-- [ ] 01-08-PLAN.md: Mobile filter sheet: Filters button, native dialog, Show n cars (#4; wave 6)
+- [ ] 01-08-PLAN.md: Mobile filter sheet: Filters button, native dialog, Show n cars (#4; wave 7)
+- [ ] 01-09-PLAN.md: Stock page states split out of 01-05: provider failure with the E2E switch, zero matches, past-end page, first-load skeleton (#4; wave 5, before 01-06)
 **UI hint**: yes
 
 ### Phase 2: Car Pages and Discovery
