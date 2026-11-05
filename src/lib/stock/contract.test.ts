@@ -74,6 +74,81 @@ export function runContract(name: string, makeProvider: (cars: Car[]) => StockPr
       const original = new Map(FIXTURE.map((c) => [c.id, Object.keys(c).sort()]));
       for (const c of r.cars) expect(Object.keys(c).sort()).toEqual(original.get(c.id));
     });
+
+    it("filters by several makes", async () => {
+      expect((await provider().query(q({ make: ["audi", "bmw"] }))).total).toBe(5);
+    });
+
+    it("lists models of the selected makes only", async () => {
+      const none = await provider().query(q());
+      expect(none.facets.model).toEqual([]);
+      const audi = await provider().query(q({ make: ["audi"] }));
+      const models = [["A4", 1], ["A6", 1], ["Q5", 1]];
+      expect(audi.facets.model.map((o) => [o.label, o.count])).toEqual(models);
+      expect(audi.facets.model.every((o) => o.parent === "audi")).toBe(true);
+      const a4 = await provider().query(q({ make: ["audi"], model: ["a4"] }));
+      expect(a4.total).toBe(1);
+      expect(a4.facets.model.map((o) => [o.label, o.count])).toEqual(models);
+    });
+
+    it("filters by year, price and mileage with inclusive bounds", async () => {
+      expect(await ids({ yearFrom: 2020, yearTo: 2021 })).toEqual(["107", "103", "102"]);
+      expect(await ids({ priceMin: 10000, priceMax: 25000 })).toEqual(["107", "104", "101"]);
+      expect(await ids({ kmMax: 60000 })).toEqual(["105", "103", "102"]);
+    });
+
+    it("filters by fuel and counts the fuel facet", async () => {
+      const r = await provider().query(q({ fuel: ["diesel"] }));
+      expect(r.cars.map((c) => c.id)).toEqual(["104", "102", "101"]);
+      expect(r.facets.fuel.map((o) => [o.label, o.count])).toEqual([["Diesel", 3], ["Petrol", 2], ["Hybrid", 1], ["Plug-in hybrid", 1]]);
+    });
+
+    it("filters by gearbox and counts the gearbox facet", async () => {
+      const r = await provider().query(q({ gearbox: "automatic" }));
+      expect(r.cars.map((c) => c.id)).toEqual(["107", "105", "103", "102"]);
+      expect(r.facets.gearbox.map((o) => [o.label, o.count])).toEqual([["Automatic", 4], ["Manual", 3]]);
+    });
+
+    it("filters by body and labels it from the stock", async () => {
+      const r = await provider().query(q({ body: ["suv"] }));
+      expect(r.cars.map((c) => c.id)).toEqual(["107", "105", "103"]);
+      expect(r.facets.body.map((o) => o.label).sort()).toEqual(["Hatchback", "SUV", "Saloon"]);
+    });
+
+    it("searches every token over make, model and variant", async () => {
+      expect(await ids({ q: "bmw 3" })).toEqual(["104"]);
+      expect(await ids({ q: "s line" })).toEqual(["101"]);
+      expect((await provider().query(q({ q: "AUDI" }))).total).toBe(3);
+    });
+
+    it("keeps filtered-out values in a facet at zero", async () => {
+      const r = await provider().query(q({ make: ["ford"], fuel: ["petrol"] }));
+      expect(r.cars.map((c) => c.id)).toEqual(["106"]);
+      expect(r.facets.make.map((o) => [o.label, o.count])).toEqual([["BMW", 1], ["Ford", 1], ["Audi", 0]]);
+    });
+
+    it("keeps an unknown selected value in its facet", async () => {
+      const r = await provider().query(q({ make: ["zzz"] }));
+      expect(r.total).toBe(0);
+      expect(r.facets.make).toContainEqual({ value: "zzz", label: "zzz", count: 0 });
+      expect(r.facets.years).toEqual({ min: 2016, max: 2022 });
+    });
+
+    it("sorts by price, year and mileage with a stable tie-break", async () => {
+      const asc = ["108", "106", "104", "101", "107", "103", "102", "105"];
+      expect(await ids({ sort: "price-asc" })).toEqual(asc);
+      expect(await ids({ sort: "price-desc" })).toEqual([...asc].reverse());
+      expect(await ids({ sort: "year-desc" })).toEqual(["105", "107", "102", "103", "101", "104", "106", "108"]);
+      expect(await ids({ sort: "km-asc" })).toEqual(["105", "102", "103", "101", "108", "104", "106", "107"]);
+    });
+
+    it("pages, and returns an empty page past the end", async () => {
+      const p2 = await provider().query(q({ pageSize: 3, page: 2 }));
+      expect(p2.cars.map((c) => c.id)).toEqual(["105", "104", "103"]);
+      expect(p2.pageCount).toBe(3);
+      const p4 = await provider().query(q({ pageSize: 3, page: 4 }));
+      expect([p4.cars, p4.total, p4.pageCount, p4.page]).toEqual([[], 8, 3, 4]);
+    });
   });
 }
 
