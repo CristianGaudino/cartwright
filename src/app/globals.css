@@ -1,1 +1,57 @@
 @import "tailwindcss";
+
+/* UI-SPEC tokens. Resetting the default sizes and weights makes "no font size outside the table" a build-time fact. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --text-*: initial;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.01em;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-heading: 1.25rem;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.01em;
+  --text-display: 2rem;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+
+  --color-surface: #f5f5f7;
+  --color-card: #ffffff;
+  --color-ink: #0e0e10;
+  --color-accent: #d0111a;
+  --color-text: #111114;
+  --color-text-2: #5c5c66;
+  --color-hairline: #e2e2e6;
+  --color-control: #8a8a94;
+  --color-photo-bg: #e9e9ed;
+  --color-destructive: #b42318;
+
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
+  --shadow-lift: 0 8px 24px rgb(17 17 20 / 0.08);
+
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
+
+@layer base {
+  html {
+    color-scheme: light;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-optical-sizing: auto;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+}
