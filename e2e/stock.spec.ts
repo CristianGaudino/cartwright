@@ -90,3 +90,74 @@ test.describe("320px wide", () => {
     }
   });
 });
+
+declare global {
+  interface Window {
+    __skeletonSeen: boolean;
+    __busySeen: boolean;
+  }
+}
+
+test("sort replaces the URL and dims the old results, never a skeleton", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.waitForLoadState("load");
+  const historyBefore = await page.evaluate(() => history.length);
+  // Sample the whole change: a check after it would miss the pending state.
+  await page.evaluate(() => {
+    window.__skeletonSeen = !!document.querySelector("[data-skeleton]");
+    window.__busySeen = false;
+    new MutationObserver(() => {
+      if (document.querySelector("[data-skeleton]")) window.__skeletonSeen = true;
+      if (document.querySelector('[aria-busy="true"].opacity-60')) window.__busySeen = true;
+    }).observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+  });
+  expect(await page.evaluate(() => window.__skeletonSeen)).toBe(false);
+
+  await page.locator("select:visible").selectOption({ label: "Price: low to high" });
+  await expect(page).toHaveURL(/sort=price-asc/);
+  await expect.poll(async () => {
+    const p = await prices(page);
+    return p.every((x, i) => i === 0 || p[i - 1] <= x);
+  }).toBe(true);
+
+  expect(await page.evaluate(() => history.length)).toBe(historyBefore);
+  expect(await page.evaluate(() => window.__skeletonSeen)).toBe(false);
+  expect(await page.evaluate(() => window.__busySeen)).toBe(true);
+});
+
+test("the count is live, the filter bar sticks and the header does not", async ({ page }) => {
+  await page.goto("/used-cars");
+  await expect(page.getByTestId("count")).toHaveAttribute("aria-live", "polite");
+  expect(await page.getByTestId("sticky-bar").evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
+  expect(await page.getByRole("banner").evaluate((el) => getComputedStyle(el).position)).not.toBe("sticky");
+});
+
+test("a copied URL shows the same cars in a new context", async ({ page, browser }) => {
+  await page.goto("/used-cars");
+  const n = await total(page);
+  const url = `/used-cars?sort=price-asc${n > PER_PAGE ? "&page=2" : ""}`;
+  await page.goto(url);
+  const titles = await page.locator("article h2").allTextContents();
+  const ctx = await browser.newContext({ baseURL: page.url().replace(/\/used-cars.*/, "") });
+  const other = await ctx.newPage();
+  await other.goto(url);
+  expect(await other.locator("article h2").allTextContents()).toEqual(titles);
+  await ctx.close();
+});
+
+test.describe("one result, on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+  test("one normal-width card and no pagination", async ({ page }) => {
+    await page.goto("/used-cars?sort=price-desc");
+    const top = (await prices(page))[0];
+    await page.goto(`/used-cars?priceMin=${top}`);
+    const k = await page.locator("article").count();
+    expect(k).toBeGreaterThanOrEqual(1);
+    expect(k).toBeLessThanOrEqual(PER_PAGE);
+    await expect(page.getByTestId("count")).toHaveText(k === 1 ? "1 car" : `${k} cars`);
+    await expect(page.getByRole("navigation", { name: "Pagination" })).toHaveCount(0);
+    const card = (await page.locator("article").first().boundingBox())!;
+    const grid = (await page.locator("article").first().locator("..").boundingBox())!;
+    expect(card.width).toBeLessThan(grid.width / 2);
+  });
+});

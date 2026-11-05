@@ -9,7 +9,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
   const { cars, page, pageCount } = result;
   return (
     <>
-      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {cars.map((car, i) => (
           <ListingCard key={car.id} car={car} priority={i < 2} />
         ))}
