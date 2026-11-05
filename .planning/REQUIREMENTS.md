@@ -20,7 +20,7 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 - [x] **STK-01**: A `StockProvider` interface returns cars, one car by id/slug, and filter facets with counts (#3)
 - [ ] **STK-02**: A file-backed provider serves generated demo cars, each with several images (#3)
 - [x] **STK-03**: A second `StockProvider` can be added without changing pages (CarsIreland/Carsie, #16)
-- [ ] **STK-04**: Investigation of CarsIreland / Carsie feed, auth, rate limits and terms is written up; a provider is built only if access exists (#16)
+- [x] **STK-04**: Investigation of CarsIreland / Carsie feed, auth, rate limits and terms is written up; a provider is built only if access exists (#16)
 
 ### Stock browsing
 
@@ -115,7 +115,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STK-01 | Phase 1 | Complete |
 | STK-02 | Phase 1 | Pending |
 | STK-03 | Phase 1 | Complete |
-| STK-04 | Phase 1 | Pending |
+| STK-04 | Phase 1 | Complete |
 | BRW-01 | Phase 1 | Pending |
 | BRW-02 | Phase 1 | Pending |
 | BRW-03 | Phase 1 | Pending |
