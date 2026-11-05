@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-11-05T09:04:25.030Z"
+stopped_at: Completed 01-04-PLAN.md (logo file outstanding)
+last_updated: "2026-11-05T09:09:36.957Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 54dbbe5f7620e43c72f50375715b56307d487585
+state_head: 0dca6c4ee88bf5ad9814cc6a21469fcb1310c811
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 9
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-11-03)
 ## Current Position
 
 Phase: 01 (Design and Stock Browsing) — EXECUTING
-Plan: 4 of 9
+Plan: 5 of 9
 Status: Ready to execute
 Last activity: 2026-11-05 — Phase 01 execution started
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P01 | 6min | 2 tasks | 4 files |
 | Phase 01 P02 | 8min | 2 tasks | 1 files |
 | Phase 01 P03 | 60min | 3 tasks | 9 files |
+| Phase 01 P04 | 15min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,7 @@ Recent decisions affecting current work:
 - [Phase 01]: km-asc sorts cars without mileage last via MAX_SAFE_INTEGER, not Infinity
 - [Phase 01]: Carsie provider stays unbuilt; docs/carsie-feed.md records unknowns as unknown (D-09)
 - [Phase 01]: Demo photos 900x675 WebP q72, 57 cars, 20.4 MB accepted by owner (01-03)
+- [Phase 01]: Logo PNG deferred in 01-04: no local copy and dealer-host requests were barred in that run; fetch it with the command in 01-04-SUMMARY.md
 
 ### Pending Todos
 
@@ -86,6 +88,7 @@ None yet.
 - Issue #3 says the stock provider is "cached with Cache Components", but Cache Components are off on this project (opennextjs-cloudflare#1450). Phase 1 planning should use caching that works on OpenNext/Workers.
 - `.claude/CLAUDE.md` still says "Do not run GSD (`/gsd-*`) on this project", but PROJECT.md records the owner's decision (2026-11-03) to use GSD for planning with GitHub issues as the scope source. CLAUDE.md should be updated to match.
 - `.claude/CLAUDE.md` says production deploys only from a release tag, but PROJECT.md and REQUIREMENTS.md say every merge to `main` deploys for now. CLAUDE.md should be updated to match.
+- public/brand/logo.png missing (01-04): fetch https://www.cartwright.ie/app/uploads/2024/09/logo.png once, verify 650x270 PNG with sharp, commit
 
 ## Deferred Items
 
@@ -97,6 +100,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-05T09:04:25.010Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-11-05T09:09:36.930Z
+Stopped at: Completed 01-04-PLAN.md (logo file outstanding)
 Resume file: None
