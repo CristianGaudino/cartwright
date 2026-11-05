@@ -25,6 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Design and Stock Browsing
+
 **Goal**: A buyer can find a car on their phone, fast: browse, search, filter and sort the stock in a modern look built around the locked logo.
 **Depends on**: Nothing (foundation #1 is already complete)
 **Requirements**: DES-01, STK-01, STK-02, STK-03, STK-04, BRW-01, BRW-02, BRW-03, BRW-04, BRW-05
@@ -36,10 +37,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can copy the stock page URL after filtering and sorting, open it in a new tab, and see the same results
   4. Each listing card shows several photos that swipe on a phone, load lazily and cause no layout shift while scrolling
   5. The CarsIreland/Carsie feed, auth, rate limits and terms are written up, and a second stock source can be added without changing any page
-**Plans:** 9 plans
+
+**Plans:** 1/9 plans executed
 
 Plans:
-- [ ] 01-01-PLAN.md: StockProvider contract, in-memory provider with disjunctive facets, contract suite, lint guard (#3; wave 1)
+- [x] 01-01-PLAN.md: StockProvider contract, in-memory provider with disjunctive facets, contract suite, lint guard (#3; wave 1)
 - [ ] 01-02-PLAN.md: CarsIreland/Carsie investigation written up in docs/carsie-feed.md (#16; wave 1)
 - [ ] 01-03-PLAN.md: Demo data from the dealer's real listings: 3-car trial with request count, owner checkpoint, full set (#3; wave 2)
 - [ ] 01-04-PLAN.md: Design tokens, ink header with the logo, URL contract and formatters (#4; wave 3)
@@ -48,9 +50,11 @@ Plans:
 - [ ] 01-07-PLAN.md: Swipeable lazy photo carousel on listing cards (#5; wave 5)
 - [ ] 01-08-PLAN.md: Mobile filter sheet: Filters button, native dialog, Show n cars (#4; wave 7)
 - [ ] 01-09-PLAN.md: Stock page states split out of 01-05: provider failure with the E2E switch, zero matches, past-end page, first-load skeleton (#4; wave 5, before 01-06)
+
 **UI hint**: yes
 
 ### Phase 2: Car Pages and Discovery
+
 **Goal**: Every car has its own page that search engines can index and buyers can share, and buyers can land on a make or body-type page straight from search.
 **Depends on**: Phase 1
 **Requirements**: CAR-01, CAR-02, CAR-03, CAR-04, CAR-05, CAR-06, CAR-07
@@ -61,10 +65,12 @@ Plans:
   3. User can share a car with the native share sheet or a WhatsApp button, and the link previews with the photo, name and price in WhatsApp, iMessage and Facebook
   4. User can open /used-cars/audi, /used-cars/suv and make+model pages that each have their own title and copy, link to related pages, and show a helpful empty state when there is no stock
   5. Every car and landing page has a canonical URL, `Vehicle`/`Offer` JSON-LD and a sitemap entry
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 3: Leads, Finance and Saved Cars
+
 **Goal**: A buyer can act on a car they like: save it, enquire, book a test drive, reserve, apply for finance, or offer a trade-in, and the dealer receives it.
 **Depends on**: Phase 2
 **Requirements**: LED-01, LED-02, LED-03, LED-04, LED-05, LED-06, FIN-01, FIN-02, FIN-03, SAV-01, SAV-02
@@ -76,10 +82,12 @@ Plans:
   3. User can request a trade-in valuation (reg, mileage, optional photos) and request a car the dealer does not have, with the same form behaviour as the enquiry
   4. User can use a finance calculator (price, deposit, term, APR) that works, sees every figure labelled representative with the dealer's required wording or a clear placeholder label, and can submit a finance application that arrives as a lead
   5. User can save and unsave a car from cards and the detail page without signing in, see the saved count in the header, and find the cars on the saved page after closing and reopening the browser
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 4: Reviews and Core Pages
+
 **Goal**: The site presents Cartwright as a real local dealer: a home page that shows stock and reviews, the supporting pages, and one consistent header and footer.
 **Depends on**: Phase 3
 **Requirements**: REV-01, REV-02, REV-03, PGS-01, PGS-02, PGS-03, PGS-04
@@ -91,10 +99,12 @@ Plans:
   3. User can reach the service, contact (map and hours), about, privacy and terms pages from the header or footer
   4. Every page uses the same header and footer, and no link on the site points to `#`
   5. Local business JSON-LD is present on the site and validates
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Quality Pass
+
 **Goal**: The finished site is accessible, fast on a mid-range phone, and ready to be indexed in production.
 **Depends on**: Phase 4
 **Requirements**: QLT-01, QLT-02, QLT-03, QLT-04
@@ -104,6 +114,7 @@ Plans:
   2. Mobile Lighthouse scores 95 or more on the home, stock and car pages
   3. Old cartwright.ie URLs redirect to their new equivalents
   4. robots.txt and the sitemap are correct for the production domain and list every car and landing page
+
 **Plans**: TBD
 
 ## Progress
@@ -113,7 +124,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design and Stock Browsing | 0/8 | Planned | - |
+| 1. Design and Stock Browsing | 1/9 | In Progress | - |
 | 2. Car Pages and Discovery | 0/TBD | Not started | - |
 | 3. Leads, Finance and Saved Cars | 0/TBD | Not started | - |
 | 4. Reviews and Core Pages | 0/TBD | Not started | - |

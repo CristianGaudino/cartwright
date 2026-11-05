@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 1
+current_phase: 01
 current_phase_name: Design and Stock Browsing
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-11-03T21:21:49.936Z"
-last_activity: 2026-11-03
-last_activity_desc: Roadmap created (5 phases, 38 requirements mapped; FND-01 already complete)
-state_head: 8b477adfc7831e9e3761b6b160c2f3553d50d48e
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-11-05T00:22:32.491Z"
+last_activity: 2026-11-05
+last_activity_desc: Phase 01 execution started
+state_head: 8b5f0abbb866e2931f8e9fdd21ed81ff10bde334
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 9
+  completed_plans: 1
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-11-03)
 
 **Core value:** A buyer can find a car on their phone, fast, and send the dealer an enquiry about it.
-**Current focus:** Phase 1: Design and Stock Browsing
+**Current focus:** Phase 01 — Design and Stock Browsing
 
 ## Current Position
 
-Phase: 1 of 5 (Design and Stock Browsing)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-11-03 — Roadmap created (5 phases, 38 requirements mapped; FND-01 already complete)
+Phase: 01 (Design and Stock Browsing) — EXECUTING
+Plan: 2 of 9
+Status: Ready to execute
+Last activity: 2026-11-05 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P01 | 6min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -64,6 +69,8 @@ Recent decisions affecting current work:
 - [Roadmap]: #2 (design contract) leads Phase 1 because it gates all UI. #16 (CarsIreland investigation) sits in Phase 1 so the feed shape informs the `StockProvider` interface.
 - [Roadmap]: Saved cars (#10) sit in Phase 3 with the lead and finance forms: all are buyer actions on a car.
 - [Roadmap]: Each GitHub issue is one PR (`Closes #n`); phase detail in ROADMAP.md lists the issues per phase.
+- [Phase 01]: Stock provider facets use one matches(car, q, skip) predicate so counts stay disjunctive
+- [Phase 01]: km-asc sorts cars without mileage last via MAX_SAFE_INTEGER, not Infinity
 
 ### Pending Todos
 
@@ -86,6 +93,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-03T21:21:49.924Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-design-and-stock-browsing/01-CONTEXT.md
+Last session: 2026-11-05T00:22:32.472Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
