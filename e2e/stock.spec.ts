@@ -44,3 +44,49 @@ test("unknown params and bad values are ignored", async ({ page, request }) => {
   await page.goto("/used-cars?sort=bogus&yearFrom=abc&make=%3Cscript%3E&foo=bar");
   expect(await total(page)).toBe(n);
 });
+
+test("header: logo, one link, scrolls away", async ({ page }) => {
+  await page.goto("/used-cars");
+  const header = page.getByRole("banner");
+  await expect(header.getByRole("img", { name: "Cartwright" })).toBeVisible();
+  await expect(header.getByRole("link", { name: "Used cars" })).toHaveAttribute("href", "/used-cars");
+  expect(await header.evaluate((el) => getComputedStyle(el).position)).toMatch(/^(static|relative)$/);
+});
+
+test("every card links to a real car page, unknown slugs 404", async ({ page, request }) => {
+  await page.goto("/used-cars");
+  const n = await total(page);
+  for (let p = 1; p <= Math.ceil(n / PER_PAGE); p++) {
+    await page.goto(`/used-cars?page=${p}`);
+    for (const href of await page.locator("article h2 a").evaluateAll((a) => a.map((x) => x.getAttribute("href")))) {
+      expect(href).toMatch(/^\/used-cars\/[a-z0-9-]+$/);
+      expect((await request.get(href!)).status(), href!).toBe(200);
+    }
+  }
+  expect((await request.get("/used-cars/not-a-car")).status()).toBe(404);
+});
+
+test("a car page shows title, price and a way back", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.locator("article h2 a").first().click();
+  await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByText(/^€[\d,]+$/)).toBeVisible();
+  await page.getByRole("link", { name: "Back to used cars" }).click();
+  await expect(page).toHaveURL(/\/used-cars$/);
+});
+
+test.describe("320px wide", () => {
+  test.use({ viewport: { width: 320, height: 640 } });
+  test("no sideways scroll on the stock page or a car page", async ({ page }) => {
+    for (const path of ["/used-cars", null]) {
+      if (path) await page.goto(path);
+      else {
+        await page.locator("article h2 a").first().click();
+        await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
+      }
+      await page.waitForLoadState("load");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    }
+  });
+});
