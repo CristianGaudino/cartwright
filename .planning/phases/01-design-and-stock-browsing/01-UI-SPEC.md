@@ -19,7 +19,7 @@ Sources: PROJECT.md, REQUIREMENTS.md, ROADMAP.md, `.claude/CLAUDE.md`, issues #2
 
 ## Brand asset (locked)
 
-The logo is the only locked asset. It is not in the repo. Source: `https://www.cartwright.ie/app/uploads/2024/09/logo.png` (PNG, 650 x 270, RGBA, transparent background).
+**Rebrand (owner direction, Phase 2 session): the site name is now Carright.** The logo is the new CR monogram plus the `Carright` wordmark, without the `Quality used cars` subtext, at `public/brand/logo.png` (900 x 205, transparent, red monogram with off-white wordmark, made for dark backgrounds) and the brandmark alone at `public/brand/mark.png` (256 x 176). The logo sits straight on the dark page with no plate. The old Cartwright logo details below are superseded; the brand red stays `#D0111A` for buttons. The logo is the only locked asset. It is not in the repo. Source: `https://www.cartwright.ie/app/uploads/2024/09/logo.png` (PNG, 650 x 270, RGBA, transparent background).
 
 What the file is, measured from its pixels:
 
@@ -89,23 +89,23 @@ Rules: no font size outside this table. Prices use `font-variant-numeric: tabula
 
 ## Color
 
-Light theme only for v1 (default: `color-scheme: light`; dark mode is out of scope and would need its own pass because the logo's wordmark is white). The header and footer are dark by necessity (see Brand asset).
+**Dark theme, site wide (owner direction, Phase 2 session, replaces the earlier light palette).** `color-scheme: dark`. The whole page is ink, so the logo sits on its required background everywhere. Tokens live in `src/app/globals.css`.
 
 | Role | Value | Usage |
 |------|-------|-------|
-| Dominant (60%) | `#F5F5F7` | Page background, results area |
-| Secondary (30%) | `#FFFFFF` | Cards, filter sidebar, filter sheet, inputs, chips (unselected) |
+| Dominant (60%) | `#0E0E10` | Page background, results area |
+| Secondary (30%) | `#1A1A1E` | Cards, filter sidebar, filter sheet, inputs, chips (unselected) |
 | Ink chrome | `#0E0E10` | Header and footer surfaces only (the logo's required background) |
 | Accent (10%) | `#D0111A` | Reserved list below. 5.6:1 on `#FFFFFF`, 5.1:1 on `#F5F5F7`, so white text on it passes AA |
 | Brand red (logo, non-text) | `#ED1C24` | The logo only. It appears nowhere else (no header rule, no decoration). Never body text or a text button fill (4.4:1 with white fails AA) |
-| Text primary | `#111114` | Headings, prices, titles, input text |
-| Text secondary | `#5C5C66` | Meta line, helper text, placeholders (6.6:1 on white, 6.1:1 on `#F5F5F7`) |
+| Text primary | `#F5F5F7` | Headings, prices, titles, input text |
+| Text secondary | `#A1A1AA` | Meta line, helper text, placeholders (7:1 on `#1A1A1E`) |
 | Text on ink | `#FFFFFF` | Header and footer text |
-| Hairline | `#E2E2E6` | Card edge, dividers (decorative, no contrast requirement) |
-| Control border | `#8A8A94` | Input, select and checkbox outlines (3.4:1 on white, meets the 3:1 non-text rule) |
-| Image placeholder | `#E9E9ED` | Reserved image box behind photos while they load |
-| Destructive | `#B42318` | Reserved for destructive actions and form errors in later phases. There are no destructive actions in Phase 1 |
-| Focus ring | `#111114` on light, `#FFFFFF` on ink | 2px ring, 2px offset, on every interactive element |
+| Hairline | `#2C2C32` | Card edge, dividers (decorative, no contrast requirement) |
+| Control border | `#8A8A94` | Input, select and checkbox outlines (5:1 on `#1A1A1E`, meets the 3:1 non-text rule) |
+| Image placeholder | `#26262B` | Reserved image box behind photos while they load |
+| Destructive | `#F97066` | Reserved for destructive actions and form errors in later phases. There are no destructive actions in Phase 1 |
+| Focus ring | `#F5F5F7` | 2px ring, 2px offset, on every interactive element |
 
 Accent reserved for (and nothing else):
 
@@ -201,11 +201,11 @@ Native `<select>`. Options and keys:
 
 ## Listing card
 
-An `<article>` on a white surface, 16px corner radius, hairline border `#E2E2E6`, no shadow at rest. Corner radius scale: card 16px, controls (inputs, selects, buttons, chips use full pill) 12px.
+An `<article>` on a white surface, 16px corner radius, hairline border `#2C2C32`, no shadow at rest. Corner radius scale: card 16px, controls (inputs, selects, buttons, chips use full pill) 12px.
 
 Top to bottom:
 
-1. **Photo area**: fixed `aspect-ratio: 4 / 3`, background `#E9E9ED`, photos `object-fit: cover`. The box is reserved before any image loads, so there is no layout shift.
+1. **Photo area**: fixed `aspect-ratio: 4 / 3`, background `#26262B`, photos `object-fit: cover`. The box is reserved before any image loads, so there is no layout shift.
 2. **Text block**, 16px padding, 4px between lines:
    - Price: Heading, tabular numbers, formatted `€18,950` (locale `en-IE`)
    - Title: Body strong, `{make} {model} {variant}`, clamped to 2 lines
@@ -221,7 +221,7 @@ A 44px slot at the top right of the photo area is reserved for the Phase 3 save 
 - **Dots**: 8px circles, 8px gap, centred 16px from the photo bottom, white on a soft dark shadow (`0 0 2px rgba(0,0,0,.5)`), active dot 100% white, others 55%. Hidden when the car has one photo. Decorative (`aria-hidden`); position tracked from scroll position on `requestAnimationFrame`.
 - **Arrows** (pointer devices only, `@media (hover: hover)`): 44px circular buttons, white at 85% with blur, chevron icon, vertically centred, 8px from each edge, shown on card hover and on `:focus-within`, hidden at the first and last slide. They call `scrollBy` one slide width. Labels: "Previous photo" and "Next photo". On touch devices there are no arrows.
 - **Semantics**: the scroller has `role="group"`, `aria-roledescription="carousel"` and `aria-label="Photos of {year} {make} {model}"`. Each slide has `role="group"`, `aria-roledescription="slide"` and `aria-label="Photo {i} of {n}"`. Image `alt` is `{year} {make} {model}, photo {i} of {n}`.
-- **No photos**: show the `#E9E9ED` box with the text "No photo yet" (Meta, centred). No dots, no arrows.
+- **No photos**: show the `#26262B` box with the text "No photo yet" (Meta, centred). No dots, no arrows.
 - **Image fails to load**: keep the reserved box and show nothing broken (no browser broken-image icon).
 
 ---
