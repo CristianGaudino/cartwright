@@ -101,7 +101,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             </div>
             <div
               data-testid="sticky-bar"
-              className="sticky top-0 z-10 -mx-4 mt-2 flex h-14 items-center justify-between border-t border-white/70 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100 contrast-more:border-text"
+              className="sticky top-0 z-20 -mx-4 mt-2 flex h-14 items-center justify-between border-t border-white/70 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100 contrast-more:border-text"
             >
               <FilterSheet />
               <SortControl className="flex" />

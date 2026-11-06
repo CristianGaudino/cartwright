@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -355,6 +355,20 @@ test.describe("filters on a phone", () => {
   test("one search box", async ({ page }) => {
     await page.goto("/used-cars");
     await expect(search(page)).toHaveCount(1);
+  });
+
+  test("scrolled past the first cards, the sticky bar's Filters and Sort are still what a tap hits, not a photo", async ({ page }) => {
+    await open(page);
+    await page.evaluate(() => window.scrollTo(0, 2500));
+    await expect(page.getByTestId("sticky-bar")).toHaveCSS("position", "sticky");
+    // The tap point of the control must belong to the control itself, not to a photo link painted over it.
+    const hit = (control: Locator) =>
+      control.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2));
+      });
+    expect(await hit(filtersButton(page))).toBe(true);
+    expect(await hit(select(page, "Sort"))).toBe(true);
   });
 
   test("Filters opens the sheet, ticks apply instantly and the button shows the provider's count (BRW-01, BRW-04)", async ({ page }) => {
