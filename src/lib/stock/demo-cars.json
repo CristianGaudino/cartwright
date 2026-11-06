@@ -1,0 +1,2731 @@
+[
+  {
+    "id": "4359693",
+    "slug": "mercedes-benz-g-class-2011-4359693",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "G Class",
+    "modelSlug": "g-class",
+    "year": 2011,
+    "priceEur": 75950,
+    "mileageKm": 177027,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Pickup",
+    "bodySlug": "pickup",
+    "photos": [
+      {
+        "src": "/stock/4359693/1-257de774.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359693/2-81b22bf8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359693/3-121ce2e2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359693/4-89d8e357.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359693/5-192c5484.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359693/6-d38d7717.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359694",
+    "slug": "kia-sportage-2018-4359694",
+    "make": "Kia",
+    "makeSlug": "kia",
+    "model": "Sportage",
+    "modelSlug": "sportage",
+    "variant": "1.7 PLATINUM S",
+    "year": 2018,
+    "priceEur": 15950,
+    "mileageKm": 137999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4359694/1-535168c7.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359694/2-0b3020cd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359694/3-d3322ec2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359694/4-94e92892.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359694/5-a9bfc2a6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359694/6-a70d9e26.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359698",
+    "slug": "porsche-cayenne-2017-4359698",
+    "make": "Porsche",
+    "makeSlug": "porsche",
+    "model": "Cayenne",
+    "modelSlug": "cayenne",
+    "variant": "3.0 S E-HYBRID 4WD AUTO",
+    "year": 2017,
+    "priceEur": 37950,
+    "mileageKm": 157998,
+    "fuel": "plug-in-hybrid",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4359698/1-0975b9f3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359698/2-ac50f21e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359698/3-01700b84.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359698/4-271a6b75.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359698/5-f2624ca3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359698/6-3dd805da.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359715",
+    "slug": "skoda-superb-2020-4359715",
+    "make": "Skoda",
+    "makeSlug": "skoda",
+    "model": "Superb",
+    "modelSlug": "superb",
+    "variant": "Ambition 1.6TDI 120HP DSG",
+    "year": 2020,
+    "priceEur": 21950,
+    "mileageKm": 130998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4359715/1-b311bd08.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359715/2-26492040.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359715/3-9ce7d26a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359715/4-1b21d9c0.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359715/5-fb6f0226.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359715/6-d951074b.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359719",
+    "slug": "audi-q2-2021-4359719",
+    "make": "Audi",
+    "makeSlug": "audi",
+    "model": "Q2",
+    "modelSlug": "q2",
+    "variant": "30 TDI 116HP SE",
+    "year": 2021,
+    "priceEur": 22950,
+    "mileageKm": 105999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4359719/1-3207c11a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359719/2-b7774a8a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359719/3-a4033549.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359719/4-839bbec3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359719/5-ec7f31e3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359719/6-7017ae28.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359727",
+    "slug": "nissan-qashqai-2019-4359727",
+    "make": "Nissan",
+    "makeSlug": "nissan",
+    "model": "Qashqai",
+    "modelSlug": "qashqai",
+    "variant": "1.5 DSL XE",
+    "year": 2019,
+    "priceEur": 15950,
+    "mileageKm": 126999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4359727/1-c7078bac.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359727/2-95449d05.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359727/3-353b7c1a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359727/4-6a08cc86.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359727/5-a63a13d6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359727/6-52103629.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359735",
+    "slug": "volkswagen-tiguan-2021-4359735",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "Tiguan",
+    "modelSlug": "tiguan",
+    "variant": "2.0 TDI 150HP R-Line DSG",
+    "year": 2021,
+    "priceEur": 32950,
+    "mileageKm": 117998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4359735/1-2838edd6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359735/2-9f2c8a47.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359735/3-afe98786.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359735/4-e166d820.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359735/5-40ff0f69.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359735/6-1f5925e6.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4359744",
+    "slug": "renault-clio-2018-4359744",
+    "make": "Renault",
+    "makeSlug": "renault",
+    "model": "Clio",
+    "modelSlug": "clio",
+    "variant": "1.2 16V 75 DYNAMIQUE NAV",
+    "year": 2018,
+    "priceEur": 8950,
+    "mileageKm": 210998,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4359744/1-063f57a3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359744/2-c068779e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359744/3-b5f5f208.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359744/4-b68d4f29.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359744/5-e52277b2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4359744/6-05d3252f.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4381995",
+    "slug": "mercedes-benz-cla-class-2021-4381995",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "CLA Class",
+    "modelSlug": "cla-class",
+    "variant": "CLA200d Coup&eacute; A/T Style",
+    "year": 2021,
+    "priceEur": 28950,
+    "mileageKm": 107798,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4381995/1-fd3d617a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4381995/2-221d8ca3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4381995/3-46ad59e8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4381995/4-877f9ace.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4381995/5-349cd4fb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4381995/6-28ba00ed.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4390543",
+    "slug": "skoda-kodiaq-2022-4390543",
+    "make": "Skoda",
+    "makeSlug": "skoda",
+    "model": "Kodiaq",
+    "modelSlug": "kodiaq",
+    "variant": "2.0 TDI 150HP DSG Style 7 Seat",
+    "year": 2022,
+    "priceEur": 34950,
+    "mileageKm": 131998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4390543/1-95653224.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4390543/2-d27b92b7.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4390543/3-37bf4d85.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4390543/4-b4d5b330.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4390543/5-d686ff63.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4390543/6-2a4e2bd0.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4396311",
+    "slug": "hyundai-tucson-2023-4396311",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "Tucson",
+    "modelSlug": "tucson",
+    "variant": "2WD Comfort Plus",
+    "year": 2023,
+    "priceEur": 26950,
+    "mileageKm": 80999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4396311/1-3b057748.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4396311/2-5c40df28.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4396311/3-c36dc996.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4396311/4-459fb38e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4396311/5-8948cab5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4396311/6-34984d0d.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4401030",
+    "slug": "volkswagen-arteon-2023-4401030",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "Arteon",
+    "modelSlug": "arteon",
+    "variant": "2.0TDI D7F 150HP ELEGANCE",
+    "year": 2023,
+    "priceEur": 27950,
+    "mileageKm": 179798,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4401030/1-5f7479ad.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401030/2-eaa0da9b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401030/3-32758139.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401030/4-a449d9fd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401030/5-c6548b52.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401030/6-1d6a44da.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4401031",
+    "slug": "volkswagen-t-roc-2021-4401031",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "T-Roc",
+    "modelSlug": "t-roc",
+    "variant": "2.0 TDI 115bhp Design",
+    "year": 2021,
+    "priceEur": 22950,
+    "mileageKm": 81999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4401031/1-e486a5ef.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401031/2-38b2fe6d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401031/3-dbc18489.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401031/4-197da0ef.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401031/5-552c9304.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4401031/6-9c0ae788.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4416606",
+    "slug": "vauxhall-insignia-2018-4416606",
+    "make": "Vauxhall",
+    "makeSlug": "vauxhall",
+    "model": "Insignia",
+    "modelSlug": "insignia",
+    "year": 2018,
+    "priceEur": 10950,
+    "mileageKm": 131998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4416606/1-e108ddff.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4416606/2-b9203665.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4416606/3-2a741b34.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4416606/4-8b5827eb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4416606/5-2305ff77.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4416606/6-31850187.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4474487",
+    "slug": "opel-mokka-2017-4474487",
+    "make": "Opel",
+    "makeSlug": "opel",
+    "model": "Mokka",
+    "modelSlug": "mokka",
+    "variant": "SC 1.6 CDTi 136PS Auto",
+    "year": 2017,
+    "priceEur": 10950,
+    "mileageKm": 179998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4474487/1-252cb42a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474487/2-a198f239.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474487/3-9624e96b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474487/4-8b6d2d18.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474487/5-eafa6e1d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474487/6-ce1599a1.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4474493",
+    "slug": "volkswagen-golf-2016-4474493",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "Golf",
+    "modelSlug": "golf",
+    "variant": "1.6 TDI 110 bhp Highline",
+    "year": 2016,
+    "priceEur": 11950,
+    "mileageKm": 198998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4474493/1-c833cf76.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474493/2-b7c9ad51.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474493/3-738121c5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474493/4-aea59698.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474493/5-f321fddd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4474493/6-eda38241.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4486577",
+    "slug": "bmw-ix1-2025-4486577",
+    "make": "BMW",
+    "makeSlug": "bmw",
+    "model": "iX1",
+    "modelSlug": "ix1",
+    "variant": "eDrive20 Sport",
+    "year": 2025,
+    "priceEur": 41950,
+    "mileageKm": 11999,
+    "fuel": "electric",
+    "gearbox": "automatic",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4486577/1-db3ddab4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4486577/2-f0f40034.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4486577/3-199e25d6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4486577/4-54d4b1e2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4486577/5-70393bef.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4486577/6-3f0d0841.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4491477",
+    "slug": "ford-puma-2021-4491477",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Puma",
+    "modelSlug": "puma",
+    "variant": "1.0T EcoBoost mHEV 125PS ST-Line",
+    "year": 2021,
+    "priceEur": 18950,
+    "mileageKm": 55998,
+    "fuel": "hybrid",
+    "gearbox": "manual",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4491477/1-8c56223d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4491477/2-c13c98a5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4491477/3-cab8edfa.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4491477/4-317f755b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4491477/5-5c25fc01.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4491477/6-ff266e84.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4500041",
+    "slug": "hyundai-i40-2014-4500041",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "i40",
+    "modelSlug": "i40",
+    "variant": "Fleet Edition 1.7 Diesel",
+    "year": 2014,
+    "priceEur": 4950,
+    "mileageKm": 258999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4500041/1-e9f77bb4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4500041/2-9a625334.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4500041/3-1d6103dc.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4500041/4-8736f3dd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4500041/5-fc43f8f1.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4500041/6-0e76175f.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4505136",
+    "slug": "hyundai-tucson-2016-4505136",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "Tucson",
+    "modelSlug": "tucson",
+    "variant": "1.7 D Executive",
+    "year": 2016,
+    "priceEur": 8950,
+    "mileageKm": 277999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4505136/1-24e08869.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4505136/2-74f530a0.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4505136/3-56a5024a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4505136/4-95f5d3d3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4505136/5-069a5bb8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4505136/6-60479126.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4508172",
+    "slug": "volkswagen-golf-2021-4508172",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "Golf",
+    "modelSlug": "golf",
+    "variant": "2.0 TDI 115HP Style",
+    "year": 2021,
+    "priceEur": 22950,
+    "mileageKm": 141998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4508172/1-b3df5b3f.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508172/2-66017469.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508172/3-6a00a2e6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508172/4-b4f3a480.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508172/5-dad98816.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508172/6-1d08bc6c.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4508173",
+    "slug": "bmw-3-series-2021-4508173",
+    "make": "BMW",
+    "makeSlug": "bmw",
+    "model": "3 Series",
+    "modelSlug": "3-series",
+    "variant": "318d Sport",
+    "year": 2021,
+    "priceEur": 26950,
+    "mileageKm": 141998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4508173/1-556444c5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508173/2-1a913aa8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508173/3-da70b6b7.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508173/4-4e04cad7.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508173/5-a79ed06c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508173/6-99d8acd3.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4508176",
+    "slug": "volkswagen-golf-2020-4508176",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "Golf",
+    "modelSlug": "golf",
+    "variant": "1.6 TDI 115HP Trendline DSG",
+    "year": 2020,
+    "priceEur": 15950,
+    "mileageKm": 179499,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4508176/1-a94d8877.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508176/2-02fc2814.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508176/3-a69870f9.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508176/4-5287fa9c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508176/5-f045a091.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4508176/6-ef1c2e8a.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4520171",
+    "slug": "hyundai-i20-2017-4520171",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "i20",
+    "modelSlug": "i20",
+    "variant": "1.2 Premium",
+    "year": 2017,
+    "priceEur": 8950,
+    "mileageKm": 222088,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4520171/1-ce08450c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4520171/2-69948861.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4520171/3-e9ee6e48.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4520171/4-35028b4d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4520171/5-dd671115.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4520171/6-016c0976.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4521033",
+    "slug": "tesla-model-3-2022-4521033",
+    "make": "Tesla",
+    "makeSlug": "tesla",
+    "model": "Model 3",
+    "modelSlug": "model-3",
+    "variant": "RWD",
+    "year": 2022,
+    "priceEur": 24950,
+    "mileageKm": 133998,
+    "fuel": "electric",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4521033/1-db8c3227.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4521033/2-31a6cd6b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4521033/3-8173a9b2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4521033/4-1f202754.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4521033/5-7b7592ff.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4521033/6-4a81400b.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4525576",
+    "slug": "renault-clio-2018-4525576",
+    "make": "Renault",
+    "makeSlug": "renault",
+    "model": "Clio",
+    "modelSlug": "clio",
+    "variant": "0.9 TCE 90 DYNAMIQUE S NAV",
+    "year": 2018,
+    "priceEur": 12950,
+    "mileageKm": 57999,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4525576/1-3077a83d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4525576/2-3f461423.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4525576/3-5c1e13f4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4525576/4-bfe715c0.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4525576/5-8b0465f6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4525576/6-e5dd253a.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4527421",
+    "slug": "mercedes-benz-cla-class-2023-4527421",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "CLA Class",
+    "modelSlug": "cla-class",
+    "variant": "CLA200d Coup&eacute; A/T Progressive",
+    "year": 2023,
+    "priceEur": 34950,
+    "mileageKm": 52998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4527421/1-46f6a782.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527421/2-4a394e46.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527421/3-5bbe638d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527421/4-8c81959b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527421/5-474bad61.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527421/6-2bc59e7c.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4527422",
+    "slug": "mini-hatch-2016-4527422",
+    "make": "MINI",
+    "makeSlug": "mini",
+    "model": "Hatch",
+    "modelSlug": "hatch",
+    "variant": "Cooper SD",
+    "year": 2016,
+    "priceEur": 11950,
+    "mileageKm": 106998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4527422/1-64179037.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527422/2-b67a3d0b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527422/3-b81a336c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527422/4-86a65c14.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527422/5-8f965560.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527422/6-554d0b32.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4527424",
+    "slug": "audi-q3-2020-4527424",
+    "make": "Audi",
+    "makeSlug": "audi",
+    "model": "Q3",
+    "modelSlug": "q3",
+    "variant": "35 TFSI 150HP SE",
+    "year": 2020,
+    "priceEur": 22950,
+    "mileageKm": 159498,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4527424/1-03125946.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527424/2-3811737b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527424/3-bccee6de.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527424/4-a7c05fe4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527424/5-597a8e5c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4527424/6-2f1d3869.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4532457",
+    "slug": "nissan-qashqai-2018-4532457",
+    "make": "Nissan",
+    "makeSlug": "nissan",
+    "model": "Qashqai",
+    "modelSlug": "qashqai",
+    "variant": "1.5 DSL SV",
+    "year": 2018,
+    "priceEur": 12950,
+    "mileageKm": 185074,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4532457/1-2311f709.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532457/2-6b169007.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532457/3-7c3c3219.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532457/4-70794408.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532457/5-a61367f0.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532457/6-03ad4b32.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4532458",
+    "slug": "volvo-v40-2014-4532458",
+    "make": "Volvo",
+    "makeSlug": "volvo",
+    "model": "V40",
+    "modelSlug": "v40",
+    "variant": "1.6 D2 (115hp) ES",
+    "year": 2014,
+    "priceEur": 6950,
+    "mileageKm": 230998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4532458/1-835326d2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532458/2-d8cbbf3b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532458/3-39b683f9.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532458/4-7c0678c5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532458/5-1ef03684.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4532458/6-f439e125.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4538565",
+    "slug": "ford-edge-2018-4538565",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Edge",
+    "modelSlug": "edge",
+    "variant": "2.0 TDCi 180PS AWD Titanium",
+    "year": 2018,
+    "priceEur": 14950,
+    "mileageKm": 220479,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4538565/1-ae399c1b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4538565/2-f1e526cd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4538565/3-2719506b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4538565/4-8f9b9fe6.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4538565/5-4ea83602.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4538565/6-f199c763.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4540223",
+    "slug": "bmw-5-series-1985-4540223",
+    "make": "BMW",
+    "makeSlug": "bmw",
+    "model": "5 Series",
+    "modelSlug": "5-series",
+    "year": 1985,
+    "priceEur": 14950,
+    "mileageKm": 321868,
+    "fuel": "petrol",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4540223/1-737d5190.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4540223/2-c857c0db.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4540223/3-106a3377.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4540223/4-7d12520a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4540223/5-21bae03d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4540223/6-1135efe5.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4542452",
+    "slug": "nissan-x-trail-2020-4542452",
+    "make": "Nissan",
+    "makeSlug": "nissan",
+    "model": "X-Trail",
+    "modelSlug": "x-trail",
+    "variant": "1.7 DCI SVE 7 Seats",
+    "year": 2020,
+    "priceEur": 25950,
+    "mileageKm": 79998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4542452/1-6933016a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4542452/2-27961b31.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4542452/3-b067fe28.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4542452/4-ccf32bfb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4542452/5-2a8c404b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4542452/6-9b104ce6.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4549696",
+    "slug": "kia-ev6-2023-4549696",
+    "make": "Kia",
+    "makeSlug": "kia",
+    "model": "EV6",
+    "modelSlug": "ev6",
+    "variant": "EV6 GT-Line",
+    "year": 2023,
+    "priceEur": 26950,
+    "mileageKm": 145999,
+    "fuel": "electric",
+    "gearbox": "automatic",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4549696/1-994feff5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4549696/2-ee932762.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4549696/3-6e4ac59f.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4549696/4-dca254ed.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4549696/5-cff77804.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4549696/6-756af5ea.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4551314",
+    "slug": "mercedes-benz-e-class-2017-4551314",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "E Class",
+    "modelSlug": "e-class",
+    "variant": "Mercedes-AMG E 63 S 4MATIC",
+    "year": 2017,
+    "priceEur": 73950,
+    "mileageKm": 85998,
+    "fuel": "petrol",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4551314/1-fef207bc.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551314/2-6eefb8e4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551314/3-d09fd4f7.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551314/4-594d2c77.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551314/5-1e12f6ce.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551314/6-07cc083e.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4551316",
+    "slug": "ford-mondeo-2021-4551316",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Mondeo",
+    "modelSlug": "mondeo",
+    "variant": "2.0L EcoBlue 150PS Titanium",
+    "year": 2021,
+    "priceEur": 18950,
+    "mileageKm": 164999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Estate",
+    "bodySlug": "estate",
+    "photos": [
+      {
+        "src": "/stock/4551316/1-f493f1ac.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551316/2-84f9a45a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551316/3-b3c23d6c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551316/4-72f09cbe.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551316/5-2b7680d2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4551316/6-2b88b080.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4560180",
+    "slug": "peugeot-3008-2022-4560180",
+    "make": "Peugeot",
+    "makeSlug": "peugeot",
+    "model": "3008",
+    "modelSlug": "3008",
+    "variant": "1.5 BlueHDi 130bhp Allure Auto",
+    "year": 2022,
+    "priceEur": 26950,
+    "mileageKm": 70371,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4560180/1-9e6f6359.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4560180/2-01802ce8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4560180/3-5c9891d8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4560180/4-ebe1880b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4560180/5-771d3789.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4560180/6-f5c6d00a.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4561065",
+    "slug": "skoda-kodiaq-2018-4561065",
+    "make": "Skoda",
+    "makeSlug": "skoda",
+    "model": "Kodiaq",
+    "modelSlug": "kodiaq",
+    "variant": "2.0 TDI 150HP 4X4 Ambition 7 Seat",
+    "year": 2018,
+    "priceEur": 22950,
+    "mileageKm": 184998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4561065/1-f4c42a75.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4561065/2-e3e75f79.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4561065/3-56acbb91.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4561065/4-c8fd9397.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4561065/5-73bc597f.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4561065/6-78ab728d.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4567197",
+    "slug": "mazda-cx-5-2017-4567197",
+    "make": "Mazda",
+    "makeSlug": "mazda",
+    "model": "CX-5",
+    "modelSlug": "cx-5",
+    "variant": "2.2D (150ps) EXECUTIVE SE 6AT 2WD",
+    "year": 2017,
+    "priceEur": 12950,
+    "mileageKm": 127998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4567197/1-4b7061ed.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4567197/2-7b226b9e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4567197/3-08e61311.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4567197/4-c5a105a4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4567197/5-7fd7190a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4567197/6-3b389ff8.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4570970",
+    "slug": "kia-sorento-2018-4570970",
+    "make": "Kia",
+    "makeSlug": "kia",
+    "model": "Sorento",
+    "modelSlug": "sorento",
+    "variant": "2.2 GT Line 4x4 A/T",
+    "year": 2018,
+    "priceEur": 25950,
+    "mileageKm": 164999,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4570970/1-c8d4d104.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4570970/2-270d1389.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4570970/3-b1793ba3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4570970/4-bc13e8c9.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4570970/5-adb57000.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4570970/6-2061125e.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4574696",
+    "slug": "hyundai-tucson-2017-4574696",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "Tucson",
+    "modelSlug": "tucson",
+    "variant": "1.7 D Executive 2WD DCT",
+    "year": 2017,
+    "priceEur": 12950,
+    "mileageKm": 197998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4574696/1-621b06dc.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4574696/2-834f2557.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4574696/3-ccae06d3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4574696/4-1a03fc85.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4574696/5-f2c716e5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4574696/6-a4ec08b3.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4575040",
+    "slug": "renault-clio-2018-4575040",
+    "make": "Renault",
+    "makeSlug": "renault",
+    "model": "Clio",
+    "modelSlug": "clio",
+    "variant": "0.9 TCE 90 DYNAMIQUE NAV",
+    "year": 2018,
+    "priceEur": 10950,
+    "mileageKm": 81999,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4575040/1-d4d2c75b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575040/2-3f605e56.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575040/3-9cfbe60b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575040/4-be2219a4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575040/5-09eec337.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575040/6-174b6ccd.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4575793",
+    "slug": "hyundai-i40-2014-4575793",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "i40",
+    "modelSlug": "i40",
+    "variant": "Fleet Edition 1.7 Diesel",
+    "year": 2014,
+    "priceEur": 5950,
+    "mileageKm": 255885,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4575793/1-438abf62.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575793/2-67109057.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575793/3-107ed890.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575793/4-57befefb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575793/5-b904d08a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4575793/6-16f02183.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4576293",
+    "slug": "land-rover-range-rover-2013-4576293",
+    "make": "Land Rover",
+    "makeSlug": "land-rover",
+    "model": "Range Rover",
+    "modelSlug": "range-rover",
+    "variant": "TDV6 3.0",
+    "year": 2013,
+    "priceEur": 24950,
+    "mileageKm": 172999,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "SUV",
+    "bodySlug": "suv",
+    "photos": [
+      {
+        "src": "/stock/4576293/1-b8187488.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4576293/2-88e84852.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4576293/3-0f484ace.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4576293/4-f96672aa.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4576293/5-30bb09cf.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4576293/6-07d1e787.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4578723",
+    "slug": "mercedes-benz-e-class-2015-4578723",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "E Class",
+    "modelSlug": "e-class",
+    "variant": "E350 BLUETEC COUPE AMG SPORT AUTO",
+    "year": 2015,
+    "priceEur": 14950,
+    "mileageKm": 211998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4578723/1-9cd69bc5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4578723/2-6f876980.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4578723/3-454096b8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4578723/4-7a38a227.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4578723/5-22c9e3c8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4578723/6-9f712dc1.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4581175",
+    "slug": "ford-mustang-2005-4581175",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Mustang",
+    "modelSlug": "mustang",
+    "year": 2005,
+    "priceEur": 69950,
+    "mileageKm": 70810,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Coupe",
+    "bodySlug": "coupe",
+    "photos": [
+      {
+        "src": "/stock/4581175/1-fa9ba71b.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581175/2-96fab227.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581175/3-97b3999d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581175/4-04276edb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581175/5-ed19968e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581175/6-bd0f9e80.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4581649",
+    "slug": "ford-escort-1975-4581649",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Escort",
+    "modelSlug": "escort",
+    "year": 1975,
+    "priceEur": 39950,
+    "mileageKm": 999,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4581649/1-a1b8d64f.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581649/2-1c42af2c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581649/3-9c104e46.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581649/4-a04884c3.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581649/5-5d4ef369.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581649/6-04a9392f.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4581650",
+    "slug": "porsche-911-1984-4581650",
+    "make": "Porsche",
+    "makeSlug": "porsche",
+    "model": "911",
+    "modelSlug": "911",
+    "year": 1984,
+    "priceEur": 84950,
+    "mileageKm": 220479,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Coupe",
+    "bodySlug": "coupe",
+    "photos": [
+      {
+        "src": "/stock/4581650/1-954efe61.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581650/2-6890ad2f.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581650/3-3b88f4bb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581650/4-df0563d0.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581650/5-527a0d27.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4581650/6-38241a17.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4582396",
+    "slug": "seat-ibiza-2013-4582396",
+    "make": "SEAT",
+    "makeSlug": "seat",
+    "model": "Ibiza",
+    "modelSlug": "ibiza",
+    "variant": "SC 1.2 TDI 75hp SE",
+    "year": 2013,
+    "priceEur": 5950,
+    "mileageKm": 186998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4582396/1-08bab1df.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4582396/2-4958312d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4582396/3-1fc2dbb8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4582396/4-c4b2b62e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4582396/5-405d0005.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4582396/6-ec84764a.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4583027",
+    "slug": "opel-astra-2018-4583027",
+    "make": "Opel",
+    "makeSlug": "opel",
+    "model": "Astra",
+    "modelSlug": "astra",
+    "year": 2018,
+    "priceEur": 10950,
+    "mileageKm": 161999,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4583027/1-576b5438.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4583027/2-bf83d19d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4583027/3-3cbdc70a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4583027/4-a0efeaa5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4583027/5-962ab5d5.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4583027/6-5c9d71be.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4584665",
+    "slug": "dacia-sandero-stepway-2015-4584665",
+    "make": "Dacia",
+    "makeSlug": "dacia",
+    "model": "Sandero Stepway",
+    "modelSlug": "sandero-stepway",
+    "variant": "1.5 dCi 90 ALTERNATIVE",
+    "year": 2015,
+    "priceEur": 5950,
+    "mileageKm": 178998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4584665/1-44bbfb94.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584665/2-28474812.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584665/3-1a791de2.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584665/4-a5ac2e69.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584665/5-dd23e020.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584665/6-c21cd5ba.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4584666",
+    "slug": "volkswagen-up-2016-4584666",
+    "make": "Volkswagen",
+    "makeSlug": "volkswagen",
+    "model": "up!",
+    "modelSlug": "up",
+    "variant": "1.0 75BHP MOVE UP",
+    "year": 2016,
+    "priceEur": 7950,
+    "mileageKm": 61999,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4584666/1-3ef85fe1.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584666/2-c5227d76.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584666/3-c82de649.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584666/4-bf8671bd.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584666/5-4cde1915.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4584666/6-b794adbc.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4586538",
+    "slug": "toyota-proace-2018-4586538",
+    "make": "Toyota",
+    "makeSlug": "toyota",
+    "model": "Proace",
+    "modelSlug": "proace",
+    "variant": "2.0 D-4D MWB Proace Verso Shuttle",
+    "year": 2018,
+    "priceEur": 17950,
+    "mileageKm": 284998,
+    "fuel": "diesel",
+    "gearbox": "manual",
+    "bodyType": "MPV",
+    "bodySlug": "mpv",
+    "photos": [
+      {
+        "src": "/stock/4586538/1-75cf88a9.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4586538/2-647a3562.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4586538/3-a7070b84.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4586538/4-2001cf94.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4586538/5-83debd20.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4586538/6-cd410e66.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4591224",
+    "slug": "mercedes-benz-c-class-2018-4591224",
+    "make": "Mercedes-Benz",
+    "makeSlug": "mercedes-benz",
+    "model": "C Class",
+    "modelSlug": "c-class",
+    "variant": "C 220 D AMG A/T",
+    "year": 2018,
+    "priceEur": 22950,
+    "mileageKm": 108998,
+    "fuel": "diesel",
+    "gearbox": "automatic",
+    "bodyType": "Saloon",
+    "bodySlug": "saloon",
+    "photos": [
+      {
+        "src": "/stock/4591224/1-3f57e33e.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4591224/2-1286a304.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4591224/3-fd588280.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4591224/4-5dc484e4.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4591224/5-422eac1a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4591224/6-fff44134.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4593437",
+    "slug": "ford-focus-2019-4593437",
+    "make": "Ford",
+    "makeSlug": "ford",
+    "model": "Focus",
+    "modelSlug": "focus",
+    "variant": "1.0 Ecoboost 125PS Titanium",
+    "year": 2019,
+    "priceEur": 13950,
+    "mileageKm": 129999,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4593437/1-61ffcf72.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4593437/2-7fafe509.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4593437/3-fb1f003d.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4593437/4-00ba2776.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4593437/5-50c070bb.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4593437/6-46d19a7a.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  },
+  {
+    "id": "4594198",
+    "slug": "hyundai-i30-2023-4594198",
+    "make": "Hyundai",
+    "makeSlug": "hyundai",
+    "model": "i30",
+    "modelSlug": "i30",
+    "variant": "Petrol Deluxe NLine",
+    "year": 2023,
+    "priceEur": 21950,
+    "mileageKm": 93998,
+    "fuel": "petrol",
+    "gearbox": "manual",
+    "bodyType": "Hatchback",
+    "bodySlug": "hatchback",
+    "photos": [
+      {
+        "src": "/stock/4594198/1-450f439a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4594198/2-52d58b40.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4594198/3-2aa9966a.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4594198/4-1f3ff03c.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4594198/5-1b8553c8.webp",
+        "width": 900,
+        "height": 675
+      },
+      {
+        "src": "/stock/4594198/6-11707cdc.webp",
+        "width": 900,
+        "height": 675
+      }
+    ]
+  }
+]

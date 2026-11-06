@@ -1,1 +1,161 @@
 @import "tailwindcss";
+
+/* UI-SPEC tokens. Resetting the default sizes and weights makes "no font size outside the table" a build-time fact. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --text-*: initial;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.01em;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5;
+  --text-heading: 1.25rem;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.01em;
+  --text-display: 2rem;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+
+  --color-surface: #f5f5f7;
+  --color-card: #ffffff;
+  --color-ink: #0e0e10;
+  --color-accent: #d0111a;
+  --color-text: #111114;
+  --color-text-2: #5c5c66;
+  --color-hairline: #e2e2e6;
+  --color-control: #8a8a94;
+  --color-photo-bg: #e9e9ed;
+  --color-destructive: #b42318;
+
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
+  --shadow-lift: 0 8px 24px rgb(17 17 20 / 0.08);
+
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
+
+@layer base {
+  html {
+    color-scheme: light;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-optical-sizing: auto;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+}
+
+/* Filter sheet (01-08): a native modal dialog docked to the bottom edge. Header and footer stay put, the body scrolls. */
+dialog.sheet {
+  inset: auto 0 0 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  max-width: none;
+  max-height: 90dvh;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--color-card);
+  color: var(--color-text);
+}
+
+dialog.sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+body:has(dialog.sheet[open]) {
+  overflow: hidden;
+}
+
+/* Motion (UI-SPEC): slide on transform both ways, scrim fades with it. Transitions, not keyframes, so a reversal mid-way follows from the current position. */
+dialog.sheet {
+  transform: translateY(100%);
+  transition:
+    transform 320ms var(--ease-sheet),
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+dialog.sheet[open] {
+  transform: translateY(0);
+}
+
+@starting-style {
+  dialog.sheet[open] {
+    transform: translateY(100%);
+  }
+}
+
+dialog.sheet::backdrop {
+  background-color: rgb(14 14 16 / 0);
+  transition:
+    background-color 320ms ease,
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+dialog.sheet[open]::backdrop {
+  background-color: rgb(14 14 16 / 0.4);
+}
+
+@starting-style {
+  dialog.sheet[open]::backdrop {
+    background-color: rgb(14 14 16 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.sheet,
+  dialog.sheet[open] {
+    transform: none;
+  }
+
+  dialog.sheet {
+    opacity: 0;
+    transition:
+      opacity 150ms linear,
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+
+  dialog.sheet[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    dialog.sheet[open] {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  dialog.sheet::backdrop {
+    transition-duration: 150ms;
+  }
+}
+
+/* Nothing in the sheet is translucent when asked; the scrim stays, it is a dimmer, not a material. */
+@media (prefers-reduced-transparency: reduce) {
+  dialog.sheet {
+    background: var(--color-card);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  dialog.sheet {
+    border: 1px solid var(--color-text);
+  }
+}

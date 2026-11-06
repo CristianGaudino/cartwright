@@ -44,6 +44,9 @@ next-env.d.ts
 !.env.example
 .dev.vars
 
+# Demo stock scraper cache (also ignores itself)
+/.stock-cache/
+
 # Cloudflare Workers build output (OpenNext) and Wrangler state
 /.open-next/
 /.wrangler/
