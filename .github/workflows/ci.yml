@@ -57,7 +57,11 @@ jobs:
           slug=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).slug")
           photo=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).photos[0].src")
           expired=$(node -p "require('./src/lib/stock/demo-cars.json').filter(c => c.soldAt).sort((a, b) => Date.parse(a.soldAt) - Date.parse(b.soldAt))[0].slug")
-          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404"; do
+          # Landing pages of the live car: its make, its body type (first live car that has one) and its make and model.
+          make=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).makeSlug")
+          model=$(node -p "const c = require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt); c.makeSlug + '/' + c.modelSlug")
+          body=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt && c.bodySlug).bodySlug")
+          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404"; do
             set -- $case
             got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1") || true # bash -e: a Worker that never started must not skip the wrangler.log dump below
             echo "$1: $got (want $2)"
@@ -69,6 +73,7 @@ jobs:
           code=$(curl -s -o sitemap.xml -w '%{http_code}' --max-time 60 http://127.0.0.1:8787/sitemap.xml) || true
           echo "/sitemap.xml: $code (want 200)"
           if [ "$code" != 200 ] || ! grep -q "https://carright.cgaudino.com/used-cars/$slug" sitemap.xml; then echo 'the sitemap does not list the live car'; fail=1; fi
+          grep -q "https://carright.cgaudino.com/used-cars/$make<" sitemap.xml || { echo 'the sitemap does not list the live make page'; fail=1; }
           curl -s --max-time 60 http://127.0.0.1:8787/robots.txt | grep -q 'Sitemap:' || { echo 'robots.txt has no Sitemap line'; fail=1; }
           # Pitfall 1: APP_ENV=production is inlined at build, so a live car page must not be noindex on the Worker.
           if curl -s --max-time 60 "http://127.0.0.1:8787/used-cars/$slug" | grep -qi noindex; then echo "the live car page is noindex on the Worker"; fail=1; fi
