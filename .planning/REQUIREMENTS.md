@@ -13,31 +13,32 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Design
 
-- [ ] **DES-01**: A design contract (UI-SPEC.md) defines palette, type, motion and layout as a modern identity around the locked logo, made with the apple-design skill (#2)
+- [x] **DES-01**: A design contract (UI-SPEC.md) defines palette, type, motion and layout as a modern identity around the locked logo, made with the apple-design skill (#2)
 
 ### Stock data
 
-- [ ] **STK-01**: A `StockProvider` interface returns cars, one car by id/slug, and filter facets with counts (#3)
-- [ ] **STK-02**: A file-backed provider serves generated demo cars, each with several images (#3)
-- [ ] **STK-03**: A second `StockProvider` can be added without changing pages (CarsIreland/Carsie, #16)
-- [ ] **STK-04**: Investigation of CarsIreland / Carsie feed, auth, rate limits and terms is written up; a provider is built only if access exists (#16)
+- [x] **STK-01**: A `StockProvider` interface returns cars, one car by id/slug, and filter facets with counts (#3)
+- [x] **STK-02**: A file-backed provider serves generated demo cars, each with several images (#3)
+- [x] **STK-03**: A second `StockProvider` can be added without changing pages (CarsIreland/Carsie, #16)
+- [x] **STK-04**: Investigation of CarsIreland / Carsie feed, auth, rate limits and terms is written up; a provider is built only if access exists (#16)
 
 ### Stock browsing
 
-- [ ] **BRW-01**: User can search and filter stock by make, model, year range, budget, body type, fuel, transmission and mileage (#4)
-- [ ] **BRW-02**: User can sort stock (#4)
-- [ ] **BRW-03**: Filter and sort state lives in the URL, so a search can be shared (#4)
-- [ ] **BRW-04**: Filters show per-brand counts (#4)
-- [ ] **BRW-05**: Each listing card shows several images in a carousel, swipeable on mobile, lazy loaded, with no layout shift (#5)
+- [x] **BRW-01**: User can search and filter stock by make, model, year range, budget, body type, fuel, transmission and mileage (#4)
+- [x] **BRW-02**: User can sort stock (#4)
+- [x] **BRW-03**: Filter and sort state lives in the URL, so a search can be shared (#4)
+- [x] **BRW-04**: Filters show per-brand counts (#4)
+- [x] **BRW-05**: Each listing card shows several images in a carousel, swipeable on mobile, lazy loaded, with no layout shift (#5)
 
 ### Car pages
 
 - [ ] **CAR-01**: Each car has its own URL with gallery and spec table (#6)
-- [ ] **CAR-02**: A sold or removed car returns 410 or redirects (#6)
+- [ ] **CAR-02**: A removed car returns 410 or redirects. A sold car stays visible for a set period (see CAR-07), then returns 410 or redirects (#6)
 - [ ] **CAR-03**: Car pages have canonical URLs, are in the sitemap, and carry `Vehicle`/`Offer` JSON-LD (#6)
 - [ ] **CAR-04**: User can share a car with the native share sheet or a WhatsApp button (#7)
 - [ ] **CAR-05**: Each car has a generated OG image with photo, name and price that previews correctly in WhatsApp, iMessage and Facebook (#7)
 - [ ] **CAR-06**: Make, body-type and make+model landing pages exist (e.g. /used-cars/audi, /used-cars/suv) with unique metadata and copy, an empty state, internal links and sitemap entries (#8)
+- [ ] **CAR-07**: When the dealer marks a car sold, it stays on the site for a set period, clearly labelled Sold, so new visitors see what stock to expect. The period is one setting, to confirm with the dealer. Sold cars cannot be enquired about, booked or reserved, stay out of the default stock list unless the buyer opts in, and keep their page until the period ends (#6)
 
 ### Saved cars
 
@@ -92,6 +93,7 @@ Backlog, paid enhancements. Tracked but not in the current roadmap.
 - **ANA-03**: Analytics: funnel and drop-off (#23)
 - **ANA-04**: Analytics: lead conversion and attribution (#24)
 - **ADM-02**: Admin extras, to scope (#25)
+- **SOC-02**: Admin generates and auto-posts Instagram and Facebook posts and ads for a car, with monthly usage tracking and billing (#32)
 
 ## Out of Scope
 
@@ -109,22 +111,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FND-01 | Phase 0 (foundation, done before this roadmap) | Complete |
-| DES-01 | Phase 1 | Pending |
-| STK-01 | Phase 1 | Pending |
-| STK-02 | Phase 1 | Pending |
-| STK-03 | Phase 1 | Pending |
-| STK-04 | Phase 1 | Pending |
-| BRW-01 | Phase 1 | Pending |
-| BRW-02 | Phase 1 | Pending |
-| BRW-03 | Phase 1 | Pending |
-| BRW-04 | Phase 1 | Pending |
-| BRW-05 | Phase 1 | Pending |
+| DES-01 | Phase 1 | Complete |
+| STK-01 | Phase 1 | Complete |
+| STK-02 | Phase 1 | Complete |
+| STK-03 | Phase 1 | Complete |
+| STK-04 | Phase 1 | Complete |
+| BRW-01 | Phase 1 | Complete |
+| BRW-02 | Phase 1 | Complete |
+| BRW-03 | Phase 1 | Complete |
+| BRW-04 | Phase 1 | Complete |
+| BRW-05 | Phase 1 | Complete |
 | CAR-01 | Phase 2 | Pending |
 | CAR-02 | Phase 2 | Pending |
 | CAR-03 | Phase 2 | Pending |
 | CAR-04 | Phase 2 | Pending |
 | CAR-05 | Phase 2 | Pending |
 | CAR-06 | Phase 2 | Pending |
+| CAR-07 | Phase 2 | Pending |
 | LED-01 | Phase 3 | Pending |
 | LED-02 | Phase 3 | Pending |
 | LED-03 | Phase 3 | Pending |
@@ -149,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QLT-04 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 39 (38 across Phases 1-5, plus FND-01 already complete)
+- v1 requirements: 40 total
+- Mapped to phases: 40 (39 across Phases 1-5, plus FND-01 already complete)
 - Unmapped: 0
 
 ---
