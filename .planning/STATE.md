@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-11-06T23:18:32.012Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-11-06T23:31:06.594Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: b91cb38048a6ad4832a09a33d7630f1539761b6d
+state_head: 8f8032cc748430729720640d1e314b26ad8337b3
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 18
+  completed_plans: 19
   percent: 0
 ---
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P06 | 25 min | 2 tasks | 6 files |
 | Phase 01 P08 | 40min | 2 tasks | 4 files |
 | Phase 03 P01 | 35m | 3 tasks | 3 files |
+| Phase 03 P04 | 50m | 2 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-06: chips row hides its Clear all filters when the result is empty (the empty state carries it); facet options use aria-disabled so they stay focusable
 - [Phase 01]: 01-08: the sheet's primary button reads summary.total, which only changes when a result lands, so it keeps the last count while pending
 - [Phase 03]: Photo transport is action-formdata (photos in the lead server action FormData; 15 MB picked, 4 MB stored, 16 MB per request, 12 files, 18mb body cap). Overnight default, logged on #47
+- [Phase 03]: Packages approved against vintage's lockfile (same version and sha512) because 03-02 is not done
+- [Phase 03]: A sold or unknown car refuses the lead with failed/server and logs outcome invalid, not error
+- [Phase 03]: A markNotified failure after a sent email counts as notify_failed
 
 ### Pending Todos
 
@@ -113,6 +117,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-06T23:18:31.939Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-11-06T23:30:57.325Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
