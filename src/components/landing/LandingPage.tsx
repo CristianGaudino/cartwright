@@ -67,7 +67,7 @@ const toPage = (o: FacetOption) => `/used-cars/${o.value}`;
 const toModel = (o: FacetOption) => `/used-cars/${o.parent}/${o.value}`; // model options carry their makeSlug
 
 export function LandingPage({ data }: { data: LandingData }) {
-  const { landing, cars, facts, facets } = data;
+  const { landing, cars, facts, facets, sold } = data;
   const name = landingName(landing);
   const shown = cars.slice(0, SHOWN);
   return (
@@ -100,6 +100,30 @@ export function LandingPage({ data }: { data: LandingData }) {
             </Link>
           )}
           {landing.kind === "make" && <LinkChips heading="Body types" options={facets.body} href={toPage} />}
+        </>
+      )}
+      {!facts && (
+        <>
+          <h2 className="mt-4 text-heading font-semibold">No {name} in stock right now</h2>
+          <p className="mt-2 max-w-[65ch] text-body">Have a look at these instead.</p>
+          {landing.kind === "body" ? (
+            <LinkChips heading="Body types in stock" options={facets.body} href={toPage} />
+          ) : (
+            <LinkChips heading="Makes in stock" options={facets.make} href={toPage} />
+          )}
+          {sold.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-heading font-semibold">Recently sold {name}</h2>
+              <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {sold.map((car) => (
+                  <ListingCard key={car.id} car={car} priority={false} />
+                ))}
+              </div>
+            </section>
+          )}
+          <Link href="/used-cars" className={`mt-8 bg-accent text-white ${button}`}>
+            See all used cars
+          </Link>
         </>
       )}
     </main>
