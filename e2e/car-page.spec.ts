@@ -67,6 +67,54 @@ test.describe("a sold car", () => {
   });
 });
 
+type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
+const rich = (cars as Rich[]).find((c) => !c.soldAt && c.features?.length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT expires", "Max speed", "0 to 62 mph"];
+const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
+
+test.describe("the sections below the buy box", () => {
+  test.skip(!rich, "No in-stock demo car has more than 12 features, a max speed and a multi-line description");
+
+  test("Specifications show present rows in order, with no tax row and a max speed in mph", async ({ page }) => {
+    await page.goto(`/used-cars/${rich!.slug}`);
+    const spec = section(page, "Specifications");
+    const labels = await spec.locator("dt").allTextContents();
+    const values = await spec.locator("dd").allTextContents();
+    expect(labels.length).toBe(values.length);
+    expect(labels.map((l) => ORDER.indexOf(l))).toEqual(labels.map((l) => ORDER.indexOf(l)).sort((a, b) => a - b));
+    for (const l of labels) expect(ORDER).toContain(l);
+    for (const v of values) expect(v.trim()).not.toMatch(/^$|undefined/);
+    expect(labels.some((l) => /tax/i.test(l))).toBe(false);
+    expect(values[labels.indexOf("Max speed")]).toMatch(/ mph$/);
+  });
+
+  test("Equipment shows 12 items, then all of them behind Show all", async ({ page }) => {
+    await page.goto(`/used-cars/${rich!.slug}`);
+    const n = rich!.features.length;
+    const items = section(page, "Equipment").locator("li:visible");
+    await expect(items).toHaveCount(12);
+    await section(page, "Equipment").getByText(`Show all ${n}`).click();
+    await expect(items).toHaveCount(n);
+    await expect(section(page, "Equipment").getByText("Show fewer")).toBeVisible();
+  });
+
+  test("About this car keeps the dealer's line breaks", async ({ page }) => {
+    await page.goto(`/used-cars/${rich!.slug}`);
+    expect(await section(page, "About this car").locator("p").innerText()).toContain("\n");
+  });
+
+  test("Similar cars shows 1 to 3 other cars, and the page has one h1 and h2 sections", async ({ page }) => {
+    await page.goto(`/used-cars/${rich!.slug}`);
+    const cards = section(page, "Similar cars").locator("article");
+    const n = await cards.count();
+    expect(n).toBeGreaterThanOrEqual(1);
+    expect(n).toBeLessThanOrEqual(3);
+    for (const href of await cards.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")))) expect(href).not.toBe(`/used-cars/${rich!.slug}`);
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 2, name: "Specifications" })).toBeVisible();
+  });
+});
+
 test("an unknown slug is a real 404", async ({ request }) => {
   expect((await request.get("/used-cars/not-a-car")).status()).toBe(404);
 });
