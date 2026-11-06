@@ -30,6 +30,15 @@ const PHOTO_W = 900;
 const PHOTO_H = 675;
 const MAX_PHOTOS = 6;
 const MIN_PHOTOS = 3;
+// Demo sold cars: id -> days before the build day. Sale dates are relative so the demo shows sold cars whenever it is built
+// (re-run `build` before a pitch); tests pin their own clock. Every id must be among the built cars.
+const SOLD_DAYS_AGO = {
+  4521033: 4, // Tesla, the only one: a make with just a recently sold car
+  4491477: 1, // Ford, lowest id: sold, make still has stock
+  4359735: 9, // Volkswagen, lowest id: sold, make still has stock
+  4532458: 120, // Volvo, the only one: expired, make with no car at all
+  4396311: 45, // Hyundai, lowest id: expired, make still has stock
+};
 
 const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report]";
 const [cmd, ...rest] = process.argv.slice(2);
@@ -225,7 +234,9 @@ async function buildCmd() {
   const unmappedFuel = [];
   const cars = [];
   const files = []; // [path, buffer]
-  const maxYear = new Date().getFullYear() + 1;
+  const today = new Date();
+  const maxYear = today.getFullYear() + 1;
+  const soldAt = (id) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
 
   for (const l of select(listings.map((x) => ({ ...x, id: String(x.id) })))) {
     const skip = (reason) => skipped.push({ id: l.id, reason });
@@ -262,10 +273,11 @@ async function buildCmd() {
     cars.push(Object.fromEntries(Object.entries({
       id: l.id, slug: `${makeSlug}-${modelSlug}-${year}-${l.id}`, make, makeSlug, model, modelSlug, variant, year, priceEur,
       mileageKm: kms ? parseInt(kms[1].replace(/,/g, ""), 10) : undefined,
-      fuel, gearbox: mapGearbox(clean(s.transmission)), bodyType, bodySlug: bodyType ? slugify(bodyType) : undefined, photos,
+      fuel, gearbox: mapGearbox(clean(s.transmission)), bodyType, bodySlug: bodyType ? slugify(bodyType) : undefined, photos, soldAt: soldAt(l.id),
     }).filter(([, v]) => v !== undefined)));
   }
 
+  for (const id of Object.keys(SOLD_DAYS_AGO)) if (!cars.some((c) => c.id === id)) throw new Error(`SOLD_DAYS_AGO names ${id}, which is not among the built cars`);
   cars.sort((a, b) => Number(a.id) - Number(b.id));
   rmSync(OUT_PHOTOS, { recursive: true, force: true }); // no stale file survives (Pitfall 5)
   for (const [p, buf] of files) writeCache(p, buf);

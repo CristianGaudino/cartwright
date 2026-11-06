@@ -1,4 +1,4 @@
-import { FUEL_LABELS, GEARBOX_LABELS } from "./types";
+import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 
 // Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën".
@@ -17,13 +17,18 @@ const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
 
 type Pick = (c: Car) => { value: string; label: string; parent?: string } | undefined;
 
-export function createFileProvider(input: Car[]): StockProvider {
+export function createFileProvider(input: Car[], { now = () => new Date() }: { now?: () => Date } = {}): StockProvider {
   const cars = [...input].sort((a, b) => Number(b.id) - Number(a.id));
   const bySlug = new Map(cars.map((c) => [c.slug, c]));
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.
   const searchText = new Map(cars.map((c) => [c.id, fold(`${c.make} ${c.model} ${c.variant ?? ""}`)]));
-  const years = cars.length ? { min: Math.min(...cars.map((c) => c.year)), max: Math.max(...cars.map((c) => c.year)) } : null;
+
+  // In stock, or sold inside the period. The clock is read per call, never once here: a Worker lives for days.
+  const visibleNow = () => {
+    const t = now().getTime();
+    return (c: Car) => !c.soldAt || Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > t;
+  };
 
   // Every filter applies unless its group is `skip`, which is how facet counts stay disjunctive.
   const matches = (c: Car, q: StockQuery, skip?: FacetGroup) => {
@@ -41,15 +46,15 @@ export function createFileProvider(input: Car[]): StockProvider {
     return fold(q.q ?? "").split(/\s+/).filter(Boolean).every((t) => text.includes(t));
   };
 
-  // Options: every value in `universe` plus any selected value not in stock. Count: cars passing every filter but this group's.
-  const facet = (group: FacetGroup, q: StockQuery, selected: string[], pick: Pick, universe = cars): FacetOption[] => {
+  // Options: every value in `universe` plus any selected value not in the pool. Count: pool cars passing every filter but this group's.
+  const facet = (group: FacetGroup, q: StockQuery, selected: string[], pick: Pick, pool: Car[], universe = pool): FacetOption[] => {
     const options = new Map<string, FacetOption>();
     for (const c of universe) {
       const o = pick(c);
       if (o && !options.has(o.value)) options.set(o.value, { ...o, count: 0 });
     }
     for (const v of selected) if (!options.has(v)) options.set(v, { value: v, label: v, count: 0 });
-    for (const c of cars) {
+    for (const c of pool) {
       const o = pick(c);
       if (o && matches(c, q, group)) options.get(o.value)!.count++;
     }
@@ -58,7 +63,11 @@ export function createFileProvider(input: Car[]): StockProvider {
 
   return {
     async query(q): Promise<StockResult> {
-      const found = cars.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
+      const visible = visibleNow();
+      // Sold cars are not in the default pool, so they add no facet option and change no count.
+      const pool = cars.filter((c) => visible(c) && !isSold(c));
+      const years = pool.length ? { min: Math.min(...pool.map((c) => c.year)), max: Math.max(...pool.map((c) => c.year)) } : null;
+      const found = pool.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
       const start = (q.page - 1) * q.pageSize;
       return {
         cars: found.slice(start, start + q.pageSize),
@@ -66,22 +75,29 @@ export function createFileProvider(input: Car[]): StockProvider {
         page: q.page,
         pageCount: Math.ceil(found.length / q.pageSize),
         facets: {
-          make: facet("make", q, q.make, (c) => ({ value: c.makeSlug, label: c.make })),
+          make: facet("make", q, q.make, (c) => ({ value: c.makeSlug, label: c.make }), pool),
           model: q.make.length
-            ? facet("model", q, q.model, (c) => ({ value: c.modelSlug, label: c.model, parent: c.makeSlug }), cars.filter((c) => q.make.includes(c.makeSlug)))
+            ? facet("model", q, q.model, (c) => ({ value: c.modelSlug, label: c.model, parent: c.makeSlug }), pool, pool.filter((c) => q.make.includes(c.makeSlug)))
             : [],
-          body: facet("body", q, q.body, (c) => c.bodySlug && c.bodyType ? { value: c.bodySlug, label: c.bodyType } : undefined),
-          fuel: facet("fuel", q, q.fuel, (c) => c.fuel && { value: c.fuel, label: FUEL_LABELS[c.fuel] }),
-          gearbox: facet("gearbox", q, q.gearbox ? [q.gearbox] : [], (c) => c.gearbox && { value: c.gearbox, label: GEARBOX_LABELS[c.gearbox] }),
+          body: facet("body", q, q.body, (c) => c.bodySlug && c.bodyType ? { value: c.bodySlug, label: c.bodyType } : undefined, pool),
+          fuel: facet("fuel", q, q.fuel, (c) => c.fuel && { value: c.fuel, label: FUEL_LABELS[c.fuel] }, pool),
+          gearbox: facet("gearbox", q, q.gearbox ? [q.gearbox] : [], (c) => c.gearbox && { value: c.gearbox, label: GEARBOX_LABELS[c.gearbox] }, pool),
           years,
         },
       };
     },
     async getBySlug(slug) {
-      return bySlug.get(slug) ?? null;
+      const c = bySlug.get(slug);
+      return c && visibleNow()(c) ? c : null;
     },
     async getById(id) {
-      return byId.get(id) ?? null;
+      const c = byId.get(id);
+      return c && visibleNow()(c) ? c : null;
+    },
+    async lookup(slug) {
+      const c = bySlug.get(slug);
+      if (!c) return null;
+      return visibleNow()(c) ? { state: "live", car: c } : { state: "gone", make: c.make, makeSlug: c.makeSlug };
     },
   };
 }

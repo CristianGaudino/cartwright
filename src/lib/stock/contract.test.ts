@@ -177,6 +177,10 @@ function createStubProvider(cars: Car[]): StockProvider {
       await io();
       return inner.getById(id);
     },
+    async lookup(slug) {
+      await io();
+      return inner.lookup(slug);
+    },
   };
 }
 

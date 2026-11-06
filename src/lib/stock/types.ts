@@ -36,6 +36,7 @@ export interface Car {
   bodyType?: string; // display label, e.g. "SUV"
   bodySlug?: string; // e.g. "suv"
   photos: Photo[]; // 0 to 6, local /stock/... paths
+  soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
 }
 
 export interface StockQuery {
@@ -77,8 +78,16 @@ export interface StockResult {
   pageCount: number;
   facets: Facets;
 }
+// Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
+export const SOLD_VISIBLE_DAYS = 30;
+export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
+
+// live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
+export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;
+
 export interface StockProvider {
   query(q: StockQuery): Promise<StockResult>;
-  getBySlug(slug: string): Promise<Car | null>;
-  getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug")
+  getBySlug(slug: string): Promise<Car | null>; // in stock or sold inside the period
+  getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug"); same visibility as getBySlug
+  lookup(slug: string): Promise<Lookup>;
 }

@@ -2,8 +2,10 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import demoCars from "./demo-cars.json";
+import { createFileProvider } from "./file-provider";
 import { stock } from "./index";
-import { FUELS, GEARBOXES } from "./types";
+import { DEFAULT_QUERY } from "./query";
+import { FUELS, GEARBOXES, SOLD_VISIBLE_DAYS } from "./types";
 import type { Car } from "./types";
 
 const cars = demoCars as Car[];
@@ -57,6 +59,37 @@ describe("generated demo cars", () => {
   });
 
   it("is served by the single config point", async () => {
-    expect(await stock.getBySlug(cars[0].slug)).toEqual(cars[0]);
+    const first = cars.find((c) => !c.soldAt)!;
+    expect(await stock.getBySlug(first.slug)).toEqual(first);
+  });
+
+  describe("sold cars", () => {
+    const DAY = 86_400_000;
+    const sold = cars.filter((c) => c.soldAt);
+    // Never the real clock: the day after the newest sale date, so the result does not change as the calendar moves.
+    const now = new Date(Math.max(...sold.map((c) => Date.parse(c.soldAt!))) + DAY);
+    const provider = createFileProvider(cars, { now: () => now });
+
+    it("has a sale date that is absent or an ISO date", () => {
+      for (const c of cars) if (c.soldAt !== undefined) expect(c.soldAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it("keeps in-period sold cars reachable by slug and answers gone for expired ones", async () => {
+      const live = sold.filter((c) => Date.parse(c.soldAt!) + SOLD_VISIBLE_DAYS * DAY > now.getTime());
+      const gone = sold.filter((c) => !live.includes(c));
+      expect(live.length).toBeGreaterThanOrEqual(3);
+      expect(gone.length).toBeGreaterThanOrEqual(2);
+      for (const c of live) expect((await provider.getBySlug(c.slug))?.id).toBe(c.id);
+      for (const c of gone) {
+        expect(await provider.getBySlug(c.slug)).toBeNull();
+        expect(await provider.lookup(c.slug)).toEqual({ state: "gone", make: c.make, makeSlug: c.makeSlug });
+      }
+    });
+
+    it("keeps every sold car out of the default list", async () => {
+      const r = await provider.query({ ...DEFAULT_QUERY, pageSize: cars.length });
+      expect(r.cars.some((c) => c.soldAt)).toBe(false);
+      expect(r.total).toBe(cars.length - sold.length);
+    });
   });
 });
