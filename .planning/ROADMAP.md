@@ -103,7 +103,7 @@ Plans:
 - [ ] 03-04-PLAN.md
 - [ ] 03-05-PLAN.md
 - [ ] 03-06-PLAN.md
-- [ ] 03-07-PLAN.md
+- [x] 03-07-PLAN.md
 - [ ] 03-08-PLAN.md
 - [ ] 03-09-PLAN.md
 - [ ] 03-10-PLAN.md
@@ -156,6 +156,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Design and Stock Browsing | 9/9 | In Progress | - |
 | 2. Car Pages and Discovery | 8/8 | In Progress | - |
-| 3. Leads, Finance and Saved Cars | 2/16 | In Progress | - |
+| 3. Leads, Finance and Saved Cars | 3/16 | In Progress | - |
 | 4. Reviews and Core Pages | 0/TBD | Not started | - |
 | 5. Quality Pass | 0/TBD | Not started | - |
