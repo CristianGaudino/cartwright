@@ -24,10 +24,10 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Stock browsing
 
-- [ ] **BRW-01**: User can search and filter stock by make, model, year range, budget, body type, fuel, transmission and mileage (#4)
+- [x] **BRW-01**: User can search and filter stock by make, model, year range, budget, body type, fuel, transmission and mileage (#4)
 - [x] **BRW-02**: User can sort stock (#4)
 - [x] **BRW-03**: Filter and sort state lives in the URL, so a search can be shared (#4)
-- [ ] **BRW-04**: Filters show per-brand counts (#4)
+- [x] **BRW-04**: Filters show per-brand counts (#4)
 - [x] **BRW-05**: Each listing card shows several images in a carousel, swipeable on mobile, lazy loaded, with no layout shift (#5)
 
 ### Car pages
@@ -116,10 +116,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STK-02 | Phase 1 | Complete |
 | STK-03 | Phase 1 | Complete |
 | STK-04 | Phase 1 | Complete |
-| BRW-01 | Phase 1 | Pending |
+| BRW-01 | Phase 1 | Complete |
 | BRW-02 | Phase 1 | Complete |
 | BRW-03 | Phase 1 | Complete |
-| BRW-04 | Phase 1 | Pending |
+| BRW-04 | Phase 1 | Complete |
 | BRW-05 | Phase 1 | Complete |
 | CAR-01 | Phase 2 | Pending |
 | CAR-02 | Phase 2 | Pending |
