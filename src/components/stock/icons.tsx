@@ -46,6 +46,14 @@ export const ShareIcon = (p: Props) => (
     <path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1" />
   </Icon>
 );
+const HEART = "M12 20.5s-7.6-4.6-9.3-9.5C1.5 7.6 3.8 4.5 7.2 4.5c2 0 3.7 1.1 4.8 2.8 1.1-1.7 2.8-2.8 4.8-2.8 3.4 0 5.7 3.1 4.5 6.5-1.7 4.9-9.3 9.5-9.3 9.5z";
+// Saved is the filled shape, not only the colour; the outline stays on top for contrast over any photo.
+export const HeartIcon = ({ filled, ...p }: Props & { filled?: boolean }) => (
+  <Icon {...p}>
+    <path d={HEART} stroke="none" className={`fill-accent transition-opacity duration-150 ease-out motion-reduce:transition-none ${filled ? "opacity-100" : "opacity-0"}`} />
+    <path d={HEART} />
+  </Icon>
+);
 export const PhoneIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M21 16.9V20a2 2 0 0 1-2.2 2A19 19 0 0 1 2 5.2 2 2 0 0 1 4 3h3.1a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 11a15 15 0 0 0 5.9 5.9l1.4-1.2a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SavedLink } from "@/components/saved/SavedLink";
 
 // Normal flow on purpose: the header scrolls away with the page (D-12).
 export function SiteHeader() {
@@ -9,10 +10,11 @@ export function SiteHeader() {
         <Link href="/" className="focus-visible:outline-white">
           <Image src="/brand/logo.png" width={480} height={109} alt="Carright" loading="eager" className="h-8 w-auto lg:h-9" />
         </Link>
-        <nav aria-label="Main">
+        <nav aria-label="Main" className="flex items-center gap-2">
           <Link href="/used-cars" className="font-semibold focus-visible:outline-white">
             Used cars
           </Link>
+          <SavedLink />
         </nav>
       </div>
     </header>
