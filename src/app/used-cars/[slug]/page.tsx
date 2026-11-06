@@ -6,10 +6,9 @@ import { stock } from "@/lib/stock";
 import { carName, carTitle, formatKm, formatPrice } from "@/lib/stock/format";
 import { FUEL_LABELS, GEARBOX_LABELS } from "@/lib/stock/types";
 
-// shortcut: noindex while the demo uses the dealer's data (D-04), remove when the client feed replaces it.
 export async function generateMetadata({ params }: PageProps<"/used-cars/[slug]">): Promise<Metadata> {
   const car = await stock.getBySlug((await params).slug);
-  return car ? { title: carName(car), robots: { index: false } } : {};
+  return car ? { title: carName(car) } : {};
 }
 
 export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">) {
