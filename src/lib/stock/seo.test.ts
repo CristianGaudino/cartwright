@@ -33,6 +33,14 @@ describe("carMetadata", () => {
     expect(m.alternates?.canonical).toBe("/used-cars/audi-a4-2019-101");
     expect(m.openGraph).toMatchObject({ type: "website", url: "/used-cars/audi-a4-2019-101", title: m.title, description: m.description });
   });
+
+  it("points Open Graph at the car's generated image, sold or not, and asks for the large Twitter card", () => {
+    for (const c of [car, sold]) {
+      const m = carMetadata(c);
+      expect(m.openGraph?.images).toEqual([{ url: "/og/101.jpg", width: 1200, height: 630, alt: "2019 Audi A4" }]);
+      expect(m.twitter).toMatchObject({ card: "summary_large_image" });
+    }
+  });
 });
 
 describe("carDescription", () => {

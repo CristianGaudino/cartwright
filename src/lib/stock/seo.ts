@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
-import { carTitle, formatKm, formatPrice } from "./format";
+import { carName, carTitle, formatKm, formatPrice } from "./format";
 import { FUEL_LABELS, GEARBOX_LABELS, isSold } from "./types";
 import type { Car } from "./types";
 
@@ -10,12 +10,15 @@ export function carDescription(car: Car): string {
   return [`${car.year} ${carTitle(car)}.`, specs && `${specs}.`, isSold(car) ? "Sold." : `${formatPrice(car.priceEur)}.`, `${SITE_NAME}, Tralee, Co. Kerry.`].filter(Boolean).join(" ");
 }
 
-// No site suffix in the title: the root layout's template adds it. Plan 02-08 adds images and twitter.
+// No site suffix in the title: the root layout's template adds it. Image and url resolve to absolute against metadataBase.
+// shortcut: the images are pre-generated for the demo by `npm run stock:og`; a live provider adds cars without a script run,
+// so switch to the car's first photo or a request-time image when one lands (#16).
 export function carMetadata(car: Car): Metadata {
   const title = `${car.year} ${carTitle(car)} for sale`;
   const description = carDescription(car);
   const path = `/used-cars/${car.slug}`;
-  return { title, description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title, description } };
+  const images = [{ url: `/og/${car.id}.jpg`, width: 1200, height: 630, alt: carName(car) }];
+  return { title, description, alternates: { canonical: path }, openGraph: { type: "website", url: path, title, description, images }, twitter: { card: "summary_large_image" } };
 }
 
 // Google does not treat Car as a Product subtype, so both types. A sold car keeps a price-less SoldOut offer. Undefined values vanish in JSON.stringify.
