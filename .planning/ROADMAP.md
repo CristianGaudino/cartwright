@@ -97,6 +97,23 @@ Plans:
   5. User can save and unsave a car from cards and the detail page without signing in, see the saved count in the header, and find the cars on the saved page after closing and reopening the browser
 
 **Plans**: TBD
+- [x] 03-01-PLAN.md
+- [ ] 03-02-PLAN.md
+- [ ] 03-03-PLAN.md
+- [ ] 03-04-PLAN.md
+- [ ] 03-05-PLAN.md
+- [ ] 03-06-PLAN.md
+- [ ] 03-07-PLAN.md
+- [ ] 03-08-PLAN.md
+- [ ] 03-09-PLAN.md
+- [ ] 03-10-PLAN.md
+- [ ] 03-11-PLAN.md
+- [ ] 03-12-PLAN.md
+- [ ] 03-13-PLAN.md
+- [ ] 03-14-PLAN.md
+- [ ] 03-15-PLAN.md
+- [ ] 03-16-PLAN.md
+
 **UI hint**: yes
 
 ### Phase 4: Reviews and Core Pages
@@ -139,6 +156,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Design and Stock Browsing | 9/9 | In Progress | - |
 | 2. Car Pages and Discovery | 8/8 | In Progress | - |
-| 3. Leads, Finance and Saved Cars | 0/TBD | Not started | - |
+| 3. Leads, Finance and Saved Cars | 1/16 | In Progress | - |
 | 4. Reviews and Core Pages | 0/TBD | Not started | - |
 | 5. Quality Pass | 0/TBD | Not started | - |
