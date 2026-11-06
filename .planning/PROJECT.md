@@ -4,7 +4,7 @@
 
 A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry), built as a speculative pitch and first sale for the owner's web business. Public pages only: browse stock, view cars, save favourites, enquire, apply for finance, request a trade-in valuation. The audience is Irish used-car buyers, mostly on a mid-range phone.
 
-Live demo at https://cartwright.cgaudino.com (Cloudflare Workers). Every merge to `main` deploys.
+Live demo at https://carright.cgaudino.com (Cloudflare Workers, behind Cloudflare Access: owner and client emails only). Every merge to `main` deploys. The client wants a rebrand; the site keeps the Cartwright name until that is decided.
 
 ## Core Value
 

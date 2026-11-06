@@ -98,8 +98,8 @@ None yet.
 - Client inputs still open: CarsIreland/Carsie API access (#16, Phase 1), real finance terms and required wording (#9, Phase 3), Google Business place ID (#13, Phase 4), real stock and images. Demo data and clearly labelled placeholders cover each until the client supplies them.
 - Issue #3 says the stock provider is "cached with Cache Components", but Cache Components are off on this project (opennextjs-cloudflare#1450). Phase 1 planning should use caching that works on OpenNext/Workers.
 - `.claude/CLAUDE.md` still says "Do not run GSD (`/gsd-*`) on this project", but PROJECT.md records the owner's decision (2026-11-03) to use GSD for planning with GitHub issues as the scope source. CLAUDE.md should be updated to match.
-- `.claude/CLAUDE.md` says production deploys only from a release tag, but PROJECT.md and REQUIREMENTS.md say every merge to `main` deploys for now. CLAUDE.md should be updated to match.
-- public/brand/logo.png missing (01-04): fetch https://www.cartwright.ie/app/uploads/2024/09/logo.png once, verify 650x270 PNG with sharp, commit
+- Deploy on merge is the decision (owner, 2026-11-06). Reverting to release-tag deploys is tracked in #37.
+- Cloudflare Access must stay on `carright.cgaudino.com` while the demo data (the dealer's photos) is in. The demo is not public.
 
 ## Deferred Items
 
