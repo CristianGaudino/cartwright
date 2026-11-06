@@ -115,6 +115,14 @@ export function runContract(name: string, makeProvider: (cars: Car[]) => StockPr
       expect(r.facets.body.map((o) => o.label).sort()).toEqual(["Hatchback", "SUV", "Saloon"]);
     });
 
+    it("searches without caring about accents", async () => {
+      const p = makeProvider(structuredClone([...FIXTURE, car("109", "Škoda", "Octavia", 2020, 17500), car("110", "Citroën", "C3", 2019, 11900)]));
+      const found = async (text: string) => (await p.query(q({ q: text }))).cars.map((c) => c.id);
+      expect(await found("skoda")).toEqual(["109"]);
+      expect(await found("ŠKODA octavia")).toEqual(["109"]);
+      expect(await found("citroen")).toEqual(["110"]);
+    });
+
     it("searches every token over make, model and variant", async () => {
       expect(await ids({ q: "bmw 3" })).toEqual(["104"]);
       expect(await ids({ q: "s line" })).toEqual(["101"]);

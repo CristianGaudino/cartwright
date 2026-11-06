@@ -1,6 +1,9 @@
 import { FUEL_LABELS, GEARBOX_LABELS } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 
+// Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën".
+const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+
 const byCount = (a: FacetOption, b: FacetOption) => b.count - a.count || a.label.localeCompare(b.label, "en-IE");
 
 // `cars` is presorted newest first and Array.prototype.sort is stable, so every key ties by id descending.
@@ -19,7 +22,7 @@ export function createFileProvider(input: Car[]): StockProvider {
   const bySlug = new Map(cars.map((c) => [c.slug, c]));
   const byId = new Map(cars.map((c) => [c.id, c]));
   // Kept off the Car objects so nothing internal leaks to callers.
-  const searchText = new Map(cars.map((c) => [c.id, `${c.make} ${c.model} ${c.variant ?? ""}`.toLowerCase()]));
+  const searchText = new Map(cars.map((c) => [c.id, fold(`${c.make} ${c.model} ${c.variant ?? ""}`)]));
   const years = cars.length ? { min: Math.min(...cars.map((c) => c.year)), max: Math.max(...cars.map((c) => c.year)) } : null;
 
   // Every filter applies unless its group is `skip`, which is how facet counts stay disjunctive.
@@ -35,7 +38,7 @@ export function createFileProvider(input: Car[]): StockProvider {
     if (q.priceMax !== undefined && c.priceEur > q.priceMax) return false;
     if (q.kmMax !== undefined && (c.mileageKm === undefined || c.mileageKm > q.kmMax)) return false;
     const text = searchText.get(c.id)!;
-    return (q.q ?? "").toLowerCase().split(/\s+/).filter(Boolean).every((t) => text.includes(t));
+    return fold(q.q ?? "").split(/\s+/).filter(Boolean).every((t) => text.includes(t));
   };
 
   // Options: every value in `universe` plus any selected value not in stock. Count: cars passing every filter but this group's.
