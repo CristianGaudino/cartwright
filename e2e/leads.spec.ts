@@ -140,6 +140,46 @@ test("Test drive and Reserve open the same dialog, and switching keeps what was 
   await expect(d.getByRole("button", { name: "Request to reserve" })).toBeVisible();
 });
 
+test.describe("on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+  test("the dialog is a centred 520px panel", async ({ page }) => {
+    await open(page, live.slug);
+    await enquire(page).click();
+    await expect(dialog(page)).toBeVisible();
+    await expect(dialog(page)).toHaveCSS("opacity", "1"); // after the fade
+    const box = (await dialog(page).boundingBox())!;
+    expect(box.width).toBe(520);
+    expect(Math.abs(box.x + box.width / 2 - 640)).toBeLessThanOrEqual(1);
+  });
+});
+
+test("the open dialog never scrolls sideways at 320px", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await open(page, live.slug);
+  await enquire(page).click();
+  await expect(dialog(page)).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
+test("the footer links the privacy page, which states the retention period", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.getByRole("contentinfo").getByRole("link", { name: "Privacy policy" }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
+  await expect(page.getByText("12 months")).toBeVisible();
+  await expect(page.getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("a car page still offers Call now", async ({ page }) => {
+    await page.goto(`/used-cars/${live.slug}`);
+    await expect(page.getByRole("link", { name: "Call now" })).toHaveAttribute("href", /^tel:/);
+  });
+});
+
 test("a test drive with a preferred day sends", async ({ page }) => {
   await open(page, live.slug);
   await page.getByRole("button", { name: "Test drive", exact: true }).click();

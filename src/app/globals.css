@@ -161,6 +161,67 @@ dialog.sheet[open]::backdrop {
   }
 }
 
+/* Lead dialog (03-10): the sheet above below 640px. From 640px a centred 520px panel that fades and scales instead,
+   with the same @starting-style and allow-discrete technique. Scroll lock and contrast come from the dialog.sheet rules. */
+@media (min-width: 640px) {
+  dialog.sheet.lead {
+    inset: 0;
+    margin: auto;
+    width: 520px;
+    max-height: min(90dvh, 720px);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lift);
+    opacity: 0;
+    transform: scale(0.97);
+    transition:
+      opacity 200ms ease-out,
+      transform 200ms ease-out,
+      overlay 200ms allow-discrete,
+      display 200ms allow-discrete;
+  }
+
+  dialog.sheet.lead[open] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    dialog.sheet.lead[open] {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+  }
+
+  dialog.sheet.lead::backdrop {
+    transition-duration: 200ms;
+  }
+}
+
+@media (min-width: 640px) and (prefers-reduced-motion: reduce) {
+  dialog.sheet.lead,
+  dialog.sheet.lead[open] {
+    transform: none;
+  }
+
+  dialog.sheet.lead {
+    transition:
+      opacity 150ms linear,
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+
+  @starting-style {
+    dialog.sheet.lead[open] {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  dialog.sheet.lead::backdrop {
+    transition-duration: 150ms;
+  }
+}
+
 /* Photo lightbox (02-05): a full-viewport modal dialog that fades. A takeover has no edge to slide from. */
 dialog.lightbox {
   inset: 0;
