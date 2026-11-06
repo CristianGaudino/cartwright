@@ -6,7 +6,8 @@
 // Requests the owner authorised (D-01 scraped once, D-10 one listing call, D-13 one-time run):
 //   one GET /used-cars/, one GET of the theme main.js, one listing POST, and one GET /car-details/ per car
 //   only when the listing lacks what we need (the listing carries every spec but only the main photo URL,
-//   so the detail page is read for the gallery). At least 1500 ms apart, never retried, every request logged.
+//   so the detail page is read for the gallery). Dealer site: at least 1500 ms apart; photo CDN (c0.carsie.ie):
+//   at least 300 ms apart. Never retried, redirects are not followed, every request logged.
 // The data and photos belong to the dealer and CarsIreland and are for the private pitch only (D-04).
 
 import { createHash } from "node:crypto";
@@ -35,6 +36,10 @@ const [cmd, ...rest] = process.argv.slice(2);
 const flag = (name) => rest.includes(name);
 const limitAt = rest.indexOf("--limit");
 const LIMIT = limitAt >= 0 ? Number(rest[limitAt + 1]) : Infinity;
+if (limitAt >= 0 && !(Number.isInteger(LIMIT) && LIMIT > 0)) {
+  console.error(USAGE);
+  process.exit(1);
+}
 // The one selection rule: the first N listings by numeric id ascending.
 const select = (items) => [...items].sort((a, b) => Number(a.id) - Number(b.id)).slice(0, LIMIT);
 
@@ -57,7 +62,8 @@ async function get(url, init = {}) {
   lastSent.set(u.host, Date.now());
   writeCache(join(CACHE, ".gitignore"), "*\n"); // the cache ignores itself
   appendFileSync(LOG, `${new Date().toISOString()} ${init.method ?? "GET"} ${u.host} ${u.pathname}${u.search}\n`);
-  const res = await fetch(url, { ...init, headers: { "User-Agent": UA, ...init.headers } });
+  // redirect: "manual" so a 3xx is a hard failure below, not an unlogged, unthrottled, un-allowlisted extra request.
+  const res = await fetch(url, { ...init, redirect: "manual", headers: { "User-Agent": UA, ...init.headers } });
   if (!res.ok) throw new Error(`${init.method ?? "GET"} ${url} -> ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }
@@ -227,7 +233,8 @@ async function buildCmd() {
     const make = clean(l.make);
     const model = clean(l.model);
     const year = parseInt(clean(s.year), 10);
-    const priceEur = parseInt(String(l.price ?? "").replace(/\D/g, ""), 10);
+    // Keeps the decimal point: "12,950.50" is 12951, not 1295050. NaN (no price) fails the check below.
+    const priceEur = Math.round(parseFloat(String(l.price ?? "").replace(/[^\d.]/g, "")));
     if (!make || !model) { skip("no make or model"); continue; }
     if (!(priceEur > 0)) { skip("no price"); continue; }
     if (!(year >= 1950 && year <= maxYear)) { skip(`year out of range: ${s.year}`); continue; }
