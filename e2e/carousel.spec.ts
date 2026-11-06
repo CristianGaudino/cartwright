@@ -138,18 +138,22 @@ test.describe("desktop pointer", () => {
       await page.keyboard.press("Enter");
       await expect(dots.nth(i)).toHaveAttribute("data-active", "");
     }
-    // Last photo: focus did not fall back to the page, Next is inert but still there, and a further press does nothing.
+    // The last photo is not the end: Next is still live and one more press shows the See all photos tile.
+    await expect(next).toBeEnabled();
+    await page.keyboard.press("Enter");
+    await expect(card.locator("[data-dot][data-active]")).toHaveCount(0);
+    // On the tile: focus did not fall back to the page, Next is inert but still there, and a further press does nothing.
     await expect(next).toBeFocused();
     await expect(next).toBeDisabled();
     await expect(next).toHaveCSS("opacity", "0.4"); // dimmed, not gone, while the keyboard is on it
     await page.keyboard.press("Enter");
     await expect(next).toBeFocused();
-    await expect(dots.nth(n - 1)).toHaveAttribute("data-active", "");
+    await expect(card.locator("[data-dot][data-active]")).toHaveCount(0);
 
-    // Shift+Tab lands on Previous, which walks back; at the first photo it keeps focus the same way.
+    // Shift+Tab lands on Previous, which walks back through every photo; at the first photo it keeps focus the same way.
     await page.keyboard.press("Shift+Tab");
     await expect(previous).toBeFocused();
-    for (let i = n - 2; i >= 0; i--) {
+    for (let i = n - 1; i >= 0; i--) {
       await page.keyboard.press("Enter");
       await expect(dots.nth(i)).toHaveAttribute("data-active", "");
     }
@@ -158,6 +162,34 @@ test.describe("desktop pointer", () => {
     await page.keyboard.press("Enter");
     await expect(previous).toBeFocused();
     await expect(dots.first()).toHaveAttribute("data-active", "");
+  });
+
+  test("the See all photos tile ends the carousel, is a link in the tab order and opens the car page", async ({ page }) => {
+    await page.goto("/used-cars");
+    await waitReact(page);
+    const card = page.locator("article").first();
+    const { next } = arrows(card);
+    const n = await card.locator("img").count();
+    const href = (await card.locator("h2 a").getAttribute("href"))!;
+    const tile = card.getByRole("group", { name: `See all ${n} photos`, exact: true });
+    const link = tile.getByRole("link", { name: `See all ${n} photos`, exact: true });
+
+    await expect(next).toBeEnabled();
+    await scroller(card).evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: "instant" }));
+    await expect(next).toHaveAttribute("aria-disabled", "true");
+    await expect(card.locator("[data-dot][data-active]")).toHaveCount(0);
+    await expect(tile).toHaveAttribute("aria-roledescription", "slide");
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).not.toHaveAttribute("tabindex", /.*/);
+
+    // In the tab order: from the card title, Shift+Tab goes Next, Previous, then the tile link.
+    await card.locator("h2 a").focus();
+    for (let i = 0; i < 3; i++) await page.keyboard.press("Shift+Tab");
+    await expect(link).toBeFocused();
+
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    expect((await page.request.get(href)).status()).toBe(200);
   });
 
   test("screen readers get one named slide per photo, each image named for the car", async ({ page }) => {

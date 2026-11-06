@@ -44,6 +44,7 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
     return <p className="flex h-full items-center justify-center text-meta text-text-2">No photo yet</p>;
   }
   const n = photos.length;
+  const tile = n >= 2; // the "See all n photos" slide sits at index n, after the photos
 
   const onScroll = () => {
     if (frame.current) return;
@@ -54,7 +55,7 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
     });
   };
   const atStart = index <= 0;
-  const atEnd = index >= n - 1;
+  const atEnd = index >= (tile ? n : n - 1);
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
 
   return (
@@ -86,6 +87,16 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
             </Link>
           </div>
         ))}
+        {tile && (
+          <div role="group" aria-roledescription="slide" aria-label={`See all ${n} photos`} className="h-full w-full flex-none snap-start bg-photo-bg">
+            <Link href={href} className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center text-meta font-semibold focus-visible:-outline-offset-2">
+              <span className="flex size-11 items-center justify-center rounded-full bg-text text-ink">
+                <ChevronRightIcon />
+              </span>
+              <span className="line-clamp-2">See all {n} photos</span>
+            </Link>
+          </div>
+        )}
       </div>
       {n > 1 && (
         <>
