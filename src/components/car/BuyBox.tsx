@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
+import { SaveButton } from "@/components/saved/SaveButton";
 import { PhoneIcon } from "@/components/stock/icons";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import { DEALER_PHONE, DEALER_TEL, SITE_URL } from "@/lib/site";
@@ -20,7 +21,10 @@ export function BuyBox({ car }: { car: Car }) {
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
-        <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
+        <div className="flex items-center gap-2">
+          <SaveButton id={car.id} label="Save this car" variant="page" />
+          <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
+        </div>
       </div>
       <dl className="grid grid-cols-2 gap-4">
         {keyFacts(car).map((f) => (
