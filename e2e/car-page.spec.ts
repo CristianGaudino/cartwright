@@ -7,7 +7,7 @@ import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 type Demo = { slug: string; make: string; makeSlug: string; year: number; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
-const SKIP = "No demo car is inside the sold window: run npm run stock:build to refresh the demo dates";
+const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 
 const buyBox = (page: Page) => page.getByTestId("buy-box");
 

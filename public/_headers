@@ -1,3 +1,4 @@
+# Safe to cache for a year because every photo file name carries a content hash (scripts/stock/demo-stock.mjs). Keep it that way.
 /stock/*
   Cache-Control: public, max-age=31536000, immutable
   X-Robots-Tag: noindex

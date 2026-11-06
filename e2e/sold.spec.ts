@@ -13,7 +13,7 @@ const mixedMake = inPeriod.find((s) => cars.some((c) => c.makeSlug === s.makeSlu
 
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
 const countText = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${n} cars`);
-const SKIP = "No demo car is inside the sold window: run npm run stock:build to refresh the demo dates";
+const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 
 // A click before React attaches does nothing on a touch device.
 async function open(page: Page, url = "/used-cars") {
@@ -36,6 +36,11 @@ test("a sold value other than 1 is ignored", async ({ page }) => {
   await page.goto("/used-cars?sold=yes");
   await expect(page.getByTestId("count")).toHaveText(all!);
   await expect(chip(page)).toHaveCount(0);
+});
+
+// The skips below only hide the specs that need sold cars; this one fails loudly so stale dates never pass as green.
+test("the demo data has sold cars inside the window", () => {
+  expect(inPeriod.length, SKIP).toBeGreaterThan(0);
 });
 
 test.describe("sold cars", () => {

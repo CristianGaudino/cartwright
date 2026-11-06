@@ -1,7 +1,8 @@
-// Demo stock pipeline (plan 01-03). Manual, one-run tool: never used in CI, at build time or at runtime.
+// Demo stock pipeline (plan 01-03). Manual, one-run tool: fetch and build are never used in CI, at build time or at runtime (redate is, and is offline).
 //
 //   node scripts/stock/demo-stock.mjs fetch [--limit N] [--no-photos]   network, into .stock-cache/
 //   node scripts/stock/demo-stock.mjs build [--limit N] [--report]      offline, from .stock-cache/ only
+//   node scripts/stock/demo-stock.mjs redate                            offline, from demo-cars.json only: sale dates relative to today
 //
 // Requests the owner authorised (D-01 scraped once, D-10 one listing call, D-13 one-time run):
 //   one GET /used-cars/, one GET of the theme main.js, one listing POST, and one GET /car-details/ per car
@@ -40,7 +41,9 @@ const SOLD_DAYS_AGO = {
   4396311: 45, // Hyundai, lowest id: expired, make still has stock
 };
 
-const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report]";
+const soldDate = (id, today) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
+
+const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report] | redate";
 const [cmd, ...rest] = process.argv.slice(2);
 const flag = (name) => rest.includes(name);
 const limitAt = rest.indexOf("--limit");
@@ -284,7 +287,7 @@ async function buildCmd() {
   const files = []; // [path, buffer]
   const today = new Date();
   const maxYear = today.getFullYear() + 1;
-  const soldAt = (id) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
+  const soldAt = (id) => soldDate(id, today);
 
   for (const l of select(listings.map((x) => ({ ...x, id: String(x.id) })))) {
     const skip = (reason) => skipped.push({ id: l.id, reason });
@@ -359,6 +362,13 @@ if (cmd === "fetch") {
   });
 } else if (cmd === "build") {
   await buildCmd();
+} else if (cmd === "redate") {
+  // Sale dates are written at build time and a car leaves the sold window after 30 days, so CI and deploy re-run this
+  // (the deploy also runs weekly) to keep the sold examples alive. Needs no cache and no network.
+  const cars = JSON.parse(readFileSync(OUT_JSON, "utf8"));
+  const today = new Date();
+  for (const c of cars) if (c.id in SOLD_DAYS_AGO) c.soldAt = soldDate(c.id, today);
+  writeFileSync(OUT_JSON, JSON.stringify(cars, null, 2) + "\n");
 } else {
   console.error(USAGE);
   process.exit(1);

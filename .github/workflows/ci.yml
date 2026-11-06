@@ -27,6 +27,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
@@ -47,6 +48,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npx opennextjs-cloudflare build
       - name: Start the Worker and request it
         run: |
@@ -105,5 +107,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npm run build
       - run: npm run e2e

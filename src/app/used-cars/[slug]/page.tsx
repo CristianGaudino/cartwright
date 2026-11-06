@@ -28,8 +28,9 @@ async function similarCars(car: Car) {
 }
 
 // Make first, then body type (both looked up in taxonomy() by resolveLanding), then car (D-06). Resolved once per request for generateMetadata and the page.
+const CAR_SLUG = /-\d+$/; // make and body slugs never end in digits, so a car-shaped slug skips the taxonomy scan
 const resolveSlug = cache(async (slug: string) => {
-  const landing = await resolveLanding(slug);
+  const landing = CAR_SLUG.test(slug) ? null : await resolveLanding(slug);
   if (landing) return { kind: "landing", landing } as const;
   const car = await stock.getBySlug(slug);
   return car ? ({ kind: "car", car } as const) : null;
