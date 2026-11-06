@@ -1,7 +1,7 @@
 name: Release
 
 # Cut by hand: Actions, Release, Run workflow, pick major, minor or patch. Tags the tip of main, publishes a
-# GitHub release (notes are the merged pull requests) and deploys that tag to production.
+# GitHub release (notes are the merged pull requests). It does not deploy: merging to main does (deploy.yml).
 on:
   workflow_dispatch:
     inputs:
@@ -19,8 +19,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    outputs:
-      version: ${{ steps.next.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -49,10 +47,3 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.next.outputs.version }}
-
-  deploy:
-    needs: release
-    uses: ./.github/workflows/deploy.yml
-    with:
-      ref: ${{ needs.release.outputs.version }}
-    secrets: inherit

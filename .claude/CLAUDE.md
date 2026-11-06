@@ -37,7 +37,7 @@ Check by exit code, not by reading output for "error": `npm run lint; echo $?`, 
 This is not the Next.js in your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code, and heed deprecation notices. `next dev` writes an `AGENTS.md` block about this; commit it.
 
 ## Releases
-Production deploys only from a release tag, as in vintage. Roll back by deploying an older tag.
+Every merge to `main` deploys to production (deploy.yml). For now there are no release-tag deploys; the Release workflow only tags and publishes notes. Roll back by running Deploy from the Actions tab with an older tag or commit. Move to release-tag deploys, as in vintage, once there is a live client site.
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
