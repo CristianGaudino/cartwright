@@ -52,6 +52,7 @@ export interface StockQuery {
   gearbox?: Gearbox;
   kmMax?: number;
   sort: SortKey;
+  sold?: "include" | "only"; // absent = in stock only; "include" lists in-period sold cars after the in-stock ones
   page: number; // 1-based
   pageSize: number;
 }
@@ -85,9 +86,17 @@ export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
 // live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
 export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;
 
+// Every make, body type and model ever listed, expired cars included, so a make page can exist with nothing in stock.
+export interface Taxonomy {
+  makes: { slug: string; label: string }[];
+  bodies: { slug: string; label: string }[];
+  models: { makeSlug: string; slug: string; label: string }[];
+}
+
 export interface StockProvider {
   query(q: StockQuery): Promise<StockResult>;
   getBySlug(slug: string): Promise<Car | null>; // in stock or sold inside the period
   getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug"); same visibility as getBySlug
   lookup(slug: string): Promise<Lookup>;
+  taxonomy(): Promise<Taxonomy>; // over every car, expired included
 }

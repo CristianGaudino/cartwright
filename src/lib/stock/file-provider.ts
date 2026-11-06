@@ -65,9 +65,11 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
     async query(q): Promise<StockResult> {
       const visible = visibleNow();
       // Sold cars are not in the default pool, so they add no facet option and change no count.
-      const pool = cars.filter((c) => visible(c) && !isSold(c));
+      const pool = cars.filter((c) => visible(c) && (q.sold === "only" ? isSold(c) : q.sold === "include" || !isSold(c)));
       const years = pool.length ? { min: Math.min(...pool.map((c) => c.year)), max: Math.max(...pool.map((c) => c.year)) } : null;
-      const found = pool.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
+      // Stable partition after the sort: each group keeps the chosen order, sold cars never ahead of buyable ones.
+      const sorted = pool.filter((c) => matches(c, q)).sort(SORTS[q.sort]);
+      const found = [...sorted.filter((c) => !isSold(c)), ...sorted.filter(isSold)];
       const start = (q.page - 1) * q.pageSize;
       return {
         cars: found.slice(start, start + q.pageSize),
@@ -98,6 +100,18 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
       const c = bySlug.get(slug);
       if (!c) return null;
       return visibleNow()(c) ? { state: "live", car: c } : { state: "gone", make: c.make, makeSlug: c.makeSlug };
+    },
+    async taxonomy() {
+      const uniq = <T extends { slug: string; label: string }>(items: T[]) =>
+        [...new Map(items.map((i) => [i.slug, i])).values()].sort((a, b) => a.label.localeCompare(b.label, "en-IE"));
+      return {
+        makes: uniq(cars.map((c) => ({ slug: c.makeSlug, label: c.make }))),
+        bodies: uniq(cars.flatMap((c) => (c.bodySlug && c.bodyType ? [{ slug: c.bodySlug, label: c.bodyType }] : []))),
+        // Model slugs repeat across makes, so the key is make plus model.
+        models: [...new Map(cars.map((c) => [`${c.makeSlug}/${c.modelSlug}`, { makeSlug: c.makeSlug, slug: c.modelSlug, label: c.model }])).values()].sort(
+          (a, b) => a.label.localeCompare(b.label, "en-IE"),
+        ),
+      };
     },
   };
 }
