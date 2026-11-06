@@ -2,12 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import demoCars from "@/lib/stock/demo-cars.json";
 import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
-import { processLead } from "./process";
+import { processLead, snapshotCar } from "./process";
 import type { Deps, LeadRow } from "./process";
 import { CONSENT } from "./schema";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
+const sold = cars.find((c) => c.soldAt)!;
 
 // Fake deps in the test (deps.ts is server-only). 03-05 extends this file and reuses these helpers.
 function fakeDeps(over: Partial<Deps["store"]> = {}) {
@@ -73,5 +74,68 @@ describe("processLead, enquiry tracer", () => {
     expect(notified).toHaveLength(0);
     expect(lines()).toHaveLength(1);
     expect(lines()[0].outcome).toBe("duplicate");
+  });
+});
+
+describe("snapshotCar", () => {
+  it("gives four nulls without a lookup when the lead has no car (sourcing, trade-in, finance from /finance)", async () => {
+    const getCar = vi.fn(async () => live);
+    expect(await snapshotCar(undefined, getCar)).toEqual({ carId: null, carSlug: null, carTitle: null, carPriceEur: null });
+    expect(getCar).not.toHaveBeenCalled();
+  });
+
+  it("refuses an unknown or sold car and snapshots a live one from the provider", async () => {
+    const { deps } = fakeDeps();
+    expect(await snapshotCar("999999999", deps.getCar)).toBeNull();
+    expect(await snapshotCar(sold.id, deps.getCar)).toBeNull();
+    expect(await snapshotCar(live.id, deps.getCar)).toEqual({ carId: live.id, carSlug: live.slug, carTitle: carTitle(live), carPriceEur: live.priceEur });
+  });
+});
+
+describe("processLead rules", () => {
+  it("stores the provider's car even when the form carries a forged title and price", async () => {
+    const { deps, rows } = fakeDeps();
+    await processLead(enquiryForm({ carTitle: "Free car", carPriceEur: "1", price: "1" }), ctx, deps);
+    expect(rows[0]).toMatchObject({ carSlug: live.slug, carTitle: carTitle(live), carPriceEur: live.priceEur });
+  });
+
+  it.each([
+    ["a sold car", () => sold.id],
+    ["an unknown car", () => "999999999"],
+  ])("refuses %s and stores nothing", async (_, id) => {
+    const { deps, rows, mail } = fakeDeps();
+    expect(await processLead(enquiryForm({ carId: id() }), ctx, deps)).toEqual({ status: "failed", kind: "server" });
+    expect(rows).toHaveLength(0);
+    expect(mail).toHaveLength(0);
+  });
+
+  it("answers ok to a filled honeypot and stores nothing", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    expect(await processLead(enquiryForm({ website: "spam.example" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows).toHaveLength(0);
+    expect(mail).toHaveLength(0);
+  });
+
+  it("stores a repeated client ref once and answers ok both times", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    const clientRef = crypto.randomUUID();
+    expect(await processLead(enquiryForm({ clientRef }), ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(enquiryForm({ clientRef }), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows).toHaveLength(1);
+    expect(mail).toHaveLength(1);
+  });
+
+  it("answers ok when the email fails, skips markNotified and logs one notify_failed line with three keys", async () => {
+    const { deps, rows, notified } = fakeDeps();
+    deps.mailer.send = async () => {
+      throw Object.assign(new Error("daily limit"), { code: "E_DAILY_LIMIT_EXCEEDED" });
+    };
+    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows).toHaveLength(1);
+    expect(notified).toHaveLength(0);
+    expect(error).toHaveBeenCalledTimes(1);
+    const line = JSON.parse(String(error.mock.calls[0][0]));
+    expect(line).toEqual({ leadId: rows[0].id, type: "enquiry", outcome: "notify_failed" });
+    expect(Object.keys(line).sort()).toEqual(["leadId", "outcome", "type"]);
   });
 });

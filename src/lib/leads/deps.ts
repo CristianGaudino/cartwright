@@ -1,6 +1,9 @@
 import "server-only";
+import { requireEnv } from "@/lib/env";
+import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
-import type { Deps } from "./process";
+import { getBindings } from "./bindings";
+import type { Deps, Mailer } from "./process";
 
 const getCar = (id: string) => stock.getById(id);
 
@@ -31,11 +34,20 @@ export function getDeps(): Deps {
   // shortcut: this branch is in every build, so if E2E_FAKE_BACKENDS is ever defined on the Worker (dashboard variable,
   // [vars], .dev.vars) leads are accepted and silently dropped. Never define it there; 03-10 adds the CI check.
   if (process.env.E2E_FAKE_BACKENDS === "1") return (fakes ??= fakeDeps());
-  // Real dependencies never fall back to a fake (research Pitfall 4): until 03-05 and 03-06 land, every lead fails loudly.
+  // Real dependencies never fall back to a fake (research Pitfall 4): a missing binding or secret fails the lead loudly.
   return {
     store: { exists: notConfigured("Lead store"), insert: notConfigured("Lead store"), markNotified: notConfigured("Lead store") },
-    mailer: { send: notConfigured("Mailer") },
+    mailer,
     getCar,
-    demo: true, // 03-05 wires isProduction
+    demo: !isProduction(),
   };
 }
+
+// Cloudflare Email Service (D-01). From the onboarded domain to the dealer; the buyer's address only goes in replyTo (D-02).
+const mailer: Mailer = {
+  async send({ subject, text, replyTo }) {
+    const email = getBindings().EMAIL;
+    if (!email) throw new Error("Missing binding EMAIL");
+    await email.send({ to: requireEnv("LEAD_TO_EMAIL"), from: LEAD_FROM_EMAIL, subject, text, ...(replyTo && { replyTo }) });
+  },
+};
