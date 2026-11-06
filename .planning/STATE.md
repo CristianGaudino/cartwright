@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
-status: executing
-stopped_at: Completed 01-06-PLAN.md
-last_updated: "2026-11-06T11:06:50.153Z"
+status: verifying
+stopped_at: Completed 01-08-PLAN.md
+last_updated: "2026-11-06T11:20:21.697Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 745df03ce51862c8e54cf3d3d09ff5f5cb5b0a76
+state_head: 09377aaeea47279236d2ca1a4c2feb078533c85d
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-11-03)
 
 Phase: 01 (Design and Stock Browsing) — EXECUTING
 Plan: 9 of 9
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-11-05 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P07 | 25min | 2 tasks | 4 files |
 | Phase 01 P09 | 25 min | 2 tasks | 10 files |
 | Phase 01 P06 | 25 min | 2 tasks | 6 files |
+| Phase 01 P08 | 40min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,7 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-09: provider failure is caught in the stock page (no error.tsx) so Sort and filters stay mounted; the E2E failure switch is env-only and CI proves it is off on the Worker
 - [Phase 01]: 01-09: loading.tsx adds about 300 ms of skeleton on every first load with the in-memory provider (React reveal throttle); owner may delete it
 - [Phase 01]: 01-06: chips row hides its Clear all filters when the result is empty (the empty state carries it); facet options use aria-disabled so they stay focusable
+- [Phase 01]: 01-08: the sheet's primary button reads summary.total, which only changes when a result lands, so it keeps the last count while pending
 
 ### Pending Todos
 
@@ -109,6 +111,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-06T11:06:50.132Z
-Stopped at: Completed 01-06-PLAN.md
+Last session: 2026-11-06T11:20:21.676Z
+Stopped at: Completed 01-08-PLAN.md
 Resume file: None
