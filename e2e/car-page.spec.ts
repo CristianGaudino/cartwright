@@ -46,6 +46,21 @@ test.describe("a car for sale", () => {
   });
 });
 
+test.describe("on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+  test("the buy box is a 360px card to the right of the photo, with the phone number under Call now", async ({ page }) => {
+    await page.goto(await firstCarHref(page));
+    const box = (await buyBox(page).boundingBox())!;
+    const photo = (await page.locator("main img").first().boundingBox())!;
+    expect(box.width).toBe(360);
+    expect(box.x).toBeGreaterThan(photo.x + photo.width);
+    expect(box.y).toBeLessThan(photo.y + photo.height);
+    await expect(buyBox(page).getByText("083 133 3154")).toBeVisible();
+    await expect(page.getByTestId("action-area")).toHaveCSS("min-height", "0px");
+  });
+});
+
 test.describe("a sold car", () => {
   test.skip(!soldInPeriod, SKIP);
 
@@ -112,6 +127,38 @@ test.describe("the sections below the buy box", () => {
     for (const href of await cards.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")))) expect(href).not.toBe(`/used-cars/${rich!.slug}`);
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 2, name: "Specifications" })).toBeVisible();
+  });
+});
+
+const ORIGIN = "https://carright.cgaudino.com";
+const jsonLd = async (page: Page) => {
+  const scripts = page.locator('script[type="application/ld+json"]');
+  await expect(scripts).toHaveCount(1);
+  return JSON.parse((await scripts.textContent())!);
+};
+const description = (page: Page) => page.locator('meta[name="description"]').getAttribute("content");
+
+test("an in-stock car page has a canonical URL, a description and Product plus Car JSON-LD", async ({ page }) => {
+  const href = await firstCarHref(page);
+  await page.goto(href);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${ORIGIN}${href}`);
+  expect(await description(page)).toMatch(/Tralee, Co\. Kerry\.$/);
+  const ld = await jsonLd(page);
+  expect(ld["@type"]).toEqual(expect.arrayContaining(["Car", "Product"]));
+  const shown = await buyBox(page).getByText(/^€[\d,]+$/).textContent();
+  expect(ld.offers.price).toBe(Number(shown!.replace(/\D/g, "")));
+  expect(ld.offers.availability).toBe("https://schema.org/InStock");
+});
+
+test.describe("a sold car's metadata", () => {
+  test.skip(!soldInPeriod, SKIP);
+
+  test("is SoldOut with no price, and the description says Sold.", async ({ page }) => {
+    await page.goto(`/used-cars/${soldInPeriod!.slug}`);
+    const ld = await jsonLd(page);
+    expect(ld.offers.availability).toBe("https://schema.org/SoldOut");
+    expect(ld.offers).not.toHaveProperty("price");
+    expect(await description(page)).toContain("Sold.");
   });
 });
 

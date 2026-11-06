@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { JsonLd } from "@/components/JsonLd";
 import { BuyBox } from "@/components/car/BuyBox";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
 import { BackToCars } from "@/components/stock/BackToCars";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import { stock } from "@/lib/stock";
-import { carName, carTitle } from "@/lib/stock/format";
+import { carName } from "@/lib/stock/format";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
+import { carJsonLd, carMetadata } from "@/lib/stock/seo";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -30,7 +32,7 @@ const resolveSlug = cache(async (slug: string) => {
 
 export async function generateMetadata({ params }: PageProps<"/used-cars/[slug]">): Promise<Metadata> {
   const found = await resolveSlug((await params).slug);
-  return found ? { title: `${found.car.year} ${carTitle(found.car)} for sale` } : {};
+  return found ? carMetadata(found.car) : {};
 }
 
 export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">) {
@@ -42,6 +44,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
 
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+      <JsonLd data={carJsonLd(car)} />
       <BackToCars />
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-8">
         {/* Gallery slot: plan 02-05 swaps in the full gallery. */}
