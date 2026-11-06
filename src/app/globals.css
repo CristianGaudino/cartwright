@@ -55,3 +55,26 @@
     outline-offset: 2px;
   }
 }
+
+/* Filter sheet (01-08): a native modal dialog docked to the bottom edge. Header and footer stay put, the body scrolls. */
+dialog.sheet {
+  inset: auto 0 0 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  max-width: none;
+  max-height: 90dvh;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--color-card);
+  color: var(--color-text);
+}
+
+dialog.sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+body:has(dialog.sheet[open]) {
+  overflow: hidden;
+}

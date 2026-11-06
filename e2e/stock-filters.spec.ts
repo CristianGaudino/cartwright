@@ -32,6 +32,11 @@ const prices = (page: Page) => page.locator("article > div:last-child > p:first-
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
 
+const filtersButton = (page: Page) => page.getByRole("button", { name: /^Filters/ });
+const sheet = (page: Page) => page.getByRole("dialog", { name: "Filters" });
+const primary = (page: Page) => sheet(page).getByRole("button", { name: /^(Show \d+ cars?|Show cars|No cars match)$/ });
+const showText = (n: number) => (n === 0 ? "No cars match" : n === 1 ? "Show 1 car" : `Show ${n} cars`);
+
 const chip = (page: Page, name: string, label: string) =>
   page.getByRole("group", { name }).getByRole("button").filter({ has: page.locator("span.truncate", { hasText: new RegExp(`^${label}$`) }) });
 
@@ -309,5 +314,61 @@ test.describe("filters on a phone", () => {
   test("one search box", async ({ page }) => {
     await page.goto("/used-cars");
     await expect(search(page)).toHaveCount(1);
+  });
+
+  test("Filters opens the sheet, ticks apply instantly and the button shows the provider's count (BRW-01, BRW-04)", async ({ page }) => {
+    await open(page);
+    await expect(sheet(page)).toHaveCount(0);
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    await expect(makeGroup(page)).toHaveCount(1);
+    await expect(search(page)).toHaveCount(1); // the page's box; the sheet has none
+
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(page).toHaveURL(new RegExp(`make=${a.value}$`));
+    await expect(primary(page)).toHaveText(showText(a.count));
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+
+    await primary(page).click();
+    await expect(sheet(page)).toHaveCount(0);
+    await expect(filtersButton(page)).toBeFocused();
+    await expect(page.getByTestId("filter-badge")).toHaveText("1");
+  });
+
+  test("Escape, Close filters and the scrim close the sheet and focus returns to Filters", async ({ page }) => {
+    await open(page);
+    const ways = [
+      () => page.keyboard.press("Escape"),
+      () => sheet(page).getByRole("button", { name: "Close filters" }).click(),
+      () => page.mouse.click(200, 20), // above the sheet, on the scrim
+    ];
+    for (const close of ways) {
+      await filtersButton(page).click();
+      await expect(sheet(page)).toBeVisible();
+      await close();
+      await expect(sheet(page)).toHaveCount(0);
+      await expect(filtersButton(page)).toBeFocused();
+    }
+  });
+
+  test("the sheet is at most 90% of the viewport, the groups scroll inside it and the button stays in view", async ({ page }) => {
+    await open(page);
+    await filtersButton(page).click();
+    const height = page.viewportSize()!.height;
+    await expect(sheet(page)).toBeVisible();
+    const sheetBox = (await sheet(page).boundingBox())!;
+    expect(sheetBox.height).toBeLessThanOrEqual(height * 0.9 + 1);
+    const button = (await primary(page).boundingBox())!;
+    expect(button.y).toBeGreaterThanOrEqual(0);
+    expect(button.y + button.height).toBeLessThanOrEqual(height);
+    expect(await sheet(page).locator("div.overflow-y-auto").evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  });
+
+  test("no match: the button reads No cars match and is disabled", async ({ page }) => {
+    await open(page, "/used-cars?make=zzzz");
+    await filtersButton(page).click();
+    await expect(primary(page)).toHaveText("No cars match");
+    await expect(primary(page)).toBeDisabled();
   });
 });
