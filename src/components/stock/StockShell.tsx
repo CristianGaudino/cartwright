@@ -40,11 +40,11 @@ function SortControl({ className }: { className: string }) {
   const { query, navigate } = useStock();
   const id = useId();
   return (
-    <div className={`items-center gap-2 ${className}`}>
-      <label htmlFor={id} className="text-meta font-semibold">
+    <div className={`min-w-0 items-center gap-2 ${className}`}>
+      <label htmlFor={id} className="sr-only text-meta font-semibold sm:not-sr-only">
         Sort
       </label>
-      <div className="relative">
+      <div className="relative min-w-0">
         <select
           id={id}
           value={query.sort}
@@ -52,7 +52,7 @@ function SortControl({ className }: { className: string }) {
             const sort = SORT_KEYS.find((k) => k === e.target.value);
             if (sort) navigate({ ...query, sort, page: 1 });
           }}
-          className="h-12 appearance-none rounded-control border border-control bg-card py-0 pl-3 pr-10 text-body"
+          className="h-12 w-full min-w-0 appearance-none truncate rounded-control border border-control bg-card py-0 pl-3 pr-10 text-body"
         >
           {SORT_KEYS.map((k) => (
             <option key={k} value={k}>

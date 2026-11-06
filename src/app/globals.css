@@ -78,3 +78,84 @@ dialog.sheet[open] {
 body:has(dialog.sheet[open]) {
   overflow: hidden;
 }
+
+/* Motion (UI-SPEC): slide on transform both ways, scrim fades with it. Transitions, not keyframes, so a reversal mid-way follows from the current position. */
+dialog.sheet {
+  transform: translateY(100%);
+  transition:
+    transform 320ms var(--ease-sheet),
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+dialog.sheet[open] {
+  transform: translateY(0);
+}
+
+@starting-style {
+  dialog.sheet[open] {
+    transform: translateY(100%);
+  }
+}
+
+dialog.sheet::backdrop {
+  background-color: rgb(14 14 16 / 0);
+  transition:
+    background-color 320ms ease,
+    overlay 320ms allow-discrete,
+    display 320ms allow-discrete;
+}
+
+dialog.sheet[open]::backdrop {
+  background-color: rgb(14 14 16 / 0.4);
+}
+
+@starting-style {
+  dialog.sheet[open]::backdrop {
+    background-color: rgb(14 14 16 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.sheet,
+  dialog.sheet[open] {
+    transform: none;
+  }
+
+  dialog.sheet {
+    opacity: 0;
+    transition:
+      opacity 150ms linear,
+      overlay 150ms allow-discrete,
+      display 150ms allow-discrete;
+  }
+
+  dialog.sheet[open] {
+    opacity: 1;
+  }
+
+  @starting-style {
+    dialog.sheet[open] {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  dialog.sheet::backdrop {
+    transition-duration: 150ms;
+  }
+}
+
+/* Nothing in the sheet is translucent when asked; the scrim stays, it is a dimmer, not a material. */
+@media (prefers-reduced-transparency: reduce) {
+  dialog.sheet {
+    background: var(--color-card);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  dialog.sheet {
+    border: 1px solid var(--color-text);
+  }
+}

@@ -138,6 +138,12 @@ test.describe("filters on a desktop", () => {
     await expect(box(page, last.value)).toBeChecked();
   });
 
+  test("one copy of the filter groups and no Filters button", async ({ page }) => {
+    await open(page);
+    await expect(makeGroup(page)).toHaveCount(1);
+    await expect(filtersButton(page)).toHaveCount(0);
+  });
+
   test("search, one box, 250ms pause, never disabled", async ({ page }) => {
     await open(page);
     await expect(search(page)).toHaveCount(1);
@@ -357,6 +363,7 @@ test.describe("filters on a phone", () => {
     await filtersButton(page).click();
     const height = page.viewportSize()!.height;
     await expect(sheet(page)).toBeVisible();
+    await sheet(page).evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)).then(() => 0)); // measure after the slide
     const sheetBox = (await sheet(page).boundingBox())!;
     expect(sheetBox.height).toBeLessThanOrEqual(height * 0.9 + 1);
     const button = (await primary(page).boundingBox())!;
@@ -370,5 +377,99 @@ test.describe("filters on a phone", () => {
     await filtersButton(page).click();
     await expect(primary(page)).toHaveText("No cars match");
     await expect(primary(page)).toBeDisabled();
+  });
+
+  test("while results update the button keeps a real label and shows aria-busy", async ({ page }) => {
+    await open(page);
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    await primary(page).evaluate((el) => {
+      const w = window as unknown as { seen: string[]; busy: boolean };
+      w.seen = [];
+      w.busy = false;
+      const record = () => {
+        w.seen.push(el.textContent ?? "");
+        if (el.getAttribute("aria-busy") === "true") w.busy = true;
+      };
+      record();
+      new MutationObserver(record).observe(el, { childList: true, characterData: true, subtree: true, attributes: true });
+    });
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(primary(page)).toHaveText(showText(a.count));
+    const { seen, busy } = await page.evaluate(() => {
+      const w = window as unknown as { seen: string[]; busy: boolean };
+      return { seen: w.seen, busy: w.busy };
+    });
+    expect(busy).toBe(true);
+    expect(seen.length).toBeGreaterThan(1);
+    for (const text of seen) expect(text).toMatch(/^(Show \d+ cars|Show 1 car|No cars match)$/);
+  });
+
+  test("a failed load: the button reads Show cars and the options stay usable without counts", async ({ page }) => {
+    test.skip(!!process.env.E2E_BASE_URL, "needs the failure switch, which only the local server has");
+    await open(page);
+    await search(page).fill("e2e-forced-failure");
+    await expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible();
+    await filtersButton(page).click();
+    await expect(primary(page)).toHaveText("Show cars");
+    await expect(primary(page)).toBeEnabled();
+    const makes = await rows(page);
+    expect(makes.length).toBeGreaterThan(0);
+    expect(makes.every((r) => Number.isNaN(r.count))).toBe(true);
+    await expect(makeGroup(page).locator('[aria-disabled="true"]')).toHaveCount(0);
+  });
+
+  test("one copy of the filter groups: none closed, one open, none again", async ({ page }) => {
+    await open(page);
+    await expect(makeGroup(page)).toHaveCount(0);
+    await filtersButton(page).click();
+    await expect(makeGroup(page)).toHaveCount(1);
+    await page.keyboard.press("Escape");
+    await expect(makeGroup(page)).toHaveCount(0);
+  });
+
+  test("a ticked make ranked ninth or lower is visible and checked in the sheet without Show all (BRW-01)", async ({ page }) => {
+    await open(page);
+    await filtersButton(page).click();
+    expect(await showAll(page).count(), "needs more than 8 makes").toBe(1);
+    await showAll(page).click();
+    const last = (await rows(page)).at(-1)!;
+
+    await open(page, `/used-cars?make=${last.value}`);
+    await filtersButton(page).click();
+    await expect(showAll(page)).toBeVisible(); // still collapsed
+    await expect(box(page, last.value)).toBeVisible();
+    await expect(box(page, last.value)).toBeChecked();
+  });
+
+  test("the sheet slides on transform over 320ms, and cross-fades over 150ms with reduced motion", async ({ page }) => {
+    const motion = () => sheet(page).evaluate((el) => ({ property: getComputedStyle(el).transitionProperty, duration: getComputedStyle(el).transitionDuration }));
+    await open(page);
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    const normal = await motion();
+    expect(normal.property).toContain("transform");
+    expect(normal.duration).toContain("0.32s");
+
+    await page.keyboard.press("Escape");
+    await expect(sheet(page)).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    const reduced = await motion();
+    expect(reduced.property).toContain("opacity");
+    expect(reduced.property).not.toContain("transform");
+    expect(reduced.duration).toContain("0.15s");
+  });
+
+  test("at 320px wide the page never scrolls sideways", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await open(page);
+    const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
+    expect(await scrollWidth()).toBeLessThanOrEqual(320);
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    expect(await scrollWidth()).toBeLessThanOrEqual(320);
   });
 });
