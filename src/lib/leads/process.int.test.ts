@@ -19,7 +19,7 @@ const sold = cars.find((c) => c.soldAt)!;
 
 function deps(send: Deps["mailer"]["send"] = async () => {}) {
   const mail = vi.fn(send);
-  const d: Deps = { store: createDrizzleStore(getDb()), mailer: { send: mail }, getCar: async (id) => cars.find((c) => c.id === id) ?? null, demo: true };
+  const d: Deps = { store: createDrizzleStore(getDb()), mailer: { send: mail }, getCar: async (id) => cars.find((c) => c.id === id) ?? null, limiter: { allow: async () => true }, verifyTurnstile: async () => true, demo: true };
   return { deps: d, mail };
 }
 

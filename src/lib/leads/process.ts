@@ -47,6 +47,8 @@ export interface Deps {
   store: LeadStore;
   mailer: Mailer;
   getCar(id: string): Promise<Car | null>;
+  limiter: { allow(key: string): Promise<boolean> };
+  verifyTurnstile(token: string, ip: string): Promise<boolean>;
   demo: boolean;
 }
 
@@ -66,27 +68,40 @@ export async function snapshotCar(carId: string | undefined, getCar: Deps["getCa
 
 // Logs exactly one line per request, with only the lead id, type and outcome (D-08). Nothing from a caught error is ever
 // logged or returned: a Drizzle error message carries the bound values (research Pitfall 1).
-// ctx.ip feeds the rate limiter (03-08); it is never stored.
+// ctx.ip feeds the rate limiter and the bot check; it is never stored.
+// Order (D-05, research Pitfall 5): honeypot, rate limit, fields, then Turnstile, so a typo never spends the single-use token.
 export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps): Promise<LeadResult> {
   if (String(fd.get("website") ?? "") !== "") {
     logLead({ type: "n/a", outcome: "honeypot" });
     return OK; // a bot sees the normal success (D-05)
   }
 
-  const raw: Record<string, string> = {};
-  for (const k of KEYS) {
-    const v = fd.get(k);
-    if (typeof v === "string") raw[k] = v;
-  }
-  const parsed = leadSchema.safeParse(raw);
-  if (!parsed.success) {
-    logLead({ type: Object.hasOwn(TYPE_LABELS, raw.type ?? "") ? (raw.type as LeadType) : "n/a", outcome: "invalid" });
-    return { status: "invalid", fieldErrors: z.flattenError(parsed.error).fieldErrors as Record<string, string[]> };
-  }
-  const input = parsed.data;
-
+  let type: LeadType | "n/a" = "n/a";
   let leadId: string | undefined;
   try {
+    if (!(await deps.limiter.allow(ctx.ip))) {
+      logLead({ type, outcome: "rate" });
+      return { status: "failed", kind: "rate" };
+    }
+
+    const raw: Record<string, string> = {};
+    for (const k of KEYS) {
+      const v = fd.get(k);
+      if (typeof v === "string") raw[k] = v;
+    }
+    const parsed = leadSchema.safeParse(raw);
+    if (!parsed.success) {
+      logLead({ type: Object.hasOwn(TYPE_LABELS, raw.type ?? "") ? (raw.type as LeadType) : "n/a", outcome: "invalid" });
+      return { status: "invalid", fieldErrors: z.flattenError(parsed.error).fieldErrors as Record<string, string[]> };
+    }
+    const input = parsed.data;
+    type = input.type;
+
+    if (!(await deps.verifyTurnstile(String(fd.get("cf-turnstile-response") ?? ""), ctx.ip))) {
+      logLead({ type, outcome: "captcha" });
+      return { status: "failed", kind: "captcha" };
+    }
+
     const car = await snapshotCar(input.carId, deps.getCar);
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
@@ -133,7 +148,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     logLead({ leadId, type: input.type, outcome: "stored" });
     return OK;
   } catch {
-    logLead({ leadId, type: input.type, outcome: "error" });
+    logLead({ leadId, type, outcome: "error" });
     return SERVER;
   }
 }

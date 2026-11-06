@@ -6,6 +6,7 @@ import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { createDrizzleStore } from "./store";
+import { verifyTurnstile } from "./turnstile";
 
 const getCar = (id: string) => stock.getById(id);
 
@@ -24,6 +25,8 @@ function fakeDeps(): Deps {
     },
     mailer: { send: async () => {} },
     getCar,
+    limiter: { allow: async () => true },
+    verifyTurnstile: async (token) => token !== "",
     demo: true,
   };
 }
@@ -47,6 +50,8 @@ export function getDeps(): Deps {
     store,
     mailer,
     getCar,
+    limiter,
+    verifyTurnstile: (token, ip) => verifyTurnstile(token, ip, requireEnv("TURNSTILE_SECRET_KEY")),
     demo: !isProduction(),
   };
 }
@@ -57,5 +62,14 @@ const mailer: Mailer = {
     const email = getBindings().EMAIL;
     if (!email) throw new Error("Missing binding EMAIL");
     await email.send({ to: requireEnv("LEAD_TO_EMAIL"), from: LEAD_FROM_EMAIL, subject, text, ...(replyTo && { replyTo }) });
+  },
+};
+
+// 5 requests a minute per IP (wrangler.jsonc LEAD_LIMITER; 03-01 proved it on wrangler dev, A3).
+const limiter: Deps["limiter"] = {
+  async allow(key) {
+    const l = getBindings().LEAD_LIMITER;
+    if (!l) throw new Error("Missing binding LEAD_LIMITER");
+    return (await l.limit({ key })).success;
   },
 };

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
 test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
@@ -19,6 +20,8 @@ async function open(page: Page, slug: string) {
 }
 const dialog = (page: Page) => page.getByRole("dialog", { name: "Enquire" });
 const enquire = (page: Page) => page.getByRole("button", { name: "Enquire", exact: true });
+
+test.beforeEach(async ({ page }) => stubTurnstile(page));
 
 test("an enquiry from a car page ends on the thanks, and the next one starts empty", async ({ page }) => {
   await open(page, live.slug);
@@ -60,4 +63,24 @@ test("a sold car has no Enquire button", async ({ page }) => {
   await page.goto(`/used-cars/${sold!.slug}`);
   await expect(page.getByTestId("buy-box")).toBeVisible();
   await expect(enquire(page)).toHaveCount(0);
+});
+
+test("the bot check loads only once the dialog opens, and a failed check keeps what was typed", async ({ page }) => {
+  await page.unrouteAll();
+  await stubTurnstile(page, { pass: false });
+  const calls: string[] = [];
+  page.on("request", (r) => r.url().startsWith("https://challenges.cloudflare.com/") && calls.push(r.url()));
+  await open(page, live.slug);
+  expect(calls).toEqual([]);
+
+  await enquire(page).click();
+  const d = dialog(page);
+  await expect.poll(() => calls.length).toBe(1);
+  await d.getByLabel("Name").fill("Kept Name");
+  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByRole("checkbox").check();
+  await d.getByRole("button", { name: "Send enquiry" }).click();
+  await expect(d.getByRole("alert")).toContainText("We could not check this request.");
+  await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
+  await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });

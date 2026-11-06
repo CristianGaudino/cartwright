@@ -24,6 +24,8 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
     },
     mailer: { send: async (m) => void mail.push(m) },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
+    limiter: { allow: async () => true },
+    verifyTurnstile: async (token) => token === "ok-token",
     demo: true,
   };
   return { deps, rows, mail, notified };
@@ -32,7 +34,7 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
 // The FormData exactly as LeadForm sends an enquiry.
 function enquiryForm(fields: Record<string, string> = {}) {
   const fd = new FormData();
-  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test Buyer", email: "buyer@example.com", consent: "yes", ...fields };
+  const all = { type: "enquiry", carId: live.id, clientRef: crypto.randomUUID(), sourcePath: `/used-cars/${live.slug}`, name: "Test Buyer", email: "buyer@example.com", consent: "yes", "cf-turnstile-response": "ok-token", ...fields };
   for (const [k, v] of Object.entries(all)) fd.set(k, v);
   return fd;
 }
@@ -137,5 +139,43 @@ describe("processLead rules", () => {
     const line = JSON.parse(String(error.mock.calls[0][0]));
     expect(line).toEqual({ leadId: rows[0].id, type: "enquiry", outcome: "notify_failed" });
     expect(Object.keys(line).sort()).toEqual(["leadId", "outcome", "type"]);
+  });
+});
+
+describe("processLead bot checks (D-05)", () => {
+  it("turns a flood away before reading the fields and never checks Turnstile", async () => {
+    const { deps, rows } = fakeDeps();
+    const verify = vi.fn(deps.verifyTurnstile);
+    deps.verifyTurnstile = verify;
+    deps.limiter.allow = async (key) => key !== ctx.ip;
+    expect(await processLead(enquiryForm({ name: "" }), ctx, deps)).toEqual({ status: "failed", kind: "rate" });
+    expect(verify).not.toHaveBeenCalled();
+    expect(rows).toHaveLength(0);
+    expect(lines()).toEqual([{ type: "n/a", outcome: "rate" }]);
+  });
+
+  it("validates before Turnstile, so a typo never spends the token", async () => {
+    const { deps } = fakeDeps();
+    const verify = vi.fn(deps.verifyTurnstile);
+    deps.verifyTurnstile = verify;
+    expect((await processLead(enquiryForm({ name: "" }), ctx, deps)).status).toBe("invalid");
+    expect(verify).not.toHaveBeenCalled();
+  });
+
+  it("refuses a missing or bad token and stores nothing", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    expect(await processLead(enquiryForm({ "cf-turnstile-response": "" }), ctx, deps)).toEqual({ status: "failed", kind: "captcha" });
+    expect(await processLead(enquiryForm({ "cf-turnstile-response": "forged" }), ctx, deps)).toEqual({ status: "failed", kind: "captcha" });
+    expect(rows).toHaveLength(0);
+    expect(mail).toHaveLength(0);
+    expect(lines().map((l) => l.outcome)).toEqual(["captcha", "captcha"]);
+  });
+
+  it("answers a filled honeypot without spending the rate limit", async () => {
+    const { deps } = fakeDeps();
+    const allow = vi.fn(deps.limiter.allow);
+    deps.limiter.allow = allow;
+    expect(await processLead(enquiryForm({ website: "x" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(allow).not.toHaveBeenCalled();
   });
 });

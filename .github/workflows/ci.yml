@@ -45,6 +45,7 @@ jobs:
     timeout-minutes: 15
     env:
       APP_ENV: production
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB # Cloudflare's always-pass test key
       WRANGLER_SEND_METRICS: false
     steps:
       - uses: actions/checkout@v7
@@ -105,6 +106,7 @@ jobs:
       options: --ipc=host
     env:
       APP_ENV: production
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB # Cloudflare's always-pass test key; specs stub the script anyway
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
