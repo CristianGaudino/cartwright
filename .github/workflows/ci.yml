@@ -57,20 +57,20 @@ jobs:
           photo=$(node -p "require('./src/lib/stock/demo-cars.json')[0].photos[0].src")
           for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "$photo 200" "/used-cars/not-a-car 404"; do
             set -- $case
-            got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1")
+            got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1") || true # bash -e: a Worker that never started must not skip the wrangler.log dump below
             echo "$1: $got (want $2)"
             [ "$got" = "$2" ] || fail=1
           done
           # T-01-12: the dealer's photos stay out of search. Cache-control is printed for the record (RESEARCH A8).
-          headers=$(curl -sI --max-time 60 "http://127.0.0.1:8787$photo")
+          headers=$(curl -sI --max-time 60 "http://127.0.0.1:8787$photo") || true
           echo "$headers" | grep -i '^cache-control' || echo 'no cache-control header'
           if ! echo "$headers" | grep -i '^x-robots-tag:' | grep -qi noindex; then echo "$photo has no x-robots-tag noindex header"; fail=1; fi
           # T-01-26: the E2E failure switch must be off on the Worker, so its trigger search must show cars, not the error state.
-          code=$(curl -s -o forced.html -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/used-cars?q=e2e-forced-failure')
+          code=$(curl -s -o forced.html -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/used-cars?q=e2e-forced-failure') || true
           echo "forced-failure search: $code (want 200)"
           if [ "$code" != 200 ] || grep -q 'We could not load the cars' forced.html; then echo 'the E2E failure switch is on in the Worker build'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
-          if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; exit 1; fi
+          if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; tail -n 20 wrangler.log; exit 1; fi
 
   # A plain production build, not the Worker build: faster, and the worker job covers Cloudflare.
   e2e:
