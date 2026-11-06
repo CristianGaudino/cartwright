@@ -25,7 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      APP_ENV: production
+      # The demo deploy is not production: every page is noindex, the sitemap is empty and robots.txt only lets the
+      # share-preview bots in. Set production only when this deploys the client's live domain (owner decision 1).
+      APP_ENV: demo
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       NEXT_TELEMETRY_DISABLED: 1

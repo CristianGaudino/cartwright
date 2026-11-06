@@ -53,14 +53,30 @@ jobs:
           npx wrangler dev --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
           curl -s -o /dev/null --retry 60 --retry-connrefused --retry-delay 2 http://127.0.0.1:8787/robots.txt || true
           fail=0
-          slug=$(node -p "require('./src/lib/stock/demo-cars.json')[0].slug")
-          photo=$(node -p "require('./src/lib/stock/demo-cars.json')[0].photos[0].src")
-          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "$photo 200" "/used-cars/not-a-car 404"; do
+          # The first car may be sold now, so the live car is the first without a sale date; the expired one has the oldest sale date.
+          slug=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).slug")
+          photo=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).photos[0].src")
+          expired=$(node -p "require('./src/lib/stock/demo-cars.json').filter(c => c.soldAt).sort((a, b) => Date.parse(a.soldAt) - Date.parse(b.soldAt))[0].slug")
+          # Landing pages of the live car: its make, its body type (first live car that has one) and its make and model.
+          make=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).makeSlug")
+          model=$(node -p "const c = require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt); c.makeSlug + '/' + c.modelSlug")
+          body=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt && c.bodySlug).bodySlug")
+          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404"; do
             set -- $case
             got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1") || true # bash -e: a Worker that never started must not skip the wrangler.log dump below
             echo "$1: $got (want $2)"
             [ "$got" = "$2" ] || fail=1
           done
+          # The 410 comes from the Node proxy, which OpenNext bundles as experimental (RESEARCH A2): prove the body too.
+          curl -s --max-time 60 "http://127.0.0.1:8787/used-cars/$expired" | grep -q 'This car is no longer available' || { echo 'the expired car page has no gone copy'; fail=1; }
+          # The sitemap lists the live car (RESEARCH Pitfall 7) and robots.txt points at it.
+          code=$(curl -s -o sitemap.xml -w '%{http_code}' --max-time 60 http://127.0.0.1:8787/sitemap.xml) || true
+          echo "/sitemap.xml: $code (want 200)"
+          if [ "$code" != 200 ] || ! grep -q "https://carright.cgaudino.com/used-cars/$slug" sitemap.xml; then echo 'the sitemap does not list the live car'; fail=1; fi
+          grep -q "https://carright.cgaudino.com/used-cars/$make<" sitemap.xml || { echo 'the sitemap does not list the live make page'; fail=1; }
+          curl -s --max-time 60 http://127.0.0.1:8787/robots.txt | grep -q 'Sitemap:' || { echo 'robots.txt has no Sitemap line'; fail=1; }
+          # Pitfall 1: APP_ENV=production is inlined at build, so a live car page must not be noindex on the Worker.
+          if curl -s --max-time 60 "http://127.0.0.1:8787/used-cars/$slug" | grep -qi noindex; then echo "the live car page is noindex on the Worker"; fail=1; fi
           # T-01-12: the dealer's photos stay out of search. Cache-control is printed for the record (RESEARCH A8).
           headers=$(curl -sI --max-time 60 "http://127.0.0.1:8787$photo") || true
           echo "$headers" | grep -i '^cache-control' || echo 'no cache-control header'

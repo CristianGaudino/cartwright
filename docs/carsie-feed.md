@@ -65,7 +65,21 @@ Every field of `Car` in `src/lib/stock/types.ts`, in order.
 | `bodyType`, `bodySlug` | Body | Body type as text. | The slug is derived from the label. Optional. |
 | `photos` | Photos from `c0.carsie.ie`, originals at 938 x 704. | Photo URLs, original size, in display order. | The demo re-encodes to 900 x 675 WebP and copies them into the repo (D-11). A live provider must either do the same, or use URLs the client may show, and must set width and height. |
 | Listing date (not in `Car` yet) | Not shown. | The date the car was listed. | "Newest listed" uses the id as a stand-in (A2). A real date replaces that. |
-| Sold or removed state (not in `Car` yet) | Not shown. A sold car disappears. | A sold flag, or a removal event. | Needed for the 410 behaviour for sold cars in Phase 2 (CAR-02). |
+| `soldAt` | Not shown. A sold car disappears. | The date the car was sold, or a removal event with its date. | Drives the 30 day sold window and the 410 (CAR-02). See "Sold and removed cars" below. Never shown on the site. |
+
+## Sold and removed cars (Phase 2)
+
+The contract in `src/lib/stock/types.ts` now covers sold cars. A provider must do the following.
+
+- Give each sold car a sale date (`soldAt`, `YYYY-MM-DD`). The site never shows it. It only drives the window below.
+- Keep a sold car visible for `SOLD_VISIBLE_DAYS` (30) days after the sale date. In that time `getBySlug`, `getById` and `lookup` return it, and `query` lists it only when `sold` is `"include"` or `"only"`. A default query never returns a sold car, and sold cars add nothing to the facets.
+- After the window the car is gone: it is out of every list and lookup, but `lookup(slug)` answers `gone` with its make, so the page can return 410. A slug that was never in the data answers `null` (404).
+- `taxonomy()` returns every make, body type and model ever listed, expired cars included, so a make page can exist with nothing in stock.
+- Read the clock on every call, never once at start-up, and let tests pass their own clock (`createFileProvider(cars, { now })`).
+
+A feed that simply drops a sold car can only answer `gone` if the provider keeps a record of past slugs. Without one, those URLs return 404, not 410.
+
+`runContract` in `src/lib/stock/contract.test.ts` holds all of these rules. A Carsie provider must pass them.
 
 ## Adding a Carsie provider
 
@@ -94,3 +108,10 @@ Send these to the dealer, who can ask CarsIreland. No provider is built until ac
 8. Is there a test or sandbox account we can use before going live?
 9. Who, at the dealership or at CarsIreland, owns this integration and can approve access?
 10. Do you hold the rights to the photos on `c0.carsie.ie`, or can you supply your own images for the public site?
+
+About uploader.ie (the tool the dealer may use to publish stock):
+
+11. Does uploader.ie push your stock to CarsIreland, Carzone or your own site?
+12. Can it export your stock, or expose a feed or API, that we could read instead?
+13. How does it mark a car as sold? Is the sale date kept?
+14. Which extra spec fields does it hold (for example colour, owners, NCT date, seats, equipment)?

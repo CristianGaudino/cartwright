@@ -64,9 +64,22 @@ Plans:
   2. A removed car's URL returns 410 or redirects, never a broken page. A car marked sold stays visible, labelled Sold, for a set period (one setting), then returns 410 or redirects
   3. User can share a car with the native share sheet or a WhatsApp button, and the link previews with the photo, name and price in WhatsApp, iMessage and Facebook
   4. User can open /used-cars/audi, /used-cars/suv and make+model pages that each have their own title and copy, link to related pages, and show a helpful empty state when there is no stock
-  5. Every car and landing page has a canonical URL, `Vehicle`/`Offer` JSON-LD and a sitemap entry
+  5. Every car and every landing page with stock has a canonical URL, `Vehicle`/`Offer` JSON-LD and a sitemap entry
 
-**Plans**: TBD
+**Order**: #6 first (plans 02-01 to 02-06, one PR opened by 02-05). #8 and #7 branch from the #6 branch and open their PRs after #6 merges; they share no file and can run side by side.
+
+**Plans:** 8/8 plans executed
+
+Plans:
+- [x] 02-01-PLAN.md: Provider contract: sale date and 30-day window, lookup live/gone/null, sold include/only, taxonomy, contract suite; demo data with sold cars and the dealer's full spec parsed offline (#6; wave 1)
+- [x] 02-02-PLAN.md: APP_ENV inlined, site constants, robots default, robots.txt with share bots, dynamic sitemap, list page canonical (#6; wave 2)
+- [x] 02-06-PLAN.md: Include sold cars toggle and chip, sold cards with the shared Sold badge, See all photos card tile (#6; wave 2)
+- [x] 02-03-PLAN.md: 410 via proxy and the gone page, 404 and error pages, CI worker proof, demo deploy env (#6; wave 3)
+- [x] 02-04-PLAN.md: Car page: buy box with Call now or Sold banner, specs, equipment, similar cars, canonical and Product/Car JSON-LD (#6; wave 3)
+- [x] 02-05-PLAN.md: Gallery with thumbnails and native dialog lightbox; #6 pre-PR gate and PR (#6; wave 4)
+- [x] 02-07-PLAN.md: Make, body and make+model landing pages with chips, empty state, ItemList JSON-LD and sitemap entries; #8 PR (#8; wave 5)
+- [x] 02-08-PLAN.md: Share button (native, WhatsApp, copy link) and pre-generated OG images with preview metadata; #7 PR (#7; wave 5)
+
 **UI hint**: yes
 
 ### Phase 3: Leads, Finance and Saved Cars
@@ -125,7 +138,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Design and Stock Browsing | 9/9 | In Progress | - |
-| 2. Car Pages and Discovery | 0/TBD | Not started | - |
+| 2. Car Pages and Discovery | 8/8 | In Progress | - |
 | 3. Leads, Finance and Saved Cars | 0/TBD | Not started | - |
 | 4. Reviews and Core Pages | 0/TBD | Not started | - |
 | 5. Quality Pass | 0/TBD | Not started | - |

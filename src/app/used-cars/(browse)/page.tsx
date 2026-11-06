@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { StockResults } from "@/components/stock/StockResults";
 import { StockError, StockShell } from "@/components/stock/StockShell";
+import { indexable } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { parseStockQuery, stockHref } from "@/lib/stock/query";
 
-// shortcut: noindex while the demo uses the dealer's data (D-04), remove when the client feed replaces it.
-export const metadata: Metadata = { title: "Used cars", robots: { index: false } };
+// Filtered and sorted lists duplicate the landing pages, so only the bare list is indexable.
+export async function generateMetadata({ searchParams }: PageProps<"/used-cars">): Promise<Metadata> {
+  const bare = Object.keys(await searchParams).length === 0;
+  return { title: "Used cars", alternates: { canonical: "/used-cars" }, robots: { index: indexable() && bare } };
+}
 
 export default async function UsedCarsPage({ searchParams }: PageProps<"/used-cars">) {
   const query = parseStockQuery(await searchParams);

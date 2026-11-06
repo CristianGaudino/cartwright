@@ -131,6 +131,32 @@ describe("stockHref and toSearchParams", () => {
   });
 });
 
+describe("sold param", () => {
+  it("only the exact value 1 turns it on; anything else, and 'only', is ignored", () => {
+    expect(parseStockQuery({ sold: "1" }).sold).toBe("include");
+    expect(parseStockQuery({ sold: ["1", "0"] }).sold).toBe("include");
+    for (const v of ["true", "0", "only", "yes", "include", "", "01"]) expect(parseStockQuery({ sold: v }).sold).toBeUndefined();
+  });
+
+  it("round trips, sits after kmMax and before sort, and never writes only", () => {
+    const q: StockQuery = { ...DEFAULT_QUERY, kmMax: 50000, sold: "include", sort: "price-asc" };
+    expect(stockHref(q)).toBe("/used-cars?kmMax=50000&sold=1&sort=price-asc");
+    expect(parseStockQuery(Object.fromEntries(toSearchParams(q)))).toEqual(q);
+    expect(stockHref({ ...DEFAULT_QUERY, sold: "only" })).toBe("/used-cars");
+  });
+
+  it("is a chip after Mileage whose next drops it and goes to page 1; Clear all drops it too", () => {
+    const q: StockQuery = { ...DEFAULT_QUERY, kmMax: 50000, sold: "include", page: 3 };
+    const chips = appliedFilters(q, null);
+    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold cars included"]);
+    const sold = chips[1];
+    expect(sold.next.sold).toBeUndefined();
+    expect(sold.next.page).toBe(1);
+    expect(appliedFilters(sold.next, null)).toHaveLength(1);
+    expect(clearFilters(q).sold).toBeUndefined();
+  });
+});
+
 describe("clearFilters", () => {
   it("keeps only the sort", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, q: "a4", make: ["audi"], fuel: ["diesel"], kmMax: 50000, sort: "price-asc", page: 3 };
