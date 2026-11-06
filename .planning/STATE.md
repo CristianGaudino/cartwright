@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-11-06T23:31:06.594Z"
+stopped_at: Completed 03-06-PLAN.md
+last_updated: "2026-11-06T23:40:29.355Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 8f8032cc748430729720640d1e314b26ad8337b3
+state_head: 585aba3b9ae822c4ab86351096b01072620b0d1a
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 19
+  completed_plans: 21
   percent: 0
 ---
 
@@ -67,6 +67,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P08 | 40min | 2 tasks | 4 files |
 | Phase 03 P01 | 35m | 3 tasks | 3 files |
 | Phase 03 P04 | 50m | 2 tasks | 17 files |
+| Phase 03 P05 | 10m | 2 tasks | 5 files |
+| Phase 03 P06 | 25m | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -94,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase 03]: Packages approved against vintage's lockfile (same version and sha512) because 03-02 is not done
 - [Phase 03]: A sold or unknown car refuses the lead with failed/server and logs outcome invalid, not error
 - [Phase 03]: A markNotified failure after a sent email counts as notify_failed
+- [Phase 03]: LEAD_FROM_EMAIL is a placeholder (leads@cgaudino.com) until 03-02 records the sending address; logged on #47
+- [Phase 03]: Leads columns locked as research-columns (D-03). Overnight default, logged on #47; migration generated, not applied to any database
 
 ### Pending Todos
 
@@ -117,6 +121,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-06T23:30:57.325Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-11-06T23:40:29.323Z
+Stopped at: Completed 03-06-PLAN.md
 Resume file: None
