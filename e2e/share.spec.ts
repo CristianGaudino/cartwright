@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 
-type Demo = { slug: string; soldAt?: string };
+type Demo = { id: string; slug: string; make: string; model: string; year: number; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
 const SKIP = "No demo car is inside the sold window: run npm run stock:build to refresh the demo dates";
@@ -132,4 +132,21 @@ test.describe("share a car", () => {
     expect(text).not.toContain(soldInPeriod!.soldAt!);
     expect(text).toContain(`${ORIGIN}/used-cars/${soldInPeriod!.slug}`);
   });
+});
+
+test("a car page announces its generated image and the large card, with absolute URLs", async ({ page, request }) => {
+  const href = await firstCarHref(page);
+  const car = cars.find((c) => href.endsWith(c.slug))!;
+  await page.goto(href);
+  const meta = (sel: string) => page.locator(sel).getAttribute("content");
+  expect(await meta('meta[property="og:image"]')).toBe(`${ORIGIN}/og/${car.id}.jpg`);
+  expect(await meta('meta[property="og:image:width"]')).toBe("1200");
+  expect(await meta('meta[property="og:image:height"]')).toBe("630");
+  expect(await meta('meta[property="og:image:alt"]')).toBe(`${car.year} ${car.make} ${car.model}`);
+  expect(await meta('meta[property="og:title"]')).toBeTruthy();
+  expect(await meta('meta[property="og:description"]')).toBeTruthy();
+  expect(await meta('meta[name="twitter:card"]')).toBe("summary_large_image");
+  const image = await request.get(`/og/${car.id}.jpg`);
+  expect(image.status()).toBe(200);
+  expect(image.headers()["content-type"]).toBe("image/jpeg");
 });

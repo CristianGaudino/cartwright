@@ -1,5 +1,6 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
@@ -92,6 +93,17 @@ describe("generated demo cars", () => {
   it("has no photo file that no car references", () => {
     const referenced = new Set(cars.flatMap((c) => c.photos.map((p) => `public${p.src}`)));
     expect(files("public/stock").filter((f) => !referenced.has(f))).toEqual([]);
+  });
+
+  // Made by `npm run stock:og`; an extra or missing file means the script was not re-run after stock:build.
+  it("has one 1200 x 630 progressive JPEG under 200 KB per car in public/og, and nothing else", async () => {
+    expect(readdirSync("public/og").sort()).toEqual(cars.map((c) => `${c.id}.jpg`).sort());
+    for (const c of cars) {
+      const file = `public/og/${c.id}.jpg`;
+      const m = await sharp(file).metadata();
+      expect([m.format, m.width, m.height, m.isProgressive]).toEqual(["jpeg", 1200, 630, true]);
+      expect(statSync(file).size).toBeLessThan(200_000);
+    }
   });
 
   it("is served by the single config point", async () => {
