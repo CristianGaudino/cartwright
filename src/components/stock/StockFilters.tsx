@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { formatKm, formatPrice } from "@/lib/stock/format";
-import { facetRows, toggle } from "@/lib/stock/query";
+import { facetRows, toggle, withRange } from "@/lib/stock/query";
 import { GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { CheckIcon, ChevronDownIcon } from "./icons";
@@ -208,7 +208,7 @@ function Row({ title, children }: { title: string; children: React.ReactNode }) 
 
 export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
   const { query, facets, navigate } = useStock();
-  const set = (patch: Partial<StockQuery>) => navigate({ ...query, ...patch, page: 1 });
+  const set = (patch: Partial<StockQuery>) => navigate(withRange(query, patch));
   const models = facets?.model.filter((o) => o.parent !== undefined && query.make.includes(o.parent)) ?? [];
   const years: number[] = [];
   if (facets?.years) for (let y = facets.years.max; y >= facets.years.min; y--) years.push(y);

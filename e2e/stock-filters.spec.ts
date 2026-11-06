@@ -228,6 +228,26 @@ test.describe("filters on a desktop", () => {
     await expect(page).toHaveURL(/\/used-cars$/);
   });
 
+  test("a From above To (or Min above Max) pulls the other bound along instead of showing no cars", async ({ page }) => {
+    await open(page);
+    const years = (await select(page, "From").locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))).filter(Boolean).map(Number);
+    const [newest, oldest] = [Math.max(...years), Math.min(...years)];
+    expect(newest).toBeGreaterThan(oldest);
+    await select(page, "To").selectOption(String(oldest));
+    await expect(page).toHaveURL(new RegExp(`yearTo=${oldest}$`));
+    await select(page, "From").selectOption(String(newest));
+    await expect(page).toHaveURL(new RegExp(`yearFrom=${newest}&yearTo=${newest}$`));
+    await expect(select(page, "To")).toHaveValue(String(newest));
+    await select(page, "To").selectOption(String(oldest));
+    await expect(page).toHaveURL(new RegExp(`yearFrom=${oldest}&yearTo=${oldest}$`));
+    await expect(select(page, "From")).toHaveValue(String(oldest));
+
+    await select(page, "Min").selectOption("25000");
+    await select(page, "Max").selectOption("10000");
+    await expect(page).toHaveURL(/priceMin=10000&priceMax=10000$/);
+    await expect(select(page, "Min")).toHaveValue("10000");
+  });
+
   test("an option with a zero count and no tick is aria-disabled; anything with a count is not", async ({ page }) => {
     await open(page);
     if (await showAll(page).count()) await showAll(page).click();

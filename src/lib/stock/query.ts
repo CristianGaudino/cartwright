@@ -81,6 +81,19 @@ export function stockHref(q: StockQuery): string {
 
 export const clearFilters = (q: StockQuery): StockQuery => emptyQuery(q.sort);
 
+// Applies a From/To or Min/Max change and resets to page 1. If the changed bound crosses the other one, the other one follows it,
+// so the buyer never lands on an empty range by picking in the "wrong" order.
+export function withRange(q: StockQuery, patch: Partial<StockQuery>): StockQuery {
+  const next = { ...q, ...patch, page: 1 };
+  for (const [lo, hi] of [["yearFrom", "yearTo"], ["priceMin", "priceMax"]] as const) {
+    const [from, to] = [next[lo], next[hi]];
+    if (from === undefined || to === undefined || from <= to) continue;
+    if (lo in patch) next[hi] = from;
+    else next[lo] = to;
+  }
+  return next;
+}
+
 // Toggles one value of a multi-select group and resets to page 1. Removing a make also drops the models that belong to it.
 export function toggle(q: StockQuery, group: "make" | "model" | "body" | "fuel", value: string, facets: Facets | null): StockQuery {
   const current: string[] = q[group];

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appliedFilters, clearFilters, DEFAULT_QUERY, facetRows, PAGE_SIZE, parseStockQuery, stockHref, toggle, toSearchParams } from "./query";
+import { appliedFilters, clearFilters, DEFAULT_QUERY, facetRows, PAGE_SIZE, parseStockQuery, stockHref, toggle, toSearchParams, withRange } from "./query";
 import type { Facets, StockQuery } from "./types";
 
 describe("parseStockQuery", () => {
@@ -135,6 +135,23 @@ describe("clearFilters", () => {
   it("keeps only the sort", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, q: "a4", make: ["audi"], fuel: ["diesel"], kmMax: 50000, sort: "price-asc", page: 3 };
     expect(clearFilters(q)).toEqual({ ...DEFAULT_QUERY, sort: "price-asc" });
+  });
+});
+
+describe("withRange", () => {
+  const q: StockQuery = { ...DEFAULT_QUERY, yearFrom: 2018, yearTo: 2020, priceMin: 5000, priceMax: 10000, page: 3 };
+  it("applies an ordered change and resets the page", () => {
+    expect(withRange(q, { yearFrom: 2019 })).toEqual({ ...q, yearFrom: 2019, page: 1 });
+  });
+  it("moves To up when From passes it, and From down when To passes it", () => {
+    expect(withRange(q, { yearFrom: 2022 })).toMatchObject({ yearFrom: 2022, yearTo: 2022 });
+    expect(withRange(q, { yearTo: 2015 })).toMatchObject({ yearFrom: 2015, yearTo: 2015 });
+    expect(withRange(q, { priceMin: 20000 })).toMatchObject({ priceMin: 20000, priceMax: 20000 });
+    expect(withRange(q, { priceMax: 1000 })).toMatchObject({ priceMin: 1000, priceMax: 1000 });
+  });
+  it("leaves an open end alone and never touches the other pair", () => {
+    expect(withRange({ ...q, yearTo: undefined }, { yearFrom: 2030 })).toMatchObject({ yearFrom: 2030, yearTo: undefined, priceMin: 5000, priceMax: 10000 });
+    expect(withRange(q, { yearFrom: undefined })).toMatchObject({ yearFrom: undefined, yearTo: 2020 });
   });
 });
 
