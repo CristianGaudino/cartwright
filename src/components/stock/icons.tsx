@@ -9,12 +9,6 @@ function Icon({ className, children }: Props & { children: React.ReactNode }) {
   );
 }
 
-export const SearchIcon = (p: Props) => (
-  <Icon {...p}>
-    <circle cx="11" cy="11" r="6.5" />
-    <path d="m16 16 4.5 4.5" />
-  </Icon>
-);
 export const SlidersIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
