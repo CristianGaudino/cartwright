@@ -41,3 +41,8 @@ export const ChevronDownIcon = (p: Props) => (
     <path d="m5 9.5 7 7 7-7" />
   </Icon>
 );
+export const PhoneIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M21 16.9V20a2 2 0 0 1-2.2 2A19 19 0 0 1 2 5.2 2 2 0 0 1 4 3h3.1a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 11a15 15 0 0 0 5.9 5.9l1.4-1.2a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" />
+  </Icon>
+);
