@@ -10,8 +10,12 @@ export const metadata: Metadata = { title: "Used cars", robots: { index: false }
 
 export default async function UsedCarsPage({ searchParams }: PageProps<"/used-cars">) {
   const query = parseStockQuery(await searchParams);
-  // No error.tsx: it would replace the whole segment and take Sort and the filters with it. Nothing is logged (T-01-29).
-  const result = await stock.query(query).catch(() => null);
+  // No error.tsx: it would replace the whole segment and take Sort and the filters with it.
+  // Log a constant message and the error name only: never the query, params or URL (T-01-29), they can hold search text.
+  const result = await stock.query(query).catch((e: unknown) => {
+    console.error("stock.query failed", e instanceof Error ? e.name : typeof e);
+    return null;
+  });
   // Constant /used-cars path plus serialised params, never a user URL (T-01-14).
   if (result && result.pageCount > 0 && query.page > result.pageCount) redirect(stockHref({ ...query, page: result.pageCount }));
   return (
