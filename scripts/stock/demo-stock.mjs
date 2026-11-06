@@ -30,6 +30,15 @@ const PHOTO_W = 900;
 const PHOTO_H = 675;
 const MAX_PHOTOS = 6;
 const MIN_PHOTOS = 3;
+// Demo sold cars: id -> days before the build day. Sale dates are relative so the demo shows sold cars whenever it is built
+// (re-run `build` before a pitch); tests pin their own clock. Every id must be among the built cars.
+const SOLD_DAYS_AGO = {
+  4521033: 4, // Tesla, the only one: a make with just a recently sold car
+  4491477: 1, // Ford, lowest id: sold, make still has stock
+  4359735: 9, // Volkswagen, lowest id: sold, make still has stock
+  4532458: 120, // Volvo, the only one: expired, make with no car at all
+  4396311: 45, // Hyundai, lowest id: expired, make still has stock
+};
 
 const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report]";
 const [cmd, ...rest] = process.argv.slice(2);
@@ -200,13 +209,61 @@ async function fetchPhotos(id) {
 const slugify = (s) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-", mdash: "-" };
 // Scraped text becomes plain text: no tags, no entities, no en or em dashes (CLAUDE.md bans them on the site).
-const clean = (v) =>
+const decode = (v) =>
   String(v ?? "")
     .replace(/<[^>]*>/g, " ")
     .replace(/&(?:#(\d+)|#x([0-9a-f]+)|([a-z]+));/gi, (m, d, x, name) => (d ? String.fromCodePoint(+d) : x ? String.fromCodePoint(parseInt(x, 16)) : (ENTITIES[name.toLowerCase()] ?? m)))
-    .replace(/[–—]/g, "-")
-    .replace(/\s+/g, " ")
+    .replace(/[–—]/g, "-");
+const clean = (v) => decode(v).replace(/\s+/g, " ").trim();
+// The same, keeping line breaks: spaces collapse within a line, three or more newlines become two.
+const cleanLines = (v) =>
+  decode(v)
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((l) => l.replace(/\s+/g, " ").trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+const NUMERIC = new Set(["engineLitres", "doors", "seats", "owners", "maxSpeedMph", "zeroTo62Secs"]);
+
+// The dealer's own contact block (Eircode, phone, email, web address) is not copied: the site shows its own contact details.
+const CONTACT = /^[A-Z]\d{2} ?[A-Z0-9]{4}$|@|www\.|https?:\/\/|^[\d ()+-]{7,}$|\b0\d{1,2}[ -]?\d{3}[ -]?\d{3,4}\b/;
+
+const MARKER = "www.cartwright.ie";
+// The blurb is the description, then (50 of 58) the dealer's site address, then a run of equipment items.
+function describe(blurb) {
+  const text = cleanLines(blurb);
+  const at = text.indexOf(MARKER);
+  const before = at < 0 ? text : text.slice(0, at);
+  const description = before
+    .split("\n")
+    .filter((l) => !CONTACT.test(l.replace(/[\s,.;]+$/, "")))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  const seen = new Set();
+  const features = (at < 0 ? [] : text.slice(at + MARKER.length).split(/,(?![^(]*\))|\n/))
+    .map((f) => f.trim())
+    .filter((f) => f && !seen.has(f.toLowerCase()) && seen.add(f.toLowerCase()));
+  return { description: description || undefined, features: features.length ? features : undefined };
+}
+
+// The detail page's label/value list. Only Seats, Max Speed and 0-62 mph are read from it; the rest is on the listing.
+function detailList(id) {
+  const html = readFileSync(join(CACHE, "cars", id, "detail.html"), "utf8");
+  return new Map([...html.matchAll(/<dt class="detail-list__title[^"]*">([^<]*)<\/dt>\s*<dd class="detail-list__text[^"]*">([^<]*)<\/dd>/g)].map((m) => [clean(m[1]), clean(m[2])]));
+}
+
+// A published value as a number, or undefined when the dealer left it out ("N/A", empty). A value that is there
+// but not in the expected shape throws with the car id, the label and the raw value.
+function num(id, label, raw, re) {
+  const v = clean(raw);
+  if (!v || /^n\/?a$/i.test(v)) return undefined;
+  const m = v.match(re);
+  if (!m) throw new Error(`Car ${id}: ${label} has an unexpected value ${JSON.stringify(raw)}`);
+  return m;
+}
 
 function mapFuel(raw) {
   const t = raw.toLowerCase();
@@ -225,7 +282,9 @@ async function buildCmd() {
   const unmappedFuel = [];
   const cars = [];
   const files = []; // [path, buffer]
-  const maxYear = new Date().getFullYear() + 1;
+  const today = new Date();
+  const maxYear = today.getFullYear() + 1;
+  const soldAt = (id) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
 
   for (const l of select(listings.map((x) => ({ ...x, id: String(x.id) })))) {
     const skip = (reason) => skipped.push({ id: l.id, reason });
@@ -257,15 +316,27 @@ async function buildCmd() {
       photos.push({ src: `/stock/${l.id}/${name}`, width: PHOTO_W, height: PHOTO_H });
     }
 
+    const detail = detailList(l.id);
+    const { description, features } = describe(l.blurb);
     const makeSlug = slugify(make);
     const modelSlug = slugify(model);
     cars.push(Object.fromEntries(Object.entries({
       id: l.id, slug: `${makeSlug}-${modelSlug}-${year}-${l.id}`, make, makeSlug, model, modelSlug, variant, year, priceEur,
       mileageKm: kms ? parseInt(kms[1].replace(/,/g, ""), 10) : undefined,
-      fuel, gearbox: mapGearbox(clean(s.transmission)), bodyType, bodySlug: bodyType ? slugify(bodyType) : undefined, photos,
-    }).filter(([, v]) => v !== undefined)));
+      fuel, gearbox: mapGearbox(clean(s.transmission)), bodyType, bodySlug: bodyType ? slugify(bodyType) : undefined,
+      engineLitres: num(l.id, "engine", s.engine, /^(\d+(?:\.\d+)?)\s*L$/i)?.[1],
+      colour: clean(s.colour) && !/^n\/?a$/i.test(clean(s.colour)) ? clean(s.colour) : undefined,
+      doors: num(l.id, "doors", s.doors, /^(\d+)$/)?.[1],
+      seats: num(l.id, "Seats", detail.get("Seats"), /^(\d+)$/)?.[1],
+      owners: num(l.id, "owners", s.owners, /^(\d+) Owners?$/i)?.[1],
+      nctExpiry: ((m) => m && `${m[2]}-${m[1]}`)(num(l.id, "nct", s.nct, /^(0[1-9]|1[0-2])\/(\d{4})$/)),
+      maxSpeedMph: num(l.id, "Max Speed", detail.get("Max Speed"), /^(\d+)\s*mph$/i)?.[1],
+      zeroTo62Secs: num(l.id, "0-62 mph", detail.get("0-62 mph"), /^(\d+(?:\.\d+)?)\s*seconds?$/i)?.[1],
+      description, features, photos, soldAt: soldAt(l.id),
+    }).map(([k, v]) => [k, NUMERIC.has(k) && v !== undefined ? Number(v) : v]).filter(([, v]) => v !== undefined)));
   }
 
+  for (const id of Object.keys(SOLD_DAYS_AGO)) if (!cars.some((c) => c.id === id)) throw new Error(`SOLD_DAYS_AGO names ${id}, which is not among the built cars`);
   cars.sort((a, b) => Number(a.id) - Number(b.id));
   rmSync(OUT_PHOTOS, { recursive: true, force: true }); // no stale file survives (Pitfall 5)
   for (const [p, buf] of files) writeCache(p, buf);

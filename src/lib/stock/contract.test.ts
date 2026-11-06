@@ -20,6 +20,10 @@ function car(id: string, make: string, model: string, year: number, priceEur: nu
 
 const body = (bodyType: string) => ({ bodyType, bodySlug: bodyType.toLowerCase() });
 
+// The pinned clock: nothing here depends on the real date, so no fixture expires as time passes.
+const NOW = new Date("2026-06-15T12:00:00Z");
+const daysBefore = (n: number) => new Date(NOW.getTime() - n * 86_400_000).toISOString().slice(0, 10);
+
 const FIXTURE: Car[] = [
   car("101", "Audi", "A4", 2019, 18950, { variant: "2.0 TDI S line", mileageKm: 84000, fuel: "diesel", gearbox: "manual", ...body("Saloon") }),
   car("102", "Audi", "A6", 2021, 32500, { mileageKm: 41000, fuel: "diesel", gearbox: "automatic", ...body("Saloon") }),
@@ -29,6 +33,11 @@ const FIXTURE: Car[] = [
   car("106", "Ford", "Focus", 2017, 9950, { mileageKm: 150000, fuel: "petrol", gearbox: "manual", ...body("Hatchback") }),
   car("107", "Ford", "Kuga", 2021, 24500, { fuel: "plug-in-hybrid", gearbox: "automatic", ...body("SUV") }),
   car("108", "Ford", "Fiesta", 2016, 7500, { mileageKm: 98000, ...body("Hatchback") }),
+  // Sold cars (dates relative to NOW). None may change a default list, count or facet above.
+  car("201", "Audi", "A3", 2020, 20000, { fuel: "petrol", gearbox: "manual", ...body("Hatchback"), soldAt: daysBefore(5) }), // in period, make with stock
+  car("202", "Tesla", "Model 3", 2021, 28000, { fuel: "electric", gearbox: "automatic", ...body("Saloon"), soldAt: daysBefore(10) }), // in period, only car of its make
+  car("203", "Volvo", "V40", 2017, 9000, { fuel: "diesel", gearbox: "manual", ...body("Estate"), soldAt: daysBefore(60) }), // expired, only car of its make
+  car("204", "BMW", "1 Series", 2016, 8000, { fuel: "diesel", gearbox: "manual", ...body("Hatchback"), soldAt: daysBefore(45) }), // expired, make with stock
 ];
 
 const q = (partial: Partial<StockQuery> = {}): StockQuery => ({
@@ -42,9 +51,12 @@ const q = (partial: Partial<StockQuery> = {}): StockQuery => ({
   ...partial,
 });
 
-export function runContract(name: string, makeProvider: (cars: Car[]) => StockProvider): void {
+type Clock = { now: () => Date };
+
+export function runContract(name: string, makeProvider: (cars: Car[], opts: Clock) => StockProvider): void {
   describe(name, () => {
-    const provider = () => makeProvider(structuredClone(FIXTURE));
+    const clock: Clock = { now: () => NOW };
+    const provider = () => makeProvider(structuredClone(FIXTURE), clock);
     const ids = async (partial?: Partial<StockQuery>) => (await provider().query(q(partial))).cars.map((c) => c.id);
 
     it("returns everything newest first by default", async () => {
@@ -116,7 +128,7 @@ export function runContract(name: string, makeProvider: (cars: Car[]) => StockPr
     });
 
     it("searches without caring about accents", async () => {
-      const p = makeProvider(structuredClone([...FIXTURE, car("109", "Škoda", "Octavia", 2020, 17500), car("110", "Citroën", "C3", 2019, 11900)]));
+      const p = makeProvider(structuredClone([...FIXTURE, car("109", "Škoda", "Octavia", 2020, 17500), car("110", "Citroën", "C3", 2019, 11900)]), clock);
       const found = async (text: string) => (await p.query(q({ q: text }))).cars.map((c) => c.id);
       expect(await found("skoda")).toEqual(["109"]);
       expect(await found("ŠKODA octavia")).toEqual(["109"]);
@@ -157,12 +169,87 @@ export function runContract(name: string, makeProvider: (cars: Car[]) => StockPr
       const p4 = await provider().query(q({ pageSize: 3, page: 4 }));
       expect([p4.cars, p4.total, p4.pageCount, p4.page]).toEqual([[], 8, 3, 4]);
     });
+
+    describe("sold cars", () => {
+      it("keeps sold cars out of the default list, the facets and the year range", async () => {
+        const r = await provider().query(q({ pageSize: 20 }));
+        expect(r.cars.map((c) => c.id)).not.toContain("201");
+        expect(r.total).toBe(8);
+        expect(r.facets.make.map((o) => o.label)).toEqual(["Audi", "Ford", "BMW"]);
+        expect(r.facets.fuel.map((o) => o.label)).not.toContain("Electric");
+      });
+
+      it("includes in-period sold cars after every in-stock car, each group in the chosen sort", async () => {
+        const all = await ids({ sold: "include", sort: "price-asc", pageSize: 20 });
+        expect(all).toEqual(["108", "106", "104", "101", "107", "103", "102", "105", "201", "202"]);
+        const r = await provider().query(q({ sold: "include", pageSize: 20 }));
+        expect(r.total).toBe(10);
+        expect(r.facets.make.map((o) => [o.label, o.count])).toEqual([["Audi", 4], ["Ford", 3], ["BMW", 2], ["Tesla", 1]]);
+      });
+
+      it("lists in-period sold cars only", async () => {
+        const r = await provider().query(q({ sold: "only", sort: "price-desc" }));
+        expect(r.cars.map((c) => c.id)).toEqual(["202", "201"]);
+        expect(r.facets.make.map((o) => o.label)).toEqual(["Audi", "Tesla"]);
+      });
+
+      it("never shows an expired car in any mode, by slug or by id", async () => {
+        const p = provider();
+        for (const sold of [undefined, "include", "only"] as const) {
+          const r = await p.query(q({ sold, pageSize: 20 }));
+          expect(r.cars.map((c) => c.id)).not.toContain("203");
+          expect(r.cars.map((c) => c.id)).not.toContain("204");
+        }
+        expect(await p.getBySlug("volvo-v40-2017-203")).toBeNull();
+        expect(await p.getById("203")).toBeNull();
+        expect(await p.getBySlug("bmw-1-series-2016-204")).toBeNull();
+      });
+
+      it("serves an in-period sold car by slug and id", async () => {
+        const p = provider();
+        expect((await p.getBySlug("tesla-model-3-2021-202"))?.id).toBe("202");
+        expect((await p.getById("201"))?.soldAt).toBe(daysBefore(5));
+      });
+
+      it("looks a slug up as live, gone or unknown", async () => {
+        const p = provider();
+        expect(await p.lookup("audi-a4-2019-101")).toEqual({ state: "live", car: FIXTURE[0] });
+        expect((await p.lookup("tesla-model-3-2021-202"))?.state).toBe("live");
+        expect(await p.lookup("volvo-v40-2017-203")).toEqual({ state: "gone", make: "Volvo", makeSlug: "volvo" });
+        expect(await p.lookup("bmw-1-series-2016-204")).toEqual({ state: "gone", make: "BMW", makeSlug: "bmw" });
+        expect(await p.lookup("never-listed-2020-1")).toBeNull();
+      });
+
+      it("keeps a car 29 days after its sale date and drops it at 30", async () => {
+        const edge = (days: number) => makeProvider(structuredClone([car("301", "Kia", "Rio", 2019, 9000, { soldAt: daysBefore(days) })]), clock);
+        expect((await edge(29).lookup("kia-rio-2019-301"))?.state).toBe("live");
+        expect(await edge(30).lookup("kia-rio-2019-301")).toEqual({ state: "gone", make: "Kia", makeSlug: "kia" });
+      });
+
+      it("reads the clock on every call", async () => {
+        let t = NOW;
+        const p = makeProvider(structuredClone(FIXTURE), { now: () => t });
+        expect((await p.lookup("tesla-model-3-2021-202"))?.state).toBe("live");
+        t = new Date(NOW.getTime() + 21 * 86_400_000); // 31 days after the sale date
+        expect((await p.lookup("tesla-model-3-2021-202"))?.state).toBe("gone");
+      });
+
+      it("lists every make, body and model ever listed, expired included, once and sorted by label", async () => {
+        const t = await provider().taxonomy();
+        expect(t.makes.map((m) => m.label)).toEqual(["Audi", "BMW", "Ford", "Tesla", "Volvo"]);
+        expect(t.makes[0]).toEqual({ slug: "audi", label: "Audi" });
+        expect(t.bodies.map((b) => b.label)).toEqual(["Estate", "Hatchback", "Saloon", "SUV"]);
+        expect(t.models).toContainEqual({ makeSlug: "volvo", slug: "v40", label: "V40" });
+        expect(t.models).toContainEqual({ makeSlug: "bmw", slug: "1-series", label: "1 Series" });
+        expect(t.models.map((m) => `${m.makeSlug}/${m.slug}`)).toHaveLength(new Set(t.models.map((m) => `${m.makeSlug}/${m.slug}`)).size);
+      });
+    });
   });
 }
 
 // Behaves like a remote provider: its own copy of the data, async I/O, answers through the file logic.
-function createStubProvider(cars: Car[]): StockProvider {
-  const inner = createFileProvider(structuredClone(cars));
+function createStubProvider(cars: Car[], opts: Clock): StockProvider {
+  const inner = createFileProvider(structuredClone(cars), opts);
   const io = () => new Promise((r) => setTimeout(r, 0));
   return {
     async query(query) {
@@ -176,6 +263,14 @@ function createStubProvider(cars: Car[]): StockProvider {
     async getById(id) {
       await io();
       return inner.getById(id);
+    },
+    async lookup(slug) {
+      await io();
+      return inner.lookup(slug);
+    },
+    async taxonomy() {
+      await io();
+      return inner.taxonomy();
     },
   };
 }

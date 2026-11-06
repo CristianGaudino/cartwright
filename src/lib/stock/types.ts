@@ -35,7 +35,18 @@ export interface Car {
   gearbox?: Gearbox;
   bodyType?: string; // display label, e.g. "SUV"
   bodySlug?: string; // e.g. "suv"
+  engineLitres?: number; // 2 for "2L"; render "2.0 L"
+  colour?: string;
+  doors?: number;
+  seats?: number;
+  owners?: number; // 2 for "2 Owners"
+  nctExpiry?: string; // "2027-07" for "07/2027"
+  maxSpeedMph?: number; // 126 for "126 mph", as published, not converted
+  zeroTo62Secs?: number; // 9.9 for "9.9 seconds"
+  description?: string; // the dealer's text, line breaks kept, contact block removed
+  features?: string[]; // equipment items
   photos: Photo[]; // 0 to 6, local /stock/... paths
+  soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
 }
 
 export interface StockQuery {
@@ -51,6 +62,7 @@ export interface StockQuery {
   gearbox?: Gearbox;
   kmMax?: number;
   sort: SortKey;
+  sold?: "include" | "only"; // absent = in stock only; "include" lists in-period sold cars after the in-stock ones
   page: number; // 1-based
   pageSize: number;
 }
@@ -77,8 +89,24 @@ export interface StockResult {
   pageCount: number;
   facets: Facets;
 }
+// Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
+export const SOLD_VISIBLE_DAYS = 30;
+export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
+
+// live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
+export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;
+
+// Every make, body type and model ever listed, expired cars included, so a make page can exist with nothing in stock.
+export interface Taxonomy {
+  makes: { slug: string; label: string }[];
+  bodies: { slug: string; label: string }[];
+  models: { makeSlug: string; slug: string; label: string }[];
+}
+
 export interface StockProvider {
   query(q: StockQuery): Promise<StockResult>;
-  getBySlug(slug: string): Promise<Car | null>;
-  getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug")
+  getBySlug(slug: string): Promise<Car | null>; // in stock or sold inside the period
+  getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug"); same visibility as getBySlug
+  lookup(slug: string): Promise<Lookup>;
+  taxonomy(): Promise<Taxonomy>; // over every car, expired included
 }
