@@ -48,7 +48,7 @@ test("unknown params and bad values are ignored", async ({ page, request }) => {
 test("header: logo, one link, scrolls away", async ({ page }) => {
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
-  await expect(header.getByRole("img", { name: "Cartwright" })).toBeVisible();
+  await expect(header.getByRole("img", { name: "Carright" })).toBeVisible();
   await expect(header.getByRole("link", { name: "Used cars" })).toHaveAttribute("href", "/used-cars");
   expect(await header.evaluate((el) => getComputedStyle(el).position)).toMatch(/^(static|relative)$/);
 });
