@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
-import { StockError, stateButton } from "@/components/stock/StockShell";
+import { StockError, stateButton } from "@/components/stock/StockError";
 import { removeSaved, useSavedIds } from "@/lib/saved/store";
 import type { Car } from "@/lib/stock/types";
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { StockResults } from "@/components/stock/StockResults";
-import { StockError, StockShell } from "@/components/stock/StockShell";
+import { StockError } from "@/components/stock/StockError";
+import { StockShell } from "@/components/stock/StockShell";
 import { indexable } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { parseStockQuery, stockHref } from "@/lib/stock/query";
