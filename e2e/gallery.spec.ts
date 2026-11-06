@@ -44,7 +44,7 @@ test("at 320px the page does not scroll sideways and the price and first fact ar
   await open(page, car!.slug);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const box = page.getByTestId("buy-box");
-  expect((await box.getByText(/^€[\d,]+$/).boundingBox())!.y).toBeLessThan(915);
+  expect((await box.getByText(/^€[\d,]+$/).filter({ visible: true }).boundingBox())!.y).toBeLessThan(915);
   expect((await box.locator("dl > div").first().boundingBox())!.y).toBeLessThan(915);
 });
 

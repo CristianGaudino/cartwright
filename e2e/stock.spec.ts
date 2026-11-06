@@ -71,7 +71,7 @@ test("a car page shows title, price and a way back", async ({ page }) => {
   await page.locator("article h2 a").first().click();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByTestId("buy-box").getByText(/^€[\d,]+$/)).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText(/^€[\d,]+$/).filter({ visible: true })).toBeVisible();
   await page.getByRole("link", { name: "Back to used cars" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
 });

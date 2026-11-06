@@ -9,7 +9,8 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: { baseURL, ...devices["Pixel 7"] },
   // E2E_FAIL_QUERY is the failure-state switch; a server already running on that port without it makes the failure specs fail.
+  // E2E_FAKE_BACKENDS swaps the lead store and mailer for in-memory fakes (src/lib/leads/deps.ts). Only ever set here.
   webServer: process.env.E2E_BASE_URL
     ? undefined
-    : { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure" } },
+    : { command: "npm start", url: baseURL, reuseExistingServer: false, env: { E2E_FAIL_QUERY: "e2e-forced-failure", E2E_FAKE_BACKENDS: "1" } },
 });

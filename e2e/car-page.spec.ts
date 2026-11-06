@@ -21,7 +21,8 @@ test.describe("a car for sale", () => {
     await page.goto(await firstCarHref(page));
     const box = buyBox(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const price = box.getByText(/^€[\d,]+$/);
+    // The closed lead dialog in the buy box also shows the price, so take the visible one.
+    const price = box.getByText(/^€[\d,]+$/).filter({ visible: true });
     await expect(price).toBeVisible();
 
     const call = box.getByRole("link", { name: "Call now" });
@@ -145,7 +146,7 @@ test("an in-stock car page has a canonical URL, a description and Product plus C
   expect(await description(page)).toMatch(/Tralee, Co\. Kerry\.$/);
   const ld = await jsonLd(page);
   expect(ld["@type"]).toEqual(expect.arrayContaining(["Car", "Product"]));
-  const shown = await buyBox(page).getByText(/^€[\d,]+$/).textContent();
+  const shown = await buyBox(page).getByText(/^€[\d,]+$/).filter({ visible: true }).textContent();
   expect(ld.offers.price).toBe(Number(shown!.replace(/\D/g, "")));
   expect(ld.offers.availability).toBe("https://schema.org/InStock");
 });
