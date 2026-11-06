@@ -84,3 +84,39 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
+
+test("an empty send lists every problem, focuses the list and marks each field", async ({ page }) => {
+  await open(page, live.slug);
+  await enquire(page).click();
+  const d = dialog(page);
+  await d.getByRole("button", { name: "Send enquiry" }).click();
+
+  await expect(d.getByRole("heading", { name: "Check these details" })).toBeFocused();
+  for (const label of ["Name", "Phone", "Email"]) await expect(d.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
+  await expect(d.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
+  // The contact error shows once under Email, plus its link in the summary.
+  await expect(d.locator("p", { hasText: "Add a phone number or an email." })).toHaveCount(1);
+
+  await d.getByRole("link", { name: "Enter your name." }).click();
+  await expect(d.getByLabel("Name")).toBeFocused();
+});
+
+test("a field error keeps what was typed, and consent is needed to send", async ({ page }) => {
+  await open(page, live.slug);
+  await enquire(page).click();
+  const d = dialog(page);
+  await d.getByLabel("Name").fill("Kept Name");
+  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByRole("button", { name: "Send enquiry" }).click();
+
+  await expect(d.getByRole("link", { name: "Tick the box to send your request." })).toBeVisible();
+  await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
+  await expect(d.getByRole("link", { name: "Enter your name." })).toHaveCount(0);
+  await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");
+  await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
+  await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
+
+  const privacy = d.getByRole("link", { name: /Privacy policy/ });
+  await expect(privacy).toHaveAttribute("href", "/privacy");
+  await expect(privacy).toHaveAttribute("target", "_blank");
+});

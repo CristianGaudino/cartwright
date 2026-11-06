@@ -4,7 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import { LIMITS } from "@/lib/leads/schema";
 import { DEALER_TEL } from "@/lib/site";
-import { LeadForm, TextField } from "./LeadForm";
+import { ContactFields, Field } from "./Field";
+import { LeadForm } from "./LeadForm";
 
 // What the client needs to show a car. Never the Car object: the server reads the car again by id (LED-02).
 export type CarSummary = { id: string; name: string; title: string; price: string; photo?: string };
@@ -72,11 +73,8 @@ export function LeadActions({ car }: { car: CarSummary }) {
         >
           {({ bind }) => (
             <>
-              <TextField field={bind("name")} label="Name" autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
-              <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
-              <TextField field={bind("phone")} label="Phone" type="tel" autoComplete="tel" maxLength={LIMITS.phone} enterKeyHint="next" />
-              <TextField field={bind("email")} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
-              <TextField field={bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
+              <ContactFields bind={bind} />
+              <Field {...bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
             </>
           )}
         </LeadForm>

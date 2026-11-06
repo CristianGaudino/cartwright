@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
-import { CONSENT } from "@/lib/leads/schema";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
+import { ConsentRow } from "./ConsentRow";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
 
@@ -39,14 +39,15 @@ export function LeadForm({
 }) {
   const uid = useId();
   const [values, setValues] = useState<Record<string, string>>({});
-  const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [summary, setSummary] = useState<{ id: string; message: string }[]>([]);
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
   const [pending, start] = useTransition();
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const summaryHeading = useRef<HTMLHeadingElement>(null);
   const slot = useRef<HTMLDivElement>(null);
   const turnstile = useTurnstile(slot);
   const { load } = turnstile;
@@ -54,6 +55,11 @@ export function LeadForm({
   useEffect(() => {
     if (done) heading.current?.focus();
   }, [done]);
+
+  // A new array on every failed submit, so focus moves to the summary each time (UI-SPEC Validation).
+  useEffect(() => {
+    if (summary.length) summaryHeading.current?.focus();
+  }, [summary]);
 
   // Back to a fresh form once the dialog that showed the thanks is closed. The bot check script loads on the first focus
   // inside the dialog (showModal focuses Close) or the form, never on page load.
@@ -95,16 +101,20 @@ export function LeadForm({
       }
       // A field error or the rate limit is answered before the token is checked, so only the other answers spend it.
       if (r.status !== "invalid" && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
+      setSummary([]);
       if (r.status === "ok") {
         setValues({});
-        setConsent(false);
         setErrors({});
         setFailure(undefined);
         clientRef.current = undefined;
         setDone(true);
       } else if (r.status === "invalid") {
-        setErrors(r.fieldErrors);
-        setFailure(Object.keys(r.fieldErrors).some((k) => HIDDEN.includes(k)) ? "server" : undefined);
+        const fe = r.fieldErrors;
+        setErrors(fe);
+        setFailure(Object.keys(fe).some((k) => HIDDEN.includes(k)) ? "server" : undefined);
+        // One link per invalid field, in the order the fields sit in the form.
+        const names = [...new Set(Array.from(form.current?.elements ?? [], (el) => (el as HTMLInputElement).name))].filter((n) => fe[n]?.[0]);
+        setSummary(names.map((n) => ({ id: `${uid}-${n}`, message: fe[n][0] })));
       } else {
         setErrors({});
         setFailure(r.kind);
@@ -114,8 +124,6 @@ export function LeadForm({
 
   const pad = variant === "dialog" ? "px-4" : "";
   const footer = `flex shrink-0 pt-3 ${variant === "dialog" ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
-  const consentId = `${uid}-consent`;
-  const consentError = errors.consent?.[0];
 
   // The form element stays put after a success so the Turnstile slot inside it keeps its widget for the next request.
   return (
@@ -132,20 +140,46 @@ export function LeadForm({
         </div>
       ) : (
         <div className={`flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain py-2 ${pad}`}>
+          {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
           {failure && (
-            <div role="alert" className="rounded-card border border-hairline p-4 text-meta">
+            <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
               {failure === "rate" ? (
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
               ) : (
-                <p>
-                  <span className="font-semibold text-destructive">{failure === "captcha" ? "We could not check this request." : "We could not send this."}</span> Your
-                  details are still here. Try again, or call us on{" "}
-                  <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
-                    {DEALER_PHONE}
-                  </a>
-                  .
-                </p>
+                <>
+                  <p className="font-semibold text-destructive">{failure === "captcha" ? "We could not check this request." : "We could not send this."}</p>
+                  <p className="text-meta">
+                    Your details are still here. Try again, or call us on{" "}
+                    <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
+                      {DEALER_PHONE}
+                    </a>
+                    .
+                  </p>
+                </>
               )}
+            </div>
+          )}
+          {summary.length > 0 && (
+            <div role="alert" className="flex flex-col gap-2 rounded-card border border-hairline p-4">
+              <h3 ref={summaryHeading} tabIndex={-1} className="text-heading font-semibold text-destructive outline-none">
+                Check these details
+              </h3>
+              <ul className="flex flex-col">
+                {summary.map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById(s.id)?.focus();
+                      }}
+                      className="inline-flex min-h-11 items-center underline"
+                    >
+                      {s.message}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
           {car && (
@@ -160,32 +194,7 @@ export function LeadForm({
             </div>
           )}
           <div className="flex flex-col gap-4">{children({ bind })}</div>
-          <div className="flex flex-col gap-1">
-            <div className="flex min-h-11 items-start gap-3 py-1">
-              <input
-                id={consentId}
-                type="checkbox"
-                name="consent"
-                value="yes"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                aria-invalid={consentError ? true : undefined}
-                aria-describedby={consentError ? `${consentId}-error` : undefined}
-                className="mt-0.5 size-5 shrink-0 accent-accent"
-              />
-              <label htmlFor={consentId} className="text-meta">
-                {CONSENT.text}{" "}
-                <a href="/privacy" target="_blank" rel="noopener" className="underline">
-                  Privacy policy<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </label>
-            </div>
-            {consentError && (
-              <p id={`${consentId}-error`} className="text-meta text-destructive">
-                {consentError}
-              </p>
-            )}
-          </div>
+          <ConsentRow {...bind("consent")} />
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
             <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
@@ -214,40 +223,5 @@ export function LeadForm({
         </div>
       )}
     </form>
-  );
-}
-
-const input = "h-12 w-full rounded-control border border-control bg-surface px-4 text-body aria-[invalid=true]:border-destructive";
-
-// A labelled text input or textarea bound to the form. 03-09 replaces it with the shared Field set.
-export function TextField({
-  field,
-  label,
-  optional,
-  multiline,
-  ...rest
-}: { field: FieldBinding; label: string; optional?: boolean; multiline?: boolean } & Pick<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "type" | "autoComplete" | "maxLength" | "enterKeyHint" | "inputMode"
->) {
-  const err = field.error ? `${field.id}-error` : undefined;
-  const common = { id: field.id, name: field.name, value: field.value, "aria-invalid": field.error ? true : undefined, "aria-describedby": err };
-  return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={field.id} className="text-meta font-semibold">
-        {label}
-        {optional && <span className="font-normal text-text-2"> (optional)</span>}
-      </label>
-      {multiline ? (
-        <textarea {...common} maxLength={rest.maxLength} enterKeyHint="enter" onChange={(e) => field.onChange(e.target.value)} className={`${input} min-h-28 resize-none py-3`} />
-      ) : (
-        <input {...common} {...rest} onChange={(e) => field.onChange(e.target.value)} className={input} />
-      )}
-      {field.error && (
-        <p id={err} className="text-meta text-destructive">
-          {field.error}
-        </p>
-      )}
-    </div>
   );
 }
