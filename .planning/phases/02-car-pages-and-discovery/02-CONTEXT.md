@@ -107,6 +107,14 @@ The Phase 1 UI-SPEC (`01-UI-SPEC.md`) tokens, type and motion still apply. Phase
 
 </deferred>
 
+## Amendments (2026-11-06, owner-approved during planning)
+
+- **D-10:** the stale "tax due" row is dropped (dates mostly past). Max speed shows in mph as published.
+- **D-11:** the network rescrape is replaced by an offline parse of `.stock-cache/`, which already holds all the data.
+- **D-03 / CAR-02:** a slug the provider never had, including a car dropped from the feed without being sold, returns 404. Only sold cars past the window return 410.
+- **D-05 / D-17:** no sold date or recency is shown anywhere, only a plain "Sold" label. The demo deploys with `APP_ENV=demo` (noindex, share bots allowed). Demo sold dates are relative to generation time.
+- **D-09:** empty landing pages are excluded from the sitemap and carry no JSON-LD.
+
 ---
 
 *Phase: 2-Car Pages and Discovery*
