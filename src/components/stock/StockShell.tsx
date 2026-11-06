@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useId, useOptimistic, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
-import { stockHref } from "@/lib/stock/query";
+import { clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { ChevronDownIcon } from "./icons";
@@ -109,6 +109,19 @@ export function StockError() {
       <p className="mt-2 text-body text-text-2">Check your connection and try again.</p>
       <button type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())} className={stateButton}>
         Try loading cars again
+      </button>
+    </div>
+  );
+}
+
+export function EmptyState() {
+  const { query, navigate } = useStock();
+  return (
+    <div className="py-16 text-center">
+      <h2 className="text-heading font-semibold">No cars match these filters</h2>
+      <p className="mt-2 text-body text-text-2">Try removing a filter.</p>
+      <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
+        Clear all filters
       </button>
     </div>
   );

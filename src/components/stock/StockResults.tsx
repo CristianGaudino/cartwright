@@ -2,11 +2,13 @@ import Link from "next/link";
 import { stockHref } from "@/lib/stock/query";
 import type { StockQuery, StockResult } from "@/lib/stock/types";
 import { ListingCard } from "./ListingCard";
+import { EmptyState } from "./StockShell";
 
 const pageLink = "inline-flex min-h-11 items-center rounded-control px-3 font-semibold active:scale-[0.97] motion-reduce:active:scale-100";
 
 export function StockResults({ result, query }: { result: StockResult; query: StockQuery }) {
   const { cars, page, pageCount } = result;
+  if (result.total === 0) return <EmptyState />;
   return (
     <>
       <div className="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">

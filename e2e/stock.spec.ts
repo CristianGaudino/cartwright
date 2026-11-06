@@ -101,6 +101,7 @@ declare global {
 test("sort replaces the URL and dims the old results, never a skeleton", async ({ page }) => {
   await page.goto("/used-cars");
   await page.waitForLoadState("load");
+  await expect(page.locator("[data-skeleton]")).toHaveCount(0); // the first-load skeleton lingers briefly after load; only a change must never show it
   const historyBefore = await page.evaluate(() => history.length);
   // Sample the whole change: a check after it would miss the pending state.
   await page.evaluate(() => {
@@ -188,5 +189,23 @@ test("a provider failure shows the error state and Sort still works", async ({ p
   await expect(sort).toBeEnabled();
 
   await page.goto("/used-cars?sort=price-asc");
+  await expect(page.locator("article").first()).toBeVisible();
+});
+
+test("a page past the end lands on the last page", async ({ page }) => {
+  await page.goto("/used-cars");
+  const last = Math.ceil((await total(page)) / PER_PAGE);
+  await page.goto("/used-cars?page=999");
+  await expect(page).toHaveURL(last > 1 ? new RegExp(`page=${last}$`) : /\/used-cars$/);
+  await expect(page.locator("article").first()).toBeVisible();
+});
+
+test("zero matches show the empty state and Clear all filters brings the cars back", async ({ page }) => {
+  await page.goto("/used-cars?make=zzzz");
+  await expect(page.getByRole("heading", { name: "No cars match these filters" })).toBeVisible();
+  await expect(page.getByText("Try removing a filter.")).toBeVisible();
+  await expect(page.locator("article")).toHaveCount(0);
+  await page.getByRole("button", { name: "Clear all filters" }).click();
+  await expect(page).toHaveURL(/\/used-cars$/);
   await expect(page.locator("article").first()).toBeVisible();
 });

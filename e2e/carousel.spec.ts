@@ -78,6 +78,7 @@ test("a blocked photo leaves the grey 4:3 box and no broken image", async ({ pag
   await page.route("**/stock/**", (r) => r.abort());
   await page.goto("/used-cars");
   const card = page.locator("article").first();
+  await expect(card).toBeVisible(); // the first-load skeleton can still be up just after load
   const box = (await card.locator("> div").first().boundingBox())!;
   expect(box.width / box.height).toBeCloseTo(4 / 3, 1);
   await expect(card.locator("img").first()).toHaveCSS("visibility", "hidden");
