@@ -2,27 +2,70 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import type { Photo } from "@/lib/stock/types";
+
+// Not onLoad/onError props: next/image re-sets src (and re-requests every photo) after hydration when onError is passed.
+// A stable ref callback also catches photos that finished or failed before React hydrated (RESEARCH Pitfall 3).
+const loaded = (e: Event) => ((e.currentTarget as HTMLImageElement).dataset.loaded = "");
+const failed = (e: Event) => ((e.currentTarget as HTMLImageElement).dataset.failed = "");
+function settle(el: HTMLImageElement | null) {
+  if (!el) return;
+  if (!el.complete) {
+    el.addEventListener("load", loaded, { once: true });
+    el.addEventListener("error", failed, { once: true });
+  } else if (el.naturalWidth > 0) el.dataset.loaded = "";
+  else el.dataset.failed = "";
+}
+
+const arrow =
+  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-text opacity-0 backdrop-blur-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex";
 
 // Native scroll-snap gives 1:1 finger tracking, momentum and interruptibility: no gesture code.
 export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo[]; href: string; label: string; priority: boolean }) {
+  const root = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const frame = useRef(0);
+  const [index, setIndex] = useState(0);
+
+  // Photos stay visible without JavaScript: the hide-until-loaded style only applies once this attribute is set.
+  useEffect(() => {
+    root.current?.setAttribute("data-js", "");
+    return () => cancelAnimationFrame(frame.current);
+  }, []);
+
   if (photos.length === 0) {
     return <p className="flex h-full items-center justify-center text-meta text-text-2">No photo yet</p>;
   }
   const n = photos.length;
+
+  const onScroll = () => {
+    if (frame.current) return;
+    frame.current = requestAnimationFrame(() => {
+      frame.current = 0;
+      const el = scroller.current;
+      if (el?.clientWidth) setIndex(Math.round(el.scrollLeft / el.clientWidth));
+    });
+  };
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
+
   return (
     // z-10 lifts the carousel above the card's stretched title link, which would otherwise swallow swipes.
-    <div className="relative z-10 h-full">
+    <div ref={root} className="group/pc relative z-10 h-full">
       <div
+        ref={scroller}
+        onScroll={onScroll}
         role="group"
         aria-roledescription="carousel"
         aria-label={`Photos of ${label}`}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
       >
         {photos.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">
             <Link href={href} tabIndex={-1} aria-hidden="true">
               <Image
+                ref={settle}
                 src={photo.src}
                 width={900}
                 height={675}
@@ -30,12 +73,31 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
                 loading={priority && i === 0 ? "eager" : undefined}
                 fetchPriority={priority && i === 0 ? "high" : undefined}
                 draggable={false}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-opacity duration-150 group-data-[js]/pc:opacity-0 group-data-[js]/pc:data-[loaded]:opacity-100 data-[failed]:invisible"
               />
             </Link>
           </div>
         ))}
       </div>
+      {n > 1 && (
+        <>
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center gap-2">
+            {photos.map((photo, i) => (
+              <span key={photo.src} data-dot data-active={i === index ? "" : undefined} className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] data-[active]:bg-white" />
+            ))}
+          </div>
+          {index > 0 && (
+            <button type="button" aria-label="Previous photo" onClick={() => go(-1)} className={`${arrow} left-2`}>
+              <ChevronLeftIcon />
+            </button>
+          )}
+          {index < n - 1 && (
+            <button type="button" aria-label="Next photo" onClick={() => go(1)} className={`${arrow} right-2`}>
+              <ChevronRightIcon />
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }
