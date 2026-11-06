@@ -30,6 +30,7 @@ const PHOTO_H = 675;
 const MAX_PHOTOS = 6;
 const MIN_PHOTOS = 3;
 
+const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report]";
 const [cmd, ...rest] = process.argv.slice(2);
 const flag = (name) => rest.includes(name);
 const limitAt = rest.indexOf("--limit");
@@ -273,6 +274,14 @@ async function buildCmd() {
   }
 }
 
-if (cmd === "fetch") await fetchCmd().catch((e) => (console.error(e.message), process.exit(1)));
-else if (cmd === "build") await buildCmd();
-else (console.error("Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report]"), process.exit(1));
+if (cmd === "fetch") {
+  await fetchCmd().catch((e) => {
+    console.error(e.message);
+    process.exit(1);
+  });
+} else if (cmd === "build") {
+  await buildCmd();
+} else {
+  console.error(USAGE);
+  process.exit(1);
+}
