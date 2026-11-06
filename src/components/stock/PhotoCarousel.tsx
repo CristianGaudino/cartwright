@@ -20,7 +20,12 @@ function settle(el: HTMLImageElement | null) {
 }
 
 const arrow =
-  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-text opacity-0 backdrop-blur-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex";
+  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-text backdrop-blur-md transition-opacity duration-150 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex";
+// Shown with the card's hover or any focus inside it.
+const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
+// At either end the button stays mounted and focusable (aria-disabled, no-op), so a keyboard user keeps their place and nothing shifts.
+// It is invisible to the pointer, and only shows, dimmed, while it holds keyboard focus.
+const arrowEnd = "pointer-events-none opacity-0 focus-visible:opacity-40";
 
 // Native scroll-snap gives 1:1 finger tracking, momentum and interruptibility: no gesture code.
 export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo[]; href: string; label: string; priority: boolean }) {
@@ -48,6 +53,8 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
       if (el?.clientWidth) setIndex(Math.round(el.scrollLeft / el.clientWidth));
     });
   };
+  const atStart = index <= 0;
+  const atEnd = index >= n - 1;
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
 
   return (
@@ -63,13 +70,14 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
       >
         {photos.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">
-            <Link href={href} tabIndex={-1} aria-hidden="true">
+            {/* Out of the tab order (the card title is the keyboard link) but not hidden, so the photo and its alt stay readable. */}
+            <Link href={href} tabIndex={-1}>
               <Image
                 ref={settle}
                 src={photo.src}
                 width={900}
                 height={675}
-                alt={`${label}, photo ${i + 1} of ${n}`}
+                alt={label}
                 loading={priority && i === 0 ? "eager" : undefined}
                 fetchPriority={priority && i === 0 ? "high" : undefined}
                 draggable={false}
@@ -86,16 +94,24 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
               <span key={photo.src} data-dot data-active={i === index ? "" : undefined} className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] data-[active]:bg-white" />
             ))}
           </div>
-          {index > 0 && (
-            <button type="button" aria-label="Previous photo" onClick={() => go(-1)} className={`${arrow} left-2`}>
-              <ChevronLeftIcon />
-            </button>
-          )}
-          {index < n - 1 && (
-            <button type="button" aria-label="Next photo" onClick={() => go(1)} className={`${arrow} right-2`}>
-              <ChevronRightIcon />
-            </button>
-          )}
+          <button
+            type="button"
+            aria-label="Previous photo"
+            aria-disabled={atStart}
+            onClick={() => !atStart && go(-1)}
+            className={`${arrow} left-2 ${atStart ? arrowEnd : arrowLive}`}
+          >
+            <ChevronLeftIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="Next photo"
+            aria-disabled={atEnd}
+            onClick={() => !atEnd && go(1)}
+            className={`${arrow} right-2 ${atEnd ? arrowEnd : arrowLive}`}
+          >
+            <ChevronRightIcon />
+          </button>
         </>
       )}
     </div>

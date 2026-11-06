@@ -22,12 +22,20 @@ describe("PhotoCarousel", () => {
     expect(html).not.toContain("Next photo");
   });
 
-  it("three photos: three slides and dots, Next but no Previous at the start", () => {
+  it("three photos: three slides and dots, both arrows mounted, Previous inert at the start", () => {
     const html = render(3);
     expect(count(html, 'aria-roledescription="slide"')).toBe(3);
     expect(count(html, "data-dot")).toBe(3);
-    expect(html).toContain("Next photo");
-    expect(html).not.toContain("Previous photo");
+    const button = (name: string) => html.match(new RegExp(`<button[^>]*aria-label="${name}"[^>]*>`))![0];
+    expect(button("Next photo")).toContain('aria-disabled="false"');
+    expect(button("Previous photo")).toContain('aria-disabled="true"');
+  });
+
+  it("photos are exposed: named slides, the alt text is the car, and the links are not aria-hidden", () => {
+    const html = render(3);
+    expect(html).toContain('aria-label="Photo 2 of 3"');
+    expect(count(html, 'alt="2019 Audi A4"')).toBe(3);
+    expect(html).not.toMatch(/<a[^>]*aria-hidden/);
   });
 
   it("priority makes the first image high priority, otherwise every image is lazy", () => {

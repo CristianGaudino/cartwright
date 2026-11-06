@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import type { Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 declare global {
   interface Window {
@@ -87,21 +87,93 @@ test("a blocked photo leaves the grey 4:3 box and no broken image", async ({ pag
 test.describe("desktop pointer", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
 
-  test("arrows appear on hover, move one photo and hide at the ends", async ({ page }) => {
+  const arrows = (card: Locator) => ({ next: card.getByRole("button", { name: "Next photo" }), previous: card.getByRole("button", { name: "Previous photo" }) });
+  const waitReact = (page: Page) => page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+
+  test("arrows appear on hover, move one photo and go quiet at the ends", async ({ page }) => {
     await page.goto("/used-cars");
     const card = page.locator("article").first();
-    const next = card.getByRole("button", { name: "Next photo" });
-    const previous = card.getByRole("button", { name: "Previous photo" });
+    const { next, previous } = arrows(card);
     await card.hover();
     await expect(next).toHaveCSS("opacity", "1");
-    await expect(previous).toHaveCount(0);
+    // First photo: Previous stays mounted but is inert and invisible.
+    await expect(previous).toBeDisabled();
+    await expect(previous).toHaveCSS("opacity", "0");
     await next.click();
     const width = await scroller(card).evaluate((el) => el.clientWidth);
     await expect.poll(() => scroller(card).evaluate((el) => el.scrollLeft)).toBe(width);
-    await expect(previous).toBeVisible();
-    // Last photo: Next goes away.
+    await expect(previous).toBeEnabled();
+    await expect(previous).toHaveCSS("opacity", "1");
+    // Last photo: Next goes inert and invisible.
     await scroller(card).evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: "instant" }));
-    await expect(next).toHaveCount(0);
+    await expect(next).toBeDisabled();
+    await expect(next).toHaveCSS("opacity", "0");
+  });
+
+  test("arrows appearing and disappearing move nothing", async ({ page }) => {
+    await page.goto("/used-cars");
+    const card = page.locator("article").first();
+    const { next, previous } = arrows(card);
+    const boxes = async () => [await next.boundingBox(), await previous.boundingBox(), await scroller(card).boundingBox()];
+    const before = await boxes();
+    await scroller(card).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
+    await expect(previous).toBeEnabled();
+    expect(await boxes()).toEqual(before);
+    await scroller(card).evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: "instant" }));
+    await expect(next).toBeDisabled();
+    expect(await boxes()).toEqual(before);
+  });
+
+  test("keyboard: Next and Previous keep focus at both ends and move one photo per press", async ({ page }) => {
+    await page.goto("/used-cars");
+    await waitReact(page);
+    const card = page.locator("article").first();
+    const { next, previous } = arrows(card);
+    const dots = card.locator("[data-dot]");
+    const n = await dots.count();
+    expect(n).toBeGreaterThan(2);
+
+    await next.focus();
+    for (let i = 1; i < n; i++) {
+      await page.keyboard.press("Enter");
+      await expect(dots.nth(i)).toHaveAttribute("data-active", "");
+    }
+    // Last photo: focus did not fall back to the page, Next is inert but still there, and a further press does nothing.
+    await expect(next).toBeFocused();
+    await expect(next).toBeDisabled();
+    await expect(next).toHaveCSS("opacity", "0.4"); // dimmed, not gone, while the keyboard is on it
+    await page.keyboard.press("Enter");
+    await expect(next).toBeFocused();
+    await expect(dots.nth(n - 1)).toHaveAttribute("data-active", "");
+
+    // Shift+Tab lands on Previous, which walks back; at the first photo it keeps focus the same way.
+    await page.keyboard.press("Shift+Tab");
+    await expect(previous).toBeFocused();
+    for (let i = n - 2; i >= 0; i--) {
+      await page.keyboard.press("Enter");
+      await expect(dots.nth(i)).toHaveAttribute("data-active", "");
+    }
+    await expect(previous).toBeFocused();
+    await expect(previous).toBeDisabled();
+    await page.keyboard.press("Enter");
+    await expect(previous).toBeFocused();
+    await expect(dots.first()).toHaveAttribute("data-active", "");
+  });
+
+  test("screen readers get one named slide per photo, each image named for the car", async ({ page }) => {
+    await page.goto("/used-cars");
+    const card = page.locator("article").first();
+    const n = await card.locator("img").count();
+    await expect(scroller(card)).toHaveAttribute("aria-roledescription", "carousel");
+    const name = (await card.locator("img").first().getAttribute("alt"))!;
+    expect(name).toMatch(/^\d{4} \S/); // year make model
+    for (let i = 1; i <= n; i++) {
+      const slide = card.getByRole("group", { name: `Photo ${i} of ${n}`, exact: true });
+      await expect(slide).toHaveAttribute("aria-roledescription", "slide");
+      // Not aria-hidden: the image is named for the car, inside a link to it that stays out of the tab order.
+      await expect(slide.getByRole("img", { name, exact: true })).toHaveCount(1);
+      await expect(slide.getByRole("link", { name, exact: true })).toHaveAttribute("tabindex", "-1");
+    }
   });
 });
 
