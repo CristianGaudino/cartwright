@@ -78,7 +78,7 @@ test.describe("on a desktop", () => {
 });
 
 test.describe("a sold car", () => {
-  test.skip(!sold, "No demo car is inside the sold window: run npm run stock:build to refresh the demo dates");
+  test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
 
   test("the gallery carries the Sold badge on its photo", async ({ page }) => {
     await open(page, sold!.slug);

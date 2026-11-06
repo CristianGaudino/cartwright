@@ -13,6 +13,7 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "stock:fetch": "node scripts/stock/demo-stock.mjs fetch",
     "stock:build": "node scripts/stock/demo-stock.mjs build",
+    "stock:redate": "node scripts/stock/demo-stock.mjs redate",
     "stock:og": "node scripts/stock/og.mjs"
   },
   "engines": {

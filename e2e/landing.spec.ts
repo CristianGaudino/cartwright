@@ -97,6 +97,12 @@ const unstocked = cars.filter((c) => c.soldAt && !stockedMakes.has(c.makeSlug));
 const expiredOnly = unstocked.filter((c) => !inWindow(c) && !unstocked.some((o) => o.makeSlug === c.makeSlug && inWindow(o)))[0];
 const recentOnly = unstocked.filter(inWindow)[0];
 
+// The skips below only hide the specs that need these makes; this one fails loudly so stale dates never pass as green.
+test("the demo data has an expired-only make and a recently-sold-only make", () => {
+  expect(expiredOnly, "run npm run stock:redate").toBeTruthy();
+  expect(recentOnly, "run npm run stock:redate").toBeTruthy();
+});
+
 test("a make with nothing in stock and nothing recently sold shows the empty state and stays out of search", async ({ page }) => {
   test.skip(!expiredOnly, "the demo data has no make that is both out of stock and out of the sold window; refresh the data");
   const res = await page.goto(`/used-cars/${expiredOnly.makeSlug}`);
