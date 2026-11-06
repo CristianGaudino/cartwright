@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { BuyBox } from "@/components/car/BuyBox";
+import { CarGallery } from "@/components/car/CarGallery";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
 import { BackToCars } from "@/components/stock/BackToCars";
 import { SoldBadge } from "@/components/stock/SoldBadge";
@@ -39,7 +39,6 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
   const found = await resolveSlug((await params).slug);
   if (!found) notFound();
   const { car } = found;
-  const photo = car.photos[0];
   const similar = await similarCars(car);
 
   return (
@@ -47,14 +46,9 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
       <JsonLd data={carJsonLd(car)} />
       <BackToCars />
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-8">
-        {/* Gallery slot: plan 02-05 swaps in the full gallery. */}
-        <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-photo-bg lg:col-start-1">
-          {photo ? (
-            <Image src={photo.src} width={900} height={675} alt={`${carName(car)}, photo 1 of ${car.photos.length}`} loading="eager" fetchPriority="high" className="h-full w-full object-cover" />
-          ) : (
-            <p className="flex h-full items-center justify-center text-meta text-text-2">No photo yet</p>
-          )}
-          {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
+        <div className="relative lg:col-start-1">
+          <CarGallery photos={car.photos} name={carName(car)} />
+          {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
         </div>
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-6 lg:self-start">
           <BuyBox car={car} />

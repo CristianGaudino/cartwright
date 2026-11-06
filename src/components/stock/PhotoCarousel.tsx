@@ -5,27 +5,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import type { Photo } from "@/lib/stock/types";
+import { arrow, arrowEnd, settle } from "./photo-load";
 
-// Not onLoad/onError props: next/image re-sets src (and re-requests every photo) after hydration when onError is passed.
-// A stable ref callback also catches photos that finished or failed before React hydrated (RESEARCH Pitfall 3).
-const loaded = (e: Event) => ((e.currentTarget as HTMLImageElement).dataset.loaded = "");
-const failed = (e: Event) => ((e.currentTarget as HTMLImageElement).dataset.failed = "");
-function settle(el: HTMLImageElement | null) {
-  if (!el) return;
-  if (!el.complete) {
-    el.addEventListener("load", loaded, { once: true });
-    el.addEventListener("error", failed, { once: true });
-  } else if (el.naturalWidth > 0) el.dataset.loaded = "";
-  else el.dataset.failed = "";
-}
-
-const arrow =
-  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-ink backdrop-blur-md transition-opacity duration-150 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex";
 // Shown with the card's hover or any focus inside it.
 const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
-// At either end the button stays mounted and focusable (aria-disabled, no-op), so a keyboard user keeps their place and nothing shifts.
-// It is invisible to the pointer, and only shows, dimmed, while it holds keyboard focus.
-const arrowEnd = "pointer-events-none opacity-0 focus-visible:opacity-40";
 
 // Native scroll-snap gives 1:1 finger tracking, momentum and interruptibility: no gesture code.
 export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo[]; href: string; label: string; priority: boolean }) {
