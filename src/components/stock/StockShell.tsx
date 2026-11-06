@@ -1,12 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useId, useOptimistic, useState, useTransition } from "react";
+import { createContext, useContext, useEffect, useId, useOptimistic, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
 import { clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
+import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
 import { ChevronDownIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
@@ -72,6 +73,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(query);
   const [held, setHeld] = useState(summary?.facets ?? null);
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
+  useEffect(() => rememberList(query), [query]); // so the car page can link back to this list
 
   const navigate: Stock["navigate"] = (next, { scroll = false } = {}) =>
     startTransition(() => {

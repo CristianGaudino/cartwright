@@ -248,6 +248,21 @@ test.describe("filters on a desktop", () => {
     await expect(select(page, "Min")).toHaveValue("10000");
   });
 
+  test("Back to used cars on a car page returns to the filtered list the buyer came from", async ({ page }) => {
+    await open(page);
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(page).toHaveURL(new RegExp(`make=${a.value}$`));
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+    await page.locator("article h2 a").first().click();
+    await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
+    const back = page.getByRole("link", { name: "Back to used cars" });
+    await expect(back).toHaveAttribute("href", `/used-cars?make=${a.value}`); // set once the page has hydrated
+    await back.click();
+    await expect(page).toHaveURL(new RegExp(`/used-cars\\?make=${a.value}$`));
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+  });
+
   test("an option with a zero count and no tick is aria-disabled; anything with a count is not", async ({ page }) => {
     await open(page);
     if (await showAll(page).count()) await showAll(page).click();

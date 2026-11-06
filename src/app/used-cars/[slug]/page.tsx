@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackToCars } from "@/components/stock/BackToCars";
 import { stock } from "@/lib/stock";
 import { carName, carTitle, formatKm, formatPrice } from "@/lib/stock/format";
 import { FUEL_LABELS, GEARBOX_LABELS } from "@/lib/stock/types";
@@ -26,9 +26,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
 
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-      <Link href="/used-cars" className="text-body underline">
-        Back to used cars
-      </Link>
+      <BackToCars />
       <h1 className="mt-6 text-display font-semibold">{carTitle(car)}</h1>
       <p className="text-heading font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>
       {car.photos.length ? (
