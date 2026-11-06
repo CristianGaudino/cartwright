@@ -53,6 +53,42 @@ describe("generated demo cars", () => {
     for (const s of strings(c)) expect(s).not.toMatch(/[–—<]|&amp;|&#/);
   });
 
+  describe("spec fields, description and equipment", () => {
+    const posInt = (n: number) => Number.isInteger(n) && n > 0;
+    const CONTACT_LINE = /@|www\.|https?:\/\/|\b[A-Z]\d{2} ?[A-Z0-9]{4}\b|\b0\d{1,2}[ -]?\d{3}[ -]?\d{3,4}\b/;
+
+    it.each(cars.map((c) => [c.slug, c] as const))("%s has well typed optional fields", (_slug, c) => {
+      if (c.engineLitres !== undefined) expect(c.engineLitres).toBeGreaterThan(0);
+      for (const n of [c.doors, c.seats, c.owners, c.maxSpeedMph]) if (n !== undefined) expect(posInt(n)).toBe(true);
+      if (c.zeroTo62Secs !== undefined) expect(c.zeroTo62Secs).toBeGreaterThan(0);
+      if (c.nctExpiry !== undefined) expect(c.nctExpiry).toMatch(/^\d{4}-(0[1-9]|1[0-2])$/);
+      for (const s of [c.colour, c.description]) if (s !== undefined) expect(s.trim()).not.toBe("");
+      if (c.features !== undefined) {
+        expect(c.features.length).toBeGreaterThan(0);
+        expect(c.features.every((f) => f.trim() !== "" && f === f.trim())).toBe(true);
+        expect(new Set(c.features.map((f) => f.toLowerCase())).size).toBe(c.features.length);
+      }
+      for (const line of (c.description ?? "").split("\n")) expect(line).not.toMatch(CONTACT_LINE);
+    });
+
+    it("keeps the line breaks of the dealer's description", () => {
+      expect(cars.some((c) => c.description?.includes("\n"))).toBe(true);
+    });
+
+    it("has no make or body slug that could collide with a car slug or each other (D-06)", () => {
+      const slugs = [...new Set(cars.flatMap((c) => [c.makeSlug, c.bodySlug].filter((s): s is string => s !== undefined)))];
+      expect(slugs.filter((s) => /-\d+$/.test(s))).toEqual([]);
+      const makes = new Set(cars.map((c) => c.makeSlug));
+      expect(cars.filter((c) => c.bodySlug && makes.has(c.bodySlug))).toEqual([]);
+    });
+
+    it("did not lose a field across the board", () => {
+      const have = (k: keyof Car) => cars.filter((c) => c[k] !== undefined).length;
+      expect(have("features")).toBeGreaterThanOrEqual(cars.length / 2);
+      for (const k of ["engineLitres", "colour", "doors", "owners", "seats"] as const) expect(have(k)).toBeGreaterThan(cars.length / 2);
+    });
+  });
+
   it("has no photo file that no car references", () => {
     const referenced = new Set(cars.flatMap((c) => c.photos.map((p) => `public${p.src}`)));
     expect(files("public/stock").filter((f) => !referenced.has(f))).toEqual([]);

@@ -18,6 +18,10 @@ The stock is the real cartwright.ie listings: 57 cars, fetched on 2026-11-05. Ea
 
 The owner authorised one call to the dealer site's own listing endpoint, with a generic user agent. That run also read the stock page, its main.js and each car's detail page, at least 1.5 seconds apart and never retried. In total: 61 requests to www.cartwright.ie and 343 photo requests to the Carsie CDN.
 
+Sold dates are set relative to the day `npm run stock:build` runs. A car sold in the last 30 days still shows as sold, so re-run `npm run stock:build` before a pitch to keep the demo's sold cars inside that window. Tests pin their own clock, so they never expire.
+
+The extra specs, descriptions and equipment lists were parsed from the pages already cached in the original run, so no further request went to the dealer site.
+
 The photos and data belong to the dealer and CarsIreland. They are for the private pitch demo only. Before any public launch:
 - replace them with the client's feed (see [docs/carsie-feed.md](docs/carsie-feed.md)) or supplied images
 - delete `public/stock/`

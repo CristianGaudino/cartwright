@@ -35,6 +35,16 @@ export interface Car {
   gearbox?: Gearbox;
   bodyType?: string; // display label, e.g. "SUV"
   bodySlug?: string; // e.g. "suv"
+  engineLitres?: number; // 2 for "2L"; render "2.0 L"
+  colour?: string;
+  doors?: number;
+  seats?: number;
+  owners?: number; // 2 for "2 Owners"
+  nctExpiry?: string; // "2027-07" for "07/2027"
+  maxSpeedMph?: number; // 126 for "126 mph", as published, not converted
+  zeroTo62Secs?: number; // 9.9 for "9.9 seconds"
+  description?: string; // the dealer's text, line breaks kept, contact block removed
+  features?: string[]; // equipment items
   photos: Photo[]; // 0 to 6, local /stock/... paths
   soldAt?: string; // ISO date (YYYY-MM-DD). Drives the sold window and the 410 only. Never render it anywhere.
 }
