@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { ShareButton } from "@/components/car/ShareButton";
 import { PhoneIcon } from "@/components/stock/icons";
 import { SoldBadge } from "@/components/stock/SoldBadge";
-import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
-import { carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
+import { DEALER_PHONE, DEALER_TEL, SITE_URL } from "@/lib/site";
+import { carName, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -17,7 +18,10 @@ export function BuyBox({ car }: { car: Car }) {
         {sold && <SoldBadge />}
         <h1 className="break-words text-heading font-semibold">{carTitle(car)}</h1>
       </div>
-      {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
+        <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
+      </div>
       <dl className="grid grid-cols-2 gap-4">
         {keyFacts(car).map((f) => (
           <div key={f.label} className="min-w-0 rounded-card border border-hairline bg-card p-4 lg:border-0 lg:bg-surface">
