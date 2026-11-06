@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { arrow, arrowEnd, counterPill, settle } from "@/components/stock/photo-load";
 import type { Photo } from "@/lib/stock/types";
+import { PhotoLightbox } from "./PhotoLightbox";
 import { useSlideIndex } from "./useSlideIndex";
 
 const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
@@ -15,6 +16,9 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
   const root = useRef<HTMLDivElement>(null);
   const strip = useRef<HTMLDivElement>(null);
   const { ref: scroller, onScroll } = useSlideIndex(setIndex);
+  const [lightIndex, setLightIndex] = useState(0);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const n = photos.length;
 
   // Photos stay visible without JavaScript: the hide-until-loaded style only applies once this attribute is set.
@@ -34,6 +38,14 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
     );
   }
   const show = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth });
+  // showModal() first: a closed dialog has no width, so the scroller can only be positioned once it is open (RESEARCH Pitfall 10).
+  const openLightbox = (i: number, from: HTMLElement) => {
+    opener.current = from;
+    setLightIndex(i);
+    dialog.current?.showModal();
+    const lb = dialog.current?.querySelector<HTMLElement>("[data-lightbox-scroller]");
+    lb?.scrollTo({ left: i * lb.clientWidth, behavior: "instant" });
+  };
   const atStart = index <= 0;
   const atEnd = index >= n - 1;
 
@@ -50,7 +62,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
         >
           {photos.map((photo, i) => (
             <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">
-              <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} className="block size-full focus-visible:-outline-offset-2">
+              <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="block size-full focus-visible:-outline-offset-2">
                 <Image
                   ref={settle}
                   src={photo.src}
@@ -97,6 +109,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
           ))}
         </div>
       )}
+      <PhotoLightbox photos={photos} name={name} dialogRef={dialog} index={lightIndex} onIndex={setLightIndex} onClose={() => opener.current?.focus()} />
     </div>
   );
 }

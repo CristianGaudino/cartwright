@@ -75,7 +75,8 @@ dialog.sheet[open] {
   flex-direction: column;
 }
 
-body:has(dialog.sheet[open]) {
+body:has(dialog.sheet[open]),
+body:has(dialog.lightbox[open]) {
   overflow: hidden;
 }
 
@@ -157,5 +158,48 @@ dialog.sheet[open]::backdrop {
 @media (prefers-contrast: more) {
   dialog.sheet {
     border: 1px solid var(--color-text);
+  }
+}
+
+/* Photo lightbox (02-05): a full-viewport modal dialog that fades. A takeover has no edge to slide from. */
+dialog.lightbox {
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  width: 100dvw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    opacity 200ms ease-out,
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+
+dialog.lightbox[open] {
+  opacity: 1;
+}
+
+@starting-style {
+  dialog.lightbox[open] {
+    opacity: 0;
+  }
+}
+
+/* Same ink as the surface, so no rim shows. */
+dialog.lightbox::backdrop {
+  background: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.lightbox {
+    transition-duration: 150ms;
+    transition-timing-function: linear;
   }
 }

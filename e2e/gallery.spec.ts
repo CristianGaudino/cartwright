@@ -14,7 +14,7 @@ test.skip(!car, "No in-stock demo car has 3 or more photos");
 
 const whole = (page: Page) => page.getByTestId("gallery");
 const gallery = (page: Page) => whole(page).getByRole("group", { name: /^Photos of/ });
-const counter = (page: Page) => whole(page).getByText(/^\d+ \/ \d+$/);
+const counter = (page: Page) => gallery(page).locator("..").getByText(/^\d+ \/ \d+$/);
 const thumbs = (page: Page) => whole(page).getByRole("button", { name: /^Show photo/ });
 // A click before React attaches does nothing on a touch device.
 async function open(page: Page, slug: string) {
@@ -89,5 +89,61 @@ test.describe("a sold car", () => {
     expect(b.x).toBeGreaterThanOrEqual(g.x);
     expect(b.y).toBeGreaterThanOrEqual(g.y);
     expect(b.y + b.height).toBeLessThanOrEqual(g.y + g.height);
+  });
+});
+
+const dialogCounter = (page: Page) => page.getByRole("dialog", { name: /^Photos of/ }).getByText(/^\d+ \/ \d+$/);
+
+test.describe("the lightbox", () => {
+  test("opens at the tapped photo, moves with the arrow keys, fills the screen and gives focus back", async ({ page }) => {
+    await open(page, car!.slug);
+    await gallery(page).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
+    await expect(counter(page)).toHaveText(`2 / ${n}`);
+    const opener = whole(page).getByRole("button", { name: `View photo 2 of ${n} larger` });
+    await opener.click();
+
+    const box = page.getByRole("dialog", { name: /^Photos of/ });
+    await expect(box).toBeVisible();
+    await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
+    await expect(box.getByRole("button", { name: "Close photos" })).toBeFocused();
+    expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe("hidden");
+
+    await page.keyboard.press("ArrowRight");
+    await expect(dialogCounter(page)).toHaveText(`3 / ${n}`);
+    await page.keyboard.press("ArrowLeft");
+    await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
+    await page.keyboard.press("ArrowRight");
+    await expect(dialogCounter(page)).toHaveText(`3 / ${n}`);
+
+    const view = page.viewportSize()!;
+    const rect = (await box.boundingBox())!;
+    expect([rect.x, rect.y, rect.width, rect.height]).toEqual([0, 0, view.width, view.height]);
+
+    await page.keyboard.press("Escape");
+    await expect(box).toBeHidden();
+    await expect(opener).toBeFocused();
+    // Moving inside the lightbox does not move the gallery.
+    await expect(counter(page)).toHaveText(`2 / ${n}`);
+  });
+
+  test("Close photos closes it", async ({ page }) => {
+    await open(page, car!.slug);
+    await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
+    const box = page.getByRole("dialog", { name: /^Photos of/ });
+    await box.getByRole("button", { name: "Close photos" }).click();
+    await expect(box).toBeHidden();
+  });
+
+  test.describe("on a desktop", () => {
+    test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+    test("Previous and Next move one photo and go inert at the ends", async ({ page }) => {
+      await open(page, car!.slug);
+      await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
+      const box = page.getByRole("dialog", { name: /^Photos of/ });
+      await expect(box.getByRole("button", { name: "Previous photo" })).toHaveAttribute("aria-disabled", "true");
+      await box.getByRole("button", { name: "Next photo" }).click();
+      await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
+    });
   });
 });
