@@ -12,7 +12,8 @@
     "e2e": "playwright test",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "stock:fetch": "node scripts/stock/demo-stock.mjs fetch",
-    "stock:build": "node scripts/stock/demo-stock.mjs build"
+    "stock:build": "node scripts/stock/demo-stock.mjs build",
+    "stock:og": "node scripts/stock/og.mjs"
   },
   "engines": {
     "node": ">=24 <25"

@@ -29,5 +29,7 @@ The photos and data belong to the dealer and CarsIreland. They are for the priva
 
 To regenerate, run `npm run stock:fetch` then `npm run stock:build`. Never run them in CI or at build time.
 
+After `npm run stock:build`, run `npm run stock:og` to regenerate the share images in `public/og/` (also never in CI or at build time). The font in `scripts/stock/fonts/` is Inter SemiBold under the SIL Open Font License, used by that script only.
+
 ## Design skills
 Skills live in `.agents/skills` (pinned in `skills-lock.json`), primarily `apple-design`.
