@@ -161,3 +161,32 @@ test.describe("one result, on a desktop", () => {
     expect(card.width).toBeLessThan(grid.width / 2);
   });
 });
+
+test("a provider failure shows the error state and Sort still works", async ({ page, request }) => {
+  test.skip(!!process.env.E2E_BASE_URL, "needs the failure switch, which only the local server has");
+  const url = "/used-cars?q=e2e-forced-failure";
+  expect((await request.get(url)).status()).toBe(200);
+  await page.goto(url);
+  const error = () => Promise.all([
+    expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible(),
+    expect(page.getByText("Check your connection and try again.")).toBeVisible(),
+    expect(page.getByRole("button", { name: "Try loading cars again" })).toBeVisible(),
+  ]);
+  await error();
+  await expect(page.locator("article")).toHaveCount(0);
+  await expect(page.getByTestId("count")).toBeEmpty();
+
+  const sort = page.getByRole("combobox", { name: "Sort" });
+  await expect(sort).toBeEnabled();
+  await sort.selectOption({ label: "Price: low to high" });
+  await expect(page).toHaveURL(/sort=price-asc/);
+  await expect(page).toHaveURL(/q=e2e-forced-failure/);
+  await error();
+
+  await page.getByRole("button", { name: "Try loading cars again" }).click();
+  await error();
+  await expect(sort).toBeEnabled();
+
+  await page.goto("/used-cars?sort=price-asc");
+  await expect(page.locator("article").first()).toBeVisible();
+});

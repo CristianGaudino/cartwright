@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { StockResults } from "@/components/stock/StockResults";
-import { StockShell } from "@/components/stock/StockShell";
+import { StockError, StockShell } from "@/components/stock/StockShell";
 import { stock } from "@/lib/stock";
 import { parseStockQuery } from "@/lib/stock/query";
 
@@ -9,10 +9,11 @@ export const metadata: Metadata = { title: "Used cars", robots: { index: false }
 
 export default async function UsedCarsPage({ searchParams }: PageProps<"/used-cars">) {
   const query = parseStockQuery(await searchParams);
-  const result = await stock.query(query);
+  // No error.tsx: it would replace the whole segment and take Sort and the filters with it. Nothing is logged (T-01-29).
+  const result = await stock.query(query).catch(() => null);
   return (
-    <StockShell query={query} summary={{ total: result.total, facets: result.facets }}>
-      <StockResults result={result} query={query} />
+    <StockShell query={query} summary={result && { total: result.total, facets: result.facets }}>
+      {result ? <StockResults result={result} query={query} /> : <StockError />}
     </StockShell>
   );
 }

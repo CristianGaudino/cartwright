@@ -65,6 +65,10 @@ jobs:
           headers=$(curl -sI --max-time 60 "http://127.0.0.1:8787$photo")
           echo "$headers" | grep -i '^cache-control' || echo 'no cache-control header'
           if ! echo "$headers" | grep -i '^x-robots-tag:' | grep -qi noindex; then echo "$photo has no x-robots-tag noindex header"; fail=1; fi
+          # T-01-26: the E2E failure switch must be off on the Worker, so its trigger search must show cars, not the error state.
+          code=$(curl -s -o forced.html -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/used-cars?q=e2e-forced-failure')
+          echo "forced-failure search: $code (want 200)"
+          if [ "$code" != 200 ] || grep -q 'We could not load the cars' forced.html; then echo 'the E2E failure switch is on in the Worker build'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
           if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; exit 1; fi
 

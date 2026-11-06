@@ -8,5 +8,8 @@ export default defineConfig({
   retries: 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: { baseURL, ...devices["Pixel 7"] },
-  webServer: process.env.E2E_BASE_URL ? undefined : { command: "npm start", url: baseURL, reuseExistingServer: !process.env.CI },
+  // E2E_FAIL_QUERY is the failure-state switch; a server already running on port 3000 without it makes the failure specs fail.
+  webServer: process.env.E2E_BASE_URL
+    ? undefined
+    : { command: "npm start", url: baseURL, reuseExistingServer: !process.env.CI, env: { E2E_FAIL_QUERY: "e2e-forced-failure" } },
 });
