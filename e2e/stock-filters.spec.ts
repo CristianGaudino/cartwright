@@ -357,6 +357,15 @@ test.describe("filters on a phone", () => {
     await expect(search(page)).toHaveCount(1);
   });
 
+  test("Enter in the search box closes the keyboard and the search still runs", async ({ page }) => {
+    await open(page);
+    await expect(search(page)).toHaveAttribute("enterkeyhint", "search");
+    await search(page).fill("a");
+    await search(page).press("Enter");
+    await expect(search(page)).not.toBeFocused();
+    await expect(page).toHaveURL(/q=a$/);
+  });
+
   test("scrolled past the first cards, the sticky bar's Filters and Sort are still what a tap hits, not a photo", async ({ page }) => {
     await open(page);
     await page.evaluate(() => window.scrollTo(0, 2500));
