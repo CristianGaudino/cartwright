@@ -8,7 +8,7 @@ import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
 import { ChevronDownIcon } from "./icons";
-import { StockFilters } from "./StockFilters";
+import { SearchBox, StockFilters } from "./StockFilters";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -92,6 +92,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
                 {summary && countLabel(summary.total)}
               </p>
               <SortControl className="hidden lg:flex" />
+            </div>
+            <div className="mt-4 lg:hidden">
+              <SearchBox />
             </div>
             <div
               data-testid="sticky-bar"

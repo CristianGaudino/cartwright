@@ -27,6 +27,25 @@ async function rows(page: Page, name = "Make") {
 
 const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/ });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
+const metas = (page: Page) => page.locator("article > div:last-child > p:last-child").allTextContents();
+const prices = (page: Page) => page.locator("article > div:last-child > p:first-child").allTextContents().then((l) => l.map(digits));
+const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
+const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
+
+const chip = (page: Page, name: string, label: string) =>
+  page.getByRole("group", { name }).getByRole("button").filter({ has: page.locator("span.truncate", { hasText: new RegExp(`^${label}$`) }) });
+
+// Chips of a group as the page shows them: label, count and states.
+const chips = (page: Page, name: string) =>
+  page.getByRole("group", { name }).getByRole("button").evaluateAll((bs) =>
+    bs.map((b) => ({
+      label: b.querySelector("span.truncate")!.textContent!,
+      text: b.textContent!,
+      count: Number(b.querySelector("span.shrink-0")?.textContent ?? NaN),
+      pressed: b.getAttribute("aria-pressed") === "true",
+      disabled: b.getAttribute("aria-disabled") === "true",
+    })),
+  );
 
 test.describe("filters on a desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
@@ -113,6 +132,170 @@ test.describe("filters on a desktop", () => {
     await expect(box(page, last.value)).toBeVisible();
     await expect(box(page, last.value)).toBeChecked();
   });
+
+  test("search, one box, 250ms pause, never disabled", async ({ page }) => {
+    await open(page);
+    await expect(search(page)).toHaveCount(1);
+    await expect(search(page)).toHaveAttribute("maxlength", "80");
+    await search(page).fill("a");
+    await expect(page).toHaveURL(/q=a$/);
+    await expect(search(page)).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Remove Search: a" })).toBeVisible();
+    await page.getByRole("button", { name: "Clear all filters" }).click();
+    await expect(page).toHaveURL(/\/used-cars$/);
+    await expect(search(page)).toHaveValue("");
+  });
+
+  test("Model waits for a make, lists that make's models and drops them with it", async ({ page }) => {
+    await open(page);
+    await expect(page.getByRole("group", { name: "Model" })).toHaveCount(0);
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(page.getByRole("group", { name: "Model" })).toBeVisible();
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+    const m = (await rows(page, "Model")).find((r) => r.count > 0)!;
+    await page.getByRole("group", { name: "Model" }).locator(`input[value="${m.value}"]`).check();
+    await expect(page).toHaveURL(new RegExp(`model=${m.value}$`));
+    await expect(page.getByTestId("count")).toHaveText(countText(m.count));
+    for (const t of await titles(page)) expect(t).toContain(m.label);
+    await box(page, a.value).uncheck();
+    await expect(page).toHaveURL(/\/used-cars$/);
+    await expect(page.getByRole("group", { name: "Model" })).toHaveCount(0);
+  });
+
+  test("Year, Budget, Mileage, Body, Fuel and Transmission each filter and write their param", async ({ page }) => {
+    await open(page);
+    const all = (await page.getByTestId("count").textContent())!;
+    const clear = async () => {
+      await page.getByRole("button", { name: "Clear all filters" }).click();
+      await expect(page.getByTestId("count")).toHaveText(all); // wait for the unfiltered facets before reading chips
+    };
+    const from = select(page, "From");
+    const years = (await from.locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))).filter(Boolean).map(Number);
+    const newest = Math.max(...years);
+    await from.selectOption(String(newest));
+    await expect(page).toHaveURL(new RegExp(`yearFrom=${newest}$`));
+    await expect.poll(async () => (await metas(page)).length > 0 && (await metas(page)).every((m) => m.startsWith(String(newest)))).toBe(true);
+    await clear();
+
+    await select(page, "Max").selectOption("25000");
+    await expect(page).toHaveURL(/priceMax=25000$/);
+    await expect.poll(async () => (await prices(page)).length > 0 && (await prices(page)).every((p) => p <= 25000)).toBe(true);
+    await select(page, "Min").selectOption("10000");
+    await expect(page).toHaveURL(/priceMin=10000&priceMax=25000$/);
+    await expect.poll(async () => (await prices(page)).every((p) => p >= 10000 && p <= 25000)).toBe(true);
+    await clear();
+
+    await select(page, "Up to").selectOption("80000");
+    await expect(page).toHaveURL(/kmMax=80000$/);
+    await expect
+      .poll(async () => {
+        const km = (await metas(page)).map((m) => /([\d,]+) km/.exec(m)?.[1]).filter(Boolean).map((v) => digits(v!));
+        return km.length > 0 && km.every((k) => k <= 80000);
+      })
+      .toBe(true);
+    await clear();
+
+    const body = (await chips(page, "Body type")).find((c) => c.count > 0)!;
+    await chip(page, "Body type", body.label).click();
+    await expect(page).toHaveURL(/body=/);
+    await expect(page.getByRole("group", { name: "Body type" }).getByRole("button", { pressed: true })).toHaveCount(1);
+    await expect(page.getByTestId("count")).toHaveText(countText(body.count));
+    await clear();
+
+    const fuel = (await chips(page, "Fuel")).find((c) => c.count > 0)!;
+    await chip(page, "Fuel", fuel.label).click();
+    await expect(page).toHaveURL(/fuel=/);
+    await expect(page.getByTestId("count")).toHaveText(countText(fuel.count));
+    await clear();
+
+    const gearbox = page.getByRole("radiogroup", { name: "Transmission" });
+    await gearbox.getByText("Automatic").click();
+    await expect(page).toHaveURL(/gearbox=automatic$/);
+    await expect(page.getByRole("radio", { name: "Automatic" })).toBeChecked();
+    await gearbox.getByText("Any").click();
+    await expect(page).toHaveURL(/\/used-cars$/);
+  });
+
+  test("an option with a zero count and no tick is aria-disabled; anything with a count is not", async ({ page }) => {
+    await open(page);
+    if (await showAll(page).count()) await showAll(page).click();
+    const smallest = (await rows(page)).filter((r) => r.count > 0).sort((x, y) => x.count - y.count)[0];
+    await box(page, smallest.value).check();
+    await expect(page.getByTestId("count")).toHaveText(countText(smallest.count));
+    await expect.poll(async () => (await chips(page, "Body type")).some((c) => c.count === 0)).toBe(true);
+    let zero = 0;
+    for (const c of [...(await chips(page, "Body type")), ...(await chips(page, "Fuel"))]) {
+      expect(c.disabled, c.label).toBe(c.count === 0 && !c.pressed);
+      if (c.count === 0) zero++;
+    }
+    expect(zero).toBeGreaterThan(0);
+    const disabledBoxes = await makeGroup(page).locator('input[aria-disabled="true"]').count();
+    const zeroBoxes = (await rows(page)).filter((r) => r.count === 0 && r.value !== smallest.value).length;
+    expect(disabledBoxes).toBe(zeroBoxes);
+  });
+
+  test("a shared URL with filters and sort opens the same cars in the same order (BRW-03)", async ({ page, browser }) => {
+    await open(page);
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+    const body = (await chips(page, "Body type")).find((c) => c.count > 0)!;
+    await chip(page, "Body type", body.label).click();
+    await expect(page).toHaveURL(/body=/);
+    await page.getByRole("combobox", { name: "Sort" }).selectOption({ label: "Price: high to low" });
+    await expect(page).toHaveURL(/sort=price-desc/);
+    await expect
+      .poll(async () => {
+        const p = await prices(page);
+        return p.every((x, i) => i === 0 || p[i - 1] >= x);
+      })
+      .toBe(true);
+    const url = page.url();
+    const expected = await titles(page);
+    expect(expected.length).toBeGreaterThan(0);
+
+    const ctx = await browser.newContext({ baseURL: new URL(url).origin });
+    const other = await ctx.newPage();
+    await other.goto(url);
+    expect(await titles(other)).toEqual(expected);
+    await ctx.close();
+  });
+
+  test("a failed load keeps every filter, without counts, and the chips keep their names", async ({ page }) => {
+    test.skip(!!process.env.E2E_BASE_URL, "needs the failure switch, which only the local server has");
+    await open(page);
+    const first = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, first.value).check();
+    await expect(page.getByTestId("count")).toHaveText(countText(first.count));
+    const makes = (await rows(page)).map((r) => r.label);
+    const body = (await chips(page, "Body type")).map((c) => c.label);
+    const fuel = (await chips(page, "Fuel")).map((c) => c.label);
+
+    await search(page).fill("e2e-forced-failure");
+    await expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible();
+
+    expect((await rows(page)).map((r) => r.label)).toEqual(makes);
+    expect((await rows(page)).every((r) => Number.isNaN(r.count))).toBe(true);
+    expect(await makeGroup(page).locator("label").allTextContents()).toEqual(makes);
+    await expect(makeGroup(page).locator('[aria-disabled="true"]')).toHaveCount(0);
+    await expect(box(page, first.value)).toBeChecked();
+    for (const [name, labels] of [["Body type", body], ["Fuel", fuel]] as const) {
+      const now = await chips(page, name);
+      expect(now.map((c) => c.label)).toEqual(labels);
+      for (const c of now) {
+        expect(c.text).toBe(c.label);
+        expect(c.disabled).toBe(false);
+      }
+    }
+    await expect(page.getByRole("combobox", { name: "Sort" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: `Remove ${first.label}` })).toBeVisible();
+
+    await search(page).fill("");
+    await expect(page.locator("article").first()).toBeVisible();
+    await expect(page.getByTestId("count")).toHaveText(countText(first.count));
+    expect((await rows(page)).every((r) => !Number.isNaN(r.count))).toBe(true);
+  });
 });
 
 test.describe("filters on a phone", () => {
@@ -120,5 +303,11 @@ test.describe("filters on a phone", () => {
     await page.goto("/used-cars");
     await expect(page.locator("article").first()).toBeVisible();
     await expect(makeGroup(page)).toHaveCount(0);
+    await expect(select(page, "From")).toHaveCount(0);
+  });
+
+  test("one search box", async ({ page }) => {
+    await page.goto("/used-cars");
+    await expect(search(page)).toHaveCount(1);
   });
 });
