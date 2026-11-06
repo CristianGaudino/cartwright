@@ -80,6 +80,32 @@ test.describe("sold cars", () => {
     });
   });
 
+  test.describe("sold card", () => {
+    test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+    test("a Sold badge on the photo, the same price line height, no dimming", async ({ page }) => {
+      test.skip(!mixedMake, "No make has both a car in stock and a sold car in the window");
+      await open(page, `/used-cars?sold=1&make=${mixedMake}`);
+      const price = (text: RegExp) => page.locator("article > div:last-child > p:first-child").filter({ hasText: text }).first();
+      const card = page.locator("article").filter({ has: page.locator("p", { hasText: /^Sold$/ }) }).first();
+      await card.scrollIntoViewIfNeeded();
+
+      const badge = card.locator("> div").first().getByText("Sold", { exact: true });
+      await expect(badge).toBeVisible();
+      await expect(badge).toHaveAttribute("aria-hidden", "true");
+      await expect(badge).toHaveCSS("background-color", "rgb(245, 245, 247)");
+
+      expect((await price(/^Sold$/).boundingBox())!.height).toBe((await price(/^€/).boundingBox())!.height);
+
+      await expect(card).toHaveCSS("opacity", "1");
+      await expect(card).toHaveCSS("filter", "none");
+      const photo = card.locator("img").first();
+      await expect(photo).toHaveAttribute("data-loaded", "");
+      await expect(photo).toHaveCSS("opacity", "1");
+      await expect(photo).toHaveCSS("filter", "none");
+    });
+  });
+
   test("on a phone the checkbox is in the sheet and the Filters badge counts it", async ({ page }) => {
     await open(page);
     await page.getByRole("button", { name: /^Filters/ }).click();
