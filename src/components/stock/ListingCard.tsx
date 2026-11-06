@@ -1,6 +1,7 @@
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import Link from "next/link";
 import { carMeta, carName, carTitle, formatPrice } from "@/lib/stock/format";
+import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
 export function ListingCard({ car, priority }: { car: Car; priority: boolean }) {
@@ -11,7 +12,7 @@ export function ListingCard({ car, priority }: { car: Car; priority: boolean }) 
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
       </div>
       <div className="flex flex-col gap-1 p-4">
-        <p className="text-heading font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>
+        <p className={`text-heading font-semibold tabular-nums ${isSold(car) ? "text-text-2" : ""}`}>{isSold(car) ? "Sold" : formatPrice(car.priceEur)}</p>
         <h2 className="line-clamp-2 text-body font-semibold">
           <Link href={href} className="after:absolute after:inset-0">
             {carTitle(car)}

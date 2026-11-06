@@ -235,6 +235,15 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
       <Row title="Mileage">
         <SelectField label="Up to" value={query.kmMax} options={withSelected(KMS, query.kmMax).map((v) => ({ value: v, label: formatKm(v) }))} onChange={(kmMax) => set({ kmMax })} />
       </Row>
+      <label className="flex min-h-11 items-center gap-3 border-t border-hairline pt-4">
+        <input
+          type="checkbox"
+          checked={query.sold === "include"}
+          onChange={(e) => navigate({ ...query, sold: e.target.checked ? "include" : undefined, page: 1 })}
+          className="h-5 w-5 shrink-0 accent-accent"
+        />
+        <span className="min-w-0 flex-1">Include sold cars</span>
+      </label>
     </div>
   );
 }

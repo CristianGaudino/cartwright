@@ -49,6 +49,7 @@ export function parseStockQuery(params: Params): StockQuery {
   q.priceMin = int(params.priceMin, 0, 10_000_000);
   q.priceMax = int(params.priceMax, 0, 10_000_000);
   q.kmMax = int(params.kmMax, 0, 2_000_000);
+  if (first(params.sold) === "1") q.sold = "include"; // "only" is for landing pages, never from a URL
   const sort = first(params.sort);
   if ((SORT_KEYS as readonly string[]).includes(sort ?? "")) q.sort = sort as SortKey;
   q.page = int(params.page, 1, 10_000) ?? 1;
@@ -69,6 +70,7 @@ export function toSearchParams(q: StockQuery): URLSearchParams {
   if (q.fuel.length) p.set("fuel", q.fuel.join(","));
   if (q.gearbox) p.set("gearbox", q.gearbox);
   if (q.kmMax !== undefined) p.set("kmMax", String(q.kmMax));
+  if (q.sold === "include") p.set("sold", "1");
   if (q.sort !== "newest") p.set("sort", q.sort);
   if (q.page > 1) p.set("page", String(q.page));
   return p;
@@ -123,6 +125,7 @@ export function appliedFilters(q: StockQuery, facets: Facets | null): { id: stri
   for (const v of q.fuel) out.push({ id: `fuel:${v}`, label: FUEL_LABELS[v], next: toggle(q, "fuel", v, facets) });
   if (q.gearbox) out.push({ id: "gearbox", label: GEARBOX_LABELS[q.gearbox], next: drop({ gearbox: undefined }) });
   if (q.kmMax !== undefined) out.push({ id: "kmMax", label: `Up to ${formatKm(q.kmMax)}`, next: drop({ kmMax: undefined }) });
+  if (q.sold === "include") out.push({ id: "sold", label: "Sold cars included", next: drop({ sold: undefined }) });
   return out;
 }
 
