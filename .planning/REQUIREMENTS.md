@@ -42,8 +42,8 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Saved cars
 
-- [ ] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
-- [ ] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
+- [x] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
+- [x] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
 
 ### Leads and forms
 
@@ -137,8 +137,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIN-01 | Phase 3 | Pending |
 | FIN-02 | Phase 3 | Pending |
 | FIN-03 | Phase 3 | Pending |
-| SAV-01 | Phase 3 | Pending |
-| SAV-02 | Phase 3 | Pending |
+| SAV-01 | Phase 3 | Complete |
+| SAV-02 | Phase 3 | Complete |
 | REV-01 | Phase 4 | Pending |
 | REV-02 | Phase 4 | Pending |
 | REV-03 | Phase 4 | Pending |
