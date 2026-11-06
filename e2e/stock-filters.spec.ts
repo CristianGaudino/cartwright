@@ -479,12 +479,17 @@ test.describe("filters on a phone", () => {
   });
 
   test("one copy of the filter groups: none closed, one open, none again", async ({ page }) => {
+    // Not just hidden from the accessibility tree: closed, the sheet holds no filter inputs at all.
+    const inputs = page.locator("dialog.sheet input");
     await open(page);
     await expect(makeGroup(page)).toHaveCount(0);
+    await expect(inputs).toHaveCount(0);
     await filtersButton(page).click();
     await expect(makeGroup(page)).toHaveCount(1);
+    await expect(inputs.first()).toBeAttached();
     await page.keyboard.press("Escape");
     await expect(makeGroup(page)).toHaveCount(0);
+    await expect(inputs).toHaveCount(0);
   });
 
   test("crossing 1024px with the sheet open closes it and leaves the page usable", async ({ page }) => {

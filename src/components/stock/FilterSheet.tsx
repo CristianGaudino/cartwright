@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon, SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
@@ -14,6 +14,9 @@ export function FilterSheet() {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+  // The groups are mounted only while the sheet is open or sliding away, so the page holds one copy of them, not two.
+  const [mounted, setMounted] = useState(false);
+  const unmountTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
@@ -24,10 +27,16 @@ export function FilterSheet() {
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 1024px)");
     const onChange = () => {
-      if (desktop.matches) dialog.current?.close();
+      if (desktop.matches) {
+        dialog.current?.close();
+        setMounted(false); // the bar is display:none now, so there is no slide-out to wait for
+      }
     };
     desktop.addEventListener("change", onChange);
-    return () => desktop.removeEventListener("change", onChange);
+    return () => {
+      desktop.removeEventListener("change", onChange);
+      clearTimeout(unmountTimer.current);
+    };
   }, []);
 
   return (
@@ -35,7 +44,11 @@ export function FilterSheet() {
       <button
         ref={trigger}
         type="button"
-        onClick={() => dialog.current?.showModal()}
+        onClick={() => {
+          clearTimeout(unmountTimer.current);
+          setMounted(true);
+          dialog.current?.showModal();
+        }}
         className={`inline-flex h-11 items-center gap-2 rounded-control px-2 text-meta font-semibold ${press}`}
       >
         <SlidersIcon className="h-6 w-6" />
@@ -51,7 +64,11 @@ export function FilterSheet() {
         className="sheet"
         aria-labelledby={titleId}
         onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
-        onClose={() => trigger.current?.focus()}
+        onClose={() => {
+          trigger.current?.focus();
+          // shortcut: transitionend does not fire (the transitions are cancelled when the dialog goes display:none), so wait out the 320ms slide from globals.css.
+          unmountTimer.current = setTimeout(() => setMounted(false), 350);
+        }}
       >
         <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
           <h2 id={titleId} className="text-heading font-semibold">
@@ -62,7 +79,7 @@ export function FilterSheet() {
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-2">
-          <StockFilters showSearch={false} />
+          {mounted && <StockFilters showSearch={false} />}
         </div>
         <div className="flex shrink-0 items-center gap-3 border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
           {applied > 0 && (
