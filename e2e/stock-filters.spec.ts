@@ -429,6 +429,28 @@ test.describe("filters on a phone", () => {
     await expect(makeGroup(page)).toHaveCount(0);
   });
 
+  test("crossing 1024px with the sheet open closes it and leaves the page usable", async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await open(page);
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+    await expect(page.locator("body")).toHaveCSS("overflow", "hidden");
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await expect(page.locator("dialog.sheet[open]")).toHaveCount(0);
+    await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+    // The sidebar is live, not inert behind an invisible modal.
+    const a = (await rows(page)).find((r) => r.count > 0)!;
+    await box(page, a.value).check();
+    await expect(page).toHaveURL(new RegExp(`make=${a.value}$`));
+    await expect(page.getByTestId("count")).toHaveText(countText(a.count));
+
+    // Coming back below 1024px, the sheet opens again as normal.
+    await page.setViewportSize({ width: 800, height: 900 });
+    await filtersButton(page).click();
+    await expect(sheet(page)).toBeVisible();
+  });
+
   test("a ticked make ranked ninth or lower is visible and checked in the sheet without Show all (BRW-01)", async ({ page }) => {
     await open(page);
     await filtersButton(page).click();

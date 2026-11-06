@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon, SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
@@ -18,6 +18,17 @@ export function FilterSheet() {
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
   const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
+
+  // The sheet lives in the bar that is display:none from 1024px. An open modal dialog would stay open there, invisible,
+  // keeping the page inert and scroll locked, so close it when the desktop layout takes over (resize, iPad rotation).
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => {
+      if (desktop.matches) dialog.current?.close();
+    };
+    desktop.addEventListener("change", onChange);
+    return () => desktop.removeEventListener("change", onChange);
+  }, []);
 
   return (
     <>
