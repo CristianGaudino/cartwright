@@ -36,8 +36,22 @@ const contact = {
 
 const carId = z.string().regex(/^\d{1,12}$/);
 
+// YYYY-MM-DD for tomorrow in Ireland, where the dealer is, so the form's min and the server agree.
+export const tomorrow = (now = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Dublin" }).format(now.getTime() + 86_400_000);
+export const TIMES = { any: "Any time", morning: "Morning", afternoon: "Afternoon" } as const;
+
+// Type fields (D-10, D-11). Only these keys reach a row's details.
+const testDrive = {
+  preferredDay: given(z.iso.date({ error: "Choose a day from the calendar." }).refine((d) => d >= tomorrow(), "Choose a day from tomorrow on.").optional()),
+  preferredTime: given(z.enum(Object.keys(TIMES) as [keyof typeof TIMES], { error: "Choose a time from the list." }).default("any")),
+};
+
 export const leadSchema = z
-  .discriminatedUnion("type", [z.object({ type: z.literal("enquiry"), carId, ...contact })])
+  .discriminatedUnion("type", [
+    z.object({ type: z.literal("enquiry"), carId, ...contact }),
+    z.object({ type: z.literal("test_drive"), carId, ...contact, ...testDrive }),
+    z.object({ type: z.literal("reserve"), carId, ...contact }),
+  ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
     path: ["email"],
@@ -49,4 +63,6 @@ export type LeadInput = z.infer<typeof leadSchema>;
 export type LeadType = LeadInput["type"];
 
 // Email subject words (D-02).
-export const TYPE_LABELS: Record<LeadType, string> = { enquiry: "Enquiry" };
+export const TYPE_LABELS: Record<LeadType, string> = { enquiry: "Enquiry", test_drive: "Test drive request", reserve: "Reservation request" };
+// Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
+export const DETAIL_LABELS: Record<string, string> = { preferredDay: "Preferred day", preferredTime: "Preferred time" };

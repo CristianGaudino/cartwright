@@ -4,7 +4,7 @@ import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
-import { CONSENT, TYPE_LABELS, leadSchema } from "./schema";
+import { CONSENT, DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
@@ -55,7 +55,7 @@ export interface Deps {
 const OK: LeadResult = { status: "ok" };
 const SERVER: LeadResult = { status: "failed", kind: "server" };
 // Only the keys a schema knows are read from the form, so nothing else can reach the row (LED-03).
-const KEYS = ["type", "carId", "clientRef", "sourcePath", "name", "phone", "email", "message", "consent"] as const;
+const KEYS = ["type", "carId", "clientRef", "sourcePath", "name", "phone", "email", "message", "consent", ...Object.keys(DETAIL_LABELS)];
 
 // The one place car fields are set, for every lead type. The car always comes from the provider, never from the form (T-03-07).
 // No carId (sourcing, trade-in, finance from /finance): all four null. Unknown or sold car: null, so the lead is refused (Phase 2 D-05).
@@ -122,7 +122,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       phone: input.phone ?? null,
       email: input.email ?? null,
       message: input.message ?? null,
-      details: {},
+      details: Object.fromEntries(Object.entries(input).filter(([k, v]) => Object.hasOwn(DETAIL_LABELS, k) && v !== undefined)),
       photoKeys: [],
       consentAt: new Date(),
       consentVersion: CONSENT.version,

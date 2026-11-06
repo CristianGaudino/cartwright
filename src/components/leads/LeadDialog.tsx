@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { CloseIcon, PhoneIcon } from "@/components/stock/icons";
 import { LIMITS } from "@/lib/leads/schema";
 import { DEALER_TEL } from "@/lib/site";
+import { CarFields, TypePicker } from "./CarFields";
+import type { CarLeadType } from "./CarFields";
 import { ContactFields, Field } from "./Field";
 import { LeadForm } from "./LeadForm";
 
@@ -40,41 +42,61 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
   );
 }
 
-// The car page action area, row 1 (UI-SPEC): Enquire takes the accent, Call now is secondary.
+// Title, submit label and thanks per type (UI-SPEC Copywriting Contract).
+const COPY: Record<CarLeadType, { title: string; submit: string; heading: string; body(car: CarSummary): string }> = {
+  enquiry: { title: "Enquire", submit: "Send enquiry", heading: "Thanks, we have your enquiry.", body: (car) => `We will get back to you about the ${car.name}.` },
+  test_drive: { title: "Book a test drive", submit: "Request test drive", heading: "Thanks, we have your request.", body: () => "We will call you to confirm a time for a test drive." },
+  reserve: { title: "Request to reserve", submit: "Request to reserve", heading: "Thanks, we have your request.", body: () => "This is not a booking yet. We will call you to confirm." },
+};
+
+// The car page action area (UI-SPEC): two rows of two 48px buttons inside the reserved 104px. Enquire takes the accent;
+// Call now, Test drive and Reserve are secondary. The three form buttons open the one dialog with their type selected.
 export function LeadActions({ car }: { car: CarSummary }) {
   const [open, setOpen] = useState(false);
+  const [type, setType] = useState<CarLeadType>("enquiry");
   const opener = useRef<HTMLButtonElement>(null);
+  const copy = COPY[type];
+  const secondary = `${action} border border-control bg-card text-text`;
+
+  const show = (t: CarLeadType, el: HTMLButtonElement) => {
+    opener.current = el;
+    setType(t);
+    setOpen(true);
+  };
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2">
-        <button ref={opener} type="button" onClick={() => setOpen(true)} className={`${action} bg-accent text-white`}>
+      <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
+        <button type="button" onClick={(e) => show("enquiry", e.currentTarget)} className={`${action} bg-accent text-white`}>
           Enquire
         </button>
-        <a href={`tel:${DEALER_TEL}`} className={`${action} border border-control bg-card text-text`}>
+        <a href={`tel:${DEALER_TEL}`} className={secondary}>
           <PhoneIcon />
           Call now
         </a>
+        <button type="button" onClick={(e) => show("test_drive", e.currentTarget)} className={secondary}>
+          Test drive
+        </button>
+        <button type="button" onClick={(e) => show("reserve", e.currentTarget)} className={secondary}>
+          Reserve
+        </button>
       </div>
       <LeadDialog
-        title="Enquire"
+        title={copy.title}
         open={open}
         onClose={() => {
           setOpen(false);
           opener.current?.focus();
         }}
       >
-        <LeadForm
-          type="enquiry"
-          car={car}
-          variant="dialog"
-          submitLabel="Send enquiry"
-          success={{ heading: "Thanks, we have your enquiry.", body: `We will get back to you about the ${car.name}.` }}
-        >
+        <LeadForm type={type} car={car} variant="dialog" submitLabel={copy.submit} success={{ heading: copy.heading, body: copy.body(car) }}>
           {({ bind }) => (
             <>
+              <TypePicker value={type} onChange={setType} />
+              {type === "reserve" && <p className="text-meta text-text-2">This is a request, not a hold. We will call you to confirm. No payment is taken.</p>}
               <ContactFields bind={bind} />
-              <Field {...bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
+              <CarFields type={type} bind={bind} />
+              <Field {...bind("message")} label={type === "reserve" ? "Note" : "Message"} optional multiline maxLength={LIMITS.message} />
             </>
           )}
         </LeadForm>

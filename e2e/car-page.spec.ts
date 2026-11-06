@@ -40,6 +40,29 @@ test.describe("a car for sale", () => {
     expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport);
   });
 
+  test("holds four 48px buttons in the 104px action area at 320px, and nothing below moves on hydration", async ({ page, browser }) => {
+    const viewport = { width: 320, height: 640 };
+    await page.setViewportSize(viewport);
+    const href = await firstCarHref(page);
+    // The top of what follows the buy box, measured on the server render (no JavaScript) and after hydration.
+    const below = (p: Page) => p.evaluate(() => document.querySelector("[data-testid=buy-box]")!.parentElement!.nextElementSibling!.getBoundingClientRect().top + scrollY);
+    const noJs = await browser.newContext({ javaScriptEnabled: false, viewport });
+    const before = await noJs.newPage();
+    await before.goto(href);
+    const serverTop = await below(before);
+    await noJs.close();
+
+    await page.goto(href);
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const area = page.getByTestId("action-area");
+    await expect(area).toHaveCSS("min-height", "104px");
+    expect((await area.boundingBox())!.height).toBeLessThanOrEqual(104);
+    const buttons = area.locator("a, button").filter({ visible: true });
+    await expect(buttons).toHaveCount(4);
+    for (const b of await buttons.all()) expect((await b.boundingBox())!.height).toBe(48);
+    expect(await below(page)).toBe(serverTop);
+  });
+
   test("does not scroll sideways at 320px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto(await firstCarHref(page));

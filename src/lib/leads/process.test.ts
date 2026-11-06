@@ -4,7 +4,7 @@ import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
 import type { Deps, LeadRow } from "./process";
-import { CONSENT } from "./schema";
+import { CONSENT, tomorrow } from "./schema";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
@@ -169,6 +169,14 @@ describe("processLead bot checks (D-05)", () => {
     expect(rows).toHaveLength(0);
     expect(mail).toHaveLength(0);
     expect(lines().map((l) => l.outcome)).toEqual(["captcha", "captcha"]);
+  });
+
+  it("keeps a test drive's day and time in details, and nothing else", async () => {
+    const { deps, rows } = fakeDeps();
+    const day = tomorrow();
+    expect(await processLead(enquiryForm({ type: "test_drive", preferredDay: day, preferredTime: "afternoon", note: "x" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "test_drive", details: { preferredDay: day, preferredTime: "afternoon" } });
+    expect(Object.keys(rows[0].details)).toHaveLength(2);
   });
 
   it("answers a filled honeypot without spending the rate limit", async () => {

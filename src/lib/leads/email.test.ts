@@ -23,6 +23,14 @@ const row: LeadRow = {
 };
 
 describe("buildLeadEmail", () => {
+  it("names a test drive and lists its details in DETAIL_LABELS order", () => {
+    const drive = { ...row, type: "test_drive" as const, details: { preferredTime: "morning", preferredDay: "2026-11-09" } };
+    const { subject, text } = buildLeadEmail(drive, { demo: false });
+    expect(subject).toBe("Test drive request: 2011 Mercedes-Benz G Class");
+    expect(text).toContain("Preferred day: 2026-11-09\n\nPreferred time: morning");
+    expect(buildLeadEmail({ ...row, type: "reserve" }, { demo: false }).subject).toBe("Reservation request: 2011 Mercedes-Benz G Class");
+  });
+
   it("prefixes [DEMO] on the demo and not in production", () => {
     expect(buildLeadEmail(row, { demo: true }).subject).toBe("[DEMO] Enquiry: 2011 Mercedes-Benz G Class");
     expect(buildLeadEmail(row, { demo: false }).subject).toBe("Enquiry: 2011 Mercedes-Benz G Class");

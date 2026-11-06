@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { tomorrow } from "../src/lib/leads/schema";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { stubTurnstile } from "./turnstile";
 
@@ -62,7 +63,7 @@ test("a sold car has no Enquire button", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
   await page.goto(`/used-cars/${sold!.slug}`);
   await expect(page.getByTestId("buy-box")).toBeVisible();
-  await expect(enquire(page)).toHaveCount(0);
+  for (const name of ["Enquire", "Test drive", "Reserve"]) await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
 });
 
 test("the bot check loads only once the dialog opens, and a failed check keeps what was typed", async ({ page }) => {
@@ -119,4 +120,36 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   const privacy = d.getByRole("link", { name: /Privacy policy/ });
   await expect(privacy).toHaveAttribute("href", "/privacy");
   await expect(privacy).toHaveAttribute("target", "_blank");
+});
+
+test("Test drive and Reserve open the same dialog, and switching keeps what was typed", async ({ page }) => {
+  await open(page, live.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog");
+  await expect(d).toHaveAccessibleName("Book a test drive");
+  await expect(d.getByRole("radio", { name: "Test drive" })).toBeChecked();
+  await expect(d.getByText("We will call to confirm a time.")).toBeVisible();
+
+  await d.getByLabel("Name").fill("Switch Typer");
+  await d.locator("label", { hasText: /^Reserve$/ }).click();
+  await expect(d).toHaveAccessibleName("Request to reserve");
+  await expect(d.getByRole("radio", { name: "Reserve" })).toBeChecked();
+  await expect(d.getByLabel("Name")).toHaveValue("Switch Typer");
+  await expect(d.getByText("This is a request, not a hold. We will call you to confirm. No payment is taken.")).toBeVisible();
+  await expect(d.getByLabel("Preferred day")).toHaveCount(0);
+  await expect(d.getByRole("button", { name: "Request to reserve" })).toBeVisible();
+});
+
+test("a test drive with a preferred day sends", async ({ page }) => {
+  await open(page, live.slug);
+  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  const d = page.getByRole("dialog", { name: "Book a test drive" });
+  await d.getByLabel("Name").fill("Test Driver");
+  await d.getByLabel("Phone").fill("087 123 4567");
+  await d.getByLabel("Preferred day").fill(tomorrow());
+  await d.getByLabel("Preferred time").selectOption("morning");
+  await d.getByRole("checkbox").check();
+  await d.getByRole("button", { name: "Request test drive" }).click();
+  await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+  await expect(d.getByText("We will call you to confirm a time for a test drive.")).toBeVisible();
 });
