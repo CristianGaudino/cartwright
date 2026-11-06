@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { clearFilters, DEFAULT_QUERY, PAGE_SIZE, parseStockQuery, stockHref, toSearchParams } from "./query";
-import type { StockQuery } from "./types";
+import { appliedFilters, clearFilters, DEFAULT_QUERY, facetRows, PAGE_SIZE, parseStockQuery, stockHref, toggle, toSearchParams } from "./query";
+import type { Facets, StockQuery } from "./types";
 
 describe("parseStockQuery", () => {
   it("gives the default query for no params and always uses a page size of 12", () => {
@@ -135,5 +135,95 @@ describe("clearFilters", () => {
   it("keeps only the sort", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, q: "a4", make: ["audi"], fuel: ["diesel"], kmMax: 50000, sort: "price-asc", page: 3 };
     expect(clearFilters(q)).toEqual({ ...DEFAULT_QUERY, sort: "price-asc" });
+  });
+});
+
+const facets: Facets = {
+  make: [
+    { value: "audi", label: "Audi", count: 5 },
+    { value: "bmw", label: "BMW", count: 0 },
+  ],
+  model: [
+    { value: "a4", label: "A4", count: 3, parent: "audi" },
+    { value: "x1", label: "X1", count: 2, parent: "bmw" },
+  ],
+  body: [{ value: "suv", label: "SUV", count: 4 }],
+  fuel: [{ value: "diesel", label: "Diesel", count: 4 }],
+  gearbox: [],
+  years: { min: 2015, max: 2023 },
+};
+
+describe("toggle", () => {
+  it("adds, removes and goes back to page 1", () => {
+    const on = toggle({ ...DEFAULT_QUERY, page: 3 }, "make", "audi", facets);
+    expect(on.make).toEqual(["audi"]);
+    expect(on.page).toBe(1);
+    expect(toggle(on, "make", "audi", facets).make).toEqual([]);
+    expect(toggle(DEFAULT_QUERY, "fuel", "diesel", facets).fuel).toEqual(["diesel"]);
+  });
+
+  it("removing a make drops only that make's models", () => {
+    const q: StockQuery = { ...DEFAULT_QUERY, make: ["audi", "bmw"], model: ["a4", "x1"] };
+    expect(toggle(q, "make", "audi", facets).model).toEqual(["x1"]);
+    expect(toggle(q, "model", "a4", facets).make).toEqual(["audi", "bmw"]);
+  });
+
+  it("keeps a model another selected make also has", () => {
+    const shared: Facets = { ...facets, model: [...facets.model, { value: "a4", label: "A4", count: 1, parent: "bmw" }] };
+    const q: StockQuery = { ...DEFAULT_QUERY, make: ["audi", "bmw"], model: ["a4"] };
+    expect(toggle(q, "make", "audi", shared).model).toEqual(["a4"]);
+  });
+});
+
+describe("appliedFilters", () => {
+  const q: StockQuery = {
+    q: "a4", make: ["audi"], model: ["a4"], yearFrom: 2018, yearTo: 2022, priceMin: 5000, priceMax: 20000,
+    body: ["suv"], fuel: ["diesel"], gearbox: "manual", kmMax: 100000, sort: "price-asc", page: 2, pageSize: 12,
+  };
+
+  it("gives one entry per filter in group order", () => {
+    expect(appliedFilters(q, facets).map((f) => f.label)).toEqual([
+      "Search: a4", "Audi", "A4", "From 2018", "To 2022", "From €5,000", "Up to €20,000", "SUV", "Diesel", "Manual", "Up to 100,000 km",
+    ]);
+    expect(appliedFilters(DEFAULT_QUERY, null)).toEqual([]);
+  });
+
+  it("each next removes exactly that filter, keeps the sort and resets the page", () => {
+    for (const f of appliedFilters(q, facets)) {
+      expect(f.next.page).toBe(1);
+      expect(f.next.sort).toBe("price-asc");
+      expect(appliedFilters(f.next, facets)).toHaveLength(appliedFilters(q, facets).length - (f.id === "make:audi" ? 2 : 1));
+    }
+  });
+
+  it("falls back to the raw value without facets", () => {
+    expect(appliedFilters({ ...DEFAULT_QUERY, make: ["audi"] }, null)[0].label).toBe("audi");
+  });
+});
+
+describe("facetRows", () => {
+  it("counted: shows counts, disables an unselected zero-count option, keeps a selected one enabled", () => {
+    expect(facetRows(facets.make, [], true)).toEqual([
+      { value: "audi", label: "Audi", count: 5, disabled: false },
+      { value: "bmw", label: "BMW", count: 0, disabled: true },
+    ]);
+    expect(facetRows(facets.make, ["bmw"], true)[1]).toEqual({ value: "bmw", label: "BMW", count: 0, disabled: false });
+  });
+
+  it("not counted: every option, no counts, none disabled", () => {
+    const rows = facetRows(facets.make, [], false);
+    expect(rows).toEqual([
+      { value: "audi", label: "Audi", disabled: false },
+      { value: "bmw", label: "BMW", disabled: false },
+    ]);
+    expect(rows.every((r) => !("count" in r))).toBe(true);
+  });
+
+  it("appends a selected value missing from the options, labelled with its raw value", () => {
+    expect(facetRows(facets.make, ["zzz"], true).at(-1)).toEqual({ value: "zzz", label: "zzz", disabled: false });
+  });
+
+  it("with no facets at all, shows the selected values alone", () => {
+    expect(facetRows([], ["audi"], false)).toEqual([{ value: "audi", label: "audi", disabled: false }]);
   });
 });

@@ -1,17 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useId, useOptimistic, useTransition } from "react";
+import { createContext, useContext, useId, useOptimistic, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
 import { clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
+import { AppliedFilters } from "./AppliedFilters";
 import { ChevronDownIcon } from "./icons";
+import { StockFilters } from "./StockFilters";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
   query: StockQuery;
   summary: Summary;
+  facets: Facets | null; // the facets of the last result that loaded, so a failed load keeps the filters
   pending: boolean;
   navigate: (next: StockQuery, opts?: { scroll?: boolean }) => void;
 };
@@ -66,6 +69,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(query);
+  const [held, setHeld] = useState(summary?.facets ?? null);
+  if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
 
   const navigate: Stock["navigate"] = (next, { scroll = false } = {}) =>
     startTransition(() => {
@@ -74,23 +79,31 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
     });
 
   return (
-    <StockContext value={{ query: optimisticQuery, summary, pending, navigate }}>
+    <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
         <h1 className="text-display font-semibold">Used cars</h1>
-        <div className="flex items-center justify-between">
-          <p aria-live="polite" data-testid="count" className="text-meta text-text-2">
-            {summary && countLabel(summary.total)}
-          </p>
-          <SortControl className="hidden lg:flex" />
-        </div>
-        <div
-          data-testid="sticky-bar"
-          className="sticky top-0 z-10 -mx-4 mt-2 flex h-14 items-center justify-end border-t border-white/70 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100 contrast-more:border-text"
-        >
-          <SortControl className="flex" />
-        </div>
-        <div aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
-          {children}
+        <div className="lg:mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
+          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:bg-card lg:p-4">
+            <StockFilters />
+          </aside>
+          <div className="min-w-0">
+            <div className="flex items-center justify-between">
+              <p aria-live="polite" data-testid="count" className="text-meta text-text-2">
+                {summary && countLabel(summary.total)}
+              </p>
+              <SortControl className="hidden lg:flex" />
+            </div>
+            <div
+              data-testid="sticky-bar"
+              className="sticky top-0 z-10 -mx-4 mt-2 flex h-14 items-center justify-end border-t border-white/70 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100 contrast-more:border-text"
+            >
+              <SortControl className="flex" />
+            </div>
+            <AppliedFilters />
+            <div aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
+              {children}
+            </div>
+          </div>
         </div>
       </main>
     </StockContext>
