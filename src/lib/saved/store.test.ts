@@ -53,6 +53,12 @@ describe("toggleSaved", () => {
     expect(heard).toHaveBeenCalledTimes(3);
   });
 
+  it("removeSaved drops only the given ids from the current list, order kept", () => {
+    store.setSavedIds(["30", "20", "10"]);
+    store.removeSaved(["20", "99"]);
+    expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["30", "10"]);
+  });
+
   it("drops the oldest id when the list is full", () => {
     store.setSavedIds(Array.from({ length: store.MAX_SAVED }, (_, i) => String(i + 1)));
     store.toggleSaved("999");

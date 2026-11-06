@@ -1,9 +1,10 @@
 import { useMemo, useSyncExternalStore } from "react";
+import { ID, MAX_SAVED } from "./ids";
+
+export { MAX_SAVED };
 
 // Client-safe: nothing here touches window or localStorage at import time, so server rendering can import it.
 export const SAVED_KEY = "cartwright:saved-ids";
-export const MAX_SAVED = 100;
-const ID = /^\d{1,12}$/;
 
 const listeners = new Set<() => void>();
 // Set once a write fails (blocked storage or quota); from then on the page reads this instead.
@@ -62,6 +63,11 @@ export function setSavedIds(ids: string[]) {
   }
   // The storage event never fires in the tab that wrote, so tell this tab directly.
   listeners.forEach((l) => l());
+}
+
+// Reads the current list, not the caller's copy, so a heart tapped while /saved was loading is kept.
+export function removeSaved(gone: string[]) {
+  setSavedIds(parseIds(read()).filter((id) => !gone.includes(id)));
 }
 
 export function toggleSaved(id: string): boolean {

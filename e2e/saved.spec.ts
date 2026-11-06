@@ -78,6 +78,31 @@ test("with storage blocked a heart still toggles and nothing errors", async ({ p
   expect(errors).toEqual([]);
 });
 
+const titles = (page: Page) => page.locator("article h2").allTextContents();
+
+test("/saved lists the saved cars newest first, after the browser is closed and reopened, and is noindex", async ({ page, browser }) => {
+  await page.goto("/used-cars");
+  const [first, second] = await titles(page);
+  await firstHeart(page).click();
+  await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
+  await page.locator("article").nth(1).getByRole("button", { name: /^Save / }).click();
+  await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 2");
+
+  await savedLink(page).click();
+  await expect(page).toHaveURL(/\/saved$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Saved cars" })).toBeVisible();
+  await expect(page.locator("article")).toHaveCount(2);
+  expect(await titles(page)).toEqual([second, first]);
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
+
+  const reopened = await browser.newContext({ storageState: await page.context().storageState() });
+  const again = await reopened.newPage();
+  await again.goto("/saved");
+  await expect(again.locator("article")).toHaveCount(2);
+  expect(await titles(again)).toEqual([second, first]);
+  await reopened.close();
+});
+
 test("at 320px the header fits without horizontal scroll", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/used-cars");
