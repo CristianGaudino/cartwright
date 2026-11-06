@@ -30,7 +30,12 @@ jobs:
       - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - run: npm test # unit and integration (lead store on an in-memory Postgres)
+      - name: Migrations consistent
+        run: npx drizzle-kit check
+      # The deploy migrates before the new code is live, so a new migration may only add things
+      - name: Migrations only add
+        run: bash scripts/check-migrations.sh "${{ github.base_ref }}"
 
   # The Worker has to start before a change reaches production: the normal build can't see what only fails on Cloudflare.
   # OpenNext runs the Next build, so there is no separate build job.

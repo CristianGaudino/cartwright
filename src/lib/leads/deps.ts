@@ -1,9 +1,11 @@
 import "server-only";
+import { getDb } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
 import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
-import type { Deps, Mailer } from "./process";
+import type { Deps, LeadStore, Mailer } from "./process";
+import { createDrizzleStore } from "./store";
 
 const getCar = (id: string) => stock.getById(id);
 
@@ -26,7 +28,13 @@ function fakeDeps(): Deps {
   };
 }
 
-const notConfigured = (what: string) => () => Promise.reject(new Error(`${what} not configured`));
+// Neon through Drizzle. Built per call, so a missing DATABASE_URL throws inside processLead, which logs it as an error line.
+const db = () => createDrizzleStore(getDb());
+const store: LeadStore = {
+  exists: (ref) => db().exists(ref),
+  insert: (row) => db().insert(row),
+  markNotified: (id) => db().markNotified(id),
+};
 let fakes: Deps | undefined;
 
 export function getDeps(): Deps {
@@ -36,7 +44,7 @@ export function getDeps(): Deps {
   if (process.env.E2E_FAKE_BACKENDS === "1") return (fakes ??= fakeDeps());
   // Real dependencies never fall back to a fake (research Pitfall 4): a missing binding or secret fails the lead loudly.
   return {
-    store: { exists: notConfigured("Lead store"), insert: notConfigured("Lead store"), markNotified: notConfigured("Lead store") },
+    store,
     mailer,
     getCar,
     demo: !isProduction(),
