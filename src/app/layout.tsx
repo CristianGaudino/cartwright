@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Cartwright", template: "%s | Cartwright" },
+  title: { default: "Carright", template: "%s | Carright" },
   description: "Quality used cars in Tralee, Co. Kerry.",
 };
 

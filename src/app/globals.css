@@ -21,21 +21,21 @@
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
 
-  --color-surface: #f5f5f7;
-  --color-card: #ffffff;
+  --color-surface: #0e0e10;
+  --color-card: #1a1a1e;
   --color-ink: #0e0e10;
   --color-accent: #d0111a;
-  --color-text: #111114;
-  --color-text-2: #5c5c66;
-  --color-hairline: #e2e2e6;
+  --color-text: #f5f5f7;
+  --color-text-2: #a1a1aa;
+  --color-hairline: #2c2c32;
   --color-control: #8a8a94;
-  --color-photo-bg: #e9e9ed;
-  --color-destructive: #b42318;
+  --color-photo-bg: #26262b;
+  --color-destructive: #f97066;
 
   --radius-card: 1rem;
   --radius-control: 0.75rem;
 
-  --shadow-lift: 0 8px 24px rgb(17 17 20 / 0.08);
+  --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.5);
 
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -44,7 +44,7 @@
 
 @layer base {
   html {
-    color-scheme: light;
+    color-scheme: dark;
     background-color: var(--color-surface);
     color: var(--color-text);
     font-optical-sizing: auto;
@@ -99,7 +99,7 @@ dialog.sheet[open] {
 }
 
 dialog.sheet::backdrop {
-  background-color: rgb(14 14 16 / 0);
+  background-color: rgb(0 0 0 / 0);
   transition:
     background-color 320ms ease,
     overlay 320ms allow-discrete,
@@ -107,12 +107,12 @@ dialog.sheet::backdrop {
 }
 
 dialog.sheet[open]::backdrop {
-  background-color: rgb(14 14 16 / 0.4);
+  background-color: rgb(0 0 0 / 0.6);
 }
 
 @starting-style {
   dialog.sheet[open]::backdrop {
-    background-color: rgb(14 14 16 / 0);
+    background-color: rgb(0 0 0 / 0);
   }
 }
 

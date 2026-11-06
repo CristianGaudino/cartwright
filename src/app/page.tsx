@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <main className="p-6">
-      <h1 className="text-display font-semibold">Cartwright</h1>
+      <h1 className="text-display font-semibold">Carright</h1>
       <p>Used cars in Tralee. Site coming soon.</p>
     </main>
   );

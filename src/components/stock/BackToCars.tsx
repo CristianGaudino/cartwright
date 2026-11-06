@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 import { parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { StockQuery } from "@/lib/stock/types";
 
-const KEY = "cartwright:last-list";
+const KEY = "carright:last-list";
 const LIST = "/used-cars";
 const never = () => () => {};
 
