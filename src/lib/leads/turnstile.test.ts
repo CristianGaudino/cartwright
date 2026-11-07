@@ -23,6 +23,13 @@ describe("verifyTurnstile", () => {
     expect(await verifyTurnstile("tok", "203.0.113.1", "sec")).toBe(false);
   });
 
+  it("gives up after a time limit, so a slow answer cannot hang the form", async () => {
+    const fetch = reply({ success: true, action: "lead" });
+    vi.stubGlobal("fetch", fetch);
+    await verifyTurnstile("tok", "", "sec");
+    expect((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].signal).toBeInstanceOf(AbortSignal);
+  });
+
   it("fails closed when the request throws or the answer is not JSON", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Promise.reject(new Error("offline"))));
     expect(await verifyTurnstile("tok", "", "sec")).toBe(false);

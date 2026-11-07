@@ -97,7 +97,7 @@ The admin inbox (#20) replaces this with fresh links.
 
 The lead row is the record; the email to the dealer is a notification. If that email fails, the buyer still sees success, the row keeps `notified_at` empty, and the Worker writes one error-level `notify_failed` log line with only the lead id, type and outcome. No contact details are ever logged.
 
-When Workers Logs show a `notify_failed` line, or once a week until #20 ships, run:
+When Workers Logs show a `notify_failed` line, or every morning until #20 ships (an outage of the email service shows up nowhere else), run:
 
 ```sql
 SELECT id, type, created_at FROM leads WHERE notified_at IS NULL ORDER BY created_at DESC;

@@ -5,7 +5,8 @@ export async function verifyTurnstile(token: string, ip: string, secret: string)
   try {
     const body = new URLSearchParams({ secret, response: token });
     if (ip) body.set("remoteip", ip);
-    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body });
+    // A slow Cloudflare answer fails closed after 5 seconds, so the buyer gets "try again", not a frozen button.
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body, signal: AbortSignal.timeout(5000) });
     const j = (await res.json()) as { success?: boolean; action?: string };
     return j.success === true && j.action === "lead";
   } catch {
