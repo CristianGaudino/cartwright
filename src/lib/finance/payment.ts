@@ -5,7 +5,7 @@ export type Quote = { monthlyEur: number; borrowedEur: number; totalEur: number;
 export const financeable = (priceEur: number) => priceEur >= 1000 && priceEur <= 250000;
 
 // Integer cents throughout: the monthly figure is rounded once and the total and interest come from it, so they agree.
-// null for anything invalid, so the page shows "Check the figures above." and never NaN.
+// null for anything invalid, so the page shows "Check the figures you entered." and never NaN.
 export function quote(priceEur: number, depositEur: number, termMonths: number, aprPct: number): Quote | null {
   const borrowed = priceEur - depositEur;
   if (!financeable(priceEur) ||!(depositEur >= 0) || !(borrowed > 0) || !(aprPct >= 0 && aprPct <= 30) || !Number.isInteger(termMonths) || termMonths < 1) return null;

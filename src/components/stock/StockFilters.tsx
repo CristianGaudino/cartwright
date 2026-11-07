@@ -5,7 +5,8 @@ import { formatKm, formatPrice } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
 import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
-import { CheckIcon, ChevronDownIcon } from "./icons";
+import { SelectBox } from "@/components/SelectBox";
+import { CheckIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { press } from "@/components/ui";
 
@@ -100,21 +101,14 @@ function SelectField({ label, value, options, onChange }: { label: string; value
   return (
     <label className="flex min-w-0 flex-1 flex-col gap-1 text-meta font-semibold">
       {label}
-      <span className="relative">
-        <select
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
-          className="h-12 w-full appearance-none rounded-control border border-control bg-card py-0 pl-3 pr-10 text-body font-normal"
-        >
-          <option value="">Any</option>
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
-      </span>
+      <SelectBox value={value ?? ""} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)} className="pl-3 font-normal">
+        <option value="">Any</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </SelectBox>
     </label>
   );
 }
@@ -216,8 +210,12 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
   const yearOptions = withSelected(years, query.yearFrom, query.yearTo).reverse().map((y) => ({ value: y, label: String(y) }));
 
   return (
-    <div className="flex flex-col gap-6">
-      {showSearch && <SearchBox />}
+    <div className="flex flex-col divide-y divide-hairline *:py-4 *:first:pt-0 *:last:pb-0">
+      {showSearch && (
+        <div>
+          <SearchBox />
+        </div>
+      )}
       <CheckGroup title="Make" group="make" options={facets?.make ?? []} />
       {query.make.length > 0 && <CheckGroup title="Model" group="model" options={models} />}
       <Row title="Year">
@@ -234,7 +232,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
       <Row title="Mileage">
         <SelectField label="Up to" value={query.kmMax} options={withSelected(KMS, query.kmMax).map((v) => ({ value: v, label: formatKm(v) }))} onChange={(kmMax) => set({ kmMax })} />
       </Row>
-      <label className="flex min-h-11 items-center gap-3 border-t border-hairline pt-4">
+      <label className="flex min-h-11 items-center gap-3">
         <input
           type="checkbox"
           checked={query.sold === "include"}

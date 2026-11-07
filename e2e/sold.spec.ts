@@ -20,7 +20,7 @@ async function open(page: Page, url = "/used-cars") {
   await page.goto(url);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
-const prices = (page: Page) => page.locator("article > div:last-child > p:first-child").allTextContents();
+const prices = (page: Page) => page.locator("article [data-price]").allTextContents();
 const soldBox = (page: Page) => page.getByRole("checkbox", { name: "Include sold cars" });
 const chip = (page: Page) => page.getByRole("button", { name: "Remove Sold cars included" });
 
@@ -91,7 +91,7 @@ test.describe("sold cars", () => {
     test("a Sold badge on the photo, the same price line height, no dimming", async ({ page }) => {
       test.skip(!mixedMake, "No make has both a car in stock and a sold car in the window");
       await open(page, `/used-cars?sold=1&make=${mixedMake}`);
-      const price = (text: RegExp) => page.locator("article > div:last-child > p:first-child").filter({ hasText: text }).first();
+      const price = (text: RegExp) => page.locator("article [data-price]").filter({ hasText: text }).first();
       const card = page.locator("article").filter({ has: page.locator("p", { hasText: /^Sold$/ }) }).first();
       await card.scrollIntoViewIfNeeded();
 

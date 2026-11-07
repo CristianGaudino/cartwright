@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { secondaryButton } from "@/components/ui";
 
 // Nothing from Google loads until Show map is tapped: no cookies, no consent question, no Lighthouse cost. The box is
 // 4:3 from first paint, and Get directions sits outside it so a blocked iframe or no JavaScript still leaves a way there.
@@ -20,7 +21,7 @@ export function MapBox({ embedUrl, directionsUrl, title, address }: { embedUrl: 
                 </span>
               ))}
             </p>
-            <button type="button" onClick={() => setOpen(true)} className="h-12 rounded-control border border-control bg-card px-6 font-semibold active:scale-[0.97] motion-reduce:active:scale-100">
+            <button type="button" onClick={() => setOpen(true)} className={`h-12 px-6 ${secondaryButton}`}>
               Show map
             </button>
           </div>

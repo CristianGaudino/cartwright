@@ -11,7 +11,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
   if (result.total === 0) return <EmptyState />;
   return (
     <>
-      <div className="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <div data-grid className="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {cars.map((car, i) => (
           <ListingCard key={car.id} car={car} priority={i < 2} />
         ))}

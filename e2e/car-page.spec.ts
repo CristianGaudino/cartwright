@@ -63,7 +63,7 @@ test.describe("a car for sale", () => {
     expect(await below(page)).toBe(serverTop);
   });
 
-  test("does not scroll sideways at 320px, and the price, Save and Share share one row", async ({ page }) => {
+  test("does not scroll sideways at 320px, and Save sits at or above the price row", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto(await firstCarHref(page));
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
@@ -82,7 +82,10 @@ test.describe("a car for sale", () => {
     const share = (await buyBox(page).getByText("Share", { exact: true }).boundingBox())!;
     const s = (await save.boundingBox())!;
     expect(s.width).toBe(44);
-    expect(share.x).toBeGreaterThan(s.x + s.width);
+    // The heart sits at the top right beside the title, as in the mockup; Share is lower, beside the price.
+    const title = (await page.getByRole("heading", { level: 1 }).boundingBox())!;
+    expect(s.y).toBeLessThan(title.y + title.height);
+    expect(share.y).toBeGreaterThan(s.y);
   });
 });
 

@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { StockError, stateButton } from "@/components/stock/StockError";
+import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { removeSaved, useSavedIds } from "@/lib/saved/store";
-import type { Car } from "@/lib/stock/types";
 
 const never = () => () => {};
 const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
-type Loaded = { cars: Car[]; gone: number };
 
 function Empty() {
   return (
@@ -32,38 +31,12 @@ export function SavedCars() {
   // Taken once: unsaving a car here keeps its card until the next visit, so a mistaken tap can be undone (UI-SPEC).
   const [ids, setIds] = useState<string[] | null>(null);
   if (read && ids === null) setIds(live); // adjusting state during render, not an effect
-  const [loaded, setLoaded] = useState<Loaded | "error" | null>(null);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    if (!ids?.length) return;
-    let stale = false;
-    fetch(`/api/saved-cars?ids=${ids.join(",")}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`status ${r.status}`);
-        return r.json() as Promise<{ cars: Car[]; goneIds: string[] }>;
-      })
-      .then(({ cars, goneIds }) => {
-        if (stale) return;
-        // Pruned only on a good answer, so the note shows once and a failed load never loses a saved car (D-20).
-        if (goneIds.length) removeSaved(goneIds);
-        setLoaded({ cars, gone: goneIds.length });
-      })
-      .catch(() => !stale && setLoaded("error"));
-    return () => {
-      stale = true;
-    };
-  }, [ids, attempt]);
+  const { loaded, retry } = useCarsByIds(ids, removeSaved); // pruned only on a good answer, so the note shows once (D-20)
 
   if (ids?.length === 0) return <Empty />;
   if (loaded === "error") {
     return (
-      <StockError
-        retry={() => {
-          setLoaded(null);
-          setAttempt((n) => n + 1);
-        }}
-      />
+      <StockError retry={retry} />
     );
   }
   if (!loaded) {

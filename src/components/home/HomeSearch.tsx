@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { ChevronDownIcon, SearchIcon } from "@/components/stock/icons";
+import { SelectBox } from "@/components/SelectBox";
+import { SearchIcon } from "@/components/stock/icons";
 import { accentButton } from "@/components/ui";
 import { formatPrice } from "@/lib/stock/format";
 import { BUDGETS } from "@/lib/stock/types";
@@ -89,22 +90,14 @@ function Select({
       <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>
-      <span className="relative">
-        <select
-          id={id}
-          name={name}
-          {...(onChange ? { value, onChange: (e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value) } : {})}
-          className="h-12 w-full appearance-none truncate rounded-control border border-control bg-surface py-0 pl-3 pr-10 text-body"
-        >
-          <option value="">{any}</option>
-          {options.map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
-      </span>
+      <SelectBox id={id} name={name} tone="surface" className="pl-3" {...(onChange ? { value, onChange: (e) => onChange(e.target.value) } : {})}>
+        <option value="">{any}</option>
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </SelectBox>
     </div>
   );
 }

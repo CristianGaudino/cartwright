@@ -11,7 +11,7 @@ import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
-import { accentButton, press } from "@/components/ui";
+import { accentButton, secondaryButton } from "@/components/ui";
 import { PhoneLink } from "@/components/PhoneLink";
 
 export type FieldBinding = { id: string; name: string; value: string; onChange(v: string): void; error?: string };
@@ -246,13 +246,13 @@ export function LeadForm({
       {done ? (
         dialog ? (
           <div className={`mt-auto ${footer}`}>
-            <button type="button" onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={`h-12 flex-1 rounded-control border border-control bg-card font-semibold ${press}`}>
+            <button type="button" onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={`h-12 flex-1 ${secondaryButton}`}>
               Close
             </button>
           </div>
         ) : (
           <div className={footer}>
-            <Link href={back.href} className={`inline-flex h-12 items-center justify-center rounded-control border border-control bg-card px-6 font-semibold ${press}`}>
+            <Link href={back.href} className={`inline-flex h-12 items-center justify-center px-6 ${secondaryButton}`}>
               {back.label}
             </Link>
           </div>

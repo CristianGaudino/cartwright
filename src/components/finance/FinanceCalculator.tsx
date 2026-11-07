@@ -10,6 +10,7 @@ import { LeadForm } from "@/components/leads/LeadForm";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
+import { ArrowRightIcon } from "@/components/stock/icons";
 import { press } from "@/components/ui";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits (and one decimal for the APR).
@@ -47,59 +48,65 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
 
   return (
     <>
-      <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
-        {/* Removed in one place: set placeholder to false in finance.config.ts. Never hidden with CSS (D-16). */}
-        {FINANCE.placeholder && <PlaceholderPill>Placeholder figures</PlaceholderPill>}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {car ? (
-            <div className="flex flex-col gap-1">
-              <p className="text-meta font-semibold">Price</p>
-              <p className="flex h-12 items-center font-semibold tabular-nums">{car.price}</p>
-            </div>
-          ) : (
-            <Field {...field("price", price, take(WHOLE, setPrice), priceError)} label="Price" prefix="€" inputMode="numeric" autoComplete="off" />
-          )}
-          <Field {...field("deposit", deposit, take(WHOLE, setDeposit), depositError)} label="Deposit" prefix="€" inputMode="numeric" autoComplete="off" />
-          <Field {...field("term", term, setTerm)} label="Term" options={TERM_OPTIONS} />
-          <Field {...field("apr", apr, take(RATE, setApr), aprError)} label="APR" suffix="%" inputMode="decimal" autoComplete="off" />
+      {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. */}
+      <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+        <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
+          {/* Removed in one place: set placeholder to false in finance.config.ts. Never hidden with CSS (D-16). */}
+          {FINANCE.placeholder && <PlaceholderPill>Placeholder figures</PlaceholderPill>}
+          <div className="grid grid-cols-1 gap-4">
+            {car ? (
+              <div className="flex flex-col gap-1">
+                <p className="text-meta font-semibold">Price</p>
+                <p className="flex h-12 items-center font-semibold tabular-nums">{car.price}</p>
+              </div>
+            ) : (
+              <Field {...field("price", price, take(WHOLE, setPrice), priceError)} label="Price" prefix="€" inputMode="numeric" autoComplete="off" />
+            )}
+            <Field {...field("deposit", deposit, take(WHOLE, setDeposit), depositError)} label="Deposit" prefix="€" inputMode="numeric" autoComplete="off" />
+            <Field {...field("term", term, setTerm)} label="Term" options={TERM_OPTIONS} />
+            <Field {...field("apr", apr, take(RATE, setApr), aprError)} label="APR" suffix="%" inputMode="decimal" autoComplete="off" />
+          </div>
         </div>
-        <div role="status" aria-live="polite" className="flex flex-col gap-2 border-t border-hairline pt-4">
-          {q ? (
-            <>
-              <p className="text-meta text-text-2">Representative monthly payment</p>
-              <p className="text-display font-semibold tabular-nums">{formatPrice(q.monthlyEur)} a month</p>
-              <dl className="flex flex-col gap-1 text-meta">
-                {(
-                  [
-                    ["Amount borrowed", q.borrowedEur],
-                    ["Total to repay", q.totalEur],
-                    ["Interest", q.interestEur],
-                  ] as const
-                ).map(([label, value]) => (
-                  <div key={label} className="flex justify-between gap-4">
-                    <dt className="text-text-2">{label}</dt>
-                    <dd className="text-right tabular-nums">{formatPrice(value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </>
-          ) : (
-            <p className="font-semibold">Check the figures above.</p>
-          )}
+        <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
+          <div role="status" aria-live="polite" className="flex flex-col gap-2">
+            {q ? (
+              <>
+                <p className="text-meta text-text-2">Representative monthly payment</p>
+                <p className="text-display font-semibold tabular-nums">{formatPrice(q.monthlyEur)} a month</p>
+                <dl className="flex flex-col gap-1 text-meta">
+                  {(
+                    [
+                      ["Amount borrowed", q.borrowedEur],
+                      ["Total to repay", q.totalEur],
+                      ["Interest", q.interestEur],
+                    ] as const
+                  ).map(([label, value]) => (
+                    <div key={label} className="flex justify-between gap-4">
+                      <dt className="text-text-2">{label}</dt>
+                      <dd className="text-right tabular-nums">{formatPrice(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p className="font-semibold">Check the figures you entered.</p>
+            )}
+          </div>
+        <button
+          ref={opener}
+          type="button"
+          onClick={() => {
+            setPrefill(car ? { deposit, term } : { price, deposit, term }); // a new object on each open refreshes just these fields in the form
+            setOpen(true);
+          }}
+          className={`flex h-12 w-full items-center justify-center gap-2 rounded-control px-6 font-semibold ${press} ${car ? "border border-control bg-card text-text" : "bg-accent text-white"}`}
+        >
+          Apply for finance
+          <ArrowRightIcon className="size-5" />
+        </button>
         </div>
-        <p className="text-meta text-text-2">{FINANCE.notice}</p>
       </div>
-      <button
-        ref={opener}
-        type="button"
-        onClick={() => {
-          setPrefill(car ? { deposit, term } : { price, deposit, term }); // a new object on each open refreshes just these fields in the form
-          setOpen(true);
-        }}
-        className={`h-12 w-full rounded-control px-6 font-semibold sm:w-auto sm:min-w-60 sm:self-start ${press} ${car ? "border border-control bg-card text-text" : "bg-accent text-white"}`}
-      >
-        Apply for finance
-      </button>
+      <p className="text-meta text-text-2">{FINANCE.notice}</p>
       <LeadDialog
         title="Apply for finance"
         open={open}

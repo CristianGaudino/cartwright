@@ -18,7 +18,7 @@ const car: Car = {
   photos: [{ src: "/stock/1/0.webp", width: 900, height: 675 }],
 };
 const render = (c: Car) => renderToStaticMarkup(createElement(ListingCard, { car: c, priority: false }));
-const priceSlot = (html: string) => html.match(/<p class="text-heading[^>]*>([^<]*)<\/p>/)![1];
+const priceSlot = (html: string) => html.match(/<p[^>]*data-price[^>]*>([^<]*)<\/p>/)![1];
 
 describe("ListingCard", () => {
   it("sold: a hidden badge, the word Sold in the price slot, no price, no date", () => {

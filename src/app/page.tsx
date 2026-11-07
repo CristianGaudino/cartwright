@@ -31,6 +31,12 @@ export default async function Home() {
   const latest = stock.query({ ...DEFAULT_QUERY, pageSize: 6 }).catch((e) => (log(e), null));
   const taxonomy = stock.taxonomy().catch((e) => (log(e), NO_TAXONOMY));
   const [result, reviews, tax] = await Promise.all([latest, getReviews(), taxonomy]);
+  // The taxonomy covers every car ever listed, sold ones included; the search offers only what is in stock now, so it never lands on "No cars".
+  const makesNow = new Set(result?.facets.make.map((o) => o.value));
+  const bodiesNow = new Set(result?.facets.body.map((o) => o.value));
+  const inStock = result
+    ? { makes: tax.makes.filter((m) => makesNow.has(m.slug)), bodies: tax.bodies.filter((b) => bodiesNow.has(b.slug)), models: tax.models.filter((m) => makesNow.has(m.makeSlug)) }
+    : tax;
   return (
     <main className="flex flex-col">
       <JsonLd data={dealerJsonLd(reviews)} />
@@ -50,7 +56,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="mt-8 lg:mt-12">
-            <HomeSearch makes={tax.makes} bodies={tax.bodies} models={tax.models} />
+            <HomeSearch makes={inStock.makes} bodies={inStock.bodies} models={inStock.models} />
           </div>
         </div>
       </section>
@@ -76,8 +82,8 @@ export default async function Home() {
           ) : (
             <>
               <div className="flex items-center justify-between gap-4">
-                <h2 className={`text-display font-semibold ${slash}`}>Featured stock</h2>
-                <Link href="/used-cars" className={`${textLink} gap-2`}>
+                <h2 className={`text-heading font-semibold sm:text-display ${slash}`}>Featured stock</h2>
+                <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
                   View all stock
                   <ArrowRightIcon className="size-5" />
                 </Link>

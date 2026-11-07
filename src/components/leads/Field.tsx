@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDownIcon } from "@/components/stock/icons";
+import { SelectBox } from "@/components/SelectBox";
 import { CONTACT_ERROR, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
@@ -47,16 +47,13 @@ export function Field({
         {optional && <span className="font-normal text-text-2"> (optional)</span>}
       </label>
       {options ? (
-        <span className="relative">
-          <select {...common} onChange={(e) => onChange(e.target.value)} className={`${control} h-12 appearance-none pl-4 pr-10`}>
-            {options.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
-        </span>
+        <SelectBox {...common} onChange={(e) => onChange(e.target.value)} className="pl-4 in-[dialog]:bg-surface in-data-wells:bg-surface aria-[invalid=true]:border-destructive">
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </SelectBox>
       ) : multiline ? (
         <textarea {...common} maxLength={input.maxLength} enterKeyHint="enter" onChange={(e) => onChange(e.target.value)} className={`${control} min-h-28 resize-none px-4 py-3`} />
       ) : suffix || prefix ? (

@@ -75,7 +75,7 @@ test("saving in one tab updates another tab without a reload", async ({ context 
 
 test("saving and unsaving are announced", async ({ page }) => {
   await page.goto("/used-cars");
-  const live = page.locator("article").first().locator('[aria-live="polite"]');
+  const live = page.locator("article").first().locator('[aria-live="polite"]').first(); // the heart's, before Compare's
   await firstHeart(page).click();
   await expect(live).toHaveText("Saved");
   await firstHeart(page).click();
@@ -149,7 +149,7 @@ test("a saved car sold inside the window stays with the Sold badge", async ({ pa
   await seed(page, [soldInPeriod!.id]);
   await page.goto("/saved");
   await expect(page.locator("article")).toHaveCount(1);
-  await expect(page.locator("article > div:last-child > p:first-child")).toHaveText("Sold");
+  await expect(page.locator("article [data-price]")).toHaveText("Sold");
   expect(await stored(page)).toEqual([soldInPeriod!.id]);
 });
 

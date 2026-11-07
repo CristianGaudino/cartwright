@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
+import { slash } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
-const h2 = "text-heading font-semibold";
+const h2 = `text-heading font-semibold ${slash}`;
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
 export function AboutCar({ car }: { car: Car }) {

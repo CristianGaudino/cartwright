@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createIdStore } from "@/lib/id-store";
+import { MAX_SAVED } from "./ids";
 
 // Node environment: a hand-rolled localStorage and a window that can dispatch storage events.
 type Store = typeof import("./store");
@@ -26,18 +28,21 @@ beforeEach(async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
+// The same rules the saved list reads with, so a hand-edited localStorage value is cleaned the same way.
+const parseIds = (raw: string) => createIdStore("k", MAX_SAVED).parse(raw);
+
 describe("parseIds", () => {
   it("keeps digit-string ids up to 12 digits, newest first, without duplicates", () => {
-    expect(store.parseIds('["3","1","3","1234567890123","12a","",2,null,"123456789012"]')).toEqual(["3", "1", "123456789012"]);
+    expect(parseIds('["3","1","3","1234567890123","12a","",2,null,"123456789012"]')).toEqual(["3", "1", "123456789012"]);
   });
 
   it("caps at MAX_SAVED", () => {
     const ids = Array.from({ length: store.MAX_SAVED + 20 }, (_, i) => String(i + 1));
-    expect(store.parseIds(JSON.stringify(ids))).toEqual(ids.slice(0, store.MAX_SAVED));
+    expect(parseIds(JSON.stringify(ids))).toEqual(ids.slice(0, store.MAX_SAVED));
   });
 
   it.each(["not json", "{", '{"a":"1"}', '"1"', "1", "null", "[1,2,3]"])("reads %s as nothing saved", (raw) => {
-    expect(store.parseIds(raw)).toEqual([]);
+    expect(parseIds(raw)).toEqual([]);
   });
 });
 
@@ -54,14 +59,14 @@ describe("toggleSaved", () => {
   });
 
   it("removeSaved drops only the given ids from the current list, order kept", () => {
-    store.setSavedIds(["30", "20", "10"]);
+    data.set(store.SAVED_KEY, JSON.stringify(["30", "20", "10"]));
     store.removeSaved(["20", "99"]);
     expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["30", "10"]);
   });
 
   it("refuses a new car when the list is full and keeps the list as it was", () => {
     const full = Array.from({ length: store.MAX_SAVED }, (_, i) => String(i + 1));
-    store.setSavedIds(full);
+    data.set(store.SAVED_KEY, JSON.stringify(full));
     expect(store.toggleSaved("999")).toBe("full");
     expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(full);
     expect(store.toggleSaved("1")).toBe("removed");
