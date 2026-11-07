@@ -84,7 +84,7 @@ export function FilterSheet() {
         <div className="flex shrink-0 items-center gap-3 border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
           {applied > 0 && (
             <button type="button" onClick={() => navigate(clearFilters(query))} className={`min-h-11 text-meta font-semibold underline ${press}`}>
-              Clear all filters
+              Clear All Filters
             </button>
           )}
           <button

@@ -13,7 +13,7 @@ export function AboutCar({ car }: { car: Car }) {
   if (!car.description) return null;
   return (
     <section>
-      <h2 className={h2}>About this car</h2>
+      <h2 className={h2}>About This Car</h2>
       <p className="mt-4 max-w-[65ch] whitespace-pre-line">{car.description}</p>
     </section>
   );
@@ -75,7 +75,7 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   return (
     <section>
       <div className="flex items-center justify-between gap-4">
-        <h2 className={h2}>Similar cars</h2>
+        <h2 className={h2}>Similar Cars</h2>
         <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
           See all {car.make}
         </Link>

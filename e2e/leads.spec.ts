@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { tomorrow } from "../src/lib/leads/constants";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { stubTurnstile } from "./turnstile";
 
@@ -20,7 +19,7 @@ async function open(page: Page, slug: string) {
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
 const dialog = (page: Page) => page.getByRole("dialog", { name: "Enquire" });
-const enquire = (page: Page) => page.getByRole("button", { name: "Enquire", exact: true });
+const enquire = (page: Page) => page.getByRole("button", { name: "Enquire About This Car", exact: true });
 
 test.beforeEach(async ({ page }) => stubTurnstile(page));
 
@@ -68,11 +67,12 @@ test("the dialog does not scroll itself: only the form body does", async ({ page
   expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
 });
 
-test("a sold car has no Enquire button", async ({ page }) => {
+test("a sold car has no lead buttons", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
   await page.goto(`/used-cars/${sold!.slug}`);
   await expect(page.getByTestId("buy-box")).toBeVisible();
-  for (const name of ["Enquire", "Test drive", "Reserve"]) await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  for (const name of ["Enquire About This Car", "Book a Test Drive"]) await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /^Call Us/ })).toHaveCount(0);
 });
 
 test("the bot check loads only once the dialog opens, and a failed check keeps what was typed", async ({ page }) => {
@@ -131,22 +131,27 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await expect(privacy).toHaveAttribute("target", "_blank");
 });
 
-test("Test drive and Reserve open the same dialog, and switching keeps what was typed", async ({ page }) => {
+test("Book a Test Drive opens the same enquiry dialog with the note filled in, and there is no Reserve", async ({ page }) => {
   await open(page, live.slug);
-  await page.getByRole("button", { name: "Test drive", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
   const d = page.getByRole("dialog");
-  await expect(d).toHaveAccessibleName("Book a test drive");
-  await expect(d.getByRole("radio", { name: "Test drive" })).toBeChecked();
-  await expect(d.getByText("We will call to confirm a time.")).toBeVisible();
+  await expect(d).toHaveAccessibleName("Enquire");
+  await expect(d.getByLabel("Message")).toHaveValue("I would like to book a test drive.");
+  await expect(d.getByRole("radio")).toHaveCount(0); // no more choosing a kind of request
+  await d.getByLabel("Name").fill("Test Driver");
+  await d.getByLabel("Phone").fill("087 123 4567");
+  await d.getByRole("checkbox").check();
+  await d.getByRole("button", { name: "Send Enquiry" }).click();
+  await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+});
 
-  await d.getByLabel("Name").fill("Switch Typer");
-  await d.locator("label", { hasText: /^Reserve$/ }).click();
-  await expect(d).toHaveAccessibleName("Request to reserve");
-  await expect(d.getByRole("radio", { name: "Reserve" })).toBeChecked();
-  await expect(d.getByLabel("Name")).toHaveValue("Switch Typer");
-  await expect(d.getByText("This is a request, not a hold. We will call you to confirm. No payment is taken.")).toBeVisible();
-  await expect(d.getByLabel("Preferred day")).toHaveCount(0);
-  await expect(d.getByRole("button", { name: "Request to reserve" })).toBeVisible();
+test("the enquiry dialog always shows the phone number with +353, as a link that dials", async ({ page }) => {
+  await open(page, live.slug);
+  await enquire(page).click();
+  const d = page.getByRole("dialog", { name: "Enquire" });
+  await expect(d.getByText(/Or call us on/)).toBeVisible();
+  await expect(d.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
 });
 
 test.describe("on a desktop", () => {
@@ -177,28 +182,14 @@ test("the footer links the privacy page, which states the retention period", asy
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
-  await expect(page.getByRole("main").getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(page.getByRole("main").getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
 });
 
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("a car page still offers Call now", async ({ page }) => {
+  test("a car page still offers Call Us", async ({ page }) => {
     await page.goto(`/used-cars/${live.slug}`);
-    await expect(page.getByRole("link", { name: "Call now" })).toHaveAttribute("href", /^tel:/);
+    await expect(page.getByRole("link", { name: /^Call Us/ })).toHaveAttribute("href", /^tel:/);
   });
-});
-
-test("a test drive with a preferred day sends", async ({ page }) => {
-  await open(page, live.slug);
-  await page.getByRole("button", { name: "Test drive", exact: true }).click();
-  const d = page.getByRole("dialog", { name: "Book a test drive" });
-  await d.getByLabel("Name").fill("Test Driver");
-  await d.getByLabel("Phone").fill("087 123 4567");
-  await d.getByLabel("Preferred day").fill(tomorrow());
-  await d.getByLabel("Preferred time").selectOption("morning");
-  await d.getByRole("checkbox").check();
-  await d.getByRole("button", { name: "Request test drive" }).click();
-  await expect(d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
-  await expect(d.getByText("We will call you to confirm a time for a test drive.")).toBeVisible();
 });

@@ -8,26 +8,26 @@ const GROUPS = [
   {
     title: "Shop",
     links: [
-      { href: "/used-cars", label: "Used cars" },
+      { href: "/used-cars", label: "Used Cars" },
       { href: "/finance", label: "Finance" },
-      { href: "/sell-your-car", label: "Sell your car" },
-      { href: "/find-a-car", label: "Find a car" },
-      { href: "/saved", label: "Saved cars" },
+      { href: "/sell-your-car", label: "Sell Your Car" },
+      { href: "/find-a-car", label: "Find a Car" },
+      { href: "/saved", label: "Saved Cars" },
     ],
   },
   {
     title: "Company",
     links: [
       { href: "/service", label: "Service" },
-      { href: "/about", label: "About us" },
+      { href: "/about", label: "About Us" },
       { href: "/contact", label: "Contact" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { href: "/privacy", label: "Privacy policy" },
-      { href: "/terms", label: "Terms of use" },
+      { href: "/privacy", label: "Privacy Policy" },
+      { href: "/terms", label: "Terms of Use" },
     ],
   },
 ];
@@ -54,7 +54,7 @@ export function SiteFooter() {
             </address>
             <PhoneLink className={`${link} text-body font-semibold`} />
             <Link href="/contact" className={`${link} underline`}>
-              Opening hours and directions
+              Opening Hours and Directions
             </Link>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}

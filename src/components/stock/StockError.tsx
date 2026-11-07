@@ -16,7 +16,7 @@ export function StockError({ retry }: { retry?: () => void }) {
       <h2 className="text-heading font-semibold">We could not load the cars</h2>
       <p className="mt-2 text-body text-text-2">Check your connection and try again.</p>
       <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
-        Try loading cars again
+        Try Loading Cars Again
       </button>
     </div>
   );

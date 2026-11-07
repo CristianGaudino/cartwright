@@ -101,14 +101,14 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
           }}
           className={`flex h-12 w-full items-center justify-center gap-2 rounded-control px-6 font-semibold ${press} ${car ? "border border-control bg-card text-text" : "bg-accent text-white"}`}
         >
-          Apply for finance
+          Apply for Finance
           <ArrowRightIcon className="size-5" />
         </button>
         </div>
       </div>
       <p className="text-meta text-text-2">{FINANCE.notice}</p>
       <LeadDialog
-        title="Apply for finance"
+        title="Apply for Finance"
         open={open}
         onClose={() => {
           setOpen(false);
@@ -120,7 +120,7 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
           car={car}
           variant="dialog"
           prefill={prefill}
-          submitLabel="Send finance application"
+          submitLabel="Send Finance Application"
           success={{ heading: "Thanks, we have your application.", body: "We will contact you to go through the next steps." }}
         >
           {({ bind }) => <FinanceFields bind={bind} />}

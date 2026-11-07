@@ -13,7 +13,7 @@ const SHOWN = 12;
 const button = "inline-flex h-12 items-center rounded-control px-6 font-semibold active:scale-[0.97] motion-reduce:active:scale-100";
 
 function Breadcrumb({ landing }: { landing: Landing }) {
-  const trail: { label: string; href?: string }[] = [{ label: "Used cars", href: "/used-cars" }];
+  const trail: { label: string; href?: string }[] = [{ label: "Used Cars", href: "/used-cars" }];
   if (landing.kind === "body") trail.push({ label: landing.body });
   else if (landing.kind === "make") trail.push({ label: landing.make });
   else trail.push({ label: landing.make, href: `/used-cars/${landing.makeSlug}` }, { label: landing.model });

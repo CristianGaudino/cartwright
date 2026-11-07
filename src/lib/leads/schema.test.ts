@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { describe, expect, it } from "vitest";
-import { CONTACT_ERROR, LIMITS, tomorrow } from "./constants";
+import { CONTACT_ERROR, LIMITS } from "./constants";
 import { leadSchema } from "./schema";
 
 const base = { type: "enquiry", carId: "123", clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Ann", phone: "087 123 4567", consent: "yes" };
@@ -54,27 +54,7 @@ describe("leadSchema error copy (UI-SPEC)", () => {
   });
 });
 
-describe("test drive and reserve (D-10, D-11)", () => {
-  const drive = { ...base, type: "test_drive" };
-  const now = new Date("2026-11-06T23:30:00Z"); // 23:30 in Tralee
-
-  it("works out tomorrow in Irish time", () => {
-    expect(tomorrow(now)).toBe("2026-11-07");
-    expect(tomorrow(new Date("2026-07-01T23:30:00Z"))).toBe("2026-07-03"); // already 00:30 on 2 July in summer time
-  });
-
-  it("takes a day from tomorrow on, and any time by default", () => {
-    const r = leadSchema.parse({ ...drive, preferredDay: tomorrow() });
-    expect(r).toMatchObject({ type: "test_drive", preferredDay: tomorrow(), preferredTime: "any" });
-    expect(leadSchema.parse({ ...drive, preferredDay: "", preferredTime: "morning" })).toMatchObject({ preferredDay: undefined, preferredTime: "morning" });
-  });
-
-  it("refuses a past or made-up day and an unknown time", () => {
-    expect(errors({ ...drive, preferredDay: "2020-01-01" }).preferredDay).toEqual(["Choose a day from tomorrow on."]);
-    expect(errors({ ...drive, preferredDay: "2099-13-45" }).preferredDay).toBeDefined();
-    expect(errors({ ...drive, preferredTime: "midnight" }).preferredTime).toEqual(["Choose a time from the list."]);
-  });
-
+describe("sourcing and general messages", () => {
   it("needs a sourcing message, and takes only a budget from the list", () => {
     const find = { ...base, type: "sourcing", message: "A small automatic" };
     expect(errors({ ...find, message: " " }).message).toEqual(["Tell us what you are looking for."]);
@@ -88,11 +68,6 @@ describe("test drive and reserve (D-10, D-11)", () => {
     const hello = { ...base, type: "general", message: "Do you service Fords?", carId: "123" };
     expect(errors({ ...hello, message: " " }).message).toEqual(["Tell us how we can help."]);
     expect(leadSchema.parse(hello)).not.toHaveProperty("carId");
-  });
-
-  it("takes a reserve request with no extra fields, and drops any it is sent", () => {
-    const r = leadSchema.parse({ ...base, type: "reserve", preferredDay: "2020-01-01", price: "1" });
-    expect(Object.keys(r).sort()).toEqual(["carId", "clientRef", "consent", "name", "phone", "sourcePath", "type"]);
   });
 });
 

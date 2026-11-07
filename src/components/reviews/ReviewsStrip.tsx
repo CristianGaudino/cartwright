@@ -86,7 +86,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
         {/* In every environment: fictional reviews must never read as real (UI-SPEC deviation from D-01). */}
         {data.source === "demo" && <PlaceholderPill>Demo reviews</PlaceholderPill>}
         <h2 id="reviews-heading" className="text-heading font-semibold">
-          What customers say
+          What Customers Say
         </h2>
         <p className="text-meta text-text-2">Showing the most relevant reviews from Google Maps.</p>
       </div>
@@ -104,7 +104,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
           <div className="flex flex-wrap items-center gap-x-4">
             <p className="text-meta text-text-2">Based on {count} Google reviews</p>
             <a href={data.placeUri} {...NEW_TAB} className={`${textLink} text-meta`}>
-              See all on Google Maps
+              See All on Google Maps
               <NewTab />
             </a>
           </div>

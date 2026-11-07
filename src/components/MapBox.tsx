@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { secondaryButton } from "@/components/ui";
 
-// Nothing from Google loads until Show map is tapped: no cookies, no consent question, no Lighthouse cost. The box is
-// 4:3 from first paint, and Get directions sits outside it so a blocked iframe or no JavaScript still leaves a way there.
+// Nothing from Google loads until Show Map is tapped: no cookies, no consent question, no Lighthouse cost. The box is
+// 4:3 from first paint, and Get Directions sits outside it so a blocked iframe or no JavaScript still leaves a way there.
 export function MapBox({ embedUrl, directionsUrl, title, address }: { embedUrl: string; directionsUrl: string; title: string; address: string[] }) {
   const [open, setOpen] = useState(false);
   return (

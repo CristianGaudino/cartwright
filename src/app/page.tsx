@@ -38,17 +38,17 @@ export default async function Home() {
       <JsonLd data={dealerJsonLd(reviews)} />
       <section className="hero-bg border-b border-hairline">
         <div className="mx-auto max-w-[1280px] px-4 pb-8 pt-12 sm:px-6 lg:px-8 lg:pb-12 lg:pt-20">
-          <p className={`text-meta font-semibold uppercase tracking-wider ${slash}`}>Used cars in Tralee</p>
-          <h1 className="mt-4 max-w-[10ch] text-hero font-semibold lg:text-hero-lg">Find your next car</h1>
-          <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, with straightforward finance.</p>
+          <p className={`text-meta font-semibold uppercase tracking-wider ${slash}`}>Quality Used Cars</p>
+          <h1 className="mt-4 max-w-[10ch] text-hero font-bold lg:text-hero-lg">Find Your Next Car</h1>
+          <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
           <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ")}.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/used-cars" className={`inline-flex items-center gap-2 ${accentButton}`}>
-              Browse our stock
+              Browse Our Stock
               <ArrowRightIcon className="size-5" />
             </Link>
             <Link href="/finance" className={outline}>
-              Get a finance quote
+              Get a Finance Quote
             </Link>
           </div>
           <div className="mt-8 lg:mt-12">
@@ -65,7 +65,7 @@ export default async function Home() {
             <>
               <p className="text-body">We could not load the cars.</p>
               <Link href="/used-cars" className={textLink}>
-                See used cars
+                See Used Cars
               </Link>
             </>
           ) : result.cars.length === 0 ? (
@@ -78,13 +78,13 @@ export default async function Home() {
           ) : (
             <>
               <div className="flex items-center justify-between gap-4">
-                <h2 className={`text-heading font-semibold sm:text-display ${slash}`}>Featured stock</h2>
+                <h2 className={`text-heading font-bold sm:text-display ${slash}`}>Featured Stock</h2>
                 <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
-                  View all stock
+                  View All Stock
                   <ArrowRightIcon className="size-5" />
                 </Link>
               </div>
-              <FeaturedRow label="Featured stock">
+              <FeaturedRow label="Featured Stock">
                 {result.cars.map((car) => (
                   <li key={car.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
                     <ListingCard car={car} priority={false} />
@@ -96,10 +96,10 @@ export default async function Home() {
         </section>
 
         <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
-          <h2 className="text-display font-semibold">Finance made simple</h2>
+          <h2 className="text-display font-bold">Finance Made Simple</h2>
           <p className="max-w-[40ch] text-body">Apply for finance online with a quick, straightforward application.</p>
           <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
-            Check finance options
+            Check Finance Options
             <ArrowRightIcon className="size-5" />
           </Link>
         </section>

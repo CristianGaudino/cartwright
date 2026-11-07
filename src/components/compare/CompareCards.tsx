@@ -6,10 +6,10 @@ import { useState, useSyncExternalStore } from "react";
 import { Brandmark } from "@/components/Brandmark";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { StockError, stateButton } from "@/components/stock/StockError";
-import { ArrowRightIcon, CloseIcon, PlusIcon } from "@/components/stock/icons";
+import { CloseIcon, PlusIcon } from "@/components/stock/icons";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { showToast } from "@/components/toast";
-import { accentButton, secondaryButton } from "@/components/ui";
+import { secondaryButton } from "@/components/ui";
 import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds } from "@/lib/compare/store";
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
@@ -32,15 +32,16 @@ const ROWS: Row[] = [
   { label: "Body type", text: spec("Body type") },
 ];
 
-// The word, an arrow and a colour, so the colour is never the only sign. Two cars say Higher and Lower; three say Highest and Lowest.
+// A symbol and a colour, nothing to read: up for the higher, down for the lower, a dash for the one between (three cars). The word is
+// there for screen readers, and the colour is only ever a second sign.
 function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of: number }) {
   if (!mark) return null;
-  const word = `${mark === "low" ? "Low" : "High"}${of > 2 ? "est" : "er"}`;
-  const tone = !better ? "bg-hairline text-text-2" : mark === better ? "bg-better/15 text-better" : "bg-destructive/15 text-destructive";
+  const word = mark === "mid" ? "Middle" : `${mark === "low" ? "Low" : "High"}${of > 2 ? "est" : "er"}`;
+  const tone = !better || mark === "mid" ? "bg-hairline text-text-2" : mark === better ? "bg-better/15 text-better" : "bg-destructive/15 text-destructive";
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-meta font-semibold ${tone}`}>
-      <span aria-hidden="true">{mark === "low" ? "▼" : "▲"}</span>
-      <span>{word}</span>
+    <span className={`inline-flex size-6 items-center justify-center rounded-full text-meta font-semibold ${tone}`}>
+      <span aria-hidden="true">{mark === "low" ? "▼" : mark === "high" ? "▲" : "-"}</span>
+      <span className="sr-only">{word}</span>
     </span>
   );
 }
@@ -51,25 +52,25 @@ function Empty() {
       <h2 className="text-heading font-semibold">Nothing to compare yet</h2>
       <p className="mt-2 text-body text-text-2">Open a car and tap Compare. You can compare up to three.</p>
       <Link href="/used-cars" className={stateButton}>
-        See used cars
+        See Used Cars
       </Link>
     </div>
   );
 }
 
-// The empty place next to the cars picked so far: the next one goes here.
+// The empty place next to the cars picked so far: the whole card is the way to add the next one.
 function Placeholder() {
   return (
-    <div data-testid="compare-placeholder" className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-card border-2 border-dashed border-hairline p-6 text-center">
+    <Link
+      href="/used-cars"
+      data-testid="compare-placeholder"
+      className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-hairline p-6 text-center transition-colors hover:border-text hover:bg-card"
+    >
       <span className="flex size-12 items-center justify-center rounded-full bg-card">
         <PlusIcon className="size-6" />
       </span>
-      <p className="text-body font-semibold">Add a car to compare</p>
-      <Link href="/used-cars" className={`inline-flex items-center gap-2 ${accentButton}`}>
-        Add a car
-        <ArrowRightIcon className="size-5" />
-      </Link>
-    </div>
+      <span className="text-body font-semibold">Add a Car</span>
+    </Link>
   );
 }
 
@@ -111,7 +112,7 @@ export function CompareCards() {
           }}
           className={`h-11 px-4 text-meta ${secondaryButton}`}
         >
-          Clear all
+          Clear All
         </button>
       </div>
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}

@@ -11,7 +11,7 @@ const FIELDS = { general: GeneralFields, sourcing: SourcingFields, trade_in: Tra
 export function LeadPageForm({ type, ...props }: { type: keyof typeof FIELDS; submitLabel: string; success: { heading: string; body: string }}) {
   const Fields = FIELDS[type];
   return (
-    <LeadForm type={type} variant="page" back={type === "general" ? { href: "/", label: "Back to home" } : undefined} {...props}>
+    <LeadForm type={type} variant="page" back={type === "general" ? { href: "/", label: "Back to Home" } : undefined} {...props}>
       {(form) => <Fields {...form} />}
     </LeadForm>
   );

@@ -96,9 +96,9 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
-    [/^Flexible finance/, "/finance"],
-    [/^Trade-in welcome/, "/sell-your-car"],
-    [/^Test drives/, "/used-cars"],
+    [/^Flexible Finance/, "/finance"],
+    [/^Trade-In Welcome/, "/sell-your-car"],
+    [/^Test Drives/, "/used-cars"],
     ["Check finance options", "/finance"],
     ["Get a finance quote", "/finance"],
   ] as const) {

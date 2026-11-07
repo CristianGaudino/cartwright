@@ -28,14 +28,14 @@ describe("ReviewsStrip", () => {
     expect(html).toContain("width:96%");
     expect(html).toContain("Based on 5 Google reviews");
     expect(html).toContain(`<a href="${PLACE}" ${NEW_TAB}`);
-    expect(html).toContain("See all on Google Maps");
+    expect(html).toContain("See All on Google Maps");
   });
 
   it("skips the aggregate row without a rating or a count and still shows the cards", () => {
     for (const d of [data({ rating: undefined }), data({ count: undefined })]) {
       const html = render(d);
       expect(html).not.toContain("Based on");
-      expect(html).not.toContain("See all on Google Maps");
+      expect(html).not.toContain("See All on Google Maps");
       expect(html).toContain("<article");
     }
   });

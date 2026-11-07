@@ -10,11 +10,11 @@ export const metadata: Metadata = { title: "Privacy policy", description: "How C
 // The email is a placeholder until carright.ie forwards to the dealer (issue #54), so it is shown only once confirmed.
 export default function PrivacyPage() {
   return (
-    <InfoPage title="Privacy policy">
+    <InfoPage title="Privacy Policy">
       <InfoSection title="What we collect">
         <p>
           When you send us a request, we keep what you type into the form: your name, phone number, email, your message and the other fields of that
-          form, such as a preferred day for a test drive. We also note the car you asked about, the page you sent it from and when you agreed to this
+          form, such as the registration of a car you want valued. We also note the car you asked about, the page you sent it from and when you agreed to this
           policy. Nothing about your device is stored.
         </p>
         <p>

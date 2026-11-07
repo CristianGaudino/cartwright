@@ -22,7 +22,7 @@ export function AppliedFilters() {
           <CloseIcon className="h-4 w-4 shrink-0" />
         </button>
       ))}
-      {/* With no matches the empty state carries the one Clear all filters button. */}
+      {/* With no matches the empty state carries the one Clear All Filters button. */}
       {summary?.total !== 0 && (
         <button
           type="button"

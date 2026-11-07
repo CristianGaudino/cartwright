@@ -1,13 +1,12 @@
 import { SITE_URL } from "@/lib/site";
 import { formatPrice } from "@/lib/stock/format";
 import type { LeadRow } from "./process";
-import { EMPLOYMENT, TIMES } from "./constants";
+import { EMPLOYMENT } from "./constants";
 import { DETAIL_LABELS, TYPE_LABELS } from "./schema";
 
 // The form stores keys and raw numbers; the dealer reads words and formatted figures.
 function show(key: string, value: unknown): string {
   const v = String(value);
-  if (key === "preferredTime") return TIMES[v as keyof typeof TIMES] ?? v;
   if (key === "employment") return EMPLOYMENT[v as keyof typeof EMPLOYMENT] ?? v;
   if (key === "mileage") return `${Number(v).toLocaleString("en-IE")} km`;
   if (key === "budgetMax" || key === "deposit" || key === "price") return formatPrice(Number(v));

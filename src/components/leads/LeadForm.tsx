@@ -36,7 +36,7 @@ export function LeadForm({
   variant,
   submitLabel,
   success,
-  back = { href: "/used-cars", label: "Back to used cars" },
+  back = { href: "/used-cars", label: "Back to Used Cars" },
   prefill,
   children,
 }: {
@@ -184,7 +184,7 @@ export function LeadForm({
                   <p className="font-semibold text-destructive">This car has just been sold.</p>
                   <p className="text-meta">
                     <Link href="/used-cars" className="font-semibold underline">
-                      See the cars we have
+                      See the Cars We Have
                     </Link>
                   </p>
                 </>
