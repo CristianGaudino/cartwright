@@ -2,17 +2,35 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 // A tap before React attaches does nothing.
-async function open(page: Page, path: string) {
-  await page.goto(path);
+async function ready(page: Page) {
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
-const compareButtons = (page: Page) => page.getByRole("button", { name: /^Compare (?!cars)/ });
+// The first n car pages from the list, in order. Compare lives on the car page; the cards carry only the heart.
+async function carPaths(page: Page, n: number) {
+  await page.goto("/used-cars");
+  const hrefs = await page.locator("article h2 a").evaluateAll((as) => as.map((a) => a.getAttribute("href")!));
+  return hrefs.slice(0, n);
+}
+async function compare(page: Page, path: string) {
+  await page.goto(path);
+  await ready(page);
+  const button = page.getByTestId("buy-box").getByRole("button", { name: /^Compare / });
+  await button.click();
+  return button;
+}
 
-test("pick two cars on the list, open the compare page, remove one", async ({ page }) => {
-  await open(page, "/used-cars");
-  await compareButtons(page).nth(0).click();
-  await compareButtons(page).nth(1).click();
-  await expect(page).toHaveURL(/\/used-cars$/); // the button is not a card tap
+test("a card has no compare button, only the heart", async ({ page }) => {
+  await page.goto("/used-cars");
+  const card = page.locator("article").first();
+  await expect(card.getByRole("button", { name: /^Compare/ })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: /^Save / })).toHaveCount(1);
+});
+
+test("pick two cars on their pages, open the compare page, remove one", async ({ page }) => {
+  const [a, b] = await carPaths(page, 2);
+  const first = await compare(page, a);
+  await expect(first).toHaveAttribute("aria-pressed", "true");
+  await compare(page, b);
   const bar = page.getByRole("region", { name: "Compare cars" });
   await expect(bar).toContainText("2 of 3 to compare");
   await bar.getByRole("link", { name: "Compare" }).click();
@@ -29,23 +47,17 @@ test("pick two cars on the list, open the compare page, remove one", async ({ pa
 });
 
 test("a fourth car is refused and said so, and the list stays at three", async ({ page }) => {
-  await open(page, "/used-cars");
-  for (let i = 0; i < 3; i++) await compareButtons(page).nth(i).click();
-  await compareButtons(page).nth(3).click();
-  await expect(compareButtons(page).nth(3)).toHaveAttribute("aria-pressed", "false");
+  const paths = await carPaths(page, 4);
+  for (const p of paths.slice(0, 3)) await compare(page, p);
+  const fourth = await compare(page, paths[3]);
+  await expect(fourth).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByText("You can compare up to three cars.")).toBeAttached();
   await expect(page.getByRole("region", { name: "Compare cars" })).toContainText("3 of 3 to compare");
 });
 
-test("the compare page is empty to start with, not indexed, and a car page has a Compare button", async ({ page }) => {
-  await open(page, "/compare");
+test("the compare page is empty to start with and not indexed", async ({ page }) => {
+  await page.goto("/compare");
+  await ready(page);
   await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
-  await page.goto("/used-cars");
-  await page.locator("article a").first().click();
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  const button = page.getByTestId("buy-box").getByRole("button", { name: /^Compare / });
-  await button.click();
-  await expect(button).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("region", { name: "Compare cars" })).toContainText("1 of 3 to compare");
 });

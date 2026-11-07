@@ -23,20 +23,20 @@ describe("PhotoCarousel", () => {
     expect(html).not.toContain("Next photo");
   });
 
-  it("three photos: three photo slides plus the tile, three dots, both arrows mounted, Previous inert at the start", () => {
+  it("three photos, as the server sends them: the first photo and the tile, and no dots or arrows yet", () => {
+    // The others follow in the browser, a second after the card comes near the screen, so no slide is ever an empty box.
     const html = render(3);
-    expect(count(html, 'aria-roledescription="slide"')).toBe(4);
-    expect(count(html, 'aria-label="Photo ')).toBe(3);
-    expect(count(html, "data-dot")).toBe(3);
-    const button = (name: string) => html.match(new RegExp(`<button[^>]*aria-label="${name}"[^>]*>`))![0];
-    expect(button("Next photo")).toContain('aria-disabled="false"');
-    expect(button("Previous photo")).toContain('aria-disabled="true"');
+    expect(count(html, 'aria-roledescription="slide"')).toBe(2);
+    expect(count(html, 'aria-label="Photo ')).toBe(1);
+    expect(html).toContain('aria-label="Photo 1 of 3"');
+    expect(html).not.toContain("data-dot");
+    expect(html).not.toContain("Next photo");
   });
 
   it("photos are exposed: named slides, the alt text is the car, and the links are not aria-hidden", () => {
     const html = render(3);
-    expect(html).toContain('aria-label="Photo 2 of 3"');
-    expect(count(html, 'alt="2019 Audi A4"')).toBe(3);
+    expect(html).toContain('aria-label="Photo 1 of 3"');
+    expect(count(html, 'alt="2019 Audi A4"')).toBe(1);
     expect(html).not.toMatch(/<a[^>]*aria-hidden/);
   });
 
@@ -52,7 +52,6 @@ describe("PhotoCarousel", () => {
       expect(link).not.toContain("tabindex");
       expect(slide).toContain(`See all ${n} photos</span>`);
       expect(html).not.toContain(`of ${n + 1}`);
-      expect(count(html, "data-dot")).toBe(n);
     }
   });
 

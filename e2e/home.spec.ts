@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-type Demo = { id: string; slug: string; make: string; soldAt?: string };
+type Demo = { id: string; slug: string; make: string; modelSlug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const inStock = cars.filter((c) => !c.soldAt).sort((a, b) => Number(b.id) - Number(a.id));
 const newest = inStock[0];
@@ -35,6 +35,14 @@ test("on a phone the featured row has one dot per card", async ({ page }) => {
   const row = page.getByRole("group", { name: "Featured stock" });
   const cards = await row.locator("article").count();
   await expect(row.locator(':scope > div[aria-hidden="true"] > span')).toHaveCount(cards);
+});
+
+test("every model the search offers has a car in stock", async ({ page }) => {
+  await page.goto("/");
+  const offered = await page.getByLabel("Model", { exact: true }).locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value).filter(Boolean));
+  const liveModels = new Set(inStock.map((c) => c.modelSlug));
+  expect(offered.length).toBeGreaterThan(0);
+  for (const model of offered) expect(liveModels.has(model), model).toBe(true);
 });
 
 test("the search offers only makes that have a car in stock", async ({ page }) => {

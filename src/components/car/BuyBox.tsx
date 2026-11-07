@@ -29,7 +29,7 @@ export function BuyBox({ car }: { car: Car }) {
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-4">
         {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
         <div className="flex items-center gap-2">
-          {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} variant="page" />}
+          {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} />}
           <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
         </div>
       </div>

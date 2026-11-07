@@ -8,7 +8,7 @@ import { MapBox } from "@/components/MapBox";
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { dealerJsonLd, directionsUrl, groupHours, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, DEALER_WHATSAPP, SITE_NAME } from "@/lib/site";
 import { textLink as link } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, address and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
@@ -30,10 +30,16 @@ export default async function ContactPage() {
         </div>
       )}
       <h1 className="text-display font-semibold">Contact</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Call or email us, or come and see us.</p>
+      <p className="mt-2 max-w-[65ch] text-body">Call or message us, or come and see us.</p>
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-8">
           <CallButton>Call {DEALER_PHONE}</CallButton>
+          <p className="text-body">
+            Or message us on{" "}
+            <a href={DEALER_WHATSAPP} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
+              WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
           {/* A placeholder address that does not forward yet (#54): shown only once the dealer confirms. */}
           {DEALER_FACTS_CONFIRMED && (
             <p className="text-body">

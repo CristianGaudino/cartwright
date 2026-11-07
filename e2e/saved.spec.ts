@@ -75,7 +75,7 @@ test("saving in one tab updates another tab without a reload", async ({ context 
 
 test("saving and unsaving are announced", async ({ page }) => {
   await page.goto("/used-cars");
-  const live = page.locator("article").first().locator('[aria-live="polite"]').first(); // the heart's, before Compare's
+  const live = page.locator("article").first().locator('[aria-live="polite"]');
   await firstHeart(page).click();
   await expect(live).toHaveText("Saved");
   await firstHeart(page).click();

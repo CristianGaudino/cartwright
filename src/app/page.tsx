@@ -14,6 +14,7 @@ import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
+import { searchOptions } from "@/lib/stock/search-options";
 
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME} | Used cars in Tralee` },
@@ -21,22 +22,17 @@ export const metadata: Metadata = {
 };
 
 const outline = `inline-flex h-12 items-center gap-2 rounded-control border border-control px-6 font-semibold ${press}`;
-const NO_TAXONOMY = { makes: [], bodies: [], models: [] };
 
 export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
   await connection();
   // The home page must never error: a stock failure shows a line in place of the row, and the search still renders (UI-SPEC state table).
   const log = (e: unknown) => console.error("stock.query failed", e instanceof Error ? e.name : typeof e); // as /used-cars: the name only
-  const latest = stock.query({ ...DEFAULT_QUERY, pageSize: 6 }).catch((e) => (log(e), null));
-  const taxonomy = stock.taxonomy().catch((e) => (log(e), NO_TAXONOMY));
-  const [result, reviews, tax] = await Promise.all([latest, getReviews(), taxonomy]);
-  // The taxonomy covers every car ever listed, sold ones included; the search offers only what is in stock now, so it never lands on "No cars".
-  const makesNow = new Set(result?.facets.make.map((o) => o.value));
-  const bodiesNow = new Set(result?.facets.body.map((o) => o.value));
-  const inStock = result
-    ? { makes: tax.makes.filter((m) => makesNow.has(m.slug)), bodies: tax.bodies.filter((b) => bodiesNow.has(b.slug)), models: tax.models.filter((m) => makesNow.has(m.makeSlug)) }
-    : tax;
+  // shortcut: one query covers the stock while it is under 1000 cars (as the sitemap); the first six are the featured row and all of
+  // them feed the search drop-downs, so every choice there has a car behind it.
+  const [all, reviews] = await Promise.all([stock.query({ ...DEFAULT_QUERY, pageSize: 1000 }).catch((e) => (log(e), null)), getReviews()]);
+  const result = all && { ...all, cars: all.cars.slice(0, 6) };
+  const search = searchOptions(all?.cars ?? []);
   return (
     <main className="flex flex-col">
       <JsonLd data={dealerJsonLd(reviews)} />
@@ -56,7 +52,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="mt-8 lg:mt-12">
-            <HomeSearch makes={inStock.makes} bodies={inStock.bodies} models={inStock.models} />
+            <HomeSearch makes={search.makes} bodies={search.bodies} models={search.models} />
           </div>
         </div>
       </section>

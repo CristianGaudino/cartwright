@@ -4,6 +4,8 @@ export const DEALER_PHONE = "083 133 3154"; // as published on cartwright.ie (08
 // PLACEHOLDER until carright.ie forwards to the dealer (issue #54).
 export const DEALER_EMAIL = "hello@carright.ie";
 export const DEALER_TEL = "+353831333154";
+// The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
+export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 // Placeholder until 03-02 onboards the sending domain and records the address; must be on that domain. Swap at handover.
 export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
 // The only reader of APP_ENV. A function so tests can stub the env.
