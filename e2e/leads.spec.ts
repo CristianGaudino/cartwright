@@ -168,7 +168,7 @@ test("the footer links the privacy page, which states the retention period", asy
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
-  await expect(page.getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(page.getByRole("main").getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
 });
 
 test.describe("without JavaScript", () => {
