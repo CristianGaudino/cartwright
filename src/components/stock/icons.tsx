@@ -116,3 +116,43 @@ export const CarIcon = (p: Props) => (
     <circle cx="16" cy="14" r=".6" />
   </Icon>
 );
+
+export const GridIcon = (p: Props) => (
+  <Icon {...p}>
+    <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
+    <rect x="13.5" y="4" width="6.5" height="6.5" rx="1" />
+    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1" />
+    <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1" />
+  </Icon>
+);
+export const ListIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M8.5 6.5H20M8.5 12H20M8.5 17.5H20M4 6.5h.01M4 12h.01M4 17.5h.01" />
+  </Icon>
+);
+
+export const CalendarIcon = (p: Props) => (
+  <Icon {...p}>
+    <rect x="4" y="5" width="16" height="15" rx="2" />
+    <path d="M4 10h16M8.5 3v4M15.5 3v4" />
+  </Icon>
+);
+export const GaugeIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4.5 17a8.5 8.5 0 1 1 15 0" />
+    <path d="m12 13 4-4" />
+    <circle cx="12" cy="13.5" r="1" />
+  </Icon>
+);
+export const FuelIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M6 20V5a1.5 1.5 0 0 1 1.5-1.5h6A1.5 1.5 0 0 1 15 5v15M4.5 20h12" />
+    <path d="M7.5 8h6M15 10.5l2.5 1.5v5a1.5 1.5 0 0 0 3 0V9l-2.5-2.5" />
+  </Icon>
+);
+export const GearIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" />
+  </Icon>
+);

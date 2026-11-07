@@ -28,7 +28,7 @@ async function rows(page: Page, name = "Make") {
 const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/ });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
 const metas = (page: Page) => page.locator("article > div:last-child > p:last-child").allTextContents();
-const prices = (page: Page) => page.locator("article > div:last-child > p:first-child").allTextContents().then((l) => l.map(digits));
+const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
 
@@ -257,7 +257,7 @@ test.describe("filters on a desktop", () => {
     await expect(page.getByTestId("count")).toHaveText(countText(a.count));
     await page.locator("article h2 a").first().click();
     await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
-    const back = page.getByRole("link", { name: "Back to used cars" });
+    const back = page.getByRole("link", { name: "Stock", exact: true });
     await expect(back).toHaveAttribute("href", `/used-cars?make=${a.value}`); // set once the page has hydrated
     await back.click();
     await expect(page).toHaveURL(new RegExp(`/used-cars\\?make=${a.value}$`));

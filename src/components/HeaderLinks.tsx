@@ -12,6 +12,7 @@ const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-
 const STOCK = [
   { href: "/used-cars", label: "All used cars" },
   { href: "/find-a-car", label: "Find a car" },
+  { href: "/compare", label: "Compare cars" },
 ];
 const LINKS = [
   { href: "/finance", label: "Finance" },
