@@ -16,6 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const landing = new Set(cars.filter((c) => !isSold(c)).flatMap((c) => [c.makeSlug, ...(c.bodySlug ? [c.bodySlug] : []), `${c.makeSlug}/${c.modelSlug}`]));
   return [
     { url: `${SITE_URL}/used-cars` },
+    { url: `${SITE_URL}/sell-your-car` },
+    { url: `${SITE_URL}/find-a-car` },
     { url: `${SITE_URL}/privacy` },
     ...[...landing].map((path) => ({ url: `${SITE_URL}/used-cars/${path}` })),
     ...cars.map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}` })),

@@ -3,6 +3,8 @@ import Link from "next/link";
 // Minimal footer (UI-SPEC Footer): the mobile way to every page. Each new page adds its link here; Phase 4 completes it.
 const LINKS = [
   { href: "/used-cars", label: "Used cars" },
+  { href: "/sell-your-car", label: "Sell your car" },
+  { href: "/find-a-car", label: "Find a car" },
   { href: "/privacy", label: "Privacy policy" },
 ];
 

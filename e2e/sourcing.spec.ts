@@ -35,6 +35,30 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await expect(page.getByRole("link", { name: "Back to used cars" })).toHaveAttribute("href", "/used-cars");
 });
 
+test("from 1024px the header links both form pages", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/used-cars");
+  const header = page.getByRole("banner");
+  await header.getByRole("link", { name: "Sell your car" }).click();
+  await expect(page).toHaveURL(/\/sell-your-car$/);
+  await header.getByRole("link", { name: "Find a car" }).click();
+  await expect(page).toHaveURL(/\/find-a-car$/);
+});
+
+test("on a phone the form pages are in the footer, not the header, and the header fits 320px", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/used-cars");
+  for (const [name, href] of [
+    ["Sell your car", "/sell-your-car"],
+    ["Find a car", "/find-a-car"],
+  ]) {
+    await expect(page.getByRole("banner").getByRole("link", { name })).toBeHidden();
+    await expect(page.getByRole("contentinfo").getByRole("link", { name })).toHaveAttribute("href", href);
+  }
+  await page.setViewportSize({ width: 320, height: 640 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
 test("the find-a-car page has the call card and fits a 320px screen", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await open(page, "/find-a-car");
