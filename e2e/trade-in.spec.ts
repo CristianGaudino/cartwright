@@ -35,14 +35,27 @@ const picker = (page: Page) => page.locator('input[type="file"]');
 const tiles = (page: Page) => page.getByRole("button", { name: /^Remove photo/ });
 const TOO_BIG = "The photos are too big to send together. Remove one and try again.";
 
-// Every toBlob call returns a blob of this size, so the re-encoded size can be set without big files.
-async function encodeTo(page: Page, bytes: number) {
-  await page.addInitScript((n) => {
-    HTMLCanvasElement.prototype.toBlob = function (cb) {
-      setTimeout(() => cb(new Blob([new Uint8Array(n)], { type: "image/jpeg" })));
-    };
-  }, bytes);
+// Every toBlob call returns a blob of this size after a delay, so the re-encoded size and time can be set without big files.
+async function encodeTo(page: Page, bytes: number, ms = 0) {
+  await page.addInitScript(
+    ([n, wait]) => {
+      HTMLCanvasElement.prototype.toBlob = function (cb) {
+        setTimeout(() => cb(new Blob([new Uint8Array(n)], { type: "image/jpeg" })), wait);
+      };
+    },
+    [bytes, ms],
+  );
 }
+
+test("the send button waits while photos are being shrunk", async ({ page }) => {
+  await encodeTo(page, 1000, 1500);
+  await open(page);
+  await picker(page).setInputFiles(files(await jpeg(page), 1));
+  const send = page.getByRole("button", { name: "Get my valuation" });
+  await expect(send).toBeDisabled();
+  await expect(tiles(page)).toHaveCount(1);
+  await expect(send).toBeEnabled();
+});
 
 test("a photo is shrunk, previewed and sent with the valuation request", async ({ page }) => {
   await open(page);

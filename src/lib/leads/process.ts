@@ -53,7 +53,7 @@ export interface Deps {
   limiter: { allow(key: string): Promise<boolean> };
   verifyTurnstile(token: string, ip: string): Promise<boolean>;
   demo: boolean;
-  bucket: PhotoBucket; // LEAD_PHOTOS, private EU R2 (D-13)
+  bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
   photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
 }
 

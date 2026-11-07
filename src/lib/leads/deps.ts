@@ -4,7 +4,6 @@ import { requireEnv } from "@/lib/env";
 import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
-import type { PhotoBucket } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
@@ -29,7 +28,7 @@ function fakeDeps(): Deps {
     limiter: { allow: async () => true },
     verifyTurnstile: async (token) => token !== "",
     demo: true,
-    bucket: { put: async () => {}, get: async () => null, delete: async () => {} }, // photos are dropped, like the mail
+    bucket: { put: async () => {}, delete: async () => {} }, // photos are dropped, like the mail
     photoLinkSecret: () => "e2e-photo-link-secret",
   };
 }
@@ -67,9 +66,8 @@ const photos = () => {
   if (!b) throw new Error("Missing binding LEAD_PHOTOS");
   return b;
 };
-const bucket: PhotoBucket = {
+const bucket: Deps["bucket"] = {
   put: (key, value, opts) => photos().put(key, value, opts),
-  get: (key) => photos().get(key),
   delete: (keys) => photos().delete(keys),
 };
 

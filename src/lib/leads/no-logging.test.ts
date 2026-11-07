@@ -55,7 +55,7 @@ function deps(over: Partial<Deps> = {}): Deps {
     limiter: { allow: async () => true },
     verifyTurnstile: async (t) => t === "ok",
     demo: true,
-    bucket: { put: async () => {}, get: async () => null, delete: async () => {} },
+    bucket: { put: async () => {}, delete: async () => {} },
     photoLinkSecret: () => "test-secret",
     ...over,
   };
@@ -111,7 +111,7 @@ const cases: [string, Outcome, () => FormData, () => Deps][] = [
           put: async () => {
             throw new Error(`put failed for ${REG} ${NAME}`);
           },
-          get: async () => null,
+         
           delete: async () => {},
         },
       }),

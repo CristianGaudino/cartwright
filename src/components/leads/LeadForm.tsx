@@ -14,7 +14,13 @@ import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
 
 export type FieldBinding = { id: string; name: string; value: string; onChange(v: string): void; error?: string };
-export type PhotoBinding = { id: string; error?: string; photos: Blob[]; onChange(next: Blob[]): void };
+export type PhotoBinding = {
+  id: string;
+  error?: string;
+  photos: Blob[];
+  onChange: React.Dispatch<React.SetStateAction<Blob[]>>;
+  onBusy(busy: boolean): void; // true while picked photos are being shrunk; send waits for them
+};
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
 
 const press = "active:scale-[0.97] motion-reduce:active:scale-100";
@@ -42,6 +48,7 @@ export function LeadForm({
   const uid = useId();
   const [values, setValues] = useState<Record<string, string>>({});
   const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
+  const [shrinking, setShrinking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [summary, setSummary] = useState<{ id: string; message: string }[]>([]);
   const [failure, setFailure] = useState<Failure>();
@@ -211,7 +218,7 @@ export function LeadForm({
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-4">{children({ bind, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos } })}</div>
+          <div className="flex flex-col gap-4">{children({ bind, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
           <ConsentRow {...bind("consent")} />
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
@@ -237,7 +244,7 @@ export function LeadForm({
         )
       ) : (
         <div className={footer}>
-          <button type="submit" disabled={pending} aria-busy={pending} className={`h-12 ${submitWidth} rounded-control bg-accent font-semibold text-white disabled:opacity-60 ${press}`}>
+          <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`h-12 ${submitWidth} rounded-control bg-accent font-semibold text-white disabled:opacity-60 ${press}`}>
             {pending ? "Sending" : submitLabel}
           </button>
         </div>

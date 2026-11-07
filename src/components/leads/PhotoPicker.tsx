@@ -13,12 +13,13 @@ import {
   photoError,
 } from "@/lib/leads/constants";
 import { downscale } from "./downscale";
+import type { PhotoBinding } from "./LeadForm";
 
 const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
 // Trade-in photos (D-13, UI-SPEC Photos). Each pick is shrunk on the device before it is kept, so only the re-encoded JPEG is
 // ever held or sent. The photos live in LeadForm's state, which outlives a failed send; the file input is only a way to add more.
-export function PhotoPicker({ id, error, photos, onChange }: { id: string; error?: string; photos: Blob[]; onChange(next: Blob[]): void }) {
+export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBinding) {
   const [messages, setMessages] = useState<string[]>([]);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,6 +31,7 @@ export function PhotoPicker({ id, error, photos, onChange }: { id: string; error
     input.value = ""; // so the same photo can be picked again after a remove
     if (!picked.length) return;
     setBusy(true);
+    onBusy(true);
     const refused = new Set<string>();
     const room = PHOTO_MAX_COUNT - photos.length;
     if (picked.length > room) refused.add(PHOTO_COUNT_ERROR);
@@ -49,15 +51,17 @@ export function PhotoPicker({ id, error, photos, onChange }: { id: string; error
         added.push(photo);
       }
     }
-    const next = [...photos, ...added];
-    onChange(next);
+    // Added to the list as it is now, so a tile removed while these were shrinking stays removed. Removing only lowers the
+    // count and total checked above (and can leave the announced count one high, which is harmless).
+    onChange((prev) => [...prev, ...added]);
     setMessages([...refused]);
-    if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${next.length} of ${PHOTO_MAX_COUNT} photos.`);
+    if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${PHOTO_MAX_COUNT} photos.`);
     setBusy(false);
+    onBusy(false);
   }
 
   function remove(i: number) {
-    onChange(photos.filter((_, j) => j !== i));
+    onChange((prev) => prev.filter((_, j) => j !== i));
     setMessages([]);
     setStatus("Photo removed");
   }

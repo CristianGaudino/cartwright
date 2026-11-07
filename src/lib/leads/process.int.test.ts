@@ -22,7 +22,6 @@ function fakeBucket() {
   const objects = new Map<string, { size: number; contentType?: string }>();
   const bucket: Deps["bucket"] = {
     put: async (key, value, opts) => void objects.set(key, { size: (value as Blob).size, contentType: opts?.httpMetadata?.contentType }),
-    get: async () => null,
     delete: async (keys) => [keys].flat().forEach((k) => objects.delete(k)),
   };
   return { bucket, objects };
