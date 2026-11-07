@@ -15,8 +15,8 @@
 	// Per-IP limit on lead submits (D-05), a second layer behind Turnstile: 5 per minute.
 	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
 	// Trade-in photos (D-13): private, EU jurisdiction, read only through the signed /lead-photos route. wrangler dev uses a local bucket.
-	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "cartwright-lead-photos", "jurisdiction": "eu" }],
+	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "carright-lead-photos", "jurisdiction": "eu" }],
 	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create carright --jurisdiction eu` and paste the id below
 	// (an id is not a secret). migrations_dir is where drizzle-kit writes the SQL; npm run db:migrate applies it.
-	"d1_databases": [{ "binding": "DB", "database_name": "carright", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "drizzle" }]
+	"d1_databases": [{ "binding": "DB", "database_name": "carright", "database_id": "b73076d5-9709-45ee-bf11-56ae9a9d3db3", "migrations_dir": "drizzle" }]
 }
