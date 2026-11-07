@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Completed 03-06-PLAN.md
-last_updated: "2026-11-06T23:40:29.355Z"
+stopped_at: Completed 03-10-PLAN.md (PR #49 open)
+last_updated: "2026-11-07T00:40:00.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 585aba3b9ae822c4ab86351096b01072620b0d1a
+state_head: 8c8b6d78329e3d795dd8b1607f061b05835e52eb
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 21
+  completed_plans: 24
   percent: 0
 ---
 
@@ -69,6 +69,9 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P04 | 50m | 2 tasks | 17 files |
 | Phase 03 P05 | 10m | 2 tasks | 5 files |
 | Phase 03 P06 | 25m | 3 tasks | 16 files |
+| Phase 03 P08 | 25m | 2 tasks | 15 files |
+| Phase 03 P09 | 20m | 1 tasks | 7 files |
+| Phase 03 P10 | 70m | 2 tasks | 22 files |
 
 ## Accumulated Context
 
@@ -98,6 +101,11 @@ Recent decisions affecting current work:
 - [Phase 03]: A markNotified failure after a sent email counts as notify_failed
 - [Phase 03]: LEAD_FROM_EMAIL is a placeholder (leads@cgaudino.com) until 03-02 records the sending address; logged on #47
 - [Phase 03]: Leads columns locked as research-columns (D-03). Overnight default, logged on #47; migration generated, not applied to any database
+- [Phase 03]: deploy.yml carries Cloudflare's always-pass Turnstile test site key as a PLACEHOLDER until 03-02; leads fail closed on the demo until real keys exist (#47)
+- [Phase 03]: Turnstile is reset only after answers that may spend the token, not after a field error or rate limit
+- [Phase 03]: /privacy deletion contact is DEALER_PHONE only (no public email yet); DEALER_PHONE stays unconfirmed (#47)
+- [Phase 03]: Client lead components import constants from src/lib/leads/constants.ts, never schema.ts (keeps zod out of the bundle)
+- [Phase 03]: PR #49 (#11) opened without DATABASE_URL; do not merge until 03-02 provisioning is done
 
 ### Pending Todos
 
@@ -121,6 +129,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-06T23:40:29.323Z
-Stopped at: Completed 03-06-PLAN.md
+Last session: 2026-11-07T00:40:00.000Z
+Stopped at: Completed 03-10-PLAN.md (PR #49 open)
 Resume file: None
