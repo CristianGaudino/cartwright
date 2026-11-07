@@ -17,7 +17,7 @@ export function TrustStrip() {
   return (
     <section aria-label="Why buy from us" className="flex flex-col gap-4">
       {!DEALER_FACTS_CONFIRMED && <PlaceholderPill>Placeholder details</PlaceholderPill>}
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
         {ITEMS.map(({ Icon, title, text, href }) => {
           const body = (
             <>

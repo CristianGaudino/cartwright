@@ -1,12 +1,10 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
+import { createLocalStore } from "@/lib/local-store";
 import { ID } from "@/lib/saved/ids";
 
-// A list of car ids kept in this browser (localStorage), for saved cars and the compare list. Client-safe: nothing here touches
-// window or localStorage at import time, so server rendering can import it.
+// A list of car ids kept in this browser, for saved cars and the compare list.
 export function createIdStore(key: string, max: number) {
-  const listeners = new Set<() => void>();
-  // Set once a write fails (blocked storage or quota); from then on the page reads this instead.
-  let fallback: string | null = null;
+  const store = createLocalStore(key, "[]");
 
   // The stored value can be edited by the user or an extension: keep digit-string ids only, deduped, capped.
   function parse(raw: string): string[] {
@@ -20,59 +18,21 @@ export function createIdStore(key: string, max: number) {
     return [...new Set(value.filter((v): v is string => typeof v === "string" && ID.test(v)))].slice(0, max);
   }
 
-  // The snapshot is the raw string: it compares by value, so React never sees a new object and loops.
-  function read(): string {
-    if (fallback !== null) return fallback;
-    try {
-      return localStorage.getItem(key) ?? "[]";
-    } catch {
-      return "[]";
-    }
-  }
-
-  function subscribe(listener: () => void) {
-    listeners.add(listener);
-    // Fires only in other tabs; key is null when another tab clears storage.
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== key && e.key !== null) return;
-      fallback = null; // storage works and another tab wrote: read it, not this tab's stale copy
-      listener();
-    };
-    window.addEventListener("storage", onStorage);
-    return () => {
-      listeners.delete(listener);
-      window.removeEventListener("storage", onStorage);
-    };
-  }
-
-  // The server and the first client render both see nothing, so hydration matches.
-  const serverSnapshot = () => "[]";
+  const set = (ids: string[]) => store.write(JSON.stringify(ids.slice(0, max)));
 
   function useIds(): string[] {
-    const raw = useSyncExternalStore(subscribe, read, serverSnapshot);
+    const raw = store.useRaw();
     return useMemo(() => parse(raw), [raw]);
-  }
-
-  function set(ids: string[]) {
-    const raw = JSON.stringify(ids.slice(0, max));
-    try {
-      localStorage.setItem(key, raw);
-      fallback = null;
-    } catch {
-      fallback = raw;
-    }
-    // The storage event never fires in the tab that wrote, so tell this tab directly.
-    listeners.forEach((l) => l());
   }
 
   // Reads the current list, not the caller's copy, so a tap made while a page was loading is kept.
   function remove(gone: string[]) {
-    set(parse(read()).filter((id) => !gone.includes(id)));
+    set(parse(store.read()).filter((id) => !gone.includes(id)));
   }
 
   // "full" changes nothing: a buyer at the cap is told, not silently dropped the oldest car.
   function toggle(id: string): "added" | "removed" | "full" {
-    const ids = parse(read());
+    const ids = parse(store.read());
     if (ids.includes(id)) {
       set(ids.filter((x) => x !== id));
       return "removed";
@@ -82,5 +42,5 @@ export function createIdStore(key: string, max: number) {
     return "added";
   }
 
-  return { parse, subscribe, useIds, set, remove, toggle };
+  return { parse, subscribe: store.subscribe, useIds, set, remove, toggle };
 }

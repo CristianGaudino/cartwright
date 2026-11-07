@@ -71,7 +71,7 @@ function SortControl({ className }: { className: string }) {
   );
 }
 
-// Two icon buttons, the active one red, as in the mockup. From 640px only: a phone always shows one card wide anyway.
+// Two icon buttons, the active one red, as in the mockup. From 1024px only, with the sidebar: below that the cards are always a grid.
 function ViewToggle() {
   const view = useView();
   const btn = (v: "grid" | "list", label: string, Icon: typeof GridIcon) => (
@@ -86,7 +86,7 @@ function ViewToggle() {
     </button>
   );
   return (
-    <div role="group" aria-label="Layout" className="hidden overflow-hidden rounded-control border border-control sm:flex">
+    <div role="group" aria-label="Layout" className="flex overflow-hidden rounded-control border border-control">
       {btn("grid", "Grid view", GridIcon)}
       {btn("list", "List view", ListIcon)}
     </div>
