@@ -171,7 +171,7 @@ export function LeadForm({
           <p className="max-w-[65ch] text-body">{success.body}</p>
         </div>
       ) : (
-        <div className={`flex flex-col gap-6 py-2 ${body} ${pad}`}>
+        <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad}`}>
           {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
           {failure && (
             <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
