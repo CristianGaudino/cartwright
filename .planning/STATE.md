@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: "Completed 03-14-PLAN.md (#12 PR open, waits on #49 and R2 provisioning)"
-last_updated: "2026-11-07T00:36:23.175Z"
+stopped_at: "Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)"
+last_updated: "2026-11-07T00:54:56.240Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: aa9f613d2ab97c42a09bcda9e7b267b3aaa9edbe
+state_head: 3f93f167cdccd8cb1b5ebbf8d9ad0f6db8f3c44e
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 28
+  completed_plans: 30
   percent: 0
 ---
 
@@ -76,6 +76,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P12 | 20m | 2 tasks | 9 files |
 | Phase 03 P13 | 25m | 3 tasks | 15 files |
 | Phase 03 P14 | 40m | 3 tasks | 17 files |
+| Phase 03 P15 | 50m | 2 tasks | 14 files |
+| Phase 03 P16 | 45m | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -114,6 +116,8 @@ Recent decisions affecting current work:
 - [Phase 03]: Server form pages render LeadPageForm, which picks the field set by type (a server page cannot pass LeadForm's render function); logged on #47
 - [Phase 03]: 03-13: trade-in photos go to a private EU R2 bucket under trade-in/{leadId}/, checked by bytes and caps with the fields; dealer links are HMAC-signed for 7 days; no bucket or secret provisioned yet (A6 untested)
 - [Phase 03]: 03-14: photos are shrunk to 2,000px JPEG on the phone and kept in LeadForm state; send waits while they shrink; #12 PR opened while #49 is open
+- [Phase 03]: 03-15: finance calculator on /finance with PLACEHOLDER config and production guard test; finance application is a lead with deposit, term and employment only (D-17); deposit required
+- [Phase 03]: 03-16: Finance section on in-stock car pages priced 1,000 to 250,000; #9 PR #51 opened while #49 and #50 are open; placeholder figures need the dealer's terms, wording and credit intermediary status
 
 ### Pending Todos
 
@@ -137,6 +141,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-07T00:36:23.139Z
-Stopped at: Completed 03-14-PLAN.md (#12 PR open, waits on #49 and R2 provisioning)
+Last session: 2026-11-07T00:54:56.203Z
+Stopped at: Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)
 Resume file: None

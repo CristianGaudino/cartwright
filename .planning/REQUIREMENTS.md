@@ -56,9 +56,9 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Finance
 
-- [ ] **FIN-01**: User can use a calculator (price, deposit, term, APR) that works (#9)
-- [ ] **FIN-02**: Figures are labelled representative and carry the dealer's required wording; no invented APRs or terms (#9)
-- [ ] **FIN-03**: User can submit a finance application that is saved as a lead (#9)
+- [x] **FIN-01**: User can use a calculator (price, deposit, term, APR) that works (#9)
+- [ ] **FIN-02**: Figures are labelled representative and carry the dealer's required wording; no invented APRs or terms (#9, built with placeholder figures; complete once the dealer supplies terms and wording)
+- [x] **FIN-03**: User can submit a finance application that is saved as a lead (#9)
 
 ### Reviews
 
@@ -134,9 +134,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LED-04 | Phase 3 | Complete |
 | LED-05 | Phase 3 | Pending |
 | LED-06 | Phase 3 | Complete |
-| FIN-01 | Phase 3 | Pending |
-| FIN-02 | Phase 3 | Pending |
-| FIN-03 | Phase 3 | Pending |
+| FIN-01 | Phase 3 | Complete |
+| FIN-02 | Phase 3 | Pending (dealer wording) |
+| FIN-03 | Phase 3 | Complete |
 | SAV-01 | Phase 3 | Pending |
 | SAV-02 | Phase 3 | Pending |
 | REV-01 | Phase 4 | Pending |
