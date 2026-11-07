@@ -10,6 +10,7 @@ import { BackToCars } from "@/components/stock/BackToCars";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { SoldBadge } from "@/components/stock/SoldBadge";
+import { financeable } from "@/lib/finance/payment";
 import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
@@ -68,7 +69,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           <Specifications car={car} />
           <Equipment car={car} />
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
-          {!isSold(car) && (
+          {!isSold(car) && financeable(car.priceEur) && (
             <section className="flex flex-col gap-4">
               <h2 className="text-heading font-semibold">Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />

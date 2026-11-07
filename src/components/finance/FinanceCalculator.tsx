@@ -2,16 +2,15 @@
 
 import { useId, useRef, useState } from "react";
 import { Field } from "@/components/leads/Field";
-import { FinanceFields } from "@/components/leads/FinanceFields";
+import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
 import { LeadForm } from "@/components/leads/LeadForm";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { quote } from "@/lib/finance/payment";
+import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
 
 const press = "active:scale-[0.97] motion-reduce:active:scale-100";
-const TERM_OPTIONS = FINANCE.terms.map((t) => ({ value: String(t), label: `${t} months` }));
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits (and one decimal for the APR).
 const WHOLE = /^\d{0,6}$/;
 const RATE = /^\d{0,2}(\.\d?)?$/;
@@ -27,7 +26,8 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
   const uid = useId();
   const d = FINANCE.defaults;
   const [price, setPrice] = useState(String(d.priceEur));
-  const [deposit, setDeposit] = useState(String(d.depositEur));
+  // A car cheaper than the default deposit starts at no deposit, so its page never opens on an error.
+  const [deposit, setDeposit] = useState(String(car && car.priceEur <= d.depositEur ? 0 : d.depositEur));
   const [term, setTerm] = useState(String(d.termMonths));
   const [apr, setApr] = useState(String(d.aprPct));
   const [open, setOpen] = useState(false);
@@ -37,7 +37,7 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
   const priceEur = car ? car.priceEur : Number(price);
   const depositEur = Number(deposit); // blank is no deposit
   const aprPct = apr === "" || apr === "." ? NaN : Number(apr);
-  const priceError = !car && !(price !== "" && priceEur >= 1000 && priceEur <= 250000) ? "Enter a price between €1,000 and €250,000." : undefined;
+  const priceError = !car && !(price !== "" && financeable(priceEur)) ?"Enter a price between €1,000 and €250,000." : undefined;
   const depositError = !priceError && depositEur >= priceEur ? "Deposit must be less than the price." : undefined;
   const aprError = !(aprPct >= 0 && aprPct <= 30) ? "Enter an APR between 0 and 30." : undefined;
   const q = quote(priceEur, depositEur, Number(term), aprPct);
