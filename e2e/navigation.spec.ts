@@ -6,16 +6,20 @@ type Demo = { slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
 
+// The header links from 1024px, then the phone menu (which adds Used cars and Find a car), then the footer.
 const HEADER = [
+  ["Finance", "/finance"],
+  ["Sell / Trade-In", "/sell-your-car"],
+  ["Service", "/service"],
+  ["About", "/about"],
+  ["Contact", "/contact"],
+] as const;
+const MENU = [["Used cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ...HEADER.slice(2)] as const;
+const FOOTER = [
   ["Used cars", "/used-cars"],
   ["Finance", "/finance"],
   ["Sell your car", "/sell-your-car"],
   ["Find a car", "/find-a-car"],
-  ["Service", "/service"],
-  ["Contact", "/contact"],
-] as const;
-const FOOTER = [
-  ...HEADER.slice(0, 4),
   ["Service", "/service"],
   ["About us", "/about"],
   ["Contact", "/contact"],
@@ -25,11 +29,25 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header links six pages", async ({ page }) => {
+test("from 1024px the header has Stock, five links and a red Enquire button", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
   for (const [name, href] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  await expect(banner.getByRole("link", { name: "Enquire" })).toHaveAttribute("href", "/contact");
+  const stock = banner.getByRole("button", { name: "Stock" });
+  await expect(stock).toHaveAttribute("aria-expanded", "false");
+  await stock.click();
+  await expect(stock).toHaveAttribute("aria-expanded", "true");
+  for (const [name, href] of [["All used cars", "/used-cars"], ["Find a car", "/find-a-car"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  await page.keyboard.press("Escape");
+  await expect(stock).toHaveAttribute("aria-expanded", "false");
+});
+
+test("the current section has a red bar and aria-current", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/finance");
+  await expect(page.getByRole("banner").getByRole("link", { name: "Finance", exact: true })).toHaveAttribute("aria-current", "page");
 });
 
 test("at 320px the header holds the menu button, and the footer reaches every page", async ({ page }) => {
@@ -37,7 +55,7 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   await page.goto("/");
   const banner = page.getByRole("banner");
   await expect(banner.getByRole("button", { name: "Menu" })).toBeVisible();
-  for (const [name] of HEADER.slice(1)) await expect(banner.getByRole("link", { name, exact: true })).toBeHidden();
+  for (const [name] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const footer = page.getByRole("contentinfo");
   for (const [name, href] of FOOTER) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
@@ -62,7 +80,7 @@ test.describe("the mobile menu", () => {
   test("opens with every page and a Call now button, in 44px or taller targets", async ({ page }) => {
     const menu = await open(page);
     await expect(menu).toBeVisible();
-    for (const [name, href] of [...HEADER, ["About us", "/about"]] as const) {
+    for (const [name, href] of MENU) {
       const link = menu.getByRole("link", { name, exact: true });
       await expect(link).toHaveAttribute("href", href);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
