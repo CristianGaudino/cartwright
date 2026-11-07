@@ -1,3 +1,4 @@
+import { CompareButton } from "@/components/compare/CompareButton";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SoldBadge } from "@/components/stock/SoldBadge";
@@ -16,6 +17,7 @@ export function ListingCard({ car, priority }: { car: Car; priority: boolean }) 
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}
         {/* z-20 and outside the title link: above the carousel and never a card tap. Sold cars keep it. */}
         <SaveButton id={car.id} label={`Save ${carName(car)}`} variant="card" />
+        {!isSold(car) && <CompareButton id={car.id} label={`Compare ${carName(car)}`} variant="card" />}
       </div>
       <div data-card-body className="flex flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-3">

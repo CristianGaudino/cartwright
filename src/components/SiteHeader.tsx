@@ -12,6 +12,7 @@ const MENU = [
   { href: "/finance", label: "Finance" },
   { href: "/sell-your-car", label: "Sell / Trade-In" },
   { href: "/find-a-car", label: "Find a car" },
+  { href: "/compare", label: "Compare cars" },
   { href: "/service", label: "Service" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

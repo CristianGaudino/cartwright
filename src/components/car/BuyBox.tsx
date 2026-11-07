@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
+import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions } from "@/components/leads/LeadDialog";
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { SaveButton } from "@/components/saved/SaveButton";
@@ -27,7 +28,10 @@ export function BuyBox({ car }: { car: Car }) {
       <p className="-mt-2 text-meta text-text-2">{carMeta(car)}</p>
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-4">
         {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
-        <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
+        <div className="flex items-center gap-2">
+          {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} variant="page" />}
+          <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={`${SITE_URL}/used-cars/${car.slug}`} />
+        </div>
       </div>
       {/* Reserved in Phase 2 for the lead buttons: 104px on phones, so adding rows moves nothing below. */}
       <div data-testid="action-area" className="min-h-[104px] lg:min-h-0">

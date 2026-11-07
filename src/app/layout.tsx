@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CompareBar } from "@/components/compare/CompareBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SITE_NAME, SITE_URL, indexable } from "@/lib/site";
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         {children}
         <SiteFooter />
+        <CompareBar />
       </body>
     </html>
   );

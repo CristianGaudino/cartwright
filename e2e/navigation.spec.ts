@@ -14,7 +14,7 @@ const HEADER = [
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
-const MENU = [["Used cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ...HEADER.slice(2)] as const;
+const MENU = [["Used cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
 const FOOTER = [
   ["Used cars", "/used-cars"],
   ["Finance", "/finance"],
@@ -39,7 +39,7 @@ test("from 1024px the header has Stock, five links and a red Enquire button", as
   await expect(stock).toHaveAttribute("aria-expanded", "false");
   await stock.click();
   await expect(stock).toHaveAttribute("aria-expanded", "true");
-  for (const [name, href] of [["All used cars", "/used-cars"], ["Find a car", "/find-a-car"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  for (const [name, href] of [["All used cars", "/used-cars"], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await page.keyboard.press("Escape");
   await expect(stock).toHaveAttribute("aria-expanded", "false");
 });
