@@ -51,12 +51,37 @@ const sourcing = {
   message: given(z.string({ error: "Tell us what you are looking for." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
 };
 
+// D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.
+const BAD_REG = "Enter the registration as shown on the car.";
+const BAD_KM = "Enter the mileage in km, numbers only.";
+const nextYear = () => new Date().getUTCFullYear() + 1;
+const tradeIn = {
+  reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(/^[A-Z0-9 -]{1,12}$/, BAD_REG)),
+  mileage: given(
+    z
+      .string({ error: BAD_KM })
+      .transform((v) => v.replaceAll(",", "").trim())
+      .pipe(z.string().regex(/^\d{1,6}$/, BAD_KM))
+      .transform(Number),
+  ),
+  ...carText,
+  year: given(
+    z
+      .string()
+      .regex(/^\d{4}$/, "Enter the year as 4 digits.")
+      .transform(Number)
+      .refine((y) => y >= 1980 && y <= nextYear(), { error: () => `Enter a year from 1980 to ${nextYear()}.` })
+      .optional(),
+  ),
+};
+
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
     z.object({ type: z.literal("test_drive"), carId, ...contact, ...testDrive }),
     z.object({ type: z.literal("reserve"), carId, ...contact }),
     z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
+    z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
@@ -74,12 +99,16 @@ export const TYPE_LABELS: Record<LeadType, string> = {
   test_drive: "Test drive request",
   reserve: "Reservation request",
   sourcing: "Find a car request",
+  trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
   preferredDay: "Preferred day",
   preferredTime: "Preferred time",
+  reg: "Registration",
+  mileage: "Mileage (km)",
   make: "Make",
   model: "Model",
+  year: "Year",
   budgetMax: "Budget up to",
 };

@@ -197,6 +197,18 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
+  it("stores a trade-in with no car and its reg and mileage in details, and never looks a car up", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    const getCar = vi.fn(deps.getCar);
+    deps.getCar = getCar;
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/sell-your-car", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
+    expect(rows[0].details).toEqual({ reg: "191-KY-1234", mileage: 120500 });
+    expect(getCar).not.toHaveBeenCalled();
+    expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
+  });
+
   it("answers a filled honeypot without spending the rate limit", async () => {
     const { deps } = fakeDeps();
     const allow = vi.fn(deps.limiter.allow);

@@ -89,3 +89,38 @@ describe("test drive and reserve (D-10, D-11)", () => {
     expect(Object.keys(r).sort()).toEqual(["carId", "clientRef", "consent", "name", "phone", "sourcePath", "type"]);
   });
 });
+
+describe("trade-in (LED-04, D-14)", () => {
+  const sell = { ...base, type: "trade_in", reg: "191-KY-1234", mileage: "120500" };
+  const REG = ["Enter the registration as shown on the car."];
+  const KM = ["Enter the mileage in km, numbers only."];
+  const year = new Date().getUTCFullYear();
+
+  it("stores the registration upper case and the mileage as a number, with no car", () => {
+    const r = leadSchema.parse({ ...sell, reg: " 191-ky-1234 ", mileage: "120,500" });
+    expect(r).toMatchObject({ reg: "191-KY-1234", mileage: 120500 });
+    expect(r).not.toHaveProperty("carId");
+  });
+
+  it.each(["", "  ", "191-KY-123456", "191/KY/1234", "<b>"])("refuses the registration %j", (reg) => {
+    expect(errors({ ...sell, reg }).reg).toEqual(REG);
+  });
+
+  it.each(["", "abc", "-5", "1,000,000", "12.5"])("refuses the mileage %j", (mileage) => {
+    expect(errors({ ...sell, mileage }).mileage).toEqual(KM);
+  });
+
+  it("takes an optional year from 1980 to next year", () => {
+    expect(errors({ ...sell, year: "" })).toEqual({});
+    expect(leadSchema.parse({ ...sell, year: String(year) })).toMatchObject({ year });
+    expect(errors({ ...sell, year: String(year + 1) })).toEqual({});
+    expect(errors({ ...sell, year: "1979" }).year).toBeDefined();
+    expect(errors({ ...sell, year: String(year + 2) }).year).toBeDefined();
+    expect(errors({ ...sell, year: "19" }).year).toBeDefined();
+  });
+
+  it("takes an optional make and model up to 60 characters", () => {
+    expect(errors({ ...sell, make: "Toyota", model: "a".repeat(60) })).toEqual({});
+    expect(errors({ ...sell, model: "a".repeat(61) }).model).toBeDefined();
+  });
+});
