@@ -121,8 +121,9 @@ export function LandingPage({ data }: { data: LandingData }) {
               </div>
             </section>
           )}
-          <Link href="/used-cars" className={`mt-8 bg-accent text-white ${button}`}>
-            See all used cars
+          {/* D-15: the empty page's call to action, in place of the plain used-cars button (Phase 2 D-08). */}
+          <Link href="/find-a-car" className="mt-8 flex min-h-11 w-fit items-center text-body underline">
+            Cannot find it? Ask us to find it for you.
           </Link>
         </>
       )}

@@ -204,6 +204,7 @@ test("zero matches show the empty state and Clear all filters brings the cars ba
   await page.goto("/used-cars?make=zzzz");
   await expect(page.getByRole("heading", { name: "No cars match these filters" })).toBeVisible();
   await expect(page.getByText("Try removing a filter.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Cannot find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.locator("article")).toHaveCount(0);
   await page.getByRole("button", { name: "Clear all filters" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
