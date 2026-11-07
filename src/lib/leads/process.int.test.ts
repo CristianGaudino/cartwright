@@ -4,15 +4,15 @@ import { leads } from "@/lib/db/schema";
 import demoCars from "@/lib/stock/demo-cars.json";
 import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
-import { truncate } from "@/test/pglite-db";
+import { truncate } from "@/test/sqlite-db";
 import { processLead } from "./process";
 import type { Deps } from "./process";
 import { CONSENT } from "./constants";
 import { createDrizzleStore } from "./store";
 
-vi.mock("@/lib/db", () => import("@/test/pglite-db"));
+vi.mock("@/lib/db", () => import("@/test/sqlite-db"));
 
-// The pipeline against a real Postgres (PGlite) with the committed migrations, through the real Drizzle store.
+// The pipeline against a real SQLite (libSQL) with the committed migrations, through the real Drizzle store.
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
 const sold = cars.find((c) => c.soldAt)!;
@@ -76,7 +76,7 @@ beforeEach(async () => {
 });
 afterEach(() => vi.restoreAllMocks());
 
-describe("processLead on Postgres", () => {
+describe("processLead on SQLite", () => {
   it("stores one row with the provider's car, the consent fields and status new, then marks it notified", async () => {
     const { deps: d, mail } = deps();
     const before = Date.now();
@@ -146,7 +146,7 @@ describe("processLead on Postgres", () => {
   });
 });
 
-describe("trade-in photos on Postgres (D-13)", () => {
+describe("trade-in photos on SQLite (D-13)", () => {
   const invalid = (error: string) => ({ status: "invalid", fieldErrors: { photos: [error] } });
 
   it("stores a photo privately under the lead's id and keeps the key, not a URL, in the row", async () => {

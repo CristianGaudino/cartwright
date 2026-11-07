@@ -37,7 +37,7 @@ function form(fields: Record<string, string> = {}) {
   return fd;
 }
 
-// Shaped like drizzle-orm's DrizzleQueryError: the message and params carry every bound value, the cause the Postgres detail.
+// Shaped like drizzle-orm's DrizzleQueryError: the message and params carry every bound value, the cause the database detail.
 function drizzleError() {
   const cause = Object.assign(new Error(`duplicate key value violates unique constraint, Key (email)=(${EMAIL})`), { code: "ZZ_SENTINEL_CODE", detail: `Key (name)=(${NAME})` });
   return Object.assign(new Error(`Failed query: insert into "leads" ...\nparams: ${NAME},${PHONE},${EMAIL},${MESSAGE}`), {

@@ -1,12 +1,12 @@
 import "server-only";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import { requireEnv } from "@/lib/env";
+import { drizzle } from "drizzle-orm/d1";
+import { getBindings } from "@/lib/leads/bindings";
 import * as schema from "./schema";
 
-const make = () => drizzle(neon(requireEnv("DATABASE_URL")), { schema });
-let db: ReturnType<typeof make> | undefined;
-
-// Lazy, not at module load: the build needs no DATABASE_URL, and Worker secrets reach process.env on the first request
-// (research Pattern 3). HTTP driver: a lead is one statement, so no transaction or WebSocket is needed.
-export const getDb = () => (db ??= make());
+// Per call: the D1 binding exists only inside a request (wrangler.jsonc DB). Outside the Worker there is none, so this throws,
+// which processLead logs as an error line: a missing binding fails the lead loudly and never silently.
+export function getDb() {
+  const d1 = getBindings().DB;
+  if (!d1) throw new Error("Missing binding DB");
+  return drizzle(d1, { schema });
+}
