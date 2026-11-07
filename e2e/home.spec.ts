@@ -27,6 +27,17 @@ test("latest arrivals: the newest in-stock cars and See all", async ({ page }) =
   await expect(section.getByRole("link", { name: `See all ${inStock.length} used cars` })).toHaveAttribute("href", "/used-cars");
 });
 
+// Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
+test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
+  await page.goto("/");
+  for (const el of [page.locator("article").first(), page.getByRole("button", { name: "Search" }), page.getByRole("main").getByRole("link", { name: /^Finance/ })]) {
+    await expect(el).toHaveCSS("transition-property", /\bscale\b/);
+  }
+  for (const link of await page.getByRole("navigation", { name: "Main" }).getByRole("link").filter({ visible: true }).all()) {
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
 test("reviews, help links and AutoDealer JSON-LD", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();

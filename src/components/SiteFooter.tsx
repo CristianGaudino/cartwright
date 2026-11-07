@@ -40,7 +40,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
-            <Link href="/" className="mb-2">
+            <Link href="/" className={link}>
               <Image src="/brand/logo.png" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
             </Link>
             <p className="text-body">Tralee, Co. Kerry</p>

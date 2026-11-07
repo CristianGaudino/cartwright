@@ -10,7 +10,7 @@ export default function SellYourCarPage() {
       <LeadPageForm
         type="trade_in"
         submitLabel="Get my valuation"
-        success={{ heading: "Thanks, we have your car.", body: "We will look at the details and come back with a valuation." }}
+        success={{ heading: "Thanks, we have your car details.", body: "We will come back with a valuation." }}
       />
     </LeadPage>
   );

@@ -54,6 +54,12 @@
     outline: 2px solid var(--color-text);
     outline-offset: 2px;
   }
+
+  /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps.
+     Zero specificity, so an element with its own transition utility must list scale itself. */
+  :where([class*="active:scale-"]) {
+    transition: scale 100ms ease-out;
+  }
 }
 
 /* Filter sheet (01-08): a native modal dialog docked to the bottom edge. Header and footer stay put, the body scrolls. */

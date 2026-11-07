@@ -13,7 +13,8 @@ export function LeadPage({ title, intro, children }: { title: string; intro: str
           <h2 className="text-heading font-semibold">Prefer to talk?</h2>
           <p className="text-body">
             Call us on{" "}
-            <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
+            {/* 44px tall to tap; the negative margin keeps the line where it was. */}
+            <a href={`tel:${DEALER_TEL}`} className="-my-2.5 inline-flex min-h-11 items-center font-semibold underline">
               {DEALER_PHONE}
             </a>
           </p>
