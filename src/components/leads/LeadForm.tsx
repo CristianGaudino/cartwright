@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
+import { PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
@@ -13,6 +14,7 @@ import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
 
 export type FieldBinding = { id: string; name: string; value: string; onChange(v: string): void; error?: string };
+export type PhotoBinding = { id: string; error?: string; photos: Blob[]; onChange(next: Blob[]): void };
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
 
 const press = "active:scale-[0.97] motion-reduce:active:scale-100";
@@ -35,10 +37,11 @@ export function LeadForm({
   variant: "dialog" | "page";
   submitLabel: string;
   success: { heading: string; body: string };
-  children: (form: { bind(name: string): FieldBinding }) => React.ReactNode;
+  children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding }) => React.ReactNode;
 }) {
   const uid = useId();
   const [values, setValues] = useState<Record<string, string>>({});
+  const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [summary, setSummary] = useState<{ id: string; message: string }[]>([]);
   const [failure, setFailure] = useState<Failure>();
@@ -85,8 +88,18 @@ export function LeadForm({
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // A backstop: the picker already refuses a photo that would pass the total, and the server checks it again.
+    if (photos.reduce((n, p) => n + p.size, 0) > PHOTO_TOTAL_MAX_BYTES) {
+      setFailure(undefined);
+      setErrors({ photos: [PHOTO_TOTAL_ERROR] });
+      setSummary([{ id: `${uid}-photos`, message: PHOTO_TOTAL_ERROR }]);
+      return;
+    }
     // The DOM is the source here so the honeypot is read as a bot left it.
     const fd = new FormData(e.currentTarget);
+    // The file input only adds to the list; what is sent is the shrunk photos in state (T-03-33).
+    fd.delete("photos");
+    photos.forEach((p, i) => fd.append("photos", p, `photo-${i + 1}.jpg`));
     fd.set("type", type);
     if (car) fd.set("carId", car.id);
     fd.set("sourcePath", location.pathname);
@@ -104,6 +117,7 @@ export function LeadForm({
       setSummary([]);
       if (r.status === "ok") {
         setValues({});
+        setPhotos([]);
         setErrors({});
         setFailure(undefined);
         clientRef.current = undefined;
@@ -197,7 +211,7 @@ export function LeadForm({
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-4">{children({ bind })}</div>
+          <div className="flex flex-col gap-4">{children({ bind, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos } })}</div>
           <ConsentRow {...bind("consent")} />
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">

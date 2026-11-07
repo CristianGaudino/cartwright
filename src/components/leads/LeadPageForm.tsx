@@ -11,7 +11,7 @@ export function LeadPageForm({ type, ...props }: { type: keyof typeof FIELDS; su
   const Fields = FIELDS[type];
   return (
     <LeadForm type={type} variant="page" {...props}>
-      {({ bind }) => <Fields bind={bind} />}
+      {(form) => <Fields {...form} />}
     </LeadForm>
   );
 }

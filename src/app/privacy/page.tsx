@@ -19,13 +19,17 @@ export default function PrivacyPage() {
             form, such as a preferred day for a test drive. We also note the car you asked about, the page you sent it from and when you agreed to this
             policy. Nothing about your device is stored.
           </p>
+          <p>
+            If you add photos of your car, your phone shrinks them before they are sent, which also removes the location and camera details. We keep
+            them for the same {LEAD_RETENTION_MONTHS} months as the rest of your request.
+          </p>
         </section>
         <section className="flex flex-col gap-2">
           <h2 className="text-heading font-semibold">Why we use it</h2>
           <p>Only to reply to your request. We do not use it for marketing, and we do not sell it.</p>
           <p>
             Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Neon keeps the requests in a database
-            in Frankfurt, in the EU.
+            in Frankfurt, in the EU, and Cloudflare keeps trade-in photos in the EU.
           </p>
         </section>
         <section className="flex flex-col gap-2">
