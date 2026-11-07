@@ -16,7 +16,7 @@ const WIDE = [
 const MENU = [{ href: "/used-cars", label: "Used cars" }, ...WIDE, { href: "/about", label: "About us" }];
 
 // 44px tall touch targets inside the 56px bar.
-const link = "min-h-11 items-center font-semibold focus-visible:outline-white";
+const link = "min-h-11 items-center font-semibold transition-colors hover:text-text-2 focus-visible:outline-white";
 
 // Normal flow on purpose: the header scrolls away with the page (D-12).
 export function SiteHeader() {

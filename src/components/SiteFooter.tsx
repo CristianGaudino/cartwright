@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
@@ -32,7 +32,7 @@ const GROUPS = [
   },
 ];
 
-const link = "inline-flex min-h-11 items-center";
+const link = "inline-flex min-h-11 items-center transition-colors hover:text-text-2";
 
 // No top margin of its own: pages already end with 64px padding (03-10). No year in the copyright, so a cached page
 // never goes stale.
@@ -45,7 +45,13 @@ export function SiteFooter() {
             <Link href="/" className={link}>
               <Image src="/brand/logo.png" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
             </Link>
-            <p className="text-body">Tralee, Co. Kerry</p>
+            <address className="text-body not-italic">
+              {DEALER_ADDRESS_LINES.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </address>
             <PhoneLink className={`${link} text-body font-semibold`} />
             <Link href="/contact" className={`${link} underline`}>
               Opening hours and directions

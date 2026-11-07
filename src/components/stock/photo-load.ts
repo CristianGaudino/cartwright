@@ -13,7 +13,7 @@ export function settle(el: HTMLImageElement | null) {
 
 // Shared by the card carousel, the car gallery and the lightbox.
 export const arrow =
-  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-ink backdrop-blur-md transition-opacity duration-150 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex";
+  "absolute top-1/2 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-ink backdrop-blur-md transition-opacity duration-150 reduce-transparency:bg-white reduce-transparency:backdrop-blur-none [@media(hover:hover)]:flex hover:bg-white";
 // At either end the button stays mounted and focusable (aria-disabled, no-op), so a keyboard user keeps their place and nothing shifts.
 // It is invisible to the pointer, and only shows, dimmed, while it holds keyboard focus.
 export const arrowEnd = "pointer-events-none opacity-0 focus-visible:opacity-40";

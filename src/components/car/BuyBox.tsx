@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
 import { LeadActions } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { SoldBadge } from "@/components/stock/SoldBadge";
 import { DEALER_PHONE, SITE_URL } from "@/lib/site";
 import { carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
@@ -17,7 +16,6 @@ export function BuyBox({ car }: { car: Car }) {
   return (
     <div data-testid="buy-box" className="flex flex-col gap-4 lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-6">
       <div className="flex flex-col items-start gap-2">
-        {sold && <SoldBadge />}
         <h1 className="break-words text-heading font-semibold">{carTitle(car)}</h1>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-4">
