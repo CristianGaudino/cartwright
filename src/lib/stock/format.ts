@@ -9,6 +9,8 @@ export const formatKm = (n: number) => `${km.format(n)} km`;
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
 export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.year} ${car.make} ${car.model}`;
+// What a lead dialog shows of a car (CarSummary). Only these fields cross into client components, never the Car (LED-02).
+export const carSummary = (car: Car) => ({ id: car.id, name: carName(car), title: carTitle(car), price: formatPrice(car.priceEur), photo: car.photos[0]?.src });
 
 export const carMeta = (car: Car) =>
   [

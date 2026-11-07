@@ -42,36 +42,36 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Saved cars
 
-- [x] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
-- [x] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
+- [ ] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
+- [ ] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
 
 ### Leads and forms
 
 - [ ] **LED-01**: User can send an enquiry, book a test drive or reserve a car; the form is validated server-side, spam-protected, stored in Neon and emailed to the dealer (#11)
 - [ ] **LED-02**: Every lead records the car and the source page (#11)
 - [ ] **LED-03**: Leads are collected with consent, kept minimal and never logged (#11)
-- [ ] **LED-04**: User can request a trade-in valuation (reg, mileage, optional photos) (#12)
+- [x] **LED-04**: User can request a trade-in valuation (reg, mileage, optional photos) (#12)
 - [ ] **LED-05**: User can request a car the dealer does not have in stock (#12)
-- [ ] **LED-06**: Valuation and sourcing forms reuse the shared lead form pattern (#12)
+- [x] **LED-06**: Valuation and sourcing forms reuse the shared lead form pattern (#12)
 
 ### Finance
 
-- [ ] **FIN-01**: User can use a calculator (price, deposit, term, APR) that works (#9)
-- [ ] **FIN-02**: Figures are labelled representative and carry the dealer's required wording; no invented APRs or terms (#9)
-- [ ] **FIN-03**: User can submit a finance application that is saved as a lead (#9)
+- [x] **FIN-01**: User can use a calculator (price, deposit, term, APR) that works (#9)
+- [ ] **FIN-02**: Figures are labelled representative and carry the dealer's required wording; no invented APRs or terms (#9, built with placeholder figures; complete once the dealer supplies terms and wording)
+- [x] **FIN-03**: User can submit a finance application that is saved as a lead (#9)
 
 ### Reviews
 
-- [ ] **REV-01**: A `ReviewsProvider` interface with demo fixtures supplies Google reviews (#13)
-- [ ] **REV-02**: Reviews are shown with the attribution Google requires (#13)
-- [ ] **REV-03**: A Places API provider can replace the fixtures once the client's place ID exists (#13)
+- [x] **REV-01**: A `ReviewsProvider` interface with demo fixtures supplies Google reviews (#13)
+- [x] **REV-02**: Reviews are shown with the attribution Google requires (#13)
+- [x] **REV-03**: A Places API provider can replace the fixtures once the client's place ID exists (#13)
 
 ### Core pages
 
-- [ ] **PGS-01**: Home page shows featured stock and reviews (#14)
-- [ ] **PGS-02**: Service, contact (map and hours), about, privacy and terms pages exist (#14)
-- [ ] **PGS-03**: Local business JSON-LD is on the site (#14)
-- [ ] **PGS-04**: One shared header and footer, no dead `#` links (#14)
+- [x] **PGS-01**: Home page shows featured stock and reviews (#14)
+- [x] **PGS-02**: Service, contact (map and hours), about, privacy and terms pages exist (#14)
+- [x] **PGS-03**: Local business JSON-LD is on the site (#14)
+- [x] **PGS-04**: One shared header and footer, no dead `#` links (#14)
 
 ### Quality
 
@@ -131,21 +131,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LED-01 | Phase 3 | Pending |
 | LED-02 | Phase 3 | Pending |
 | LED-03 | Phase 3 | Pending |
-| LED-04 | Phase 3 | Pending |
+| LED-04 | Phase 3 | Complete |
 | LED-05 | Phase 3 | Pending |
-| LED-06 | Phase 3 | Pending |
-| FIN-01 | Phase 3 | Pending |
-| FIN-02 | Phase 3 | Pending |
-| FIN-03 | Phase 3 | Pending |
+| LED-06 | Phase 3 | Complete |
+| FIN-01 | Phase 3 | Complete |
+| FIN-02 | Phase 3 | Pending (dealer wording) |
+| FIN-03 | Phase 3 | Complete |
 | SAV-01 | Phase 3 | Complete |
 | SAV-02 | Phase 3 | Complete |
-| REV-01 | Phase 4 | Pending |
-| REV-02 | Phase 4 | Pending |
-| REV-03 | Phase 4 | Pending |
-| PGS-01 | Phase 4 | Pending |
-| PGS-02 | Phase 4 | Pending |
-| PGS-03 | Phase 4 | Pending |
-| PGS-04 | Phase 4 | Pending |
+| REV-01 | Phase 4 | Complete |
+| REV-02 | Phase 4 | Complete |
+| REV-03 | Phase 4 | Complete |
+| PGS-01 | Phase 4 | Complete |
+| PGS-02 | Phase 4 | Complete |
+| PGS-03 | Phase 4 | Complete |
+| PGS-04 | Phase 4 | Complete |
 | QLT-01 | Phase 5 | Pending |
 | QLT-02 | Phase 5 | Pending |
 | QLT-03 | Phase 5 | Pending |

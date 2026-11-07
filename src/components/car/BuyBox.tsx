@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
+import { LeadActions } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
-import { PhoneIcon } from "@/components/stock/icons";
 import { SoldBadge } from "@/components/stock/SoldBadge";
-import { DEALER_PHONE, DEALER_TEL, SITE_URL } from "@/lib/site";
-import { carName, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
+import { DEALER_PHONE, SITE_URL } from "@/lib/site";
+import { carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -34,7 +34,7 @@ export function BuyBox({ car }: { car: Car }) {
           </div>
         ))}
       </dl>
-      {/* Reserved for Phase 3's Enquire, Test drive and Reserve buttons: 104px on phones so adding them moves nothing below. */}
+      {/* Reserved in Phase 2 for the lead buttons: 104px on phones, so adding rows moves nothing below. */}
       <div data-testid="action-area" className="min-h-[104px] lg:min-h-0">
         {sold ? (
           <div className="flex flex-col gap-2 rounded-card border border-hairline bg-card p-4 lg:bg-surface">
@@ -46,10 +46,7 @@ export function BuyBox({ car }: { car: Car }) {
           </div>
         ) : (
           <>
-            <a href={`tel:${DEALER_TEL}`} className={button}>
-              <PhoneIcon />
-              Call now
-            </a>
+            <LeadActions car={carSummary(car)} />
             <p className="mt-2 hidden text-meta text-text-2 lg:block">{DEALER_PHONE}</p>
           </>
         )}

@@ -30,7 +30,12 @@ jobs:
       - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - run: npm test # unit and integration (lead store on an in-memory Postgres)
+      - name: Migrations consistent
+        run: npx drizzle-kit check
+      # The deploy migrates before the new code is live, so a new migration may only add things
+      - name: Migrations only add
+        run: bash scripts/check-migrations.sh "${{ github.base_ref }}"
 
   # The Worker has to start before a change reaches production: the normal build can't see what only fails on Cloudflare.
   # OpenNext runs the Next build, so there is no separate build job.
@@ -40,6 +45,7 @@ jobs:
     timeout-minutes: 15
     env:
       APP_ENV: production
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB # Cloudflare's always-pass test key
       WRANGLER_SEND_METRICS: false
     steps:
       - uses: actions/checkout@v7
@@ -63,7 +69,7 @@ jobs:
           make=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt).makeSlug")
           model=$(node -p "const c = require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt); c.makeSlug + '/' + c.modelSlug")
           body=$(node -p "require('./src/lib/stock/demo-cars.json').find(c => !c.soldAt && c.bodySlug).bodySlug")
-          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404"; do
+          for case in "/ 200" "/robots.txt 200" "/used-cars 200" "/used-cars/$slug 200" "/used-cars/$make 200" "/used-cars/$body 200" "/used-cars/$model 200" "$photo 200" "/used-cars/not-a-car 404" "/used-cars/$expired 410" "/used-cars/audi-a4-2019-999999999 404" "/privacy 200" "/sell-your-car 200" "/find-a-car 200" "/finance 200" "/service 200" "/contact 200" "/about 200" "/terms 200" "/lead-photos/trade-in/x 403"; do
             set -- $case
             got=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "http://127.0.0.1:8787$1") || true # bash -e: a Worker that never started must not skip the wrangler.log dump below
             echo "$1: $got (want $2)"
@@ -87,6 +93,9 @@ jobs:
           code=$(curl -s -o forced.html -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/used-cars?q=e2e-forced-failure') || true
           echo "forced-failure search: $code (want 200)"
           if [ "$code" != 200 ] || grep -q 'We could not load the cars' forced.html; then echo 'the E2E failure switch is on in the Worker build'; fail=1; fi
+          # T-03-26: the lead fakes accept and drop every lead, so the switch must never reach the Worker (same idea as the
+          # E2E_FAIL_QUERY check above). It is only ever set in playwright.config.ts.
+          if grep -q E2E_FAKE_BACKENDS wrangler.jsonc .github/workflows/deploy.yml; then echo 'E2E_FAKE_BACKENDS is set for the Worker'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
           if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; tail -n 20 wrangler.log; exit 1; fi
 
@@ -100,6 +109,7 @@ jobs:
       options: --ipc=host
     env:
       APP_ENV: production
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB # Cloudflare's always-pass test key; specs stub the script anyway
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

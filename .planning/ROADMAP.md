@@ -100,19 +100,19 @@ Plans:
 - [x] 03-01-PLAN.md
 - [ ] 03-02-PLAN.md
 - [x] 03-03-PLAN.md
-- [ ] 03-04-PLAN.md
-- [ ] 03-05-PLAN.md
-- [ ] 03-06-PLAN.md
+- [x] 03-04-PLAN.md
+- [x] 03-05-PLAN.md
+- [x] 03-06-PLAN.md
 - [x] 03-07-PLAN.md
-- [ ] 03-08-PLAN.md
-- [ ] 03-09-PLAN.md
-- [ ] 03-10-PLAN.md
-- [ ] 03-11-PLAN.md
-- [ ] 03-12-PLAN.md
-- [ ] 03-13-PLAN.md
-- [ ] 03-14-PLAN.md
-- [ ] 03-15-PLAN.md
-- [ ] 03-16-PLAN.md
+- [x] 03-08-PLAN.md
+- [x] 03-09-PLAN.md
+- [x] 03-10-PLAN.md
+- [x] 03-11-PLAN.md
+- [x] 03-12-PLAN.md
+- [x] 03-13-PLAN.md
+- [x] 03-14-PLAN.md
+- [x] 03-15-PLAN.md
+- [x] 03-16-PLAN.md
 
 **UI hint**: yes
 
@@ -130,7 +130,14 @@ Plans:
   4. Every page uses the same header and footer, and no link on the site points to `#`
   5. Local business JSON-LD is present on the site and validates
 
-**Plans**: TBD
+**Plans**: 4/4 plans executed
+
+Plans:
+- [x] 04-01-PLAN.md: ReviewsProvider, demo fixtures, Places API (New) provider and the reviews section with Google Maps attribution (#13; wave 1)
+- [x] 04-02-PLAN.md: Shared text-page frame, /service, /about, /terms, /privacy on the frame, dealer-facts placeholders and production guard (#14; wave 2)
+- [x] 04-03-PLAN.md: /contact with hours and an on-demand map, AutoDealer JSON-LD builder (#14; wave 3)
+- [x] 04-04-PLAN.md: Home page, shared header and footer, dead-link check, then the one PR closing #13 and #14 (#14; wave 4)
+
 **UI hint**: yes
 
 ### Phase 5: Quality Pass
@@ -156,6 +163,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Design and Stock Browsing | 9/9 | In Progress | - |
 | 2. Car Pages and Discovery | 8/8 | In Progress | - |
-| 3. Leads, Finance and Saved Cars | 3/16 | In Progress | - |
-| 4. Reviews and Core Pages | 0/TBD | Not started | - |
+| 3. Leads, Finance and Saved Cars | 13/16 | In Progress | - |
+| 4. Reviews and Core Pages | 4/4 | In Progress | - |
 | 5. Quality Pass | 0/TBD | Not started | - |
