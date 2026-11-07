@@ -1,9 +1,9 @@
-# Cartwright project rules
+# Carright project rules
 
 Read automatically by Claude Code at the start of a session. Edit it like any other file, in a PR.
 
 ## What this is
-A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as a speculative pitch and first sale for the owner's web business. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Cartwright project](https://github.com/users/CristianGaudino/projects/6). Read the issues before planning anything.
+A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as a speculative pitch and first sale for the owner's web business. Public pages only, no private pages for customers. Work is tracked in GitHub issues and the [Carright project](https://github.com/users/CristianGaudino/projects/6). Read the issues before planning anything.
 
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.

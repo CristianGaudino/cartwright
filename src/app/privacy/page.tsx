@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
-import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
+import { DEALER_EMAIL, DEALER_PHONE, DEALER_TEL } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy policy" };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
-// Deletion requests go to DEALER_PHONE only: the dealer has no public email yet, and the lead inbox is private (research
-// Open Question 6). Add an email beside the phone line when the dealer supplies one.
+// The email is a placeholder until carright.ie forwards to the dealer (issue #54).
 export default function PrivacyPage() {
   return (
     <InfoPage title="Privacy policy">
@@ -30,13 +29,17 @@ export default function PrivacyPage() {
         </p>
       </InfoSection>
       <InfoSection title="How long we keep it">
-        <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it. We are still confirming this period.</p>
+        <p>We keep each request for {LEAD_RETENTION_MONTHS} months, then delete it.</p>
       </InfoSection>
       <InfoSection title="How to ask us to delete it">
         <p>
           Call us on{" "}
           <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
             {DEALER_PHONE}
+          </a>{" "}
+          or email{" "}
+          <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+            {DEALER_EMAIL}
           </a>{" "}
           and we will delete your details.
         </p>

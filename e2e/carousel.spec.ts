@@ -182,8 +182,10 @@ test.describe("desktop pointer", () => {
     await expect(link).toHaveAttribute("href", href);
     await expect(link).not.toHaveAttribute("tabindex", /.*/);
 
-    // In the tab order: from the card title, Shift+Tab goes Next, Previous, then the tile link.
+    // In the tab order: from the card title, Shift+Tab goes Save, Next, Previous, then the tile link.
     await card.locator("h2 a").focus();
+    await page.keyboard.press("Shift+Tab");
+    await expect(card.getByRole("button", { name: /^Save / })).toBeFocused();
     for (let i = 0; i < 3; i++) await page.keyboard.press("Shift+Tab");
     await expect(link).toBeFocused();
 

@@ -1,0 +1,98 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ListingCard } from "@/components/stock/ListingCard";
+import { SkeletonCards } from "@/components/stock/SkeletonCards";
+import { StockError, stateButton } from "@/components/stock/StockError";
+import { removeSaved, useSavedIds } from "@/lib/saved/store";
+import type { Car } from "@/lib/stock/types";
+
+const never = () => () => {};
+const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
+type Loaded = { cars: Car[]; gone: number };
+
+function Empty() {
+  return (
+    <div className="py-16 text-center">
+      <h2 className="text-heading font-semibold">No saved cars yet</h2>
+      <p className="mt-2 text-body text-text-2">Tap the heart on any car to save it here.</p>
+      <Link href="/used-cars" className={stateButton}>
+        See used cars
+      </Link>
+    </div>
+  );
+}
+
+// The ids live in this browser, so the cars are fetched by id from /api/saved-cars (the stock stays on the server).
+export function SavedCars() {
+  const live = useSavedIds();
+  // False on the server and during hydration, when useSavedIds still reports the server's empty list.
+  const read = useSyncExternalStore(never, () => true, () => false);
+  // Taken once: unsaving a car here keeps its card until the next visit, so a mistaken tap can be undone (UI-SPEC).
+  const [ids, setIds] = useState<string[] | null>(null);
+  if (read && ids === null) setIds(live); // adjusting state during render, not an effect
+  const [loaded, setLoaded] = useState<Loaded | "error" | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!ids?.length) return;
+    let stale = false;
+    fetch(`/api/saved-cars?ids=${ids.join(",")}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`status ${r.status}`);
+        return r.json() as Promise<{ cars: Car[]; goneIds: string[] }>;
+      })
+      .then(({ cars, goneIds }) => {
+        if (stale) return;
+        // Pruned only on a good answer, so the note shows once and a failed load never loses a saved car (D-20).
+        if (goneIds.length) removeSaved(goneIds);
+        setLoaded({ cars, gone: goneIds.length });
+      })
+      .catch(() => !stale && setLoaded("error"));
+    return () => {
+      stale = true;
+    };
+  }, [ids, attempt]);
+
+  if (ids?.length === 0) return <Empty />;
+  if (loaded === "error") {
+    return (
+      <StockError
+        retry={() => {
+          setLoaded(null);
+          setAttempt((n) => n + 1);
+        }}
+      />
+    );
+  }
+  if (!loaded) {
+    // Never an empty flash: 3 placeholders until storage is read, then one per saved car, up to 6.
+    return (
+      <div aria-hidden className={grid}>
+        <SkeletonCards count={ids ? Math.min(ids.length, 6) : 3} />
+      </div>
+    );
+  }
+  const { cars, gone } = loaded;
+  return (
+    <>
+      {gone > 0 && (
+        <p role="status" className="mb-6 rounded-card border border-hairline bg-card p-4 text-body">
+          {gone === 1
+            ? "1 saved car is no longer available. We removed it from your list."
+            : `${gone} saved cars are no longer available. We removed them from your list.`}
+        </p>
+      )}
+      {cars.length ? (
+        <div className={grid}>
+          {cars.map((car, i) => (
+            <ListingCard key={car.id} car={car} priority={i < 2} />
+          ))}
+        </div>
+      ) : (
+        <Empty />
+      )}
+    </>
+  );
+}

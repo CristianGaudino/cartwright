@@ -1,4 +1,4 @@
-# Requirements: Cartwright
+# Requirements: Carright
 
 **Defined:** 2026-11-03
 **Core Value:** A buyer can find a car on their phone, fast, and send the dealer an enquiry about it.
@@ -137,8 +137,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIN-01 | Phase 3 | Complete |
 | FIN-02 | Phase 3 | Pending (dealer wording) |
 | FIN-03 | Phase 3 | Complete |
-| SAV-01 | Phase 3 | Pending |
-| SAV-02 | Phase 3 | Pending |
+| SAV-01 | Phase 3 | Complete |
+| SAV-02 | Phase 3 | Complete |
 | REV-01 | Phase 4 | Complete |
 | REV-02 | Phase 4 | Complete |
 | REV-03 | Phase 4 | Complete |

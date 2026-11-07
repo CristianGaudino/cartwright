@@ -96,6 +96,12 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
       const c = byId.get(id);
       return c && visibleNow()(c) ? c : null;
     },
+    async getByIds(ids) {
+      return ids.map((id) => {
+        const c = byId.get(id);
+        return c && visibleNow()(c) ? c : null;
+      });
+    },
     async lookup(slug) {
       const c = bySlug.get(slug);
       if (!c) return null;
