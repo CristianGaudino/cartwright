@@ -84,3 +84,13 @@ for (const [path, heading] of [
     await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
   });
 }
+
+test("after a general message the button goes home, not to the stock list", async ({ page }) => {
+  await open(page, "/contact");
+  await page.getByLabel("How can we help?").fill("Hello");
+  await page.getByLabel("Phone").fill("087 123 4567");
+  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
+});

@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "Contact", description: `Opening hour
 
 const textLink = `${link} self-start`;
 
-// Phone, email and a message form. No "open now": the page is cached and that
+// Phone, a message form and, once confirmed, the email. No "open now": the page is cached and that
 // needs the visitor's clock.
 export default async function ContactPage() {
   // The place ID and the reviews provider come from env at request time.
@@ -34,12 +34,15 @@ export default async function ContactPage() {
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-8">
           <CallButton>Call {DEALER_PHONE}</CallButton>
-          <p className="text-body">
-            Or email{" "}
-            <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
-              {DEALER_EMAIL}
-            </a>
-          </p>
+          {/* A placeholder address that does not forward yet (#54): shown only once the dealer confirms. */}
+          {DEALER_FACTS_CONFIRMED && (
+            <p className="text-body">
+              Or email{" "}
+              <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+                {DEALER_EMAIL}
+              </a>
+            </p>
+          )}
           <InfoSection title="Send us a message">
             <LeadPageForm type="general" submitLabel="Send message" success={{ heading: "Thanks, we have your message.", body: "We will get back to you." }} />
           </InfoSection>

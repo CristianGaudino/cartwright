@@ -36,6 +36,7 @@ export function LeadForm({
   variant,
   submitLabel,
   success,
+  back = { href: "/used-cars", label: "Back to used cars" },
   prefill,
   children,
 }: {
@@ -44,6 +45,7 @@ export function LeadForm({
   variant: "dialog" | "page";
   submitLabel: string;
   success: { heading: string; body: string };
+  back?: { href: string; label: string }; // where the page variant's success button goes
   prefill?: Record<string, string>; // a new object overwrites those fields and keeps the rest (the calculator's deposit and term)
   children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding }) => React.ReactNode;
 }) {
@@ -250,8 +252,8 @@ export function LeadForm({
           </div>
         ) : (
           <div className={footer}>
-            <Link href="/used-cars" className={`inline-flex h-12 items-center justify-center rounded-control border border-control bg-card px-6 font-semibold ${press}`}>
-              Back to used cars
+            <Link href={back.href} className={`inline-flex h-12 items-center justify-center rounded-control border border-control bg-card px-6 font-semibold ${press}`}>
+              {back.label}
             </Link>
           </div>
         )
