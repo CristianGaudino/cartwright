@@ -4,7 +4,7 @@ import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
 import type { Deps, LeadRow } from "./process";
-import { CONSENT, tomorrow } from "./schema";
+import { CONSENT, tomorrow } from "./constants";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;

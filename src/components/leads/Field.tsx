@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDownIcon } from "@/components/stock/icons";
-import { CONTACT_ERROR, LIMITS } from "@/lib/leads/schema";
+import { CONTACT_ERROR, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
 // Inputs read as wells: ink inside a dialog (the dialog is card), card on a page (UI-SPEC Color).

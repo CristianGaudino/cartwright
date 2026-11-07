@@ -1,6 +1,6 @@
 "use client";
 
-import { CONSENT } from "@/lib/leads/schema";
+import { CONSENT } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
 // The one consent row every form uses (D-06): unticked by default, one plain line, no marketing option anywhere (D-07).

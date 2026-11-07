@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { CONSENT } from "./schema";
+import { CONSENT } from "./constants";
 
 // Every lead stores the consent version it was sent under (D-06). Changing the wording means a new version: add it here,
 // never edit an old entry.

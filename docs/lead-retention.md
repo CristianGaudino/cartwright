@@ -4,7 +4,7 @@ Leads are personal data. Until the admin area (#20) ships, the owner keeps the p
 
 ## How long leads are kept
 
-Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/schema.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the purge statement below and this page together.
+Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/constants.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the purge statement below and this page together.
 
 ## Monthly purge
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LEAD_RETENTION_MONTHS } from "@/lib/leads/schema";
+import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
 import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy policy" };

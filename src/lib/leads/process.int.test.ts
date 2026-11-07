@@ -7,7 +7,7 @@ import type { Car } from "@/lib/stock/types";
 import { truncate } from "@/test/pglite-db";
 import { processLead } from "./process";
 import type { Deps } from "./process";
-import { CONSENT } from "./schema";
+import { CONSENT } from "./constants";
 import { createDrizzleStore } from "./store";
 
 vi.mock("@/lib/db", () => import("@/test/pglite-db"));

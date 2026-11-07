@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { describe, expect, it } from "vitest";
-import { CONTACT_ERROR, LIMITS, leadSchema, tomorrow } from "./schema";
+import { CONTACT_ERROR, LIMITS, tomorrow } from "./constants";
+import { leadSchema } from "./schema";
 
 const base = { type: "enquiry", carId: "123", clientRef: crypto.randomUUID(), sourcePath: "/used-cars/x", name: "Ann", phone: "087 123 4567", consent: "yes" };
 const errors = (input: Record<string, unknown>) => {

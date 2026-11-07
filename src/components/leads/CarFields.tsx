@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { CheckIcon } from "@/components/stock/icons";
-import { TIMES, tomorrow } from "@/lib/leads/schema";
+import { TIMES, tomorrow } from "@/lib/leads/constants";
 import { Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
 

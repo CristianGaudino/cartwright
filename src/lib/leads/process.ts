@@ -4,7 +4,8 @@ import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
-import { CONSENT, DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
+import { CONSENT } from "./constants";
+import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.

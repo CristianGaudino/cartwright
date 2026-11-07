@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { tomorrow } from "../src/lib/leads/schema";
+import { tomorrow } from "../src/lib/leads/constants";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { stubTurnstile } from "./turnstile";
 

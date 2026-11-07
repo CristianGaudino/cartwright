@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { CloseIcon, PhoneIcon } from "@/components/stock/icons";
-import { LIMITS } from "@/lib/leads/schema";
+import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
 import { CarFields, TypePicker } from "./CarFields";
 import type { CarLeadType } from "./CarFields";
