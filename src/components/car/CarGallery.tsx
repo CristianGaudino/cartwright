@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Brandmark } from "@/components/Brandmark";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { arrow, arrowEnd, counterPill, settle } from "@/components/stock/photo-load";
@@ -76,6 +77,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
                   className="h-full w-full object-cover transition-opacity duration-150 group-data-[js]/pc:opacity-0 group-data-[js]/pc:data-[loaded]:opacity-100 data-[failed]:invisible"
                 />
               </button>
+              <Brandmark />
             </div>
           ))}
         </div>

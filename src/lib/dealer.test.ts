@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DEMO_REVIEWS } from "@/lib/reviews";
 import type { Reviews } from "@/lib/reviews";
 import { DEALER_ADDRESS, DEALER_FACTS_CONFIRMED, OPENING_HOURS, SERVICES } from "@/lib/site";
-import { dealerJsonLd, directionsUrl, formatHours, mapEmbedUrl, mapQuery } from "./dealer";
+import { dealerJsonLd, directionsUrl, formatHours, groupHours, mapEmbedUrl, mapQuery } from "./dealer";
 
 vi.mock("server-only", () => ({}));
 
@@ -63,14 +63,26 @@ describe("hours and map links", () => {
     expect(formatHours({})).toBe("Closed");
   });
 
-  it("never searches for bracketed placeholder text", () => {
-    for (const s of [mapQuery(false), directionsUrl(undefined, false), mapEmbedUrl(false)]) expect(s).not.toMatch(/\[|\]|%5B|%5D/i);
-    expect(directionsUrl(undefined, false)).toBe("https://www.google.com/maps/search/?api=1&query=Tralee%2C%20Co.%20Kerry");
-    expect(mapEmbedUrl(false)).toBe("https://maps.google.com/maps?q=Tralee%2C%20Co.%20Kerry&output=embed");
+  it("points the map and directions at the eircode", () => {
+    expect(mapQuery()).toBe("V92 NT93, Ireland");
+    expect(directionsUrl()).toBe("https://www.google.com/maps/search/?api=1&query=V92%20NT93%2C%20Ireland");
+    expect(mapEmbedUrl()).toBe("https://maps.google.com/maps?q=V92%20NT93%2C%20Ireland&output=embed");
+  });
+
+  it("groups days that share hours", () => {
+    expect(groupHours()).toEqual([
+      { label: "Monday to Friday", hours: "9:30am to 6pm" },
+      { label: "Saturday", hours: "10am to 4pm" },
+      { label: "Sunday", hours: "Closed" },
+    ]);
+    expect(groupHours([{ day: "Monday", opens: "09:00", closes: "17:00" }, { day: "Tuesday", opens: "10:00", closes: "17:00" }, { day: "Wednesday", opens: "10:00", closes: "17:00" }])).toEqual([
+      { label: "Monday", hours: "9am to 5pm" },
+      { label: "Tuesday to Wednesday", hours: "10am to 5pm" },
+    ]);
   });
 
   it("encodes the place ID", () => {
-    expect(directionsUrl("ChIJ x", true)).toMatch(/&query_place_id=ChIJ%20x$/);
+    expect(directionsUrl("ChIJ x")).toMatch(/&query_place_id=ChIJ%20x$/);
   });
 });
 

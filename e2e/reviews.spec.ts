@@ -22,7 +22,7 @@ test("the aggregate rating, See all and the review policy link", async ({ page }
   await page.goto("/");
   await expect(page.getByText("Rated 4.8 out of 5 from 5 Google reviews")).toBeAttached();
   const all = page.getByRole("link", { name: "See all on Google Maps" });
-  await expect(all).toHaveAttribute("href", "https://www.google.com/maps/search/?api=1&query=Tralee%2C%20Co.%20Kerry");
+  await expect(all).toHaveAttribute("href", "https://www.google.com/maps/search/?api=1&query=V92%20NT93%2C%20Ireland");
   await expect(all).toHaveAttribute("target", "_blank");
   await expect(page.getByRole("link", { name: /Google's review policy/ })).toHaveAttribute("href", "https://support.google.com/contributionpolicy/answer/7422880");
 });

@@ -6,9 +6,9 @@ import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { PlaceholderPill } from "@/components/PlaceholderPill";
-import { dealerJsonLd, directionsUrl, formatHours, mapEmbedUrl } from "@/lib/dealer";
+import { dealerJsonLd, directionsUrl, groupHours, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { textLink as link } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, address and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
@@ -20,7 +20,7 @@ const textLink = `${link} self-start`;
 export default async function ContactPage() {
   // The place ID and the reviews provider come from env at request time.
   await connection();
-  const address = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
+  const address = DEALER_ADDRESS_LINES;
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <JsonLd data={dealerJsonLd(await getReviews())} />
@@ -56,11 +56,11 @@ export default async function ContactPage() {
             </address>
           </InfoSection>
           <InfoSection title="Opening hours">
-            <dl>
-              {OPENING_HOURS.map((h) => (
-                <div key={h.day} className="flex justify-between gap-4 border-b border-hairline py-3">
-                  <dt className="text-text-2">{h.day}</dt>
-                  <dd className="text-right font-semibold">{formatHours(h)}</dd>
+            <dl className="flex flex-col divide-y divide-hairline rounded-card bg-card px-4">
+              {groupHours().map((h) => (
+                <div key={h.label} className="flex items-baseline justify-between gap-4 py-3">
+                  <dt>{h.label}</dt>
+                  <dd className={`text-right tabular-nums ${h.hours === "Closed" ? "text-text-2" : "font-semibold"}`}>{h.hours}</dd>
                 </div>
               ))}
             </dl>

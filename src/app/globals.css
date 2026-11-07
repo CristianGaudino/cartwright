@@ -58,7 +58,16 @@
   /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps.
      Zero specificity, so an element with its own transition utility must list scale itself. */
   :where([class*="active:scale-"]) {
-    transition: scale 100ms ease-out;
+    transition:
+      scale 100ms ease-out,
+      filter 100ms ease-out;
+  }
+
+  /* Hover lift for every pressable (buttons, chips, links). Cards have their own shadow, so they are left out. */
+  @media (hover: hover) {
+    :where([class*="active:scale-"]:not(article, :disabled, [aria-disabled="true"])):hover {
+      filter: brightness(1.12);
+    }
   }
 }
 
@@ -269,4 +278,61 @@ dialog.lightbox::backdrop {
     transition-duration: 150ms;
     transition-timing-function: linear;
   }
+}
+
+/* Interaction (unlayered, so it wins over utilities such as border-control).
+   Pointer: anything that acts shows a hand; text fields show a caret; disabled things say no. */
+button:not(:disabled),
+[role="button"],
+summary,
+select:not(:disabled),
+label[for],
+a[href],
+input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
+  cursor: pointer;
+}
+
+:is(button, input, select, textarea):disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+:is(textarea, input:is([type="text"], [type="email"], [type="tel"], [type="search"], [type="number"], :not([type]))):not(:disabled) {
+  cursor: text;
+}
+
+/* Fields: the border lightens on hover and goes full white on focus, with a 1px ring so the edge reads as one 2px line.
+   No offset outline, which floated a white box around the field. The transparent outline still shows in forced colors. */
+:is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea) {
+  transition:
+    border-color 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+@media (hover: hover) {
+  :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea):not(:disabled, :focus-visible, [aria-invalid="true"]):hover {
+    border-color: var(--color-text-2);
+  }
+
+  /* Buttons and chips with a border: the border goes white, the fill lifts a step. */
+  :is(button, a).border-control:where([class*="active:scale-"]):not(:disabled, [aria-disabled="true"]):hover {
+    border-color: var(--color-text);
+  }
+
+  /* Text links: dim a little, so the line under them is not the only cue. */
+  a[href].underline:hover {
+    color: var(--color-text-2);
+  }
+}
+
+:is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea):focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-text);
+}
+
+:is(input, select, textarea)[aria-invalid="true"]:focus-visible {
+  border-color: var(--color-destructive);
+  box-shadow: 0 0 0 1px var(--color-destructive);
 }

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Brandmark } from "@/components/Brandmark";
 import { useSlideIndex } from "@/components/car/useSlideIndex";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import type { Photo } from "@/lib/stock/types";
@@ -59,6 +60,7 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
                 className="h-full w-full object-cover transition-opacity duration-150 group-data-[js]/pc:opacity-0 group-data-[js]/pc:data-[loaded]:opacity-100 data-[failed]:invisible"
               />
             </Link>
+            <Brandmark />
           </div>
         ))}
         {tile && (

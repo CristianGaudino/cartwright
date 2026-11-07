@@ -18,6 +18,7 @@ export const DEALER_FACTS_CONFIRMED = false;
 export const SERVICES = ["Servicing", "Repairs", "Tyres"] as const;
 // Confirmed by the dealer, 2026-11-07.
 export const DEALER_ADDRESS = { street: "Ballymac, Maglass", town: "Tralee", county: "Co. Kerry", eircode: "V92 NT93" };
+export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
   { day: "Monday", opens: "09:30", closes: "18:00" },

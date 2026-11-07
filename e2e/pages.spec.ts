@@ -60,14 +60,16 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await expect(main(page).getByRole("link", { name: "Call 083 133 3154" })).toHaveAttribute("href", TEL);
   await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");
   const rows = main(page).locator("dl > div");
-  await expect(rows).toHaveCount(7);
+  await expect(rows).toHaveCount(3);
+  await expect(rows.first()).toContainText("Monday to Friday");
   await expect(rows.first()).toContainText("9:30am to 6pm");
+  await expect(rows.nth(1)).toContainText("Saturday");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveAttribute("href", "/find-a-car");
   await expect(main(page).getByRole("link", { name: "Sell your car" })).toHaveAttribute("href", "/sell-your-car");
   const directions = main(page).getByRole("link", { name: /Get directions/ });
   await expect(directions).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
-  expect(await directions.getAttribute("href")).not.toMatch(/%5B|\[/i);
+  expect(await directions.getAttribute("href")).toContain("V92%20NT93");
   expect(google).toEqual([]);
 });
 

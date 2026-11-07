@@ -108,10 +108,11 @@ test.describe("a sold car", () => {
     const { slug, make, makeSlug, soldAt } = soldInPeriod!;
     await page.goto(`/used-cars/${slug}`);
     const box = buyBox(page);
-    await expect(box.getByText("Sold", { exact: true }).first()).toBeVisible();
-    // The badge sits above the title.
-    const badge = (await box.getByText("Sold", { exact: true }).first().boundingBox())!;
-    expect(badge.y).toBeLessThan((await page.getByRole("heading", { level: 1 }).boundingBox())!.y);
+    // Sold shows twice: the badge on the photo and the card here. No third pill above the title.
+    await expect(box.getByText("Sold", { exact: true })).toHaveCount(1);
+    const card = (await box.getByText("Sold", { exact: true }).boundingBox())!;
+    expect(card.y).toBeGreaterThan((await page.getByRole("heading", { level: 1 }).boundingBox())!.y);
+    await expect(page.getByRole("main").getByText("Sold", { exact: true })).toHaveCount(2);
     await expect(box.getByText("This car is no longer for sale.")).toBeVisible();
     await expect(box.getByRole("link", { name: `See more ${make}` })).toHaveAttribute("href", `/used-cars/${makeSlug}`);
     await expect(box.getByText("Call now")).toHaveCount(0);

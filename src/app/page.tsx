@@ -7,7 +7,7 @@ import { ListingCard } from "@/components/stock/ListingCard";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
-import { SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { accentButton, textLink } from "@/components/ui";
@@ -111,7 +111,7 @@ export default async function Home() {
       <section className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-heading font-semibold">How we can help</h2>
-          <p className="text-body">A local dealer in Tralee, Co. Kerry.</p>
+          <p className="text-body">A local dealer at {DEALER_ADDRESS_LINES.join(", ")}.</p>
         </div>
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <HelpCard href="/finance" title="Finance" text="Work out a monthly payment." />

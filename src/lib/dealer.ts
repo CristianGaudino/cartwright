@@ -9,14 +9,25 @@ const time = (hhmm: string) => {
 
 export const formatHours = ({ opens, closes }: { opens?: string; closes?: string }) => (opens && closes ? `${time(opens)} to ${time(closes)}` : "Closed");
 
-// Never bracketed placeholder text: unconfirmed, the map searches the town only.
-export const mapQuery = (confirmed = DEALER_FACTS_CONFIRMED) =>
-  confirmed ? [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode].join(", ") : "Tralee, Co. Kerry";
+// Consecutive days with the same hours become one row: "Monday to Friday 9:30am to 6pm".
+export function groupHours(days: typeof OPENING_HOURS = OPENING_HOURS): { label: string; hours: string }[] {
+  const rows: { first: string; last: string; hours: string }[] = [];
+  for (const d of days) {
+    const hours = formatHours(d);
+    const prev = rows.at(-1);
+    if (prev?.hours === hours) prev.last = d.day;
+    else rows.push({ first: d.day, last: d.day, hours });
+  }
+  return rows.map((r) => ({ label: r.first === r.last ? r.first : `${r.first} to ${r.last}`, hours: r.hours }));
+}
 
-export const directionsUrl = (placeId?: string, confirmed = DEALER_FACTS_CONFIRMED) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery(confirmed))}${placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : ""}`;
+// The eircode pins the exact spot; the town alone does not.
+export const mapQuery = () => `${DEALER_ADDRESS.eircode}, Ireland`;
 
-export const mapEmbedUrl = (confirmed = DEALER_FACTS_CONFIRMED) => `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery(confirmed))}&output=embed`;
+export const directionsUrl = (placeId?: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery())}${placeId ? `&query_place_id=${encodeURIComponent(placeId)}` : ""}`;
+
+export const mapEmbedUrl = () => `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery())}&output=embed`;
 
 // schema.org AutoDealer (D-07). Street, postcode and hours only once confirmed; a rating only from real Google reviews.
 // No geo, priceRange, sameAs, review or areaServed: there are no confirmed facts for them.
