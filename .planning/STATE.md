@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Completed 03-10-PLAN.md (PR #49 open)
-last_updated: "2026-11-07T00:40:00.000Z"
+stopped_at: Completed 03-12-PLAN.md (feat/trade-in-sourcing, no PR until 03-14)
+last_updated: "2026-11-07T01:30:00.000Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 8c8b6d78329e3d795dd8b1607f061b05835e52eb
+state_head: ac0ae189ac13bf8c5671d999d9ae5dc6d5d3c331
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 24
+  completed_plans: 26
   percent: 0
 ---
 
@@ -72,6 +72,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P08 | 25m | 2 tasks | 15 files |
 | Phase 03 P09 | 20m | 1 tasks | 7 files |
 | Phase 03 P10 | 70m | 2 tasks | 22 files |
+| Phase 03 P11 | 45m | 2 tasks | 16 files |
+| Phase 03 P12 | 20m | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -106,6 +108,8 @@ Recent decisions affecting current work:
 - [Phase 03]: /privacy deletion contact is DEALER_PHONE only (no public email yet); DEALER_PHONE stays unconfirmed (#47)
 - [Phase 03]: Client lead components import constants from src/lib/leads/constants.ts, never schema.ts (keeps zod out of the bundle)
 - [Phase 03]: PR #49 (#11) opened without DATABASE_URL; do not merge until 03-02 provisioning is done
+- [Phase 03]: BUDGETS lives in src/lib/stock/types.ts so the server schema can read it (a value from a use client file is a client reference on the server); logged on #47
+- [Phase 03]: Server form pages render LeadPageForm, which picks the field set by type (a server page cannot pass LeadForm's render function); logged on #47
 
 ### Pending Todos
 
@@ -129,6 +133,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-07T00:40:00.000Z
-Stopped at: Completed 03-10-PLAN.md (PR #49 open)
+Last session: 2026-11-07T01:30:00.000Z
+Stopped at: Completed 03-12-PLAN.md (feat/trade-in-sourcing, no PR until 03-14)
 Resume file: None
