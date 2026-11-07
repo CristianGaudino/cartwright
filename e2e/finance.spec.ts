@@ -1,6 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 import { stubTurnstile } from "./turnstile";
+
+type Demo = { slug: string; make: string; model: string; variant?: string; priceEur: number; soldAt?: string };
+const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
+const live = cars.find((c) => !c.soldAt)!;
+const sold = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const price = (n: number) => new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 
 // A keystroke before React attaches does nothing.
 async function open(page: Page, path: string) {
@@ -45,6 +54,14 @@ test("/finance shows what to fix, never NaN or a stale figure", async ({ page })
   expect(await page.locator("body").innerText()).not.toContain("NaN");
 });
 
+test("a sold car page has no Finance section", async ({ page }) => {
+  test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
+  await page.goto(`/used-cars/${sold!.slug}`);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Finance", exact: true })).toHaveCount(0);
+  await expect(calc(page)).toHaveCount(0);
+});
+
 test.describe("finance application", () => {
   // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
   test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a deployed site");
@@ -73,5 +90,21 @@ test.describe("finance application", () => {
     await d.getByLabel("Employment status").selectOption({ label: "Self-employed" });
     await d.getByRole("button", { name: "Send finance application" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your application." })).toBeFocused();
+  });
+
+  test("a car page works out finance on that car's price and applies for that car", async ({ page }) => {
+    await open(page, `/used-cars/${live.slug}`);
+    await expect(page.getByRole("heading", { name: "Finance", exact: true })).toBeVisible();
+    await expect(calc(page).getByText(price(live.priceEur), { exact: true })).toBeVisible();
+    await expect(calc(page).getByLabel("Price")).toHaveCount(0); // text, not an input
+    await expect(result(page)).toContainText(/€[\d,]+ a month/);
+
+    const apply = page.getByRole("button", { name: "Apply for finance" });
+    await expect(apply).not.toHaveClass(/bg-accent/); // Enquire keeps the page's one accent
+    await apply.click();
+    const d = page.getByRole("dialog", { name: "Apply for finance" });
+    await expect(d).toBeVisible();
+    await expect(d.getByText([live.make, live.model, live.variant].filter(Boolean).join(" "))).toBeVisible();
+    await expect(d.getByText(price(live.priceEur))).toBeVisible();
   });
 });

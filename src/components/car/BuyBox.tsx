@@ -3,7 +3,7 @@ import { ShareButton } from "@/components/car/ShareButton";
 import { LeadActions } from "@/components/leads/LeadDialog";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import { DEALER_PHONE, SITE_URL } from "@/lib/site";
-import { carName, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
+import { carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
@@ -42,7 +42,7 @@ export function BuyBox({ car }: { car: Car }) {
           </div>
         ) : (
           <>
-            <LeadActions car={{ id: car.id, name: carName(car), title: carTitle(car), price: formatPrice(car.priceEur), photo: car.photos[0]?.src }} />
+            <LeadActions car={carSummary(car)} />
             <p className="mt-2 hidden text-meta text-text-2 lg:block">{DEALER_PHONE}</p>
           </>
         )}
