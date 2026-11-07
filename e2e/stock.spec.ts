@@ -10,14 +10,14 @@ async function total(page: Page) {
   return text === "No cars" ? 0 : digits(text) || 1;
 }
 
-const prices = (page: Page) => page.locator("article > div:last-child > p:first-child").allTextContents().then((l) => l.map(digits));
+const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 
 test("lists the cars, price first, 12 per page", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.getByRole("heading", { level: 1, name: "Used cars" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Quality used cars" })).toBeVisible();
   const n = await total(page);
   await expect(page.locator("article")).toHaveCount(Math.min(PER_PAGE, n));
-  for (const p of await page.locator("article > div:last-child > p:first-child").allTextContents()) expect(p).toMatch(/^€[\d,]+$/);
+  for (const p of await page.locator("article [data-price]").allTextContents()) expect(p).toMatch(/^€[\d,]+$/);
 });
 
 test("sort and page come from the URL", async ({ page }) => {
@@ -209,4 +209,31 @@ test("zero matches show the empty state and Clear all filters brings the cars ba
   await page.getByRole("button", { name: "Clear all filters" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
   await expect(page.locator("article").first()).toBeVisible();
+});
+
+test.describe("list and grid, on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+  test("the toggle switches to wide cards, and the choice is remembered", async ({ page }) => {
+    await page.goto("/used-cars");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const card = page.locator("article").first();
+    const grid = await card.boundingBox();
+    await expect(page.getByRole("button", { name: "Grid view" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "List view" }).click();
+    await expect(page.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(async () => (await card.boundingBox())!.width).toBeGreaterThan(grid!.width * 2);
+    await page.reload();
+    await expect(page.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Grid view" }).click();
+    await expect.poll(async () => (await card.boundingBox())!.width).toBeLessThan(grid!.width + 2);
+  });
+
+  test("the filter panel has a heading and Clear all, which empties the filters", async ({ page }) => {
+    await page.goto("/used-cars?fuel=diesel");
+    const panel = page.locator("aside");
+    await expect(panel.getByRole("heading", { name: "Filter & refine" })).toBeVisible();
+    await panel.getByRole("button", { name: "Clear all" }).click();
+    await expect(page).toHaveURL(/\/used-cars$/);
+  });
 });

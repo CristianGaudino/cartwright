@@ -28,7 +28,7 @@ async function rows(page: Page, name = "Make") {
 const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/ });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
 const metas = (page: Page) => page.locator("article > div:last-child > p:last-child").allTextContents();
-const prices = (page: Page) => page.locator("article > div:last-child > p:first-child").allTextContents().then((l) => l.map(digits));
+const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
 

@@ -116,3 +116,17 @@ export const CarIcon = (p: Props) => (
     <circle cx="16" cy="14" r=".6" />
   </Icon>
 );
+
+export const GridIcon = (p: Props) => (
+  <Icon {...p}>
+    <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
+    <rect x="13.5" y="4" width="6.5" height="6.5" rx="1" />
+    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1" />
+    <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1" />
+  </Icon>
+);
+export const ListIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M8.5 6.5H20M8.5 12H20M8.5 17.5H20M4 6.5h.01M4 12h.01M4 17.5h.01" />
+  </Icon>
+);

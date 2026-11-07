@@ -149,7 +149,7 @@ test("a saved car sold inside the window stays with the Sold badge", async ({ pa
   await seed(page, [soldInPeriod!.id]);
   await page.goto("/saved");
   await expect(page.locator("article")).toHaveCount(1);
-  await expect(page.locator("article > div:last-child > p:first-child")).toHaveText("Sold");
+  await expect(page.locator("article [data-price]")).toHaveText("Sold");
   expect(await stored(page)).toEqual([soldInPeriod!.id]);
 });
 

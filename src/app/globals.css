@@ -350,3 +350,25 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
     radial-gradient(50% 60% at 0% 100%, rgb(208 2 2 / 0.08), transparent 70%),
     linear-gradient(180deg, #0d141b 0%, var(--color-surface) 100%);
 }
+
+/* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left, from 640px. Unlayered so it beats the grid utilities. */
+[data-view="list"] [data-grid] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  [data-view="list"] [data-card] {
+    display: flex;
+  }
+
+  [data-view="list"] [data-card-photo] {
+    width: 18rem;
+    flex: none;
+    align-self: flex-start;
+  }
+
+  [data-view="list"] [data-card-body] {
+    flex: 1;
+    justify-content: center;
+  }
+}

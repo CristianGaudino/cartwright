@@ -10,9 +10,11 @@ import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
 import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
-import { ChevronDownIcon } from "./icons";
+import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
+import { setView, useView } from "./view";
+import { slash } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -69,9 +71,32 @@ function SortControl({ className }: { className: string }) {
   );
 }
 
+// Two icon buttons, the active one red, as in the mockup. From 640px only: a phone always shows one card wide anyway.
+function ViewToggle() {
+  const view = useView();
+  const btn = (v: "grid" | "list", label: string, Icon: typeof GridIcon) => (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={view === v}
+      onClick={() => setView(v)}
+      className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-white" : "hover:bg-hairline"}`}
+    >
+      <Icon className="size-6" />
+    </button>
+  );
+  return (
+    <div role="group" aria-label="Layout" className="hidden overflow-hidden rounded-control border border-control sm:flex">
+      {btn("grid", "Grid view", GridIcon)}
+      {btn("list", "List view", ListIcon)}
+    </div>
+  );
+}
+
 export function StockShell({ query, summary, children }: { query: StockQuery; summary: Summary; children: React.ReactNode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const view = useView();
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(query);
   const [held, setHeld] = useState(summary?.facets ?? null);
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
@@ -86,17 +111,28 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   return (
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-        <h1 className="text-display font-semibold">Used cars</h1>
-        <div className="lg:mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
-          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:bg-card lg:p-4">
+        <p className={`text-body ${slash}`}>Our stock</p>
+        <h1 className="mt-1 text-display font-semibold lg:text-hero-lg">Quality used cars</h1>
+        <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+        <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
+          <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">
+            <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
+              <h2 className="text-heading font-semibold">Filter &amp; refine</h2>
+              <button type="button" onClick={() => navigate(clearFilters(optimisticQuery))} className="min-h-11 text-meta font-semibold underline">
+                Clear all
+              </button>
+            </div>
             <StockFilters />
           </aside>
           <div className="min-w-0">
-            <div className="flex items-center justify-between">
-              <p aria-live="polite" data-testid="count" className="text-meta text-text-2">
+            <div className="flex items-center justify-between gap-4">
+              <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
                 {summary && countLabel(summary.total)}
               </p>
-              <SortControl className="hidden lg:flex" />
+              <div className="hidden items-center gap-3 lg:flex">
+                <SortControl className="flex" />
+                <ViewToggle />
+              </div>
             </div>
             <div className="mt-4 lg:hidden">
               <SearchBox />
@@ -109,7 +145,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
               <SortControl className="flex" />
             </div>
             <AppliedFilters />
-            <div aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
+            <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
               {children}
             </div>
           </div>
