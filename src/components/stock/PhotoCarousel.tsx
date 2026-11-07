@@ -53,7 +53,9 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
     return <p className="flex h-full items-center justify-center text-meta text-text-2">No photo yet</p>;
   }
   const n = allPhotos.length;
-  const shown = photos.length;
+  // Until the others are allowed there is one photo and the tile, so no slide is ever an empty box (and none is, without JavaScript).
+  const visible = more ? photos : photos.slice(0, 1);
+  const shown = visible.length;
   const tile = n >= 2; // the "See all n photos" slide sits at index `shown`, after the photos
 
   const atStart = index <= 0;
@@ -75,27 +77,23 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
         aria-label={`Photos of ${label}`}
         className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
       >
-        {photos.map((photo, i) => (
+        {visible.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">
-            {(i === 0 || more) && (
-              <>
-                {/* Out of the tab order (the card title is the keyboard link) but not hidden, so the photo and its alt stay readable. */}
-                <Link href={href} tabIndex={-1}>
-                  <Image
-                    ref={settle}
-                    src={photo.src}
-                    width={900}
-                    height={675}
-                    alt={label}
-                    loading={priority && i === 0 ? "eager" : undefined}
-                    fetchPriority={priority && i === 0 ? "high" : undefined}
-                    draggable={false}
-                    className="h-full w-full object-cover transition-opacity duration-150 group-data-[js]/pc:opacity-0 group-data-[js]/pc:data-[loaded]:opacity-100 data-[failed]:invisible"
-                  />
-                </Link>
-                <Brandmark />
-              </>
-            )}
+            {/* Out of the tab order (the card title is the keyboard link) but not hidden, so the photo and its alt stay readable. */}
+            <Link href={href} tabIndex={-1}>
+              <Image
+                ref={settle}
+                src={photo.src}
+                width={900}
+                height={675}
+                alt={label}
+                loading={priority && i === 0 ? "eager" : undefined}
+                fetchPriority={priority && i === 0 ? "high" : undefined}
+                draggable={false}
+                className="h-full w-full object-cover transition-opacity duration-150 group-data-[js]/pc:opacity-0 group-data-[js]/pc:data-[loaded]:opacity-100 data-[failed]:invisible"
+              />
+            </Link>
+            <Brandmark />
           </div>
         ))}
         {tile && (
@@ -112,7 +110,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
       {shown > 1 && (
         <>
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center gap-2">
-            {photos.map((photo, i) => (
+            {visible.map((photo, i) => (
               <span key={photo.src} data-dot data-active={i === index ? "" : undefined} className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] data-[active]:bg-white" />
             ))}
           </div>

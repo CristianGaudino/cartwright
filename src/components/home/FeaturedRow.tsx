@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
-const GAP = 16; // the row's gap-4, in pixels
-
 // A row of cards that scrolls a page at a time: native scroll-snap, so a finger swipes it. Arrows on pointer devices, dots always.
 const arrow =
   "absolute top-[40%] z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-hairline bg-card text-text transition-opacity duration-150 hover:bg-hairline [@media(hover:hover)]:flex";
@@ -19,8 +17,9 @@ export function FeaturedRow({ children, label }: { children: React.ReactNode; la
     const el = scroller.current;
     if (!el) return;
     const first = el.firstElementChild as HTMLElement | null;
-    const step = first ? first.offsetWidth + GAP : el.clientWidth;
-    const perCard = Math.floor((el.clientWidth + GAP) / step) <= 1;
+    const gap = parseFloat(getComputedStyle(el).columnGap) || 0; // the row's gap-4, read rather than copied
+    const step = first ? first.offsetWidth + gap : el.clientWidth;
+    const perCard = Math.floor((el.clientWidth + gap) / step) <= 1;
     const unit = perCard ? step : el.clientWidth;
     const pages = perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth));
     setState({ pages, page: Math.min(pages - 1, Math.round(el.scrollLeft / unit)) });

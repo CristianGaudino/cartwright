@@ -47,9 +47,14 @@ test("on arrival a card holds only its first photo; the others come later, or at
   await page.goto("/used-cars");
   const card = page.locator("article").first();
   await expect(imgs(card)).toHaveCount(1);
+  // One photo slide and no dots: never a grey empty slide to swipe to.
+  await expect(card.getByRole("group", { name: /^Photo \d+ of/ })).toHaveCount(1);
+  await expect(card.locator("[data-dot]")).toHaveCount(0);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await card.getByRole("group", { name: /^Photos of/ }).dispatchEvent("pointerdown");
   await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
+  await expect(card.getByRole("group", { name: /^Photo \d+ of/ })).toHaveCount(CARD_PHOTOS);
+  await expect(card.locator("[data-dot]")).toHaveCount(CARD_PHOTOS);
 });
 
 test("every result image is a local /stock/ file", async ({ page }) => {
@@ -87,7 +92,8 @@ test("touch: no arrows, dots follow the swipe, photos fade in", async ({ page })
   await expect(page.locator('button[aria-label="Next photo"]').first()).toBeHidden();
   await expect(card.locator("img").first()).toHaveAttribute("data-loaded", "");
   const dots = card.locator("[data-dot]");
-  await expect(card.locator("img")).toHaveCount(await dots.count()); // the photos after the first arrive a second later
+  await expect(dots).toHaveCount(CARD_PHOTOS); // the photos after the first arrive a second later, with their dots
+  await expect(card.locator("img")).toHaveCount(CARD_PHOTOS);
   await expect(dots.first()).toHaveAttribute("data-active", "");
   await scroller(card).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
   await expect(dots.nth(1)).toHaveAttribute("data-active", "");
@@ -149,6 +155,7 @@ test.describe("desktop pointer", () => {
     const card = page.locator("article").first();
     const { next, previous } = arrows(card);
     const dots = card.locator("[data-dot]");
+    await expect(dots).toHaveCount(CARD_PHOTOS);
     const n = await dots.count();
     expect(n).toBeGreaterThan(2);
 
