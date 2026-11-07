@@ -4,6 +4,7 @@ import { requireEnv } from "@/lib/env";
 import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
+import type { PhotoBucket } from "./bindings";
 import type { Deps, LeadStore, Mailer } from "./process";
 import { createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
@@ -28,6 +29,8 @@ function fakeDeps(): Deps {
     limiter: { allow: async () => true },
     verifyTurnstile: async (token) => token !== "",
     demo: true,
+    bucket: { put: async () => {}, get: async () => null, delete: async () => {} }, // photos are dropped, like the mail
+    photoLinkSecret: () => "e2e-photo-link-secret",
   };
 }
 
@@ -53,8 +56,22 @@ export function getDeps(): Deps {
     limiter,
     verifyTurnstile: (token, ip) => verifyTurnstile(token, ip, requireEnv("TURNSTILE_SECRET_KEY")),
     demo: !isProduction(),
+    bucket,
+    photoLinkSecret: () => requireEnv("PHOTO_LINK_SECRET"),
   };
 }
+
+// Trade-in photos (D-13): wrangler.jsonc LEAD_PHOTOS, a private EU bucket. Read per call, like the other bindings.
+const photos = () => {
+  const b = getBindings().LEAD_PHOTOS;
+  if (!b) throw new Error("Missing binding LEAD_PHOTOS");
+  return b;
+};
+const bucket: PhotoBucket = {
+  put: (key, value, opts) => photos().put(key, value, opts),
+  get: (key) => photos().get(key),
+  delete: (keys) => photos().delete(keys),
+};
 
 // Cloudflare Email Service (D-01). From the onboarded domain to the dealer; the buyer's address only goes in replyTo (D-02).
 const mailer: Mailer = {

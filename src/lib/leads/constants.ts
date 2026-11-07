@@ -12,4 +12,15 @@ export const CONTACT_ERROR = "Add a phone number or an email.";
 
 // YYYY-MM-DD for tomorrow in Ireland, where the dealer is, so the form's min and the server agree.
 export const tomorrow = (now = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Dublin" }).format(now.getTime() + 86_400_000);
-export const TIMES = { any: "Any time", morning: "Morning", afternoon: "Afternoon" } as const;
+// Trade-in photos (D-13, caps proven in the 03-01 spike). PHOTO_MAX_MB is checked on the picked original before the phone
+// shrinks it; the server enforces the stored and total caps, and next.config.ts's 18mb body cap sits just above the total.
+export const PHOTO_MAX_COUNT = 12;
+export const PHOTO_MAX_MB = 15;
+export const PHOTO_STORED_MAX_BYTES = 4 * 1024 * 1024;
+export const PHOTO_TOTAL_MAX_BYTES = 16 * 1024 * 1024;
+export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const photoError = (filename: string) => `${filename} is not a photo we can use. Use a JPEG, PNG or WebP under ${PHOTO_MAX_MB} MB.`;
+export const PHOTO_COUNT_ERROR = `You can add up to ${PHOTO_MAX_COUNT} photos.`;
+export const PHOTO_TOTAL_ERROR = "The photos are too big to send together. Remove one and try again.";
+
+export const TIMES ={ any: "Any time", morning: "Morning", afternoon: "Afternoon" } as const;

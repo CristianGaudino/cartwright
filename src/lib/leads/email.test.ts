@@ -50,6 +50,14 @@ describe("buildLeadEmail", () => {
     expect(text).toContain("2026-11-06T10:00:00.000Z");
   });
 
+  it("lists each trade-in photo as an absolute signed link, and no photo lines without photos", () => {
+    const paths = ["/lead-photos/trade-in/x/1.jpg?exp=1&sig=a", "/lead-photos/trade-in/x/2.png?exp=1&sig=b"];
+    const { text } = buildLeadEmail({ ...row, type: "trade_in" }, { demo: false, photoPaths: paths });
+    expect(text).toContain(`Photo 1: ${SITE_URL}${paths[0]}\n\nPhoto 2: ${SITE_URL}${paths[1]}`);
+    expect(buildLeadEmail(row, { demo: false }).text).not.toContain("Photo");
+    expect(buildLeadEmail(row, { demo: false, photoPaths: [] }).text).not.toContain("Photo");
+  });
+
   it("leaves the car out of the subject and body when the lead has no car", () => {
     const noCar = { ...row, carId: null, carSlug: null, carTitle: null, carPriceEur: null };
     const { subject, text } = buildLeadEmail(noCar, { demo: false });

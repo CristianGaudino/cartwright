@@ -15,7 +15,8 @@ const NAME = "ZZ-SENTINEL-NAME";
 const PHONE = "087 919 2939";
 const EMAIL = "zz-sentinel@example.com";
 const MESSAGE = "ZZ-SENTINEL-MESSAGE about the car";
-const SENTINELS = [NAME, PHONE, EMAIL, MESSAGE, "ZZ_SENTINEL_CODE", "E_DAILY_LIMIT_EXCEEDED"];
+const REG = "ZZ-SENTINEL"; // within the 12-character reg limit
+const SENTINELS = [NAME, PHONE, EMAIL, MESSAGE, REG, "ZZ_SENTINEL_CODE", "E_DAILY_LIMIT_EXCEEDED"];
 
 function form(fields: Record<string, string> = {}) {
   const fd = new FormData();
@@ -54,6 +55,8 @@ function deps(over: Partial<Deps> = {}): Deps {
     limiter: { allow: async () => true },
     verifyTurnstile: async (t) => t === "ok",
     demo: true,
+    bucket: { put: async () => {}, get: async () => null, delete: async () => {} },
+    photoLinkSecret: () => "test-secret",
     ...over,
   };
 }
@@ -91,6 +94,25 @@ const cases: [string, Outcome, () => FormData, () => Deps][] = [
           send: async () => {
             throw Object.assign(new Error(`daily limit reached sending for ${EMAIL}`), { code: "E_DAILY_LIMIT_EXCEEDED" });
           },
+        },
+      }),
+  ],
+  [
+    "a trade-in photo write throws with the reg in it",
+    "error",
+    () => {
+      const fd = form({ type: "trade_in", carId: "", reg: REG, mileage: "1000" });
+      fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `${REG}.jpg`));
+      return fd;
+    },
+    () =>
+      deps({
+        bucket: {
+          put: async () => {
+            throw new Error(`put failed for ${REG} ${NAME}`);
+          },
+          get: async () => null,
+          delete: async () => {},
         },
       }),
   ],

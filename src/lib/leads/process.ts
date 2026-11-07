@@ -4,7 +4,9 @@ import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
-import { CONSENT } from "./constants";
+import type { PhotoBucket } from "./bindings";
+import { CONSENT, PHOTO_COUNT_ERROR, PHOTO_MAX_COUNT, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoError } from "./constants";
+import { signPhotoPath, sniffImage } from "./photos";
 import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
 
@@ -51,6 +53,8 @@ export interface Deps {
   limiter: { allow(key: string): Promise<boolean> };
   verifyTurnstile(token: string, ip: string): Promise<boolean>;
   demo: boolean;
+  bucket: PhotoBucket; // LEAD_PHOTOS, private EU R2 (D-13)
+  photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
 }
 
 const OK: LeadResult = { status: "ok" };
@@ -65,6 +69,23 @@ export async function snapshotCar(carId: string | undefined, getCar: Deps["getCa
   const car = await getCar(carId);
   if (!car || isSold(car)) return null;
   return { carId: car.id, carSlug: car.slug, carTitle: carTitle(car), carPriceEur: car.priceEur };
+}
+
+type Photo = { file: Blob; ext: string; contentType: string };
+
+// Trade-in photos, checked by their bytes and the caps before anything is stored (T-03-30, T-03-31). The phone already
+// shrank them (03-14), so a refusal here means a forged or broken request.
+async function checkPhotos(files: Blob[]): Promise<{ photos: Photo[] } | { error: string }> {
+  if (files.length > PHOTO_MAX_COUNT) return { error: PHOTO_COUNT_ERROR };
+  if (files.reduce((n, f) => n + f.size, 0) > PHOTO_TOTAL_MAX_BYTES) return { error: PHOTO_TOTAL_ERROR };
+  const photos: Photo[] = [];
+  for (const file of files) {
+    const type = sniffImage(new Uint8Array(await file.slice(0, 12).arrayBuffer()));
+    // The name is the buyer's own and only goes back to them; capped so a forged one cannot bloat the answer.
+    if (!type || file.size > PHOTO_STORED_MAX_BYTES) return { error: photoError((file instanceof File ? file.name : "").slice(0, 100) || "A file") };
+    photos.push({ file, ...type });
+  }
+  return { photos };
 }
 
 // Logs exactly one line per request, with only the lead id, type and outcome (D-08). Nothing from a caught error is ever
@@ -91,9 +112,12 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       if (typeof v === "string") raw[k] = v;
     }
     const parsed = leadSchema.safeParse(raw);
-    if (!parsed.success) {
+    // Other lead types ignore photos. Checked with the fields, so a bad photo never spends the Turnstile token.
+    const checked = raw.type === "trade_in" ? await checkPhotos(fd.getAll("photos").filter((v) => typeof v !== "string")) : { photos: [] };
+    if (!parsed.success || "error" in checked) {
       logLead({ type: Object.hasOwn(TYPE_LABELS, raw.type ?? "") ? (raw.type as LeadType) : "n/a", outcome: "invalid" });
-      return { status: "invalid", fieldErrors: z.flattenError(parsed.error).fieldErrors as Record<string, string[]> };
+      const fieldErrors = parsed.success ? {} : (z.flattenError(parsed.error).fieldErrors as Record<string, string[]>);
+      return { status: "invalid", fieldErrors: "error" in checked ? { ...fieldErrors, photos: [checked.error] } : fieldErrors };
     }
     const input = parsed.data;
     type = input.type;
@@ -130,15 +154,37 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     };
     leadId = row.id;
 
-    // insert is false when another request with the same clientRef was stored first: a double submit that passed exists at the same moment (T-03-16).
-    if (!(await deps.store.insert(row))) {
+    // Photos go in before the row, under the lead's random id; the row keeps keys, never URLs (D-13). A failure from here to
+    // the insert deletes what this request put, so no orphan photo is left (T-03-35).
+    const keys = row.photoKeys;
+    const cleanup = async () => {
+      if (keys.length) await deps.bucket.delete(keys).catch(() => {});
+    };
+    let inserted: boolean;
+    try {
+      for (const [i, p] of checked.photos.entries()) {
+        const key = `trade-in/${row.id}/${i + 1}.${p.ext}`;
+        keys.push(key);
+        await deps.bucket.put(key, p.file, { httpMetadata: { contentType: p.contentType } });
+      }
+      inserted = await deps.store.insert(row);
+    } catch (e) {
+      await cleanup();
+      throw e;
+    }
+
+    // insert is false when another request with the same clientRef was stored first: a double submit that passed exists at
+    // the same moment (T-03-16). The stored lead keeps the other request's photos, so this one's are deleted.
+    if (!inserted) {
+      await cleanup();
       logLead({ leadId, type: input.type, outcome: "duplicate" });
       return OK;
     }
 
     // Awaited inline, not deferred: after() work can be cut off on Workers (research Anti-Patterns).
     try {
-      await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo }), replyTo: row.email ?? undefined });
+      const photoPaths = await Promise.all(keys.map(async (k) => signPhotoPath(k, deps.photoLinkSecret())));
+      await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo, photoPaths }), replyTo: row.email ?? undefined });
       await deps.store.markNotified(row.id);
     } catch {
       // The row is the record, so the buyer still gets ok. notified_at stays empty for the owner to find (03-06 runbook).

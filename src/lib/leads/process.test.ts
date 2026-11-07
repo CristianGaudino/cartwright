@@ -27,6 +27,8 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
     limiter: { allow: async () => true },
     verifyTurnstile: async (token) => token === "ok-token",
     demo: true,
+    bucket: { put: async () => {}, get: async () => null, delete: async () => {} },
+    photoLinkSecret: () => "test-secret",
   };
   return { deps, rows, mail, notified };
 }
