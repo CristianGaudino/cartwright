@@ -27,7 +27,7 @@ function CheckGroup({ title, group, options }: { title: string; group: "make" | 
   return (
     <fieldset className="flex min-w-0 flex-col">
       <legend className={`${legend} mb-1`}>{title}</legend>
-      <div id={listId} data-testid="facet-list" className={open ? "max-h-[320px] overflow-y-auto" : undefined}>
+      <div id={listId} data-testid="facet-list">
         {shown.map((row) => (
           <label key={row.value} className={`flex min-h-11 items-center gap-3 ${row.disabled ? "text-text-2" : ""}`}>
             <input
