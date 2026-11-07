@@ -7,4 +7,6 @@ const compare = createIdStore("carright:compare-ids", MAX_COMPARE);
 export const useCompareIds = compare.useIds;
 export const removeCompare = compare.remove;
 export const clearCompare = () => compare.set([]);
+// Undo: puts these cars back.
+export const restoreCompare = compare.restore;
 export const toggleCompare = (id: string): "added" | "removed" | "full" => compare.toggle(id);

@@ -42,5 +42,8 @@ export function createIdStore(key: string, max: number) {
     return "added";
   }
 
-  return { parse, subscribe: store.subscribe, useIds, set, remove, toggle };
+  // Undo: puts these ids back at the front of whatever the list is now, so a car added since is kept (up to the cap).
+  const restore = (ids: string[]) => set([...new Set([...ids, ...parse(store.read())])]);
+
+  return { parse, subscribe: store.subscribe, useIds, set, remove, toggle, restore };
 }
