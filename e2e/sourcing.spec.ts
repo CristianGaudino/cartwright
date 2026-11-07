@@ -66,3 +66,31 @@ test("the find-a-car page has the call card and fits a 320px screen", async ({ p
   await expect(page.locator("main a[href^='tel:']")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
+
+for (const [path, heading] of [
+  ["/contact", "Contact"],
+  ["/service", "Service"],
+] as const) {
+  test(`${path}: a message needs the message text, then ends on the thanks`, async ({ page }) => {
+    await open(page, path);
+    await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+    await page.getByLabel("Name").fill("Test Buyer");
+    await page.getByLabel("Phone").fill("087 123 4567");
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByRole("link", { name: "Tell us how we can help." })).toBeVisible();
+    await page.getByLabel("How can we help?").fill("Do you service Fords?");
+    await page.getByRole("button", { name: "Send message" }).click();
+    await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
+  });
+}
+
+test("after a general message the button goes home, not to the stock list", async ({ page }) => {
+  await open(page, "/contact");
+  await page.getByLabel("How can we help?").fill("Hello");
+  await page.getByLabel("Phone").fill("087 123 4567");
+  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/");
+});

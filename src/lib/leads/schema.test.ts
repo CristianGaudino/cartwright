@@ -84,6 +84,12 @@ describe("test drive and reserve (D-10, D-11)", () => {
     expect(errors({ ...find, make: "a".repeat(61) }).make).toBeDefined();
   });
 
+  it("needs a general message and takes no car", () => {
+    const hello = { ...base, type: "general", message: "Do you service Fords?", carId: "123" };
+    expect(errors({ ...hello, message: " " }).message).toEqual(["Tell us how we can help."]);
+    expect(leadSchema.parse(hello)).not.toHaveProperty("carId");
+  });
+
   it("takes a reserve request with no extra fields, and drops any it is sent", () => {
     const r = leadSchema.parse({ ...base, type: "reserve", preferredDay: "2020-01-01", price: "1" });
     expect(Object.keys(r).sort()).toEqual(["carId", "clientRef", "consent", "name", "phone", "sourcePath", "type"]);
