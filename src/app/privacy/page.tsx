@@ -4,7 +4,7 @@ import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
 import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
 
-export const metadata: Metadata = { title: "Privacy policy" };
+export const metadata: Metadata = { title: "Privacy policy", description: "How Carright uses the details you send us, how long we keep them, and how to ask for them to be deleted." };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
 // The email is a placeholder until carright.ie forwards to the dealer (issue #54), so it is shown only once confirmed.

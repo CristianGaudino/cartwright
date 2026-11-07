@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 
-export const metadata: Metadata = { title: "Sell your car in Tralee" };
+export const metadata: Metadata = { title: "Sell your car in Tralee", description: "Tell us about your car and we will come back with a valuation. Carright, Tralee, Co. Kerry." };
 
 export default function SellYourCarPage() {
   return (

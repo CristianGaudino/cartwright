@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_NAME } from "@/lib/site";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
 import { formatPrice } from "./format";
 import { carJsonLd } from "./seo";
 import type { Car, StockQuery } from "./types";
@@ -71,7 +71,7 @@ export function landingMetadata(l: Landing, f: Facts | null, canonical: string):
     title,
     description,
     alternates: { canonical },
-    openGraph: { type: "website", url: canonical, title, description },
+    openGraph: { type: "website", url: canonical, title, description, images: [DEFAULT_OG_IMAGE] },
     ...(f ? {} : { robots: { index: false } }),
   };
 }

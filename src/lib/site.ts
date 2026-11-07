@@ -1,5 +1,7 @@
 export const SITE_URL = "https://carright.cgaudino.com"; // demo domain (wrangler.jsonc routes); swap for the client's domain at handover
 export const SITE_NAME = "Carright";
+// The share image for any page without its own (a car has its own photo): the logo on the site's dark red glow.
+export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 export const DEALER_PHONE = "083 133 3154"; // as published on cartwright.ie (083-1333154); confirm with the dealer
 // PLACEHOLDER until carright.ie forwards to the dealer (issue #54).
 export const DEALER_EMAIL = "hello@carright.ie";

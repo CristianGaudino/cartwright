@@ -10,7 +10,7 @@ import { parseStockQuery, stockHref } from "@/lib/stock/query";
 // Filtered and sorted lists duplicate the landing pages, so only the bare list is indexable.
 export async function generateMetadata({ searchParams }: PageProps<"/used-cars">): Promise<Metadata> {
   const bare = Object.keys(await searchParams).length === 0;
-  return { title: "Used cars", alternates: { canonical: "/used-cars" }, robots: { index: indexable() && bare } };
+  return { title: "Used cars", description: "Browse the used cars in stock at Carright in Tralee, Co. Kerry. Filter by make, model, price, year and more.", alternates: { canonical: "/used-cars" }, robots: { index: indexable() && bare } };
 }
 
 export default async function UsedCarsPage({ searchParams }: PageProps<"/used-cars">) {
