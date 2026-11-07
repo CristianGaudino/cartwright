@@ -14,6 +14,9 @@ export function SiteHeader() {
           <Link href="/used-cars" className="font-semibold focus-visible:outline-white">
             Used cars
           </Link>
+          <Link href="/finance" className="hidden font-semibold focus-visible:outline-white lg:inline">
+            Finance
+          </Link>
           <Link href="/sell-your-car" className="hidden font-semibold focus-visible:outline-white lg:inline">
             Sell your car
           </Link>

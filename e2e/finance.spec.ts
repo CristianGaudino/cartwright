@@ -54,6 +54,17 @@ test("/finance shows what to fix, never NaN or a stale figure", async ({ page })
   expect(await page.locator("body").innerText()).not.toContain("NaN");
 });
 
+test("the header links /finance from 1024px, the footer always, and the header still fits 320px", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/used-cars");
+  await page.getByRole("banner").getByRole("link", { name: "Finance" }).click();
+  await expect(page).toHaveURL(/\/finance$/);
+  await page.setViewportSize({ width: 320, height: 640 });
+  await expect(page.getByRole("banner").getByRole("link", { name: "Finance" })).toBeHidden();
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Finance" })).toHaveAttribute("href", "/finance");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
 test("a sold car page has no Finance section", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
   await page.goto(`/used-cars/${sold!.slug}`);

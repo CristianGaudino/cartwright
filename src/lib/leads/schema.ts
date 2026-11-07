@@ -79,7 +79,7 @@ const tradeIn = {
 // D-17: deposit, term and employment only. The car is optional: none from /finance, the car's id from a car page.
 const BAD_DEPOSIT = "Enter the deposit in euros, numbers only.";
 const finance = {
-  carId: carId.optional(),
+  carId: given(carId.optional()),
   deposit: given(
     z
       .string({ error: BAD_DEPOSIT })

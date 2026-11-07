@@ -133,6 +133,8 @@ describe("finance application (FIN-03, D-17)", () => {
     expect(leadSchema.parse(apply)).toMatchObject({ type: "finance", deposit: 4000, term: 36, employment: "self_employed" });
     expect(leadSchema.parse(apply)).not.toHaveProperty("carId");
     expect(leadSchema.parse({ ...apply, carId })).toMatchObject({ carId });
+    expect(leadSchema.parse({ ...apply, carId: "" })).toMatchObject({ carId: undefined });
+    expect(errors({ ...apply, carId: "../1" }).carId).toBeDefined();
   });
 
   it("needs an employment status from the list", () => {
