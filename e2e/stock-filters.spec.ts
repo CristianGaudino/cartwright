@@ -117,7 +117,8 @@ test.describe("filters on a desktop", () => {
     await expect(checkboxes).toHaveCount(8);
     await showAll(page).click();
     await expect(checkboxes).toHaveCount(n);
-    expect(await makeGroup(page).getByTestId("facet-list").evaluate((el) => getComputedStyle(el).maxHeight)).toBe("320px");
+    // The list grows; the sheet or sidebar around it scrolls. A scroll box inside a scroll box traps a finger on a phone.
+    expect(await makeGroup(page).getByTestId("facet-list").evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
     await makeGroup(page).getByRole("button", { name: "Show fewer" }).click();
     await expect(checkboxes).toHaveCount(8);
   });
