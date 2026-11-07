@@ -50,9 +50,9 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 - [ ] **LED-01**: User can send an enquiry, book a test drive or reserve a car; the form is validated server-side, spam-protected, stored in Neon and emailed to the dealer (#11)
 - [ ] **LED-02**: Every lead records the car and the source page (#11)
 - [ ] **LED-03**: Leads are collected with consent, kept minimal and never logged (#11)
-- [ ] **LED-04**: User can request a trade-in valuation (reg, mileage, optional photos) (#12)
+- [x] **LED-04**: User can request a trade-in valuation (reg, mileage, optional photos) (#12)
 - [ ] **LED-05**: User can request a car the dealer does not have in stock (#12)
-- [ ] **LED-06**: Valuation and sourcing forms reuse the shared lead form pattern (#12)
+- [x] **LED-06**: Valuation and sourcing forms reuse the shared lead form pattern (#12)
 
 ### Finance
 
@@ -131,9 +131,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LED-01 | Phase 3 | Pending |
 | LED-02 | Phase 3 | Pending |
 | LED-03 | Phase 3 | Pending |
-| LED-04 | Phase 3 | Pending |
+| LED-04 | Phase 3 | Complete |
 | LED-05 | Phase 3 | Pending |
-| LED-06 | Phase 3 | Pending |
+| LED-06 | Phase 3 | Complete |
 | FIN-01 | Phase 3 | Pending |
 | FIN-02 | Phase 3 | Pending |
 | FIN-03 | Phase 3 | Pending |

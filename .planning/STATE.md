@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Completed 03-12-PLAN.md (feat/trade-in-sourcing, no PR until 03-14)
-last_updated: "2026-11-07T01:30:00.000Z"
+stopped_at: "Completed 03-14-PLAN.md (#12 PR open, waits on #49 and R2 provisioning)"
+last_updated: "2026-11-07T00:36:23.175Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: ac0ae189ac13bf8c5671d999d9ae5dc6d5d3c331
+state_head: aa9f613d2ab97c42a09bcda9e7b267b3aaa9edbe
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 33
-  completed_plans: 26
+  completed_plans: 28
   percent: 0
 ---
 
@@ -74,6 +74,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P10 | 70m | 2 tasks | 22 files |
 | Phase 03 P11 | 45m | 2 tasks | 16 files |
 | Phase 03 P12 | 20m | 2 tasks | 9 files |
+| Phase 03 P13 | 25m | 3 tasks | 15 files |
+| Phase 03 P14 | 40m | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -110,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase 03]: PR #49 (#11) opened without DATABASE_URL; do not merge until 03-02 provisioning is done
 - [Phase 03]: BUDGETS lives in src/lib/stock/types.ts so the server schema can read it (a value from a use client file is a client reference on the server); logged on #47
 - [Phase 03]: Server form pages render LeadPageForm, which picks the field set by type (a server page cannot pass LeadForm's render function); logged on #47
+- [Phase 03]: 03-13: trade-in photos go to a private EU R2 bucket under trade-in/{leadId}/, checked by bytes and caps with the fields; dealer links are HMAC-signed for 7 days; no bucket or secret provisioned yet (A6 untested)
+- [Phase 03]: 03-14: photos are shrunk to 2,000px JPEG on the phone and kept in LeadForm state; send waits while they shrink; #12 PR opened while #49 is open
 
 ### Pending Todos
 
@@ -133,6 +137,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-07T01:30:00.000Z
-Stopped at: Completed 03-12-PLAN.md (feat/trade-in-sourcing, no PR until 03-14)
+Last session: 2026-11-07T00:36:23.139Z
+Stopped at: Completed 03-14-PLAN.md (#12 PR open, waits on #49 and R2 provisioning)
 Resume file: None
