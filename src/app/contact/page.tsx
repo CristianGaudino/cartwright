@@ -8,10 +8,11 @@ import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { dealerJsonLd, directionsUrl, formatHours, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, OPENING_HOURS, SITE_NAME } from "@/lib/site";
+import { textLink as link } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, address and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
 
-const textLink = "inline-flex min-h-11 items-center self-start underline";
+const textLink = `${link} self-start`;
 
 // Phone and links, no form: a general enquiry needs a new lead type (D-05). No "open now": the page is cached and that
 // needs the visitor's clock.

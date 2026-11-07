@@ -4,7 +4,7 @@ import { leads } from "@/lib/db/schema";
 import type * as schema from "@/lib/db/schema";
 import type { LeadStore } from "./process";
 
-// Not server-only, so the PGlite integration test can run it. Plain insert, select and update only (no batch or
+// Not server-only, so the libSQL integration test can run it. Plain insert, select and update only (no batch or
 // transaction), so the D1 and libSQL drivers behave the same. Drizzle parameterises every value (T-03-14).
 export function createDrizzleStore(db: BaseSQLiteDatabase<"async", unknown, typeof schema>): LeadStore {
   return {

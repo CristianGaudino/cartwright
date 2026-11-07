@@ -1,4 +1,4 @@
-import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
+import { PhoneLink } from "@/components/PhoneLink";
 
 // The frame for the form pages (UI-SPEC Trade-in page): the form in a column of at most 640px, and the Prefer to talk card
 // beside it from 1024px, under it below that.
@@ -14,9 +14,7 @@ export function LeadPage({ title, intro, children }: { title: string; intro: str
           <p className="text-body">
             Call us on{" "}
             {/* 44px tall to tap; the negative margin keeps the line where it was. */}
-            <a href={`tel:${DEALER_TEL}`} className="-my-2.5 inline-flex min-h-11 items-center font-semibold underline">
-              {DEALER_PHONE}
-            </a>
+            <PhoneLink className="-my-2.5 inline-flex min-h-11 items-center font-semibold underline" />
           </p>
         </aside>
       </div>

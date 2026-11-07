@@ -5,8 +5,8 @@ import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon, SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
 import { useStock } from "./StockShell";
+import { accentButton, press } from "@/components/ui";
 
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 
 // Below 1024px the filter groups live only in this sheet; from 1024px the sidebar shows them and the sticky bar (and this button) is hidden.
 export function FilterSheet() {
@@ -92,7 +92,7 @@ export function FilterSheet() {
             disabled={total === 0}
             aria-busy={pending}
             onClick={() => dialog.current?.close()}
-            className={`h-12 flex-1 rounded-control bg-accent px-6 font-semibold text-white disabled:bg-hairline disabled:text-text-2 ${press}`}
+            className={`${accentButton} flex-1 disabled:bg-hairline disabled:text-text-2`}
           >
             {label}
           </button>

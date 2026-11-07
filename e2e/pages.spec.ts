@@ -58,10 +58,10 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
   expect(await pillBeforeH1(page)).toBe(true);
   await expect(main(page).getByRole("link", { name: "Call 083 133 3154" })).toHaveAttribute("href", TEL);
-  await expect(main(page).locator("address")).toContainText("[Street address]");
+  await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");
   const rows = main(page).locator("dl > div");
   await expect(rows).toHaveCount(7);
-  await expect(rows.first()).toContainText("9am to 6pm");
+  await expect(rows.first()).toContainText("9:30am to 6pm");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveAttribute("href", "/find-a-car");
   await expect(main(page).getByRole("link", { name: "Sell your car" })).toHaveAttribute("href", "/sell-your-car");

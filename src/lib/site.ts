@@ -10,21 +10,21 @@ export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
 export const isProduction = () => process.env.APP_ENV === "production";
 export const indexable = () => isProduction();
 
-// PLACEHOLDER: stays false until the dealer confirms the address, opening hours, services, About story and terms. While
+// PLACEHOLDER: stays false until the dealer confirms the services, About story and terms (address and hours are confirmed). While
 // false, pages show the Placeholder details pill and JSON-LD leaves out the street, postcode and hours. site.test.ts
 // fails a production deploy while it is false; dealer.test.ts fails if it is set while a bracketed value remains.
 export const DEALER_FACTS_CONFIRMED = false;
 // PLACEHOLDER: the dealer confirms the list.
 export const SERVICES = ["Servicing", "Repairs", "Tyres"] as const;
-// PLACEHOLDER: the dealer supplies these. Bracketed values never reach JSON-LD, the map or directions (dealer.ts).
-export const DEALER_ADDRESS = { street: "[Street address]", town: "Tralee", county: "Co. Kerry", eircode: "[Eircode]" };
-// PLACEHOLDER: sample hours, 24 hour HH:MM; no opens means closed.
+// Confirmed by the dealer, 2026-11-07.
+export const DEALER_ADDRESS = { street: "Ballymac, Maglass", town: "Tralee", county: "Co. Kerry", eircode: "V92 NT93" };
+// Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
-  { day: "Monday", opens: "09:00", closes: "18:00" },
-  { day: "Tuesday", opens: "09:00", closes: "18:00" },
-  { day: "Wednesday", opens: "09:00", closes: "18:00" },
-  { day: "Thursday", opens: "09:00", closes: "18:00" },
-  { day: "Friday", opens: "09:00", closes: "18:00" },
+  { day: "Monday", opens: "09:30", closes: "18:00" },
+  { day: "Tuesday", opens: "09:30", closes: "18:00" },
+  { day: "Wednesday", opens: "09:30", closes: "18:00" },
+  { day: "Thursday", opens: "09:30", closes: "18:00" },
+  { day: "Friday", opens: "09:30", closes: "18:00" },
   { day: "Saturday", opens: "10:00", closes: "16:00" },
   { day: "Sunday" },
 ];

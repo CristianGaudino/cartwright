@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { stock } from "@/lib/stock";
+import { accentButton } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Car no longer available", robots: { index: false } };
 
@@ -17,7 +18,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link
           href={`/used-cars/${make.slug}`}
-          className="inline-flex h-12 items-center rounded-control bg-accent px-6 font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100"
+          className={`inline-flex items-center ${accentButton}`}
         >
           See more {make.label}
         </Link>

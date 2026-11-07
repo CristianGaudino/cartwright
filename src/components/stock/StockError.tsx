@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { accentButton } from "@/components/ui";
 
 // Its own module so /saved can show it without loading the filter UI that lives in StockShell.
-export const stateButton =
-  "mt-6 inline-flex h-12 items-center rounded-control bg-accent px-6 font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100";
+export const stateButton = `mt-6 inline-flex items-center ${accentButton}`;
 
 // retry: what Try again does when the cars came from the browser (/saved) rather than the server render.
 export function StockError({ retry }: { retry?: () => void }) {

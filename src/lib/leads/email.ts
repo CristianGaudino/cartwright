@@ -10,7 +10,7 @@ function show(key: string, value: unknown): string {
   if (key === "preferredTime") return TIMES[v as keyof typeof TIMES] ?? v;
   if (key === "employment") return EMPLOYMENT[v as keyof typeof EMPLOYMENT] ?? v;
   if (key === "mileage") return `${Number(v).toLocaleString("en-IE")} km`;
-  if (key === "budgetMax" || key === "deposit") return formatPrice(Number(v));
+  if (key === "budgetMax" || key === "deposit" || key === "price") return formatPrice(Number(v));
   return v;
 }
 

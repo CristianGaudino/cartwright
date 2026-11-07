@@ -30,7 +30,7 @@ jobs:
       - run: npm run stock:redate # sold cars leave the 30 day window; keep the demo dates fresh
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test # unit and integration (lead store on an in-memory Postgres)
+      - run: npm test # unit and integration (lead store on in-memory SQLite)
       - name: Migrations consistent
         run: npx drizzle-kit check
       # The deploy migrates before the new code is live, so a new migration may only add things

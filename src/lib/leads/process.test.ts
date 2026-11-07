@@ -108,7 +108,7 @@ describe("processLead rules", () => {
     ["an unknown car", () => "999999999"],
   ])("refuses %s and stores nothing", async (_, id) => {
     const { deps, rows, mail } = fakeDeps();
-    expect(await processLead(enquiryForm({ carId: id() }), ctx, deps)).toEqual({ status: "failed", kind: "server" });
+    expect(await processLead(enquiryForm({ carId: id() }), ctx, deps)).toEqual({ status: "failed", kind: "gone" });
     expect(rows).toHaveLength(0);
     expect(mail).toHaveLength(0);
   });

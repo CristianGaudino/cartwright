@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { Field } from "@/components/leads/Field";
+import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
@@ -9,8 +10,8 @@ import { LeadForm } from "@/components/leads/LeadForm";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
+import { press } from "@/components/ui";
 
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits (and one decimal for the APR).
 const WHOLE = /^\d{0,6}$/;
 const RATE = /^\d{0,2}(\.\d?)?$/;
@@ -48,7 +49,7 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
     <>
       <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
         {/* Removed in one place: set placeholder to false in finance.config.ts. Never hidden with CSS (D-16). */}
-        {FINANCE.placeholder && <span className="inline-flex h-7 items-center self-start rounded-full bg-text px-3 text-meta font-semibold text-ink">Placeholder figures</span>}
+        {FINANCE.placeholder && <PlaceholderPill>Placeholder figures</PlaceholderPill>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {car ? (
             <div className="flex flex-col gap-1">
@@ -92,7 +93,7 @@ export function FinanceCalculator({ car }: { car?: CarSummary & { priceEur: numb
         ref={opener}
         type="button"
         onClick={() => {
-          setPrefill({ deposit, term }); // a new object on each open refreshes just these two fields in the form
+          setPrefill(car ? { deposit, term } : { price, deposit, term }); // a new object on each open refreshes just these fields in the form
           setOpen(true);
         }}
         className={`h-12 w-full rounded-control px-6 font-semibold sm:w-auto sm:min-w-60 sm:self-start ${press} ${car ? "border border-control bg-card text-text" : "bg-accent text-white"}`}

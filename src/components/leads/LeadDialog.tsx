@@ -8,11 +8,11 @@ import { CarFields, TypePicker } from "./CarFields";
 import type { CarLeadType } from "./CarFields";
 import { ContactFields, Field } from "./Field";
 import { LeadForm } from "./LeadForm";
+import { press } from "@/components/ui";
 
 // What the client needs to show a car. Never the Car object: the server reads the car again by id (LED-02).
 export type CarSummary = { id: string; name: string; title: string; price: string; photo?: string };
 
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 const action = `flex h-12 w-full items-center justify-center gap-2 rounded-control font-semibold ${press}`;
 
 // A native modal dialog on the Phase 1 sheet rules (D-09). It stays in the DOM while closed, so the form inside keeps its

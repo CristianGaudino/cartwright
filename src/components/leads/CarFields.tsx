@@ -5,10 +5,10 @@ import { CheckIcon } from "@/components/stock/icons";
 import { TIMES, tomorrow } from "@/lib/leads/constants";
 import { Field } from "./Field";
 import type { FieldBinding } from "./LeadForm";
+import { press } from "@/components/ui";
 
 export type CarLeadType = "enquiry" | "test_drive" | "reserve";
 
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 const TYPES: { value: CarLeadType; label: string }[] = [
   { value: "enquiry", label: "Enquire" },
   { value: "test_drive", label: "Test drive" },

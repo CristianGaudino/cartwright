@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
-import { DEALER_EMAIL, DEALER_PHONE, DEALER_TEL } from "@/lib/site";
+import { DEALER_EMAIL } from "@/lib/site";
+import { PhoneLink } from "@/components/PhoneLink";
 
 export const metadata: Metadata = { title: "Privacy policy" };
 
@@ -34,9 +35,7 @@ export default function PrivacyPage() {
       <InfoSection title="How to ask us to delete it">
         <p>
           Call us on{" "}
-          <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
-            {DEALER_PHONE}
-          </a>{" "}
+          <PhoneLink />{" "}
           or email{" "}
           <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
             {DEALER_EMAIL}

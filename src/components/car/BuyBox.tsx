@@ -7,8 +7,9 @@ import { DEALER_PHONE, SITE_URL } from "@/lib/site";
 import { carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
+import { accentButton } from "@/components/ui";
 
-const button = "flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100";
+const button = `flex w-full items-center justify-center gap-2 ${accentButton}`;
 
 // Server component. A sold car shows no price and no Call now, and never its sale date (owner instruction, 2026-11-06).
 export function BuyBox({ car }: { car: Car }) {
