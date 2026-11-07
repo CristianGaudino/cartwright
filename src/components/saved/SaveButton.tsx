@@ -24,7 +24,8 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
           // A sibling of the card's links, but stop anything above it from treating the tap as a card tap.
           e.preventDefault();
           e.stopPropagation();
-          setSaid(toggleSaved(id) ? "Saved" : "Removed from saved");
+          const result = toggleSaved(id);
+          setSaid(result === "saved" ? "Saved" : result === "removed" ? "Removed from saved" : "Your saved list is full. Remove a car to save another.");
         }}
         className={`inline-flex size-11 items-center justify-center text-text transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 ${looks[variant]}`}
       >

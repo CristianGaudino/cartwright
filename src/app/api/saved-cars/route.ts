@@ -11,8 +11,7 @@ export async function GET(req: Request) {
     return Response.json({ error: "bad ids" }, { status: 400, headers });
   }
   const ids = [...new Set(raw)];
-  // shortcut: one getById per id, up to 100 at once; free on the file provider. Give the CarsIreland provider (#16) a batch lookup.
-  const found = await Promise.all(ids.map((id) => stock.getById(id)));
+  const found = await stock.getByIds(ids);
   // The card uses neither the text nor the equipment, and a sale date never reaches the browser (owner rule, Phase 2).
   // Undefined keys are left out of the JSON.
   const cars = found.filter((c): c is Car => c !== null).map((c) => ({ ...c, description: undefined, features: undefined, soldAt: c.soldAt && "sold" }));

@@ -1,4 +1,4 @@
-# Cartwright
+# Carright
 
 A modern rebuild of [cartwright.ie](https://www.cartwright.ie/), a used car dealer in Tralee, Co. Kerry.
 

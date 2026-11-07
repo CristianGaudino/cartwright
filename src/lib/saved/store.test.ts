@@ -45,10 +45,10 @@ describe("toggleSaved", () => {
   it("adds a new id at the front, removes an existing one, and tells this tab at once", () => {
     const heard = vi.fn();
     store.subscribe(heard);
-    expect(store.toggleSaved("10")).toBe(true);
-    expect(store.toggleSaved("20")).toBe(true);
+    expect(store.toggleSaved("10")).toBe("saved");
+    expect(store.toggleSaved("20")).toBe("saved");
     expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["20", "10"]);
-    expect(store.toggleSaved("10")).toBe(false);
+    expect(store.toggleSaved("10")).toBe("removed");
     expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["20"]);
     expect(heard).toHaveBeenCalledTimes(3);
   });
@@ -59,13 +59,12 @@ describe("toggleSaved", () => {
     expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["30", "10"]);
   });
 
-  it("drops the oldest id when the list is full", () => {
-    store.setSavedIds(Array.from({ length: store.MAX_SAVED }, (_, i) => String(i + 1)));
-    store.toggleSaved("999");
-    const ids = JSON.parse(data.get(store.SAVED_KEY)!);
-    expect(ids).toHaveLength(store.MAX_SAVED);
-    expect(ids[0]).toBe("999");
-    expect(ids).not.toContain(String(store.MAX_SAVED));
+  it("refuses a new car when the list is full and keeps the list as it was", () => {
+    const full = Array.from({ length: store.MAX_SAVED }, (_, i) => String(i + 1));
+    store.setSavedIds(full);
+    expect(store.toggleSaved("999")).toBe("full");
+    expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(full);
+    expect(store.toggleSaved("1")).toBe("removed");
   });
 
   it("keeps working from memory when setItem throws, and nothing throws", () => {
@@ -74,9 +73,9 @@ describe("toggleSaved", () => {
     };
     const heard = vi.fn();
     store.subscribe(heard);
-    expect(store.toggleSaved("10")).toBe(true);
-    expect(store.toggleSaved("20")).toBe(true);
-    expect(store.toggleSaved("10")).toBe(false);
+    expect(store.toggleSaved("10")).toBe("saved");
+    expect(store.toggleSaved("20")).toBe("saved");
+    expect(store.toggleSaved("10")).toBe("removed");
     expect(heard).toHaveBeenCalledTimes(3);
     expect(data.size).toBe(0);
   });
@@ -90,8 +89,8 @@ describe("toggleSaved", () => {
         throw new DOMException("blocked", "SecurityError");
       },
     });
-    expect(store.toggleSaved("10")).toBe(true);
-    expect(store.toggleSaved("10")).toBe(false);
+    expect(store.toggleSaved("10")).toBe("saved");
+    expect(store.toggleSaved("10")).toBe("removed");
   });
 });
 

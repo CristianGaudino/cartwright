@@ -10,7 +10,7 @@ const live = cars.find((c) => !c.soldAt)!;
 const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 const UNKNOWN = "999999999999";
-const KEY = "cartwright:saved-ids";
+const KEY = "carright:saved-ids";
 
 // Seeds the saved list before the first load only, so a reload sees what the page left behind.
 const seed = (page: Page, ids: string[]) =>
@@ -35,7 +35,7 @@ test("a heart saves a car without leaving the page and the count survives a relo
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   expect(page.url()).toBe(url);
 
-  const stored = await page.evaluate(() => localStorage.getItem("cartwright:saved-ids"));
+  const stored = await page.evaluate(() => localStorage.getItem("carright:saved-ids"));
   const ids = JSON.parse(stored!) as unknown[];
   expect(ids).toHaveLength(1);
   for (const id of ids) expect(id).toMatch(/^\d{1,12}$/);

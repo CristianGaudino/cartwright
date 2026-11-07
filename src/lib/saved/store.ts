@@ -4,7 +4,7 @@ import { ID, MAX_SAVED } from "./ids";
 export { MAX_SAVED };
 
 // Client-safe: nothing here touches window or localStorage at import time, so server rendering can import it.
-export const SAVED_KEY = "cartwright:saved-ids";
+export const SAVED_KEY = "carright:saved-ids";
 
 const listeners = new Set<() => void>();
 // Set once a write fails (blocked storage or quota); from then on the page reads this instead.
@@ -70,9 +70,14 @@ export function removeSaved(gone: string[]) {
   setSavedIds(parseIds(read()).filter((id) => !gone.includes(id)));
 }
 
-export function toggleSaved(id: string): boolean {
+// "full" changes nothing: a buyer at the cap is told, not silently dropped the oldest car.
+export function toggleSaved(id: string): "saved" | "removed" | "full" {
   const ids = parseIds(read());
-  const saved = !ids.includes(id);
-  setSavedIds(saved ? [id, ...ids] : ids.filter((x) => x !== id));
-  return saved;
+  if (ids.includes(id)) {
+    setSavedIds(ids.filter((x) => x !== id));
+    return "removed";
+  }
+  if (ids.length >= MAX_SAVED) return "full";
+  setSavedIds([id, ...ids]);
+  return "saved";
 }

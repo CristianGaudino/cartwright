@@ -19,7 +19,7 @@ export function BuyBox({ car }: { car: Car }) {
         {sold && <SoldBadge />}
         <h1 className="break-words text-heading font-semibold">{carTitle(car)}</h1>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-4">
         {!sold && <p className="text-display font-semibold tabular-nums">{formatPrice(car.priceEur)}</p>}
         <div className="flex items-center gap-2">
           <SaveButton id={car.id} label="Save this car" variant="page" />

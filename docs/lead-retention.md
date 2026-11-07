@@ -34,14 +34,14 @@ Phone numbers are stored as typed, so try the common spellings (with and without
 
 ## Trade-in photos
 
-Photos sent with a trade-in request are stored in the private R2 bucket `cartwright-lead-photos` (EU jurisdiction, no public access, no custom domain) under `trade-in/{lead id}/`. The lead row keeps their keys in `photo_keys`. Run the commands below from the repo with a logged-in wrangler (`npx wrangler login`). The flags are for wrangler 4.157; check `--help` if a newer wrangler refuses them.
+Photos sent with a trade-in request are stored in the private R2 bucket `carright-lead-photos` (EU jurisdiction, no public access, no custom domain) under `trade-in/{lead id}/`. The lead row keeps their keys in `photo_keys`. Run the commands below from the repo with a logged-in wrangler (`npx wrangler login`). The flags are for wrangler 4.157; check `--help` if a newer wrangler refuses them.
 
 ### Setting up the bucket (once)
 
 ```sh
-npx wrangler r2 bucket create cartwright-lead-photos --jurisdiction eu
-npx wrangler r2 bucket lifecycle add cartwright-lead-photos delete-trade-in-photos trade-in/ --expire-days 365 --jurisdiction eu
-npx wrangler r2 bucket lifecycle list cartwright-lead-photos --jurisdiction eu
+npx wrangler r2 bucket create carright-lead-photos --jurisdiction eu
+npx wrangler r2 bucket lifecycle add carright-lead-photos delete-trade-in-photos trade-in/ --expire-days 365 --jurisdiction eu
+npx wrangler r2 bucket lifecycle list carright-lead-photos --jurisdiction eu
 node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64url'))" | npx wrangler secret put PHOTO_LINK_SECRET
 ```
 
@@ -68,7 +68,7 @@ SELECT id, photo_keys FROM leads WHERE id IN ('<id>', '<id>');
 Delete each key, then the rows:
 
 ```sh
-npx wrangler r2 object delete "cartwright-lead-photos/<key>" --jurisdiction eu --remote
+npx wrangler r2 object delete "carright-lead-photos/<key>" --jurisdiction eu --remote
 ```
 
 ### Opening a photo after its email link has expired
@@ -82,7 +82,7 @@ SELECT photo_keys FROM leads WHERE id = '<lead id>';
 Then download each one:
 
 ```sh
-npx wrangler r2 object get "cartwright-lead-photos/<key>" --jurisdiction eu --remote --file photo.jpg
+npx wrangler r2 object get "carright-lead-photos/<key>" --jurisdiction eu --remote --file photo.jpg
 ```
 
 The admin inbox (#20) replaces this with fresh links.

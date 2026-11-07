@@ -61,7 +61,7 @@ Tracer gate: Task 1's `<verify>` (typecheck, lint, build, car-page and stock E2E
 
 - `npm test`: 232 passed. `npm run typecheck` (next typegen + tsc): 0. `npm run lint`: 0. `npm run build`: 0, prints `ƒ /used-cars/[slug]` (dynamic).
 - Full Playwright suite on `PORT=3114` against a production build: 79 passed (car-page 11, plus the existing stock, filters, sold, carousel, indexing and smoke specs).
-- `grep dangerouslySetInnerHTML src` lists only `src/components/JsonLd.tsx`; no `soldAt` or `Sold on` in any `.tsx`; no em dash and no "Cartwright" in the new source files; no `loading.tsx` under the route.
+- `grep dangerouslySetInnerHTML src` lists only `src/components/JsonLd.tsx`; no `soldAt` or `Sold on` in any `.tsx`; no em dash and no "Carright" in the new source files; no `loading.tsx` under the route.
 
 ## Deviations from Plan
 
@@ -82,7 +82,7 @@ Tracer gate: Task 1's `<verify>` (typecheck, lint, build, car-page and stock E2E
 
 ## Data note for the owner and later plans
 
-About 6 demo cars (e.g. 4396311, 4520171, 4381995, 4474493, 4401031, 4390543) have a description that is a short word followed by an equipment list as a comma-separated line (from 02-01's parser). The plan renders the description as published, so About this car shows that text as is. Not trimmed; fixing it belongs in the demo-stock parser (split the line into `features`), or a render-time rule if the owner prefers. Some descriptions also contain the dealer's own "Cartwright" wording and lines ending in commas; left as published.
+About 6 demo cars (e.g. 4396311, 4520171, 4381995, 4474493, 4401031, 4390543) have a description that is a short word followed by an equipment list as a comma-separated line (from 02-01's parser). The plan renders the description as published, so About this car shows that text as is. Not trimmed; fixing it belongs in the demo-stock parser (split the line into `features`), or a render-time rule if the owner prefers. Some descriptions also contain the dealer's own "Carright" wording and lines ending in commas; left as published.
 
 ## Known Stubs
 

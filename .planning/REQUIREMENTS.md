@@ -1,4 +1,4 @@
-# Requirements: Cartwright
+# Requirements: Carright
 
 **Defined:** 2026-11-03
 **Core Value:** A buyer can find a car on their phone, fast, and send the dealer an enquiry about it.

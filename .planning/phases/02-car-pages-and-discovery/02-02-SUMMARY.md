@@ -26,7 +26,7 @@ key-files:
     - "src/app/used-cars/[slug]/page.tsx"
     - "src/app/used-cars/(browse)/page.tsx"
 key-decisions:
-  - "SITE_NAME is Carright (rebrand), not Cartwright from the UI-SPEC copy"
+  - "SITE_NAME is Carright (rebrand), not Carright from the UI-SPEC copy"
   - "DEALER_PHONE is the number cartwright.ie publishes, flagged to confirm with the dealer"
   - "Sitemap has no lastmod and no photos; one stock.query with pageSize 1000 (shortcut comment)"
 requirements-completed: [CAR-03]

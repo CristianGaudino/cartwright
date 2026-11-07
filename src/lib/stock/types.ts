@@ -109,6 +109,7 @@ export interface StockProvider {
   query(q: StockQuery): Promise<StockResult>;
   getBySlug(slug: string): Promise<Car | null>; // in stock or sold inside the period
   getById(id: string): Promise<Car | null>; // the stable source listing id (STK-01 "one car by id/slug"); same visibility as getBySlug
+  getByIds(ids: string[]): Promise<(Car | null)[]>; // same order as asked; one round trip for a live provider
   lookup(slug: string): Promise<Lookup>;
   taxonomy(): Promise<Taxonomy>; // over every car, expired included
 }

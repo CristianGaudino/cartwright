@@ -60,7 +60,7 @@ status: partial
 
 Task 1 asks for a one-off download of `https://www.cartwright.ie/app/uploads/2024/09/logo.png`. This run was told to send no network request to the dealer site, and there is no local copy (`.stock-cache` holds only listing and detail HTML and car photos, and no other repo or folder on this machine has it). A made-up file would break the "locked asset" rule, so none was added.
 
-Effect: `SiteHeader` already points at `/brand/logo.png` (650 x 270, `alt="Cartwright"`), so until the file is added the header shows the alt text on ink. Build, typecheck, lint and the smoke spec do not need the file and pass.
+Effect: `SiteHeader` already points at `/brand/logo.png` (650 x 270, `alt="Carright"`), so until the file is added the header shows the alt text on ink. Build, typecheck, lint and the smoke spec do not need the file and pass.
 
 To finish (needs network, so not done here):
 
@@ -74,7 +74,7 @@ Then commit `public/brand/logo.png` as `feat(01-04): the locked logo`. Threat T-
 ## Accomplishments
 - `globals.css` holds the UI-SPEC tokens. `--text-*: initial` and `--font-weight-*: initial` leave exactly four sizes (meta, body, heading, display) and two weights (normal, semibold). The logo's bright red has no token.
 - `images.unoptimized: true`, so `next/image` serves files as they are (no Images binding needed on the Worker).
-- `SiteHeader` is a server component on `bg-ink`, 56px high (64px from `lg`), in normal flow (no sticky or fixed), with one `Used cars` link. It is rendered above `{children}` in the root layout, and the title template is `%s | Cartwright`.
+- `SiteHeader` is a server component on `bg-ink`, 56px high (64px from `lg`), in normal flow (no sticky or fixed), with one `Used cars` link. It is rendered above `{children}` in the root layout, and the title template is `%s | Carright`.
 - `parseStockQuery` never throws: first value of repeats, `q` trimmed and cut to 80, slug lists whitelisted (`^[a-z0-9]+(-[a-z0-9]+)*$`, 40 chars, 20 values), integers bounded, `pageSize` fixed at 12. `toSearchParams` and `stockHref` write one canonical URL in UI-SPEC order with plain commas; a round trip test covers four full queries.
 - Formatters give `€18,950`, `84,000 km`, `Audi A4 2.0 TDI S line`, `2019 Audi A4`, `2019 · 84,000 km · Diesel · Manual` and `No cars` / `1 car` / `24 cars`.
 
@@ -85,7 +85,7 @@ Then commit `public/brand/logo.png` as `feat(01-04): the locked logo`. Threat T-
 
 ## Verification (by exit code)
 - `npm run typecheck`: 0. `npm run lint`: 0. `npm test`: 0 (5 files, 110 tests, 19 new). `npm run build`: 0.
-- Prerendered `index.html` contains `src="/brand/logo.png"`, `alt="Cartwright"` and `<header`. `npx playwright test e2e/smoke.spec.ts`: 2 passed.
+- Prerendered `index.html` contains `src="/brand/logo.png"`, `alt="Carright"` and `<header`. `npx playwright test e2e/smoke.spec.ts`: 2 passed.
 - No `text-xs|sm|lg|xl|2xl|3xl` in `src/app` or `src/components`; no em dash there; no `sticky` or `fixed` in `SiteHeader.tsx`; no `console.` in the new modules.
 - The sharp logo check (Task 1 first verify) was not run: the file does not exist.
 

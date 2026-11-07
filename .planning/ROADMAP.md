@@ -1,4 +1,4 @@
-# Roadmap: Cartwright
+# Roadmap: Carright
 
 ## Overview
 
@@ -118,7 +118,7 @@ Plans:
 
 ### Phase 4: Reviews and Core Pages
 
-**Goal**: The site presents Cartwright as a real local dealer: a home page that shows stock and reviews, the supporting pages, and one consistent header and footer.
+**Goal**: The site presents Carright as a real local dealer: a home page that shows stock and reviews, the supporting pages, and one consistent header and footer.
 **Depends on**: Phase 3
 **Requirements**: REV-01, REV-02, REV-03, PGS-01, PGS-02, PGS-03, PGS-04
 **Issues**: #13 (REV-01, REV-02, REV-03), #14 (PGS-01, PGS-02, PGS-03, PGS-04)

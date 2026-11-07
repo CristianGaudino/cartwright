@@ -341,15 +341,15 @@ The make is known for 410 because the slug prefix is the make slug and the expir
 
 ## Metadata copy (D-07, D-17)
 
-The root layout already adds ` | Cartwright` through `title.template`. **Page titles below must not repeat it.** No em dashes. Keep titles under 60 characters before the suffix.
+The root layout already adds ` | Carright` through `title.template`. **Page titles below must not repeat it.** No em dashes. Keep titles under 60 characters before the suffix.
 
 | Page | Title | Meta description |
 |------|-------|------------------|
-| Car | `{year} {make} {model} {variant} for sale` | `{year} {make} {model} {variant}. {mileage}, {fuel}, {transmission}. {price}. Cartwright, Tralee, Co. Kerry.` Missing fields drop with their separator (as `carMeta`). Sold cars: replace the price with `Sold on {date}.` |
-| Make | `Used {Make} for sale in Tralee` | `{n} used {Make} in stock at Cartwright, Tralee, from {min} to {max}. Models: {list}.` |
-| Body type | `Used {Body} cars for sale in Tralee` | `{n} used {Body} cars in stock at Cartwright, Tralee, from {min} to {max}. Makes: {list}.` |
-| Make and model | `Used {Make} {Model} for sale in Tralee` | `{n} used {Make} {Model} in stock at Cartwright, Tralee, from {min} to {max}.` |
-| Empty landing | Same title as above | `No {Make} in stock at Cartwright right now. See what we have in Tralee, Co. Kerry.` (noindex) |
+| Car | `{year} {make} {model} {variant} for sale` | `{year} {make} {model} {variant}. {mileage}, {fuel}, {transmission}. {price}. Carright, Tralee, Co. Kerry.` Missing fields drop with their separator (as `carMeta`). Sold cars: replace the price with `Sold on {date}.` |
+| Make | `Used {Make} for sale in Tralee` | `{n} used {Make} in stock at Carright, Tralee, from {min} to {max}. Models: {list}.` |
+| Body type | `Used {Body} cars for sale in Tralee` | `{n} used {Body} cars in stock at Carright, Tralee, from {min} to {max}. Makes: {list}.` |
+| Make and model | `Used {Make} {Model} for sale in Tralee` | `{n} used {Make} {Model} in stock at Carright, Tralee, from {min} to {max}.` |
+| Empty landing | Same title as above | `No {Make} in stock at Carright right now. See what we have in Tralee, Co. Kerry.` (noindex) |
 | 410, 404 | `Car no longer available`, `Page not found` | none |
 
 Open Graph and Twitter: `og:title` equals the title, `og:description` the description, `og:image` the car's generated image, `twitter:card` is `summary_large_image`. `og:image:alt` is `{year} {make} {model}`. Landing pages use the first in-stock car's OG image (planner may choose none; no new image is generated for landing pages).
