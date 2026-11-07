@@ -75,6 +75,15 @@ describe("test drive and reserve (D-10, D-11)", () => {
     expect(errors({ ...drive, preferredTime: "midnight" }).preferredTime).toEqual(["Choose a time from the list."]);
   });
 
+  it("needs a sourcing message, and takes only a budget from the list", () => {
+    const find = { ...base, type: "sourcing", message: "A small automatic" };
+    expect(errors({ ...find, message: " " }).message).toEqual(["Tell us what you are looking for."]);
+    expect(leadSchema.parse({ ...find, budgetMax: "", make: "" })).not.toHaveProperty("carId");
+    expect(leadSchema.parse({ ...find, budgetMax: "20000" })).toMatchObject({ budgetMax: 20000 });
+    expect(errors({ ...find, budgetMax: "12345" }).budgetMax).toBeDefined();
+    expect(errors({ ...find, make: "a".repeat(61) }).make).toBeDefined();
+  });
+
   it("takes a reserve request with no extra fields, and drops any it is sent", () => {
     const r = leadSchema.parse({ ...base, type: "reserve", preferredDay: "2020-01-01", price: "1" });
     expect(Object.keys(r).sort()).toEqual(["carId", "clientRef", "consent", "name", "phone", "sourcePath", "type"]);

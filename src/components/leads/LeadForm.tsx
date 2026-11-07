@@ -122,8 +122,12 @@ export function LeadForm({
     });
   }
 
-  const pad = variant === "dialog" ? "px-4" : "";
-  const footer = `flex shrink-0 pt-3 ${variant === "dialog" ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
+  const dialog = variant === "dialog";
+  const pad = dialog ? "px-4" : "";
+  const footer = `flex shrink-0 pt-3 ${dialog ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
+  // On a page the body is not its own scroll area, and the button is full width on phones, auto (240px or more) from 640px.
+  const body = dialog ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : "";
+  const submitWidth = dialog ? "flex-1" : "w-full px-6 sm:w-auto sm:min-w-60";
 
   // The form element stays put after a success so the Turnstile slot inside it keeps its widget for the next request.
   return (
@@ -139,7 +143,7 @@ export function LeadForm({
           <p className="max-w-[65ch] text-body">{success.body}</p>
         </div>
       ) : (
-        <div className={`flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto overscroll-contain py-2 ${pad}`}>
+        <div className={`flex flex-col gap-6 py-2 ${body} ${pad}`}>
           {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
           {failure && (
             <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
@@ -204,20 +208,22 @@ export function LeadForm({
       {/* Turnstile slot: zero height until Cloudflare shows a challenge (03-01: 0px, 71px with one). */}
       <div ref={slot} className={`shrink-0 ${pad}`} />
       {done ? (
-        variant === "dialog" ? (
+        dialog ? (
           <div className={`mt-auto ${footer}`}>
             <button type="button" onClick={(e) => e.currentTarget.closest("dialog")?.close()} className={`h-12 flex-1 rounded-control border border-control bg-card font-semibold ${press}`}>
               Close
             </button>
           </div>
         ) : (
-          <Link href="/used-cars" className="font-semibold underline">
-            Back to used cars
-          </Link>
+          <div className={footer}>
+            <Link href="/used-cars" className={`inline-flex h-12 items-center justify-center rounded-control border border-control bg-card px-6 font-semibold ${press}`}>
+              Back to used cars
+            </Link>
+          </div>
         )
       ) : (
         <div className={footer}>
-          <button type="submit" disabled={pending} aria-busy={pending} className={`h-12 flex-1 rounded-control bg-accent font-semibold text-white disabled:opacity-60 ${press}`}>
+          <button type="submit" disabled={pending} aria-busy={pending} className={`h-12 ${submitWidth} rounded-control bg-accent font-semibold text-white disabled:opacity-60 ${press}`}>
             {pending ? "Sending" : submitLabel}
           </button>
         </div>

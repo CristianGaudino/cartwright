@@ -7,7 +7,7 @@ import type { FieldBinding } from "./LeadForm";
 // Inputs read as wells: ink inside a dialog (the dialog is card), card on a page (UI-SPEC Color).
 const control = "w-full rounded-control border border-control bg-card text-body in-[dialog]:bg-surface aria-[invalid=true]:border-destructive";
 
-type InputProps = Pick<React.InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "maxLength" | "enterKeyHint" | "inputMode" | "min">;
+type InputProps = Pick<React.InputHTMLAttributes<HTMLInputElement>, "type" | "autoComplete" | "autoCapitalize" | "spellCheck" | "placeholder" | "maxLength" | "enterKeyHint" | "inputMode" | "min">;
 
 // One labelled control with its helper and error lines (UI-SPEC Form fields, Accessibility baseline).
 // invalid and describedBy let ContactFields mark Phone with the one contact error that shows under Email.
@@ -19,21 +19,23 @@ export function Field({
   options,
   invalid,
   describedBy,
+  suffix,
   id,
   name,
   value,
   onChange,
   error,
   ...input
-}: FieldBinding & InputProps & { label: string; optional?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string }) {
+}: FieldBinding & InputProps & { label: string; optional?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string; suffix?: string }) {
   const helperId = helper ? `${id}-helper` : undefined;
   const errorId = error ? `${id}-error` : undefined;
+  const suffixId = suffix ? `${id}-suffix` : undefined; // read with the field, so "km" is not lost to screen readers
   const common = {
     id,
     name,
     value,
     "aria-invalid": error || invalid ? true : undefined,
-    "aria-describedby": [helperId, errorId, describedBy].filter(Boolean).join(" ") || undefined,
+    "aria-describedby": [suffixId, helperId, errorId, describedBy].filter(Boolean).join(" ") || undefined,
   };
   return (
     <div className="flex flex-col gap-1">
@@ -54,6 +56,13 @@ export function Field({
         </span>
       ) : multiline ? (
         <textarea {...common} maxLength={input.maxLength} enterKeyHint="enter" onChange={(e) => onChange(e.target.value)} className={`${control} min-h-28 resize-none px-4 py-3`} />
+      ) : suffix ? (
+        <span className="relative">
+          <input {...common} {...input} onChange={(e) => onChange(e.target.value)} className={`${control} h-12 pl-4 pr-12`} />
+          <span id={suffixId} className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-meta text-text-2">
+            {suffix}
+          </span>
+        </span>
       ) : (
         <input {...common} {...input} onChange={(e) => onChange(e.target.value)} className={`${control} h-12 px-4`} />
       )}

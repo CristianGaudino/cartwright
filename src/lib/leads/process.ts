@@ -103,7 +103,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       return { status: "failed", kind: "captcha" };
     }
 
-    const car = await snapshotCar(input.carId, deps.getCar);
+    const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar);
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
       return SERVER;

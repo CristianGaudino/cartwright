@@ -179,6 +179,24 @@ describe("processLead bot checks (D-05)", () => {
     expect(Object.keys(rows[0].details)).toHaveLength(2);
   });
 
+  // Confirms the 03-05 snapshotCar rule for a car-less type: if this fails, fix snapshotCar, never the test.
+  it("stores a sourcing request with no car, never looks one up, and drops a forged carId", async () => {
+    const { deps, rows } = fakeDeps();
+    const getCar = vi.fn(deps.getCar);
+    deps.getCar = getCar;
+    const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", make: "Toyota", model: "", budgetMax: "20000", message: "A small automatic" });
+    fd.delete("carId");
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    fd.set("carId", live.id);
+    fd.set("clientRef", crypto.randomUUID());
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    for (const row of rows) {
+      expect(row).toMatchObject({ type: "sourcing", carId: null, carSlug: null, carTitle: null, carPriceEur: null, message: "A small automatic" });
+      expect(row.details).toEqual({ make: "Toyota", budgetMax: 20000 });
+    }
+    expect(getCar).not.toHaveBeenCalled();
+  });
+
   it("answers a filled honeypot without spending the rate limit", async () => {
     const { deps } = fakeDeps();
     const allow = vi.fn(deps.limiter.allow);

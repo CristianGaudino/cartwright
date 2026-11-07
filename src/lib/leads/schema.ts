@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUDGETS } from "@/lib/stock/types";
 import { CONTACT_ERROR, LIMITS, TIMES, tomorrow } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
@@ -34,11 +35,28 @@ const testDrive = {
   preferredTime: given(z.enum(Object.keys(TIMES) as [keyof typeof TIMES], { error: "Choose a time from the list." }).default("any")),
 };
 
+const carText = {
+  make: given(z.string().trim().max(60, tooLong(60)).optional()),
+  model: given(z.string().trim().max(60, tooLong(60)).optional()),
+};
+// No carId key on the car-less types, so a forged one is dropped and snapshotCar stores no car (T-03-27).
+const sourcing = {
+  ...carText,
+  budgetMax: given(
+    z
+      .enum(BUDGETS.map(String) as [string, ...string[]], { error: "Choose a budget from the list." })
+      .transform(Number)
+      .optional(),
+  ),
+  message: given(z.string({ error: "Tell us what you are looking for." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
+};
+
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
     z.object({ type: z.literal("test_drive"), carId, ...contact, ...testDrive }),
     z.object({ type: z.literal("reserve"), carId, ...contact }),
+    z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
@@ -51,6 +69,17 @@ export type LeadInput = z.infer<typeof leadSchema>;
 export type LeadType = LeadInput["type"];
 
 // Email subject words (D-02).
-export const TYPE_LABELS: Record<LeadType, string> = { enquiry: "Enquiry", test_drive: "Test drive request", reserve: "Reservation request" };
+export const TYPE_LABELS: Record<LeadType, string> = {
+  enquiry: "Enquiry",
+  test_drive: "Test drive request",
+  reserve: "Reservation request",
+  sourcing: "Find a car request",
+};
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
-export const DETAIL_LABELS: Record<string, string> = { preferredDay: "Preferred day", preferredTime: "Preferred time" };
+export const DETAIL_LABELS: Record<string, string> = {
+  preferredDay: "Preferred day",
+  preferredTime: "Preferred time",
+  make: "Make",
+  model: "Model",
+  budgetMax: "Budget up to",
+};
