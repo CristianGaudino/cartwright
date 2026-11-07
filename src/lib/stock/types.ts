@@ -11,6 +11,8 @@ export const FUEL_LABELS: Record<Fuel, string> = {
 export const GEARBOXES = ["manual", "automatic"] as const;
 export type Gearbox = (typeof GEARBOXES)[number];
 export const GEARBOX_LABELS: Record<Gearbox, string> = { manual: "Manual", automatic: "Automatic" };
+// Price steps for the Budget filter and the find-a-car form; here, not in StockFilters, so the server schema can read it.
+export const BUDGETS = [2500, 5000, 7500, 10000, ...Array.from({ length: 18 }, (_, i) => 15000 + i * 5000)];
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 

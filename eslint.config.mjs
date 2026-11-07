@@ -21,5 +21,10 @@ export default defineConfig([
       ],
     },
   },
+  {
+    // D-08: no console calls in the lead path. src/lib/log.ts is the only logger and sits outside this scope on purpose.
+    files: ["src/lib/leads/**", "src/components/leads/**", "src/app/actions/**", "src/app/lead-photos/**"],
+    rules: { "no-console": "error" },
+  },
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", ".open-next/**", ".wrangler/**", ".claude/**", ".agents/**", "playwright-report/**", "test-results/**", ".stock-cache/**"]),
 ]);

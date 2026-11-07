@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { formatKm, formatPrice } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
-import { GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
+import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { CheckIcon, ChevronDownIcon } from "./icons";
 import { useStock } from "./StockShell";
@@ -12,7 +12,6 @@ const COLLAPSED = 8;
 const legend = "text-body font-semibold";
 const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 const link = `min-h-11 self-start text-body font-semibold underline ${press}`;
-const BUDGETS = [2500, 5000, 7500, 10000, ...Array.from({ length: 18 }, (_, i) => 15000 + i * 5000)];
 const KMS = [20000, 50000, 80000, 100000, 150000];
 
 // Make and Model: a checkbox list with counts. Collapsed it shows the top 8 plus every ticked row, so a ticked row never hides (BRW-01).

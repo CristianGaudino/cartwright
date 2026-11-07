@@ -5,12 +5,14 @@ import { JsonLd } from "@/components/JsonLd";
 import { BuyBox } from "@/components/car/BuyBox";
 import { CarGallery } from "@/components/car/CarGallery";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
+import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
 import { BackToCars } from "@/components/stock/BackToCars";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { SoldBadge } from "@/components/stock/SoldBadge";
+import { financeable } from "@/lib/finance/payment";
 import { stock } from "@/lib/stock";
-import { carName } from "@/lib/stock/format";
+import { carName, carSummary } from "@/lib/stock/format";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { carJsonLd, carMetadata } from "@/lib/stock/seo";
@@ -66,6 +68,13 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           <AboutCar car={car} />
           <Specifications car={car} />
           <Equipment car={car} />
+          {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
+          {!isSold(car) && financeable(car.priceEur) && (
+            <section className="flex flex-col gap-4">
+              <h2 className="text-heading font-semibold">Finance</h2>
+              <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />
+            </section>
+          )}
         </div>
         <div className="mt-6 lg:col-span-2">
           <SimilarCars car={car} cars={similar} />

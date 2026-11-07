@@ -21,7 +21,8 @@ test.describe("a car for sale", () => {
     await page.goto(await firstCarHref(page));
     const box = buyBox(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    const price = box.getByText(/^€[\d,]+$/);
+    // The closed lead dialog in the buy box also shows the price, so take the visible one.
+    const price = box.getByText(/^€[\d,]+$/).filter({ visible: true });
     await expect(price).toBeVisible();
 
     const call = box.getByRole("link", { name: "Call now" });
@@ -37,6 +38,29 @@ test.describe("a car for sale", () => {
     const viewport = page.viewportSize()!.height;
     expect((await price.boundingBox())!.y).toBeLessThan(viewport);
     expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport);
+  });
+
+  test("holds four 48px buttons in the 104px action area at 320px, and nothing below moves on hydration", async ({ page, browser }) => {
+    const viewport = { width: 320, height: 640 };
+    await page.setViewportSize(viewport);
+    const href = await firstCarHref(page);
+    // The top of what follows the buy box, measured on the server render (no JavaScript) and after hydration.
+    const below = (p: Page) => p.evaluate(() => document.querySelector("[data-testid=buy-box]")!.parentElement!.nextElementSibling!.getBoundingClientRect().top + scrollY);
+    const noJs = await browser.newContext({ javaScriptEnabled: false, viewport });
+    const before = await noJs.newPage();
+    await before.goto(href);
+    const serverTop = await below(before);
+    await noJs.close();
+
+    await page.goto(href);
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const area = page.getByTestId("action-area");
+    await expect(area).toHaveCSS("min-height", "104px");
+    expect((await area.boundingBox())!.height).toBeLessThanOrEqual(104);
+    const buttons = area.locator("a, button").filter({ visible: true });
+    await expect(buttons).toHaveCount(4);
+    for (const b of await buttons.all()) expect((await b.boundingBox())!.height).toBe(48);
+    expect(await below(page)).toBe(serverTop);
   });
 
   test("does not scroll sideways at 320px", async ({ page }) => {
@@ -145,7 +169,7 @@ test("an in-stock car page has a canonical URL, a description and Product plus C
   expect(await description(page)).toMatch(/Tralee, Co\. Kerry\.$/);
   const ld = await jsonLd(page);
   expect(ld["@type"]).toEqual(expect.arrayContaining(["Car", "Product"]));
-  const shown = await buyBox(page).getByText(/^€[\d,]+$/).textContent();
+  const shown = await buyBox(page).getByText(/^€[\d,]+$/).filter({ visible: true }).textContent();
   expect(ld.offers.price).toBe(Number(shown!.replace(/\D/g, "")));
   expect(ld.offers.availability).toBe("https://schema.org/InStock");
 });

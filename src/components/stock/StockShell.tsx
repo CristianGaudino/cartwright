@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
@@ -140,6 +141,9 @@ export function EmptyState() {
     <div className="py-16 text-center">
       <h2 className="text-heading font-semibold">No cars match these filters</h2>
       <p className="mt-2 text-body text-text-2">Try removing a filter.</p>
+      <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+        Cannot find it? Ask us to find it for you.
+      </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear all filters
       </button>

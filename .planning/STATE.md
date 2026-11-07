@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Design and Stock Browsing
 status: verifying
-stopped_at: Phase 2 context gathered
-last_updated: "2026-11-06T16:49:38.416Z"
+stopped_at: "Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)"
+last_updated: "2026-11-07T00:54:56.240Z"
 last_activity: 2026-11-05
 last_activity_desc: Phase 01 execution started
-state_head: 3fac071bf8133db9d4f3becb42805431f6bcecb0
+state_head: 3f93f167cdccd8cb1b5ebbf8d9ad0f6db8f3c44e
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 33
+  completed_plans: 30
   percent: 0
 ---
 
@@ -65,6 +65,19 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P09 | 25 min | 2 tasks | 10 files |
 | Phase 01 P06 | 25 min | 2 tasks | 6 files |
 | Phase 01 P08 | 40min | 2 tasks | 4 files |
+| Phase 03 P01 | 35m | 3 tasks | 3 files |
+| Phase 03 P04 | 50m | 2 tasks | 17 files |
+| Phase 03 P05 | 10m | 2 tasks | 5 files |
+| Phase 03 P06 | 25m | 3 tasks | 16 files |
+| Phase 03 P08 | 25m | 2 tasks | 15 files |
+| Phase 03 P09 | 20m | 1 tasks | 7 files |
+| Phase 03 P10 | 70m | 2 tasks | 22 files |
+| Phase 03 P11 | 45m | 2 tasks | 16 files |
+| Phase 03 P12 | 20m | 2 tasks | 9 files |
+| Phase 03 P13 | 25m | 3 tasks | 15 files |
+| Phase 03 P14 | 40m | 3 tasks | 17 files |
+| Phase 03 P15 | 50m | 2 tasks | 14 files |
+| Phase 03 P16 | 45m | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -88,6 +101,23 @@ Recent decisions affecting current work:
 - [Phase 01]: 01-09: loading.tsx adds about 300 ms of skeleton on every first load with the in-memory provider (React reveal throttle); owner may delete it
 - [Phase 01]: 01-06: chips row hides its Clear all filters when the result is empty (the empty state carries it); facet options use aria-disabled so they stay focusable
 - [Phase 01]: 01-08: the sheet's primary button reads summary.total, which only changes when a result lands, so it keeps the last count while pending
+- [Phase 03]: Photo transport is action-formdata (photos in the lead server action FormData; 15 MB picked, 4 MB stored, 16 MB per request, 12 files, 18mb body cap). Overnight default, logged on #47
+- [Phase 03]: Packages approved against vintage's lockfile (same version and sha512) because 03-02 is not done
+- [Phase 03]: A sold or unknown car refuses the lead with failed/server and logs outcome invalid, not error
+- [Phase 03]: A markNotified failure after a sent email counts as notify_failed
+- [Phase 03]: LEAD_FROM_EMAIL is a placeholder (leads@cgaudino.com) until 03-02 records the sending address; logged on #47
+- [Phase 03]: Leads columns locked as research-columns (D-03). Overnight default, logged on #47; migration generated, not applied to any database
+- [Phase 03]: deploy.yml carries Cloudflare's always-pass Turnstile test site key as a PLACEHOLDER until 03-02; leads fail closed on the demo until real keys exist (#47)
+- [Phase 03]: Turnstile is reset only after answers that may spend the token, not after a field error or rate limit
+- [Phase 03]: /privacy deletion contact is DEALER_PHONE only (no public email yet); DEALER_PHONE stays unconfirmed (#47)
+- [Phase 03]: Client lead components import constants from src/lib/leads/constants.ts, never schema.ts (keeps zod out of the bundle)
+- [Phase 03]: PR #49 (#11) opened without DATABASE_URL; do not merge until 03-02 provisioning is done
+- [Phase 03]: BUDGETS lives in src/lib/stock/types.ts so the server schema can read it (a value from a use client file is a client reference on the server); logged on #47
+- [Phase 03]: Server form pages render LeadPageForm, which picks the field set by type (a server page cannot pass LeadForm's render function); logged on #47
+- [Phase 03]: 03-13: trade-in photos go to a private EU R2 bucket under trade-in/{leadId}/, checked by bytes and caps with the fields; dealer links are HMAC-signed for 7 days; no bucket or secret provisioned yet (A6 untested)
+- [Phase 03]: 03-14: photos are shrunk to 2,000px JPEG on the phone and kept in LeadForm state; send waits while they shrink; #12 PR opened while #49 is open
+- [Phase 03]: 03-15: finance calculator on /finance with PLACEHOLDER config and production guard test; finance application is a lead with deposit, term and employment only (D-17); deposit required
+- [Phase 03]: 03-16: Finance section on in-stock car pages priced 1,000 to 250,000; #9 PR #51 opened while #49 and #50 are open; placeholder figures need the dealer's terms, wording and credit intermediary status
 
 ### Pending Todos
 
@@ -111,6 +141,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-06T16:49:38.395Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-car-pages-and-discovery/02-CONTEXT.md
+Last session: 2026-11-07T00:54:56.203Z
+Stopped at: Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)
+Resume file: None

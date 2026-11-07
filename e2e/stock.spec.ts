@@ -71,7 +71,7 @@ test("a car page shows title, price and a way back", async ({ page }) => {
   await page.locator("article h2 a").first().click();
   await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByTestId("buy-box").getByText(/^€[\d,]+$/)).toBeVisible();
+  await expect(page.getByTestId("buy-box").getByText(/^€[\d,]+$/).filter({ visible: true })).toBeVisible();
   await page.getByRole("link", { name: "Back to used cars" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
 });
@@ -204,6 +204,7 @@ test("zero matches show the empty state and Clear all filters brings the cars ba
   await page.goto("/used-cars?make=zzzz");
   await expect(page.getByRole("heading", { name: "No cars match these filters" })).toBeVisible();
   await expect(page.getByText("Try removing a filter.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Cannot find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.locator("article")).toHaveCount(0);
   await page.getByRole("button", { name: "Clear all filters" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);
