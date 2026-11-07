@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
 import { slash } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Car finance calculator" };
+export const metadata: Metadata = { title: "Car finance calculator", description: "Work out a monthly payment on a used car, then send us an application. Carright, Tralee, Co. Kerry." };
 
 export default function FinancePage() {
   return (

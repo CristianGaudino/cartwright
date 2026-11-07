@@ -110,3 +110,25 @@ for (const path of ["/service", "/about", "/terms", "/privacy", "/contact"]) {
     await fits320(page, path);
   });
 }
+
+// Every page can be shared and found: its own description, a canonical address and a share image (a car has its own photo).
+for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/privacy", "/terms"]) {
+  test(`${path}: a description of its own, a canonical link and a share image`, async ({ page }) => {
+    await page.goto(path);
+    const desc = await page.locator('meta[name="description"]').getAttribute("content");
+    expect(desc!.length).toBeGreaterThan(40);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Carright");
+  });
+}
+
+test("no two of the main pages share a description", async ({ page }) => {
+  const seen = new Set<string>();
+  for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/privacy", "/terms"]) {
+    await page.goto(path);
+    const desc = (await page.locator('meta[name="description"]').getAttribute("content"))!;
+    expect(seen.has(desc), `${path}: ${desc}`).toBe(false);
+    seen.add(desc);
+  }
+});

@@ -37,7 +37,8 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
   // Every filter applies unless its group is `skip`, which is how facet counts stay disjunctive.
   const matches = (c: Car, q: StockQuery, skip?: FacetGroup) => {
     if (skip !== "make" && q.make.length && !q.make.includes(c.makeSlug)) return false;
-    if (skip !== "model" && q.model.length && !q.model.includes(c.modelSlug)) return false;
+    // Model slugs repeat across makes (Fiat 500, Abarth 500), so a model counts only under a make the buyer picked (#68).
+    if (skip !== "model" && q.model.length && !(q.model.includes(c.modelSlug) && (!q.make.length || q.make.includes(c.makeSlug)))) return false;
     if (skip !== "body" && q.body.length && !(c.bodySlug && q.body.includes(c.bodySlug))) return false;
     if (skip !== "fuel" && q.fuel.length && !(c.fuel && q.fuel.includes(c.fuel))) return false;
     if (skip !== "gearbox" && q.gearbox && c.gearbox !== q.gearbox) return false;
