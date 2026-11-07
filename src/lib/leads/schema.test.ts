@@ -124,3 +124,33 @@ describe("trade-in (LED-04, D-14)", () => {
     expect(errors({ ...sell, model: "a".repeat(61) }).model).toBeDefined();
   });
 });
+
+describe("finance application (FIN-03, D-17)", () => {
+  const { carId, ...noCar } = base;
+  const apply = { ...noCar, type: "finance", deposit: "4,000", term: "36", employment: "self_employed" };
+
+  it("takes deposit, term and employment, with or without a car", () => {
+    expect(leadSchema.parse(apply)).toMatchObject({ type: "finance", deposit: 4000, term: 36, employment: "self_employed" });
+    expect(leadSchema.parse(apply)).not.toHaveProperty("carId");
+    expect(leadSchema.parse({ ...apply, carId })).toMatchObject({ carId });
+  });
+
+  it("needs an employment status from the list", () => {
+    expect(errors({ ...apply, employment: undefined }).employment).toEqual(["Choose an employment status."]);
+    expect(errors({ ...apply, employment: "" }).employment).toEqual(["Choose an employment status."]);
+    expect(errors({ ...apply, employment: "unemployed" }).employment).toEqual(["Choose an employment status."]);
+  });
+
+  it("takes only a term from the list and a whole deposit from 0 to 250,000", () => {
+    expect(errors({ ...apply, term: "30" }).term).toEqual(["Choose a term from the list."]);
+    expect(errors({ ...apply, term: "" }).term).toEqual(["Choose a term from the list."]);
+    expect(errors({ ...apply, deposit: "0" })).toEqual({});
+    expect(errors({ ...apply, deposit: "250000" })).toEqual({});
+    for (const deposit of ["250001", "12.5", "-1", "", "abc"]) expect(errors({ ...apply, deposit }).deposit).toEqual(["Enter the deposit in euros, numbers only."]);
+  });
+
+  it("drops income, date of birth and bank details", () => {
+    const r = leadSchema.parse({ ...apply, income: "50000", dateOfBirth: "1990-01-01", iban: "IE00BANK" });
+    expect(Object.keys(r).sort()).toEqual(["clientRef", "consent", "deposit", "employment", "name", "phone", "sourcePath", "term", "type"]);
+  });
+});

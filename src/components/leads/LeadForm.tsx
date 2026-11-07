@@ -36,6 +36,7 @@ export function LeadForm({
   variant,
   submitLabel,
   success,
+  prefill,
   children,
 }: {
   type: LeadType;
@@ -43,10 +44,16 @@ export function LeadForm({
   variant: "dialog" | "page";
   submitLabel: string;
   success: { heading: string; body: string };
+  prefill?: Record<string, string>; // a new object overwrites those fields and keeps the rest (the calculator's deposit and term)
   children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding }) => React.ReactNode;
 }) {
   const uid = useId();
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(prefill ?? {});
+  const [prefilled, setPrefilled] = useState(prefill);
+  if (prefill !== prefilled) {
+    setPrefilled(prefill);
+    setValues((s) => ({ ...s, ...prefill }));
+  }
   const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
   const [shrinking, setShrinking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});

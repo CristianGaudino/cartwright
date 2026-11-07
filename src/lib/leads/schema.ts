@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { FINANCE } from "@/lib/finance/finance.config";
 import { BUDGETS } from "@/lib/stock/types";
-import { CONTACT_ERROR, LIMITS, TIMES, tomorrow } from "./constants";
+import { CONTACT_ERROR, EMPLOYMENT, LIMITS, TIMES, tomorrow } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -75,6 +76,22 @@ const tradeIn = {
   ),
 };
 
+// D-17: deposit, term and employment only. The car is optional: none from /finance, the car's id from a car page.
+const BAD_DEPOSIT = "Enter the deposit in euros, numbers only.";
+const finance = {
+  carId: carId.optional(),
+  deposit: given(
+    z
+      .string({ error: BAD_DEPOSIT })
+      .transform((v) => v.replaceAll(",", "").trim())
+      .pipe(z.string().regex(/^\d{1,6}$/, BAD_DEPOSIT))
+      .transform(Number)
+      .refine((n) => n <= 250000, BAD_DEPOSIT),
+  ),
+  term: given(z.enum(FINANCE.terms.map(String) as [string, ...string[]], { error: "Choose a term from the list." }).transform(Number)),
+  employment: given(z.enum(Object.keys(EMPLOYMENT) as [keyof typeof EMPLOYMENT], { error: "Choose an employment status." })),
+};
+
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
@@ -82,6 +99,7 @@ export const leadSchema = z
     z.object({ type: z.literal("reserve"), carId, ...contact }),
     z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
+    z.object({ type: z.literal("finance"), ...contact, ...finance }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
@@ -100,6 +118,7 @@ export const TYPE_LABELS: Record<LeadType, string> = {
   reserve: "Reservation request",
   sourcing: "Find a car request",
   trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
+  finance: "Finance application",
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
@@ -111,4 +130,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   model: "Model",
   year: "Year",
   budgetMax: "Budget up to",
+  deposit: "Deposit (EUR)",
+  term: "Term (months)",
+  employment: "Employment status",
 };

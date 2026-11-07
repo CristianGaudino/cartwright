@@ -211,6 +211,29 @@ describe("processLead bot checks (D-05)", () => {
     expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
   });
 
+  // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.
+  it("stores a finance application from /finance with no car and never looks one up", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    const getCar = vi.fn(deps.getCar);
+    deps.getCar = getCar;
+    const fd = enquiryForm({ type: "finance", sourcePath: "/finance", deposit: "4000", term: "36", employment: "employed", income: "50000", dateOfBirth: "1990-01-01", iban: "IE00BANK" });
+    fd.delete("carId");
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "finance", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
+    expect(rows[0].details).toEqual({ deposit: 4000, term: 36, employment: "employed" });
+    expect(JSON.stringify(rows[0])).not.toMatch(/50000|1990-01-01|IE00BANK/); // D-17
+    expect(mail[0].text).not.toMatch(/50000|1990-01-01|IE00BANK/);
+    expect(getCar).not.toHaveBeenCalled();
+    expect(mail[0].subject).toBe("[DEMO] Finance application");
+  });
+
+  it("stores a finance application from a car page with that car", async () => {
+    const { deps, rows } = fakeDeps();
+    const fd = enquiryForm({ type: "finance", deposit: "4000", term: "36", employment: "retired" });
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "finance", carId: live.id, carSlug: live.slug, carTitle: carTitle(live), carPriceEur: live.priceEur });
+  });
+
   it("answers a filled honeypot without spending the rate limit", async () => {
     const { deps } = fakeDeps();
     const allow = vi.fn(deps.limiter.allow);

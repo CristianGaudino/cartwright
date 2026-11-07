@@ -24,3 +24,5 @@ export const PHOTO_COUNT_ERROR = `You can add up to ${PHOTO_MAX_COUNT} photos.`;
 export const PHOTO_TOTAL_ERROR = "The photos are too big to send together. Remove one and try again.";
 
 export const TIMES ={ any: "Any time", morning: "Morning", afternoon: "Afternoon" } as const;
+// D-17: the only thing a finance application asks about the buyer's circumstances. No income, date of birth or bank details.
+export const EMPLOYMENT = { employed: "Employed", self_employed: "Self-employed", retired: "Retired", student: "Student", other: "Other" } as const;
