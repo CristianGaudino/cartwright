@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("home page renders", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Used cars in Tralee" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toBeVisible();
 });
 
 test("robots.txt answers", async ({ request }) => {

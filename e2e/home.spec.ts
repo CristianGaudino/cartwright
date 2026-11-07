@@ -10,27 +10,57 @@ const newest = inStock[0];
 test("title, one h1 and a search that lands on used cars", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Carright | Used cars in Tralee");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toHaveCount(1);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  await page.getByRole("searchbox", { name: "Search make or model" }).fill(newest.make);
-  await page.getByRole("searchbox", { name: "Search make or model" }).press("Enter");
+  await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
+  await page.getByRole("button", { name: "Search cars" }).click();
   await expect(page).toHaveURL(/\/used-cars\?/);
-  expect(new URL(page.url()).searchParams.get("q")).toBe(newest.make);
+  expect(new URL(page.url()).searchParams.get("make")).toBe(newest.make.toLowerCase().replaceAll(" ", "-"));
 });
 
-test("latest arrivals: the newest in-stock cars and See all", async ({ page }) => {
+test("picking a make narrows the model list, and the Find me a car tab links to the form page", async ({ page }) => {
   await page.goto("/");
-  const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Latest arrivals" }) });
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const model = page.getByLabel("Model", { exact: true });
+  const all = await model.locator("option").count();
+  await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
+  expect(await model.locator("option").count()).toBeLessThan(all);
+  await page.getByRole("tab", { name: "Find me a car" }).click();
+  await expect(page.getByRole("link", { name: "Ask us to find it" })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
+});
+
+test("featured stock: the newest in-stock cars and View all stock", async ({ page }) => {
+  await page.goto("/");
+  const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Featured stock" }) });
   const cards = section.locator("article");
   await expect(cards).toHaveCount(Math.min(6, inStock.length));
   await expect(cards.first().locator("a").first()).toHaveAttribute("href", `/used-cars/${newest.slug}`);
-  await expect(section.getByRole("link", { name: `See all ${inStock.length} used cars` })).toHaveAttribute("href", "/used-cars");
+  await expect(section.getByRole("link", { name: "View all stock" })).toHaveAttribute("href", "/used-cars");
+});
+
+test.describe("desktop pointer", () => {
+  test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
+
+  test("the featured row pages with its arrows, and the trust icons are all the same size", async ({ page }) => {
+    await page.goto("/");
+    const row = page.getByRole("group", { name: "Featured stock" });
+    const next = row.getByRole("button", { name: "Next cars" });
+    await expect(next).toBeVisible();
+    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0");
+    await next.click();
+    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "1");
+    for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
+      const box = (await icon.boundingBox())!;
+      expect([box.width, box.height]).toEqual([32, 32]);
+    }
+  });
 });
 
 // Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
 test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
   await page.goto("/");
-  for (const el of [page.locator("article").first(), page.getByRole("button", { name: "Search" }), page.getByRole("main").getByRole("link", { name: /^Finance/ })]) {
+  for (const el of [page.locator("article").first(), page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse our stock" })]) {
     await expect(el).toHaveCSS("transition-property", /\bscale\b/);
   }
   for (const link of await page.getByRole("navigation", { name: "Main" }).getByRole("link").filter({ visible: true }).all()) {
@@ -38,17 +68,21 @@ test("press feedback eases scale, and header links are 44px tall", async ({ page
   }
 });
 
-test("reviews, help links and AutoDealer JSON-LD", async ({ page }) => {
+test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
-    [/^Finance/, "/finance"],
-    [/^Sell your car/, "/sell-your-car"],
-    [/^Find a car/, "/find-a-car"],
+    [/^Flexible finance/, "/finance"],
+    [/^Trade-in welcome/, "/sell-your-car"],
+    [/^Test drives/, "/used-cars"],
+    ["Check finance options", "/finance"],
+    ["Get a finance quote", "/finance"],
   ] as const) {
     await expect(main.getByRole("link", { name })).toHaveAttribute("href", href);
   }
+  // The two warranty lines are unconfirmed, so the strip says so.
+  await expect(page.getByRole("region", { name: "Why buy from us" }).getByText("Placeholder details")).toBeVisible();
   const scripts = page.locator('script[type="application/ld+json"]');
   await expect(scripts).toHaveCount(1);
   const data = JSON.parse((await scripts.textContent())!);
@@ -56,13 +90,13 @@ test("reviews, help links and AutoDealer JSON-LD", async ({ page }) => {
   expect(data).not.toHaveProperty("aggregateRating");
 });
 
-test("at 320px nothing scrolls sideways and the search field and button share a row", async ({ page }) => {
+test("at 320px nothing scrolls sideways and the search selects sit two to a row", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
-  const input = await page.getByRole("searchbox", { name: "Search make or model" }).boundingBox();
-  const button = await page.getByRole("button", { name: "Search" }).boundingBox();
-  expect(input!.y).toBe(button!.y);
+  const make = await page.getByLabel("Make", { exact: true }).boundingBox();
+  const model = await page.getByLabel("Model", { exact: true }).boundingBox();
+  expect(make!.y).toBe(model!.y);
 });
 
 test.describe("without JavaScript", () => {
@@ -70,8 +104,8 @@ test.describe("without JavaScript", () => {
 
   test("the search still lands on used cars", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("searchbox", { name: "Search make or model" }).fill(newest.make);
-    await page.getByRole("button", { name: "Search" }).click();
-    await expect(page).toHaveURL(/\/used-cars\?q=/);
+    await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
+    await page.getByRole("button", { name: "Search cars" }).click();
+    await expect(page).toHaveURL(/\/used-cars\?.*make=/);
   });
 });

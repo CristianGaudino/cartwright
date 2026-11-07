@@ -13,6 +13,12 @@
   --text-heading: 1.25rem;
   --text-heading--line-height: 1.2;
   --text-heading--letter-spacing: -0.01em;
+  --text-hero: 2.5rem;
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.03em;
+  --text-hero-lg: 4rem;
+  --text-hero-lg--line-height: 1.02;
+  --text-hero-lg--letter-spacing: -0.035em;
   --text-display: 2rem;
   --text-display--line-height: 1.1;
   --text-display--letter-spacing: -0.02em;
@@ -335,4 +341,12 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
 :is(input, select, textarea)[aria-invalid="true"]:focus-visible {
   border-color: var(--color-destructive);
   box-shadow: 0 0 0 1px var(--color-destructive);
+}
+
+/* Home hero and the finance banner (mockup): a dark panel with a red glow, no photo yet. */
+.hero-bg {
+  background:
+    radial-gradient(70% 90% at 92% 0%, rgb(208 2 2 / 0.22), transparent 65%),
+    radial-gradient(50% 60% at 0% 100%, rgb(208 2 2 / 0.08), transparent 70%),
+    linear-gradient(180deg, #0d141b 0%, var(--color-surface) 100%);
 }
