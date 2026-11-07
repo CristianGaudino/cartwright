@@ -24,7 +24,7 @@ function HelpCard({ href, title, text }: { href: string; title: string; text: st
     <li>
       <Link
         href={href}
-        className="flex h-full min-h-11 items-center gap-4 rounded-card border border-hairline bg-card p-4 transition-[box-shadow,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:active:scale-100 contrast-more:border-text [@media(hover:hover)]:hover:shadow-lift"
+        className="flex h-full min-h-11 items-center gap-4 rounded-card border border-hairline bg-card p-4 [transition:box-shadow_200ms_ease-out,scale_100ms_ease-out] active:scale-[0.97] motion-reduce:active:scale-100 contrast-more:border-text [@media(hover:hover)]:hover:shadow-lift"
       >
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="text-body font-semibold">{title}</span>

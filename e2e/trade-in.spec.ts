@@ -66,7 +66,7 @@ test("a photo is shrunk, previewed and sent with the valuation request", async (
   await page.getByLabel("Mileage").fill("120500");
   await contact(page);
   await page.getByRole("button", { name: "Get my valuation" }).click();
-  await expect(page.getByRole("heading", { name: "Thanks, we have your car." })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Thanks, we have your car details." })).toBeFocused();
 });
 
 test("a removed photo leaves the grid and is announced", async ({ page }) => {
@@ -143,7 +143,7 @@ test("a lower-case reg and a mileage with a comma send", async ({ page }) => {
   await page.getByLabel("Mileage").fill("120,500");
   await contact(page);
   await page.getByRole("button", { name: "Get my valuation" }).click();
-  await expect(page.getByRole("heading", { name: "Thanks, we have your car." })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Thanks, we have your car details." })).toBeFocused();
 });
 
 test("an empty reg is listed in the summary and the typed mileage stays", async ({ page }) => {

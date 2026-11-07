@@ -368,7 +368,7 @@ Plain, short, human. No em dashes anywhere on the site. If a label already says 
 | Success: enquiry | Heading: Thanks, we have your enquiry. Body: We will get back to you about the {year} {make} {model}. |
 | Success: test drive | Heading: Thanks, we have your request. Body: We will call you to confirm a time for a test drive. |
 | Success: reserve | Heading: Thanks, we have your request. Body: This is not a booking yet. We will call you to confirm. |
-| Success: trade-in | Heading: Thanks, we have your car. Body: We will look at the details and come back with a valuation. |
+| Success: trade-in | Heading: Thanks, we have your car details. Body: We will come back with a valuation. |
 | Success: sourcing | Heading: Thanks, we will look for it. Body: We will get in touch if we find a match. |
 | Success: finance | Heading: Thanks, we have your application. Body: We will contact you to go through the next steps. |
 | Success actions | Close (dialog), Back to used cars (page) |
