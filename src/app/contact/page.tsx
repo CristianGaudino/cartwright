@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
-import { CallButton } from "@/components/InfoPage";
+import { CallButton, InfoSection } from "@/components/InfoPage";
 import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { PlaceholderPill } from "@/components/PlaceholderPill";
@@ -32,8 +32,7 @@ export default async function ContactPage() {
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-8">
           <CallButton>Call {DEALER_PHONE}</CallButton>
-          <section className="flex flex-col gap-2">
-            <h2 className="text-heading font-semibold">Address</h2>
+          <InfoSection title="Address">
             <address className="not-italic">
               {address.map((line) => (
                 <span key={line} className="block">
@@ -41,9 +40,8 @@ export default async function ContactPage() {
                 </span>
               ))}
             </address>
-          </section>
-          <section className="flex flex-col gap-2">
-            <h2 className="text-heading font-semibold">Opening hours</h2>
+          </InfoSection>
+          <InfoSection title="Opening hours">
             <dl>
               {OPENING_HOURS.map((h) => (
                 <div key={h.day} className="flex justify-between gap-4 border-b border-hairline py-3">
@@ -52,7 +50,7 @@ export default async function ContactPage() {
                 </div>
               ))}
             </dl>
-          </section>
+          </InfoSection>
           <div className="flex flex-col">
             <Link href="/find-a-car" className={textLink}>
               Ask us to find a car

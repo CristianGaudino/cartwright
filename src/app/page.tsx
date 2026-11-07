@@ -40,7 +40,11 @@ export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
   await connection();
   // The home page must never error: a stock failure shows a line in place of the grid (UI-SPEC state table).
-  const [result, reviews] = await Promise.all([stock.query({ ...DEFAULT_QUERY, pageSize: 6 }).catch(() => null), getReviews()]);
+  const latest = stock.query({ ...DEFAULT_QUERY, pageSize: 6 }).catch((e) => {
+    console.error("stock.query failed", e instanceof Error ? e.name : typeof e); // as /used-cars: the name only
+    return null;
+  });
+  const [result, reviews] = await Promise.all([latest, getReviews()]);
   return (
     <main className="mx-auto flex max-w-[1280px] flex-col gap-12 px-4 pb-16 pt-12 sm:px-6 lg:gap-16 lg:px-8">
       <JsonLd data={dealerJsonLd(reviews)} />

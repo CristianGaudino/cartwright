@@ -40,37 +40,48 @@ function toReview(r: unknown, i: number, placeUri: string): Review | null {
 }
 
 // Places API (New) Place Details. Any failure is null: the page hides the section, never shows an error (D-03).
-export function createPlacesProvider({ placeId, apiKey, fetch = (url, init) => globalThis.fetch(url, init), now = Date.now }: Options): ReviewsProvider {
+export function createPlacesProvider({
+  placeId,
+  apiKey,
+  fetch = (url, init) => globalThis.fetch(url, init),
+  now = Date.now,
+}: Options): ReviewsProvider {
   // shortcut: open-next.config.ts uses the dummy incremental cache, so fetch revalidate shares nothing across Worker
   // isolates and this memo is per isolate. Add the R2 incremental cache (as vintage) before go-live.
   let last: { at: number; data: Reviews } | undefined;
+  let pending: Promise<Reviews | null> | undefined; // one call in flight, shared by every request that arrives meanwhile
+
+  async function load(): Promise<Reviews | null> {
+    try {
+      const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+        headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "rating,userRatingCount,googleMapsUri,reviews" },
+        signal: AbortSignal.timeout(3000),
+        next: { revalidate: 86400 },
+      });
+      if (!res.ok) return null;
+      const body: unknown = await res.json();
+      if (!isObject(body)) return null;
+      const placeUri = https(body.googleMapsUri);
+      if (!placeUri || !Array.isArray(body.reviews)) return null;
+      const reviews = body.reviews.map((r, i) => toReview(r, i, placeUri)).filter((r): r is Review => r !== null);
+      if (!reviews.length) return null;
+      const data: Reviews = { source: "google", placeUri, reviews };
+      const rating = num(body.rating);
+      const count = num(body.userRatingCount);
+      if (rating !== undefined) data.rating = rating;
+      if (count !== undefined) data.count = count;
+      last = { at: now(), data };
+      return data;
+    } catch {
+      return null;
+    }
+  }
 
   return {
-    async get() {
-      if (last && now() - last.at < DAY_MS) return last.data;
-      try {
-        const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
-          headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "rating,userRatingCount,googleMapsUri,reviews" },
-          signal: AbortSignal.timeout(3000),
-          next: { revalidate: 86400 },
-        });
-        if (!res.ok) return null;
-        const body: unknown = await res.json();
-        if (!isObject(body)) return null;
-        const placeUri = https(body.googleMapsUri);
-        if (!placeUri || !Array.isArray(body.reviews)) return null;
-        const reviews = body.reviews.map((r, i) => toReview(r, i, placeUri)).filter((r): r is Review => r !== null);
-        if (!reviews.length) return null;
-        const data: Reviews = { source: "google", placeUri, reviews };
-        const rating = num(body.rating);
-        const count = num(body.userRatingCount);
-        if (rating !== undefined) data.rating = rating;
-        if (count !== undefined) data.count = count;
-        last = { at: now(), data };
-        return data;
-      } catch {
-        return null;
-      }
+    get() {
+      if (last && now() - last.at < DAY_MS) return Promise.resolve(last.data);
+      pending ??= load().finally(() => (pending = undefined));
+      return pending;
     },
   };
 }

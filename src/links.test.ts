@@ -11,13 +11,14 @@ const read = (f: string) => readFileSync(join(SRC, f), "utf8");
 
 // Built from escapes so this file never holds the patterns it hunts for.
 const HASH = "\x23";
-const DEAD_HREF = new RegExp(`href\\s*=\\s*(?:\\{\\s*)?(["'\`])(?:${HASH})?\\1`);
+// JSX attributes (href="", href={""}) and link objects ({ href: "" }) alike.
+const DEAD_HREF = new RegExp(`href\\s*[=:]\\s*(?:\\{\\s*)?(["'\`])(?:${HASH})?\\1`);
 const EM_DASH = String.fromCharCode(0x2014);
 
 describe("links and copy in src", () => {
   it("the dead-link matcher flags hash and empty hrefs, and passes a real one", () => {
     const q = String.fromCharCode(34);
-    for (const bad of [`href=${q}${HASH}${q}`, `href=${q}${q}`, `href={${q}${HASH}${q}}`, `href={'${HASH}'}`, "href={``}"]) expect(bad).toMatch(DEAD_HREF);
+    for (const bad of [`href=${q}${HASH}${q}`, `href=${q}${q}`, `href={${q}${HASH}${q}}`, `href={'${HASH}'}`, "href={``}", `{ href: ${q}${HASH}${q} }`]) expect(bad).toMatch(DEAD_HREF);
     expect(`href=${q}/used-cars${q}`).not.toMatch(DEAD_HREF);
     expect(`href=${q}${HASH}main${q}`).not.toMatch(DEAD_HREF);
   });

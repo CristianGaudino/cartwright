@@ -122,6 +122,15 @@ describe("createPlacesProvider", () => {
     expect(failing).toHaveBeenCalledTimes(2);
   });
 
+  it("shares one call between requests that arrive while it is in flight", async () => {
+    const fetch = ok(body());
+    const p = provider(fetch);
+    const [a, b, c] = await Promise.all([p.get(), p.get(), p.get()]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(a).toBe(b);
+    expect(b).toBe(c);
+  });
+
   it("writes nothing to the console", async () => {
     const spies = (["log", "info", "warn", "error", "debug"] as const).map((m) => vi.spyOn(console, m).mockImplementation(() => {}));
     await provider(ok(body())).get();
