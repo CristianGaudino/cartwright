@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
-import { DEALER_EMAIL } from "@/lib/site";
+import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
 
 export const metadata: Metadata = { title: "Privacy policy" };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
-// The email is a placeholder until carright.ie forwards to the dealer (issue #54).
+// The email is a placeholder until carright.ie forwards to the dealer (issue #54), so it is shown only once confirmed.
 export default function PrivacyPage() {
   return (
     <InfoPage title="Privacy policy">
@@ -35,11 +35,16 @@ export default function PrivacyPage() {
       <InfoSection title="How to ask us to delete it">
         <p>
           Call us on{" "}
-          <PhoneLink />{" "}
-          or email{" "}
-          <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
-            {DEALER_EMAIL}
-          </a>{" "}
+          <PhoneLink />
+          {DEALER_FACTS_CONFIRMED && (
+            <>
+              {" "}
+              or email{" "}
+              <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+                {DEALER_EMAIL}
+              </a>
+            </>
+          )}{" "}
           and we will delete your details.
         </p>
       </InfoSection>
