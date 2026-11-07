@@ -59,6 +59,15 @@ test("closing the dialog keeps what was typed", async ({ page }) => {
   await expect(dialog(page).getByLabel("Name")).toHaveValue("Half Typed");
 });
 
+test("the dialog does not scroll itself: only the form body does", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 700 });
+  await open(page, live.slug);
+  await enquire(page).click();
+  await expect(dialog(page)).toBeVisible();
+  const [scrollHeight, clientHeight] = await dialog(page).evaluate((d) => [d.scrollHeight, d.clientHeight]);
+  expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
+});
+
 test("a sold car has no Enquire button", async ({ page }) => {
   test.skip(!sold, "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates");
   await page.goto(`/used-cars/${sold!.slug}`);
