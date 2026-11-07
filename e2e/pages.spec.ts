@@ -58,6 +58,7 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
   expect(await pillBeforeH1(page)).toBe(true);
   await expect(main(page).getByRole("link", { name: "Call 083 133 3154" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
   await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");
   const rows = main(page).locator("dl > div");
   await expect(rows).toHaveCount(3);

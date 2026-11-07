@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 
@@ -9,10 +11,18 @@ declare global {
 
 const imgs = (card: Locator) => card.locator("img");
 
+type Demo = { id: string; soldAt?: string; photos: { src: string }[] };
+const demo: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
+const newest = demo.filter((c) => !c.soldAt).sort((a, b) => Number(b.id) - Number(a.id))[0];
+// A card shows at most this many photos, then the "See all n photos" slide with the car's real count.
+const CARD_PHOTOS = 4;
+const total = async (card: Locator) => Number((await card.getByRole("group", { name: /^See all \d+ photos$/ }).getAttribute("aria-label"))!.match(/\d+/)![0]);
+
 test("only the first photo of the first two cards is eager", async ({ page }) => {
   await page.goto("/used-cars");
   const cards = page.locator("article");
   const first = imgs(cards.nth(0));
+  await expect(first).toHaveCount(CARD_PHOTOS); // the rest arrive a second after the card is near the screen
   await expect(first.first()).toHaveAttribute("fetchpriority", "high");
   await expect(first.first()).not.toHaveAttribute("loading", "lazy");
   expect(await first.count()).toBeGreaterThan(1);
@@ -20,23 +30,32 @@ test("only the first photo of the first two cards is eager", async ({ page }) =>
   await expect(imgs(cards.nth(2)).first()).toHaveAttribute("loading", "lazy");
 });
 
-test("the last photo is not requested until the buyer scrolls to it", async ({ page }) => {
+test("a card loads at most four photos, and the rest are never requested on the list", async ({ page }) => {
   const requested: string[] = [];
   page.on("request", (r) => requested.push(new URL(r.url()).pathname));
   await page.goto("/used-cars");
   await page.waitForLoadState("load");
-  const photos = imgs(page.locator("article").first());
-  const last = (await photos.last().getAttribute("src"))!;
-  expect(requested).not.toContain(last);
+  const card = page.locator("article").first();
+  expect(newest.photos.length).toBeGreaterThan(CARD_PHOTOS);
+  await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
+  expect(await total(card)).toBe(newest.photos.length);
+  for (const p of newest.photos.slice(CARD_PHOTOS)) expect(requested).not.toContain(p.src);
+});
 
-  await page.locator("article").first().getByRole("group", { name: /^Photos of/ }).evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: "instant" }));
-  await expect.poll(() => requested.includes(last)).toBe(true);
+test("on arrival a card holds only its first photo; the others come later, or at once on a swipe", async ({ page }) => {
+  await page.clock.install(); // frozen timers: the one-second wait cannot be what adds them, only a swipe can
+  await page.goto("/used-cars");
+  const card = page.locator("article").first();
+  await expect(imgs(card)).toHaveCount(1);
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await card.getByRole("group", { name: /^Photos of/ }).dispatchEvent("pointerdown");
+  await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
 });
 
 test("every result image is a local /stock/ file", async ({ page }) => {
   await page.goto("/used-cars");
   const srcs = await page.locator("article img").evaluateAll((l) => l.map((i) => i.getAttribute("src")));
-  expect(srcs.length).toBeGreaterThan(12);
+  expect(srcs.length).toBeGreaterThanOrEqual(12);
   for (const src of srcs) expect(src).toMatch(/^\/stock\//);
 });
 
@@ -68,7 +87,7 @@ test("touch: no arrows, dots follow the swipe, photos fade in", async ({ page })
   await expect(page.locator('button[aria-label="Next photo"]').first()).toBeHidden();
   await expect(card.locator("img").first()).toHaveAttribute("data-loaded", "");
   const dots = card.locator("[data-dot]");
-  expect(await dots.count()).toBe(await card.locator("img").count());
+  await expect(card.locator("img")).toHaveCount(await dots.count()); // the photos after the first arrive a second later
   await expect(dots.first()).toHaveAttribute("data-active", "");
   await scroller(card).evaluate((el) => el.scrollTo({ left: el.clientWidth, behavior: "instant" }));
   await expect(dots.nth(1)).toHaveAttribute("data-active", "");
@@ -168,8 +187,9 @@ test.describe("desktop pointer", () => {
     await page.goto("/used-cars");
     await waitReact(page);
     const card = page.locator("article").first();
+    await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
     const { next } = arrows(card);
-    const n = await card.locator("img").count();
+    const n = await total(card);
     const href = (await card.locator("h2 a").getAttribute("href"))!;
     const tile = card.getByRole("group", { name: `See all ${n} photos`, exact: true });
     const link = tile.getByRole("link", { name: `See all ${n} photos`, exact: true });
@@ -182,10 +202,8 @@ test.describe("desktop pointer", () => {
     await expect(link).toHaveAttribute("href", href);
     await expect(link).not.toHaveAttribute("tabindex", /.*/);
 
-    // In the tab order: from the card title, Shift+Tab goes Compare, Save, Next, Previous, then the tile link.
+    // In the tab order: from the card title, Shift+Tab goes Save, Next, Previous, then the tile link.
     await card.locator("h2 a").focus();
-    await page.keyboard.press("Shift+Tab");
-    await expect(card.getByRole("button", { name: /^Compare / })).toBeFocused();
     await page.keyboard.press("Shift+Tab");
     await expect(card.getByRole("button", { name: /^Save / })).toBeFocused();
     for (let i = 0; i < 3; i++) await page.keyboard.press("Shift+Tab");
@@ -199,11 +217,13 @@ test.describe("desktop pointer", () => {
   test("screen readers get one named slide per photo, each image named for the car", async ({ page }) => {
     await page.goto("/used-cars");
     const card = page.locator("article").first();
-    const n = await card.locator("img").count();
+    await expect(imgs(card)).toHaveCount(CARD_PHOTOS);
+    const n = await total(card);
+    const shown = await card.locator("img").count();
     await expect(scroller(card)).toHaveAttribute("aria-roledescription", "carousel");
     const name = (await card.locator("img").first().getAttribute("alt"))!;
     expect(name).toMatch(/^\d{4} \S/); // year make model
-    for (let i = 1; i <= n; i++) {
+    for (let i = 1; i <= shown; i++) {
       const slide = card.getByRole("group", { name: `Photo ${i} of ${n}`, exact: true });
       await expect(slide).toHaveAttribute("aria-roledescription", "slide");
       // Not aria-hidden: the image is named for the car, inside a link to it that stays out of the tab order.

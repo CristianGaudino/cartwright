@@ -36,7 +36,8 @@ describe("PhotoCarousel", () => {
   it("photos are exposed: named slides, the alt text is the car, and the links are not aria-hidden", () => {
     const html = render(3);
     expect(html).toContain('aria-label="Photo 2 of 3"');
-    expect(count(html, 'alt="2019 Audi A4"')).toBe(3);
+    // The server sends only the first photo; the others follow in the browser, a second after the card comes near the screen.
+    expect(count(html, 'alt="2019 Audi A4"')).toBe(1);
     expect(html).not.toMatch(/<a[^>]*aria-hidden/);
   });
 
