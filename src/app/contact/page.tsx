@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { CallButton, InfoSection } from "@/components/InfoPage";
+import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { PlaceholderPill } from "@/components/PlaceholderPill";
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: "Contact", description: `Opening hour
 
 const textLink = `${link} self-start`;
 
-// Phone and links, no form: a general enquiry needs a new lead type (D-05). No "open now": the page is cached and that
+// Phone, email and a message form. No "open now": the page is cached and that
 // needs the visitor's clock.
 export default async function ContactPage() {
   // The place ID and the reviews provider come from env at request time.
@@ -39,6 +40,9 @@ export default async function ContactPage() {
               {DEALER_EMAIL}
             </a>
           </p>
+          <InfoSection title="Send us a message">
+            <LeadPageForm type="general" submitLabel="Send message" success={{ heading: "Thanks, we have your message.", body: "We will get back to you." }} />
+          </InfoSection>
           <InfoSection title="Address">
             <address className="not-italic">
               {address.map((line) => (

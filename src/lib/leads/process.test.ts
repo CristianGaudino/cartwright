@@ -199,6 +199,18 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
+  it("stores a general message with no car and no details, and emails it", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    const getCar = vi.fn(deps.getCar);
+    deps.getCar = getCar;
+    const fd = enquiryForm({ type: "general", sourcePath: "/contact", message: "Do you service Fords?" });
+    fd.delete("carId");
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "general", carId: null, sourcePath: "/contact", message: "Do you service Fords?", details: {} });
+    expect(mail[0].subject).toContain("Message from the website");
+    expect(getCar).not.toHaveBeenCalled();
+  });
+
   it("stores a trade-in with no car and its reg and mileage in details, and never looks a car up", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);

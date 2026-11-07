@@ -29,6 +29,11 @@ const contact = {
   consent: z.literal("yes", { error: "Tick the box to send your request." }),
 };
 
+// A general enquiry from /contact or /service: no car, only a required message (#58). The page it came from is the sourcePath.
+const general = {
+  message: given(z.string({ error: "Tell us how we can help." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
+};
+
 const carId = z.string().regex(/^\d{1,12}$/);
 
 // Type fields (D-10, D-11). Only these keys reach a row's details.
@@ -109,6 +114,7 @@ export const leadSchema = z
     z.object({ type: z.literal("test_drive"), carId, ...contact, ...testDrive }),
     z.object({ type: z.literal("reserve"), carId, ...contact }),
     z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
+    z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
   ])
@@ -130,6 +136,7 @@ export const TYPE_LABELS: Record<LeadType, string> = {
   sourcing: "Find a car request",
   trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
   finance: "Finance application",
+  general: "Message from the website",
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
