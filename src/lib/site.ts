@@ -7,3 +7,10 @@ export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
 // The only reader of APP_ENV. A function so tests can stub the env.
 export const isProduction = () => process.env.APP_ENV === "production";
 export const indexable = () => isProduction();
+
+// PLACEHOLDER: stays false until the dealer confirms the address, opening hours, services, About story and terms. While
+// false, pages show the Placeholder details pill and JSON-LD leaves out the street, postcode and hours. site.test.ts
+// fails a production deploy while it is false; dealer.test.ts fails if it is set while a bracketed value remains.
+export const DEALER_FACTS_CONFIRMED = false;
+// PLACEHOLDER: the dealer confirms the list.
+export const SERVICES = ["Servicing", "Repairs", "Tyres"] as const;

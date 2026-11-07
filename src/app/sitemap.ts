@@ -15,10 +15,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { cars } = await stock.query({ ...DEFAULT_QUERY, sold: "include", pageSize: 1000 });
   const landing = new Set(cars.filter((c) => !isSold(c)).flatMap((c) => [c.makeSlug, ...(c.bodySlug ? [c.bodySlug] : []), `${c.makeSlug}/${c.modelSlug}`]));
   return [
+    { url: `${SITE_URL}/` },
     { url: `${SITE_URL}/used-cars` },
     { url: `${SITE_URL}/finance` },
     { url: `${SITE_URL}/sell-your-car` },
     { url: `${SITE_URL}/find-a-car` },
+    { url: `${SITE_URL}/service` },
+    { url: `${SITE_URL}/contact` },
+    { url: `${SITE_URL}/about` },
+    { url: `${SITE_URL}/terms` },
     { url: `${SITE_URL}/privacy` },
     ...[...landing].map((path) => ({ url: `${SITE_URL}/used-cars/${path}` })),
     ...cars.map((c) => ({ url: `${SITE_URL}/used-cars/${c.slug}` })),
