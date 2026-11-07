@@ -25,8 +25,8 @@ export default function PrivacyPage() {
       <InfoSection title="Why we use it">
         <p>Only to reply to your request. We do not use it for marketing, and we do not sell it.</p>
         <p>
-          Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Neon keeps the requests in a database
-          in Frankfurt, in the EU, and Cloudflare keeps trade-in photos in the EU.
+          Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Cloudflare also keeps the
+          requests in a database, and trade-in photos, in the EU.
         </p>
       </InfoSection>
       <InfoSection title="How long we keep it">

@@ -33,7 +33,7 @@ function fakeDeps(): Deps {
   };
 }
 
-// Neon through Drizzle. Built per call, so a missing DATABASE_URL throws inside processLead, which logs it as an error line.
+// D1 through Drizzle. Built per call, so a missing DB binding throws inside processLead, which logs it as an error line.
 const db = () => createDrizzleStore(getDb());
 const store: LeadStore = {
   exists: (ref) => db().exists(ref),

@@ -8,7 +8,7 @@ A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as 
 ## Decisions already made
 - Stack: Next.js 16 (App Router; Cache Components are off until OpenNext on Workers supports them, opennextjs-cloudflare#1450), Tailwind CSS v4, Cloudflare Workers via OpenNext (same as the vintage repo), GitHub Actions.
 - Stock is not stored in a database. It sits behind a `StockProvider` interface: a generated file-backed provider for the demo, a CarsIreland/Carsie provider once the client has API access (#16). Reviews work the same way (`ReviewsProvider`, #13).
-- Neon Postgres + Drizzle only for leads and later alert/newsletter subscriptions. Clerk only for the future admin area (#20). The public site has no auth.
+- Cloudflare D1 (SQLite) + Drizzle for leads and later alert/newsletter subscriptions, and for stock if the site ever manages it. Cloudflare Access (not Clerk) protects the future admin area (#20). The public site has no auth.
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
 - Scope: v1 is issues #1-16 (Todo). Alerts, newsletters, social embeds and the admin/analytics work (#17-25) are Backlog and not part of v1.

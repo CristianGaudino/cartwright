@@ -2,7 +2,7 @@
 
 A modern rebuild of [cartwright.ie](https://www.cartwright.ie/), a used car dealer in Tralee, Co. Kerry.
 
-**Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · Neon Postgres + Drizzle (leads only) · Cloudflare Workers via OpenNext · GitHub Actions
+**Stack:** Next.js 16 (App Router) · Tailwind CSS v4 · Cloudflare D1 + Drizzle (leads only) · Cloudflare Workers via OpenNext · GitHub Actions
 
 ## Status
 Planning is done and the build has not started. Everything outstanding is in GitHub:
