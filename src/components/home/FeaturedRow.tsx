@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
+const GAP = 16; // the row's gap-4, in pixels
+
 // A row of cards that scrolls a page at a time: native scroll-snap, so a finger swipes it. Arrows on pointer devices, dots always.
 const arrow =
   "absolute top-[40%] z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-hairline bg-card text-text transition-opacity duration-150 hover:bg-hairline [@media(hover:hover)]:flex";
@@ -12,11 +14,16 @@ export function FeaturedRow({ children, label }: { children: React.ReactNode; la
   const [state, setState] = useState({ page: 0, pages: 1 });
 
   // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
+  // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
   const measure = () => {
     const el = scroller.current;
     if (!el) return;
-    const pages = Math.max(1, Math.round(el.scrollWidth / el.clientWidth));
-    setState({ pages, page: Math.min(pages - 1, Math.round(el.scrollLeft / el.clientWidth)) });
+    const first = el.firstElementChild as HTMLElement | null;
+    const step = first ? first.offsetWidth + GAP : el.clientWidth;
+    const perCard = Math.floor((el.clientWidth + GAP) / step) <= 1;
+    const unit = perCard ? step : el.clientWidth;
+    const pages = perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth));
+    setState({ pages, page: Math.min(pages - 1, Math.round(el.scrollLeft / unit)) });
   };
   useEffect(() => {
     const el = scroller.current;

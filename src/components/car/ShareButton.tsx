@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { ShareIcon } from "@/components/stock/icons";
+import { secondaryButton } from "@/components/ui";
 
 type Mode = "link" | "native" | "menu";
 type Copy = "idle" | "copied" | "failed";
@@ -11,7 +12,7 @@ const clientMode = (): Mode => (typeof navigator.share === "function" ? "native"
 const serverMode = (): Mode => "link";
 
 const look =
-  "inline-flex h-11 items-center gap-2 rounded-control border border-control bg-card px-4 max-[359px]:px-3 text-body font-semibold text-text active:scale-[0.97] motion-reduce:active:scale-100";
+  `inline-flex h-11 items-center gap-2 px-4 max-[359px]:px-3 text-body text-text ${secondaryButton}`;
 const item = "flex h-11 w-full items-center rounded-control px-3 text-left text-body font-semibold text-text hover:bg-hairline";
 
 // title, text and url come from the server (canonical URL, never the current address), so the buyer's query string never leaves the site.

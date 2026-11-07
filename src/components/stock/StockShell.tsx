@@ -10,7 +10,8 @@ import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
 import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
-import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
+import { SelectBox } from "@/components/SelectBox";
+import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
@@ -49,24 +50,21 @@ function SortControl({ className }: { className: string }) {
       <label htmlFor={id} className="sr-only text-meta font-semibold sm:not-sr-only">
         Sort
       </label>
-      <div className="relative min-w-0">
-        <select
-          id={id}
-          value={query.sort}
-          onChange={(e) => {
-            const sort = SORT_KEYS.find((k) => k === e.target.value);
-            if (sort) navigate({ ...query, sort, page: 1 });
-          }}
-          className="h-12 w-full min-w-0 appearance-none truncate rounded-control border border-control bg-card py-0 pl-3 pr-10 text-body"
-        >
-          {SORT_KEYS.map((k) => (
-            <option key={k} value={k}>
-              {SORT_LABELS[k]}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
-      </div>
+      <SelectBox
+        id={id}
+        value={query.sort}
+        onChange={(e) => {
+          const sort = SORT_KEYS.find((k) => k === e.target.value);
+          if (sort) navigate({ ...query, sort, page: 1 });
+        }}
+        className="pl-3"
+      >
+        {SORT_KEYS.map((k) => (
+          <option key={k} value={k}>
+            {SORT_LABELS[k]}
+          </option>
+        ))}
+      </SelectBox>
     </div>
   );
 }

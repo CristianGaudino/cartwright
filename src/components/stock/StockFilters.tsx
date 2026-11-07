@@ -5,7 +5,8 @@ import { formatKm, formatPrice } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
 import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
-import { CheckIcon, ChevronDownIcon } from "./icons";
+import { SelectBox } from "@/components/SelectBox";
+import { CheckIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { press } from "@/components/ui";
 
@@ -100,21 +101,14 @@ function SelectField({ label, value, options, onChange }: { label: string; value
   return (
     <label className="flex min-w-0 flex-1 flex-col gap-1 text-meta font-semibold">
       {label}
-      <span className="relative">
-        <select
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
-          className="h-12 w-full appearance-none rounded-control border border-control bg-card py-0 pl-3 pr-10 text-body font-normal"
-        >
-          <option value="">Any</option>
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
-      </span>
+      <SelectBox value={value ?? ""} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)} className="pl-3 font-normal">
+        <option value="">Any</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </SelectBox>
     </label>
   );
 }

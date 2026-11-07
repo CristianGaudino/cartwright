@@ -30,6 +30,13 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
   await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
 });
 
+test("on a phone the featured row has one dot per card", async ({ page }) => {
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" });
+  const cards = await row.locator("article").count();
+  await expect(row.locator(':scope > div[aria-hidden="true"] > span')).toHaveCount(cards);
+});
+
 test("the search offers only makes that have a car in stock", async ({ page }) => {
   await page.goto("/");
   const offered = await page.getByLabel("Make", { exact: true }).locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value).filter(Boolean));

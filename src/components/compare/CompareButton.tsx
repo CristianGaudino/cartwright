@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { SwapIcon } from "@/components/stock/icons";
+import { secondaryButton } from "@/components/ui";
 import { toggleCompare, useCompareIds } from "@/lib/compare/store";
 
 const looks = {
   // Under the heart on a card photo: the same frosted scrim circle.
   card: "absolute right-2 top-14 z-20 size-11 justify-center rounded-full bg-ink/60 backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none",
-  page: "h-11 gap-2 rounded-control border border-control bg-card px-4 text-body font-semibold",
+  page: `h-11 gap-2 px-4 text-body ${secondaryButton}`,
 };
 
 // The label never changes; aria-pressed carries the state, as with the heart.
