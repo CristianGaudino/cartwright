@@ -14,3 +14,15 @@ export const indexable = () => isProduction();
 export const DEALER_FACTS_CONFIRMED = false;
 // PLACEHOLDER: the dealer confirms the list.
 export const SERVICES = ["Servicing", "Repairs", "Tyres"] as const;
+// PLACEHOLDER: the dealer supplies these. Bracketed values never reach JSON-LD, the map or directions (dealer.ts).
+export const DEALER_ADDRESS = { street: "[Street address]", town: "Tralee", county: "Co. Kerry", eircode: "[Eircode]" };
+// PLACEHOLDER: sample hours, 24 hour HH:MM; no opens means closed.
+export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
+  { day: "Monday", opens: "09:00", closes: "18:00" },
+  { day: "Tuesday", opens: "09:00", closes: "18:00" },
+  { day: "Wednesday", opens: "09:00", closes: "18:00" },
+  { day: "Thursday", opens: "09:00", closes: "18:00" },
+  { day: "Friday", opens: "09:00", closes: "18:00" },
+  { day: "Saturday", opens: "10:00", closes: "16:00" },
+  { day: "Sunday" },
+];
