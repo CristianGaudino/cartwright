@@ -130,13 +130,14 @@ Plans:
   4. Every page uses the same header and footer, and no link on the site points to `#`
   5. Local business JSON-LD is present on the site and validates
 
-**Plans**: 4 plans
+**Plans**: 4/4 plans executed
 
 Plans:
-- [ ] 04-01-PLAN.md: ReviewsProvider, demo fixtures, Places API (New) provider and the reviews section with Google Maps attribution (#13; wave 1)
-- [ ] 04-02-PLAN.md: Shared text-page frame, /service, /about, /terms, /privacy on the frame, dealer-facts placeholders and production guard (#14; wave 2)
-- [ ] 04-03-PLAN.md: /contact with hours and an on-demand map, AutoDealer JSON-LD builder (#14; wave 3)
-- [ ] 04-04-PLAN.md: Home page, shared header and footer, dead-link check, then the one PR closing #13 and #14 (#14; wave 4)
+- [x] 04-01-PLAN.md: ReviewsProvider, demo fixtures, Places API (New) provider and the reviews section with Google Maps attribution (#13; wave 1)
+- [x] 04-02-PLAN.md: Shared text-page frame, /service, /about, /terms, /privacy on the frame, dealer-facts placeholders and production guard (#14; wave 2)
+- [x] 04-03-PLAN.md: /contact with hours and an on-demand map, AutoDealer JSON-LD builder (#14; wave 3)
+- [x] 04-04-PLAN.md: Home page, shared header and footer, dead-link check, then the one PR closing #13 and #14 (#14; wave 4)
+
 **UI hint**: yes
 
 ### Phase 5: Quality Pass
@@ -163,5 +164,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Design and Stock Browsing | 9/9 | In Progress | - |
 | 2. Car Pages and Discovery | 8/8 | In Progress | - |
 | 3. Leads, Finance and Saved Cars | 13/16 | In Progress | - |
-| 4. Reviews and Core Pages | 0/TBD | Not started | - |
+| 4. Reviews and Core Pages | 4/4 | In Progress | - |
 | 5. Quality Pass | 0/TBD | Not started | - |

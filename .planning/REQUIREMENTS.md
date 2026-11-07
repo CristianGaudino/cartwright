@@ -62,16 +62,16 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Reviews
 
-- [ ] **REV-01**: A `ReviewsProvider` interface with demo fixtures supplies Google reviews (#13)
-- [ ] **REV-02**: Reviews are shown with the attribution Google requires (#13)
-- [ ] **REV-03**: A Places API provider can replace the fixtures once the client's place ID exists (#13)
+- [x] **REV-01**: A `ReviewsProvider` interface with demo fixtures supplies Google reviews (#13)
+- [x] **REV-02**: Reviews are shown with the attribution Google requires (#13)
+- [x] **REV-03**: A Places API provider can replace the fixtures once the client's place ID exists (#13)
 
 ### Core pages
 
-- [ ] **PGS-01**: Home page shows featured stock and reviews (#14)
-- [ ] **PGS-02**: Service, contact (map and hours), about, privacy and terms pages exist (#14)
-- [ ] **PGS-03**: Local business JSON-LD is on the site (#14)
-- [ ] **PGS-04**: One shared header and footer, no dead `#` links (#14)
+- [x] **PGS-01**: Home page shows featured stock and reviews (#14)
+- [x] **PGS-02**: Service, contact (map and hours), about, privacy and terms pages exist (#14)
+- [x] **PGS-03**: Local business JSON-LD is on the site (#14)
+- [x] **PGS-04**: One shared header and footer, no dead `#` links (#14)
 
 ### Quality
 
@@ -139,13 +139,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIN-03 | Phase 3 | Complete |
 | SAV-01 | Phase 3 | Pending |
 | SAV-02 | Phase 3 | Pending |
-| REV-01 | Phase 4 | Pending |
-| REV-02 | Phase 4 | Pending |
-| REV-03 | Phase 4 | Pending |
-| PGS-01 | Phase 4 | Pending |
-| PGS-02 | Phase 4 | Pending |
-| PGS-03 | Phase 4 | Pending |
-| PGS-04 | Phase 4 | Pending |
+| REV-01 | Phase 4 | Complete |
+| REV-02 | Phase 4 | Complete |
+| REV-03 | Phase 4 | Complete |
+| PGS-01 | Phase 4 | Complete |
+| PGS-02 | Phase 4 | Complete |
+| PGS-03 | Phase 4 | Complete |
+| PGS-04 | Phase 4 | Complete |
 | QLT-01 | Phase 5 | Pending |
 | QLT-02 | Phase 5 | Pending |
 | QLT-03 | Phase 5 | Pending |
