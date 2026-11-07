@@ -112,7 +112,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
         <p className={`text-body ${slash}`}>Our stock</p>
-        <h1 className="mt-1 text-display font-semibold lg:text-hero-lg">Quality used cars</h1>
+        <h1 className="mt-1 text-display font-semibold lg:text-hero">Quality used cars</h1>
         <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
           <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">

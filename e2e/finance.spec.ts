@@ -40,17 +40,17 @@ test("/finance shows what to fix, never NaN or a stale figure", async ({ page })
   await calc(page).getByLabel("Price").fill("15000");
   await calc(page).getByLabel("Deposit").fill("15000");
   await expect(page.getByText("Deposit must be less than the price.")).toBeVisible();
-  await expect(result(page)).toHaveText("Check the figures above.");
+  await expect(result(page)).toHaveText("Check the figures you entered.");
 
   await calc(page).getByLabel("Deposit").fill("3000");
   await calc(page).getByLabel("APR").fill("31");
   await expect(page.getByText("Enter an APR between 0 and 30.")).toBeVisible();
-  await expect(result(page)).toHaveText("Check the figures above.");
+  await expect(result(page)).toHaveText("Check the figures you entered.");
 
   await calc(page).getByLabel("APR").fill("9.9");
   await calc(page).getByLabel("Price").fill("999");
   await expect(page.getByText("Enter a price between €1,000 and €250,000.")).toBeVisible();
-  await expect(result(page)).toHaveText("Check the figures above.");
+  await expect(result(page)).toHaveText("Check the figures you entered.");
   expect(await page.locator("body").innerText()).not.toContain("NaN");
 });
 

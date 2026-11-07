@@ -3,13 +3,14 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { BuyBox } from "@/components/car/BuyBox";
+import { Breadcrumb } from "@/components/car/Breadcrumb";
 import { CarGallery } from "@/components/car/CarGallery";
 import { AboutCar, Equipment, SimilarCars, Specifications } from "@/components/car/CarSections";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
-import { BackToCars } from "@/components/stock/BackToCars";
 import { resolveLanding } from "@/components/landing/data";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { SoldBadge } from "@/components/stock/SoldBadge";
+import { slash } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
 import { stock } from "@/lib/stock";
 import { carName, carSummary } from "@/lib/stock/format";
@@ -55,7 +56,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <JsonLd data={carJsonLd(car)} />
-      <BackToCars />
+      <Breadcrumb car={car} />
       <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-8">
         <div className="relative lg:col-start-1">
           <CarGallery photos={car.photos} name={carName(car)} />
@@ -71,7 +72,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
           {/* In stock only: a sold car offers no finance (UI-SPEC section 7). Only the summary and price reach the client. */}
           {!isSold(car) && financeable(car.priceEur) && (
             <section className="flex flex-col gap-4">
-              <h2 className="text-heading font-semibold">Finance</h2>
+              <h2 className={`text-heading font-semibold ${slash}`}>Finance</h2>
               <FinanceCalculator car={{ ...carSummary(car), priceEur: car.priceEur }} />
             </section>
           )}

@@ -33,8 +33,8 @@ export function BackToCars() {
   const href = useSyncExternalStore(never, read, () => LIST);
   return (
     // 44px target; the negative margin keeps the page from moving.
-    <Link href={href} className="-my-2.5 inline-flex min-h-11 items-center text-body underline">
-      Back to used cars
+    <Link href={href} className="-my-2.5 inline-flex min-h-11 items-center text-meta hover:underline">
+      Stock
     </Link>
   );
 }
