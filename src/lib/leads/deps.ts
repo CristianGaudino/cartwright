@@ -37,7 +37,12 @@ function fakeDeps(): Deps {
 const db = () => createDrizzleStore(getDb());
 const store: LeadStore = {
   exists: (ref) => db().exists(ref),
-  insert: (row) => db().insert(row),
+  // A lead nobody is told about is worse than a refused one: with no address to email, refuse before storing, so the buyer is
+  // told to call instead of waiting for a reply that never comes. Set LEAD_TO_EMAIL before the bot-check secret.
+  insert: async (row) => {
+    requireEnv("LEAD_TO_EMAIL");
+    return db().insert(row);
+  },
   markNotified: (id) => db().markNotified(id),
 };
 let fakes: Deps | undefined;
@@ -83,6 +88,7 @@ const mailer: Mailer = {
 // 5 requests a minute per IP (wrangler.jsonc LEAD_LIMITER; 03-01 proved it on wrangler dev, A3).
 const limiter: Deps["limiter"] = {
   async allow(key) {
+    if (!key) return true; // no IP to count (Cloudflare always sends one): one shared bucket would lock every buyer out; Turnstile still applies
     const l = getBindings().LEAD_LIMITER;
     if (!l) throw new Error("Missing binding LEAD_LIMITER");
     return (await l.limit({ key })).success;

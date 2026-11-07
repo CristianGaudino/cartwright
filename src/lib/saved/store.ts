@@ -36,7 +36,9 @@ export function subscribe(listener: () => void) {
   listeners.add(listener);
   // Fires only in other tabs; key is null when another tab clears storage.
   const onStorage = (e: StorageEvent) => {
-    if (e.key === SAVED_KEY || e.key === null) listener();
+    if (e.key !== SAVED_KEY && e.key !== null) return;
+    fallback = null; // storage works and another tab wrote: read it, not this tab's stale copy
+    listener();
   };
   window.addEventListener("storage", onStorage);
   return () => {
