@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
+import { financeable } from "@/lib/finance/payment";
 import { BUDGETS } from "@/lib/stock/types";
 import { CONTACT_ERROR, EMPLOYMENT, LIMITS, TIMES, tomorrow } from "./constants";
 
@@ -87,6 +88,7 @@ const finance = {
       .transform((v) => v.replaceAll(",", "").trim())
       .pipe(z.string().regex(/^\d{1,6}$/))
       .transform(Number)
+      .refine(financeable, "Enter a price between €1,000 and €250,000.")
       .optional(),
   ),
   deposit: given(

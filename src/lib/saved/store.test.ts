@@ -107,4 +107,23 @@ describe("other tabs", () => {
     store.toggleSaved("1");
     expect(heard).toHaveBeenCalledTimes(1);
   });
+
+  it("after a blocked write, a change from another tab is read from storage, not the stale copy", () => {
+    let blocked = true;
+    const data = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => {
+        if (blocked) throw new DOMException("quota", "QuotaExceededError");
+        data.set(k, v);
+      },
+    });
+    store.subscribe(() => {}); // the page is listening, as it is when a heart or the header badge is mounted
+    store.toggleSaved("10"); // the write fails: this tab now holds the list itself
+    blocked = false;
+    data.set(store.SAVED_KEY, JSON.stringify(["20"])); // another tab saved a different car
+    storageEvent(store.SAVED_KEY);
+    expect(store.toggleSaved("30")).toBe("saved");
+    expect(JSON.parse(data.get(store.SAVED_KEY)!)).toEqual(["30", "20"]);
+  });
 });
