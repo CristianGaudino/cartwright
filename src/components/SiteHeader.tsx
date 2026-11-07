@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SavedLink } from "@/components/saved/SavedLink";
 import { SITE_NAME } from "@/lib/site";
 
 // From 1024px only; below it the header shows Used cars and the footer carries the rest (UI-SPEC Mobile navigation).
@@ -31,6 +32,7 @@ export function SiteHeader() {
               {l.label}
             </Link>
           ))}
+          <SavedLink />
         </nav>
       </div>
     </header>

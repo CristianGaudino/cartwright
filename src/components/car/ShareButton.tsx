@@ -11,7 +11,7 @@ const clientMode = (): Mode => (typeof navigator.share === "function" ? "native"
 const serverMode = (): Mode => "link";
 
 const look =
-  "inline-flex h-11 items-center gap-2 rounded-control border border-control bg-card px-4 text-body font-semibold text-text active:scale-[0.97] motion-reduce:active:scale-100";
+  "inline-flex h-11 items-center gap-2 rounded-control border border-control bg-card px-4 max-[359px]:px-3 text-body font-semibold text-text active:scale-[0.97] motion-reduce:active:scale-100";
 const item = "flex h-11 w-full items-center rounded-control px-3 text-left text-body font-semibold text-text hover:bg-hairline";
 
 // title, text and url come from the server (canonical URL, never the current address), so the buyer's query string never leaves the site.
@@ -55,7 +55,7 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
     return (
       <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={look}>
         <ShareIcon />
-        Share
+        <span className="max-[359px]:sr-only">Share</span>
       </a>
     );
   }
@@ -84,7 +84,7 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
     return (
       <button type="button" onClick={share} className={look}>
         <ShareIcon />
-        Share
+        <span className="max-[359px]:sr-only">Share</span>
       </button>
     );
   }
@@ -93,7 +93,7 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
     <div ref={root} className="relative">
       <button ref={trigger} type="button" aria-expanded={open} aria-controls={panelId} onClick={() => (open ? close() : setOpen(true))} className={look}>
         <ShareIcon />
-        Share
+        <span className="max-[359px]:sr-only">Share</span>
       </button>
       {open && (
         <div

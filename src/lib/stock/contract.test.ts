@@ -79,6 +79,7 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
       expect((await p.getById("101"))?.slug).toBe("audi-a4-2019-101");
       expect(await p.getById("999")).toBeNull();
       expect(await p.getById("audi-a4-2019-101")).toBeNull();
+      expect((await p.getByIds(["999", "101"])).map((c) => c?.id ?? null)).toEqual([null, "101"]);
     });
 
     it("returns only the record's own keys", async () => {
@@ -263,6 +264,10 @@ function createStubProvider(cars: Car[], opts: Clock): StockProvider {
     async getById(id) {
       await io();
       return inner.getById(id);
+    },
+    async getByIds(ids) {
+      await io();
+      return inner.getByIds(ids);
     },
     async lookup(slug) {
       await io();

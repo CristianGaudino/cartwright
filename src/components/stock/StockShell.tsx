@@ -12,6 +12,7 @@ import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
 import { ChevronDownIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
+import { stateButton } from "./StockError";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -115,23 +116,6 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
         </div>
       </main>
     </StockContext>
-  );
-}
-
-const stateButton =
-  "mt-6 inline-flex h-12 items-center rounded-control bg-accent px-6 font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100";
-
-export function StockError() {
-  const router = useRouter();
-  const [pending, startTransition] = useTransition();
-  return (
-    <div className="py-16 text-center">
-      <h2 className="text-heading font-semibold">We could not load the cars</h2>
-      <p className="mt-2 text-body text-text-2">Check your connection and try again.</p>
-      <button type="button" disabled={pending} onClick={() => startTransition(() => router.refresh())} className={stateButton}>
-        Try loading cars again
-      </button>
-    </div>
   );
 }
 

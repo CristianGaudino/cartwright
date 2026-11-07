@@ -1,10 +1,10 @@
-# Cartwright
+# Carright
 
 ## What This Is
 
 A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry), built as a speculative pitch and first sale for the owner's web business. Public pages only: browse stock, view cars, save favourites, enquire, apply for finance, request a trade-in valuation. The audience is Irish used-car buyers, mostly on a mid-range phone.
 
-Live demo at https://carright.cgaudino.com (Cloudflare Workers, behind Cloudflare Access: owner and client emails only). Every merge to `main` deploys. The client wants a rebrand; the site keeps the Cartwright name until that is decided.
+Live demo at https://carright.cgaudino.com (Cloudflare Workers, behind Cloudflare Access: owner and client emails only). Every merge to `main` deploys. The client wants a rebrand; the site keeps the Carright name until that is decided.
 
 ## Core Value
 
@@ -12,10 +12,10 @@ A buyer can find a car on their phone, fast, and send the dealer an enquiry abou
 
 ## Business Context
 
-- **Customer**: Cartwright (the dealer) as the prospective client; Irish used-car buyers as the site's users
+- **Customer**: Carright (the dealer) as the prospective client; Irish used-car buyers as the site's users
 - **Revenue model**: The site is the owner's pitch and first sale. Paid enhancements (alerts, newsletters, admin, analytics) are upsells.
 - **Success metric**: The client says yes to the demo. On the site: leads (enquiries, test drives, finance, trade-ins) per visit.
-- **Strategy notes**: GitHub issues #1-25 and the [Cartwright project](https://github.com/users/CristianGaudino/projects/6)
+- **Strategy notes**: GitHub issues #1-25 and the [Carright project](https://github.com/users/CristianGaudino/projects/6)
 
 ## Requirements
 

@@ -63,10 +63,26 @@ test.describe("a car for sale", () => {
     expect(await below(page)).toBe(serverTop);
   });
 
-  test("does not scroll sideways at 320px", async ({ page }) => {
+  test("does not scroll sideways at 320px, and the price, Save and Share share one row", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
     await page.goto(await firstCarHref(page));
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+    const price = (await buyBox(page).getByText(/^€[\d,]+$/).filter({ visible: true }).boundingBox())!;
+    const save = (await buyBox(page).getByRole("button", { name: "Save this car" }).boundingBox())!;
+    expect(save.y).toBeLessThan(price.y + price.height);
+  });
+
+  test("Save this car beside Share saves the car and counts it in the header", async ({ page }) => {
+    await page.goto(await firstCarHref(page));
+    const save = buyBox(page).getByRole("button", { name: "Save this car" });
+    await expect(save).toHaveAttribute("aria-pressed", "false");
+    await save.click();
+    await expect(save).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("banner").getByRole("link", { name: "Saved cars, 1" })).toBeVisible();
+    const share = (await buyBox(page).getByText("Share", { exact: true }).boundingBox())!;
+    const s = (await save.boundingBox())!;
+    expect(s.width).toBe(44);
+    expect(share.x).toBeGreaterThan(s.x + s.width);
   });
 });
 
@@ -99,6 +115,7 @@ test.describe("a sold car", () => {
     await expect(box.getByText("This car is no longer for sale.")).toBeVisible();
     await expect(box.getByRole("link", { name: `See more ${make}` })).toHaveAttribute("href", `/used-cars/${makeSlug}`);
     await expect(box.getByText("Call now")).toHaveCount(0);
+    await expect(box.getByRole("button", { name: "Save this car" })).toBeVisible();
     expect(await box.innerText()).not.toMatch(/€\d/);
 
     const html = await (await request.get(`/used-cars/${slug}`)).text();

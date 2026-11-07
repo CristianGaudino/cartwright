@@ -19,7 +19,7 @@ Sources: PROJECT.md, REQUIREMENTS.md, ROADMAP.md, `.claude/CLAUDE.md`, issues #2
 
 ## Brand asset (locked)
 
-**Rebrand (owner direction, Phase 2 session): the site name is now Carright.** The logo is the new CR monogram plus the `Carright` wordmark, without the `Quality used cars` subtext, at `public/brand/logo.png` (900 x 205, transparent, red monogram with off-white wordmark, made for dark backgrounds) and the brandmark alone at `public/brand/mark.png` (256 x 176). The logo sits straight on the dark page with no plate. The old Cartwright logo details below are superseded; the brand red stays `#D0111A` for buttons. The logo is the only locked asset. It is not in the repo. Source: `https://www.cartwright.ie/app/uploads/2024/09/logo.png` (PNG, 650 x 270, RGBA, transparent background).
+**Rebrand (owner direction, Phase 2 session): the site name is now Carright.** The logo is the new CR monogram plus the `Carright` wordmark, without the `Quality used cars` subtext, at `public/brand/logo.png` (900 x 205, transparent, red monogram with off-white wordmark, made for dark backgrounds) and the brandmark alone at `public/brand/mark.png` (256 x 176). The logo sits straight on the dark page with no plate. The old Carright logo details below are superseded; the brand red stays `#D0111A` for buttons. The logo is the only locked asset. It is not in the repo. Source: `https://www.cartwright.ie/app/uploads/2024/09/logo.png` (PNG, 650 x 270, RGBA, transparent background).
 
 What the file is, measured from its pixels:
 

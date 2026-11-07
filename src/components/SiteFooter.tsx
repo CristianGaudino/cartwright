@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { DEALER_PHONE, DEALER_TEL, SITE_NAME } from "@/lib/site";
 
-// Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation). Add /saved to Shop when #48 lands.
+// Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
 const GROUPS = [
   {
     title: "Shop",
@@ -11,6 +11,7 @@ const GROUPS = [
       { href: "/finance", label: "Finance" },
       { href: "/sell-your-car", label: "Sell your car" },
       { href: "/find-a-car", label: "Find a car" },
+      { href: "/saved", label: "Saved cars" },
     ],
   },
   {
