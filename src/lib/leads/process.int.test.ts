@@ -133,7 +133,7 @@ describe("processLead on SQLite", () => {
   it("stores nothing for a filled honeypot or a sold car", async () => {
     const { deps: d, mail } = deps();
     expect(await processLead(enquiryForm({ website: "spam.example" }), ctx, d)).toEqual(OK);
-    expect(await processLead(enquiryForm({ carId: sold.id }), ctx, d)).toEqual({ status: "failed", kind: "server" });
+    expect(await processLead(enquiryForm({ carId: sold.id }), ctx, d)).toEqual({ status: "failed", kind: "gone" });
     expect(await rows()).toHaveLength(0);
     expect(mail).not.toHaveBeenCalled();
   });

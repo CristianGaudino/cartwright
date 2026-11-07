@@ -1,15 +1,15 @@
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
+import { textLink } from "@/components/ui";
 
 const POLICY_URI = "https://support.google.com/contributionpolicy/answer/7422880";
 const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;
 const NewTab = ({ label = "" }: { label?: string }) => <span className="sr-only">{label} (opens in a new tab)</span>;
-const textLink = "inline-flex min-h-11 items-center underline";
 
 // Google's Places policy: when no Google map is shown, the attribution is the text "Google Maps" in white, black or
 // #5E5E5E, Roboto first. No web font is loaded, so Roboto is used where the device has it. The one place this lives.
-export function GoogleAttribution() {
+function GoogleAttribution() {
   return (
     <span className="text-meta font-normal text-white" style={{ fontFamily: "Roboto, var(--font-sans)" }}>
       Google Maps
@@ -18,7 +18,7 @@ export function GoogleAttribution() {
 }
 
 // A filled row clipped to the exact average over an outline row: pure CSS, no half stars. Never red or yellow.
-export function StarRating({ value, size }: { value: number; size: 16 | 20 }) {
+function StarRating({ value, size }: { value: number; size: 16 | 20 }) {
   const star = size === 16 ? "size-4 shrink-0" : "size-5 shrink-0";
   const row = (filled: boolean) => [0, 1, 2, 3, 4].map((i) => <StarIcon key={i} filled={filled} className={star} />);
   return (

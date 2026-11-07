@@ -71,15 +71,24 @@ const tradeIn = {
       .string()
       .regex(/^\d{4}$/, "Enter the year as 4 digits.")
       .transform(Number)
-      .refine((y) => y >= 1980 && y <= nextYear(), { error: () => `Enter a year from 1980 to ${nextYear()}.` })
+      .refine((y) => y >= 1900 && y <= nextYear(), { error: () => `Enter a year from 1900 to ${nextYear()}.` })
       .optional(),
   ),
 };
 
-// D-17: deposit, term and employment only. The car is optional: none from /finance, the car's id from a car page.
+// D-17: deposit, term and employment, plus the price the buyer worked out on /finance (a car page has the car's own price).
+// The car is optional: none from /finance, the car's id from a car page.
 const BAD_DEPOSIT = "Enter the deposit in euros, numbers only.";
 const finance = {
   carId: given(carId.optional()),
+  price: given(
+    z
+      .string()
+      .transform((v) => v.replaceAll(",", "").trim())
+      .pipe(z.string().regex(/^\d{1,6}$/))
+      .transform(Number)
+      .optional(),
+  ),
   deposit: given(
     z
       .string({ error: BAD_DEPOSIT })
@@ -130,6 +139,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   model: "Model",
   year: "Year",
   budgetMax: "Budget up to",
+  price: "Price entered",
   deposit: "Deposit",
   term: "Term (months)",
   employment: "Employment status",

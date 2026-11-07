@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { DEALER_PHONE, DEALER_TEL, SITE_NAME } from "@/lib/site";
+import { SITE_NAME } from "@/lib/site";
+import { PhoneLink } from "@/components/PhoneLink";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
 const GROUPS = [
@@ -45,9 +46,7 @@ export function SiteFooter() {
               <Image src="/brand/logo.png" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
             </Link>
             <p className="text-body">Tralee, Co. Kerry</p>
-            <a href={`tel:${DEALER_TEL}`} className={`${link} text-body font-semibold`}>
-              {DEALER_PHONE}
-            </a>
+            <PhoneLink className={`${link} text-body font-semibold`} />
             <Link href="/contact" className={`${link} underline`}>
               Opening hours and directions
             </Link>

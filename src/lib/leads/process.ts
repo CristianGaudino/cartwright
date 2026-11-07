@@ -16,7 +16,7 @@ export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "ca
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
-  | { status: "failed"; kind: "captcha" | "rate" | "server" };
+  | { status: "failed"; kind: "captcha" | "rate" | "gone" | "server" };
 
 export interface LeadRow {
   id: string;
@@ -130,7 +130,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar);
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
-      return SERVER;
+      return { status: "failed", kind: "gone" }; // sold or removed since the buyer opened the form
     }
     if (await deps.store.exists(input.clientRef)) {
       logLead({ type: input.type, outcome: "duplicate" });

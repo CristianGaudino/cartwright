@@ -10,13 +10,14 @@ import { getReviews } from "@/lib/reviews";
 import { SITE_NAME } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
+import { accentButton, textLink } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: { absolute: `${SITE_NAME} | Used cars in Tralee` },
   description: "Browse the used cars in stock at our dealership in Tralee, Co. Kerry.",
 };
 
-const textLink = "inline-flex min-h-11 w-fit items-center underline";
+
 
 // One whole-card link, so one tab stop. Used only here.
 function HelpCard({ href, title, text }: { href: string; title: string; text: string }) {
@@ -65,7 +66,7 @@ export default async function Home() {
             maxLength={80}
             className="h-12 min-w-0 flex-1 rounded-control border border-control bg-card px-4 text-body placeholder:text-text-2 contrast-more:border-text"
           />
-          <button type="submit" className="h-12 shrink-0 rounded-control bg-accent px-6 font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100">
+          <button type="submit" className={`shrink-0 ${accentButton}`}>
             Search
           </button>
         </form>

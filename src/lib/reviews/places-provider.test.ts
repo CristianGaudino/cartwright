@@ -103,7 +103,7 @@ describe("createPlacesProvider", () => {
     expect(data?.reviews).toHaveLength(1);
   });
 
-  it("reuses a success for 24 hours, then fetches again, and never remembers a failure", async () => {
+  it("reuses a result for 24 hours, then fetches again", async () => {
     let t = 0;
     const fetch = ok(body());
     const p = provider(fetch, () => t);
@@ -114,12 +114,31 @@ describe("createPlacesProvider", () => {
     t = 86_400_000;
     await p.get();
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
 
+  it("calls Google once when it fails and answers null until the day is up", async () => {
+    let t = 0;
     const failing = vi.fn(async () => new Response("", { status: 500 }));
-    const q = provider(failing);
-    await q.get();
-    await q.get();
+    const p = provider(failing, () => t);
+    expect(await p.get()).toBeNull();
+    expect(await p.get()).toBeNull();
+    expect(failing).toHaveBeenCalledTimes(1);
+    t = 86_400_000;
+    await p.get();
     expect(failing).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps serving the last good reviews when the next call fails", async () => {
+    let t = 0;
+    let good = true;
+    const fetch = vi.fn(async () => (good ? new Response(JSON.stringify(body()), { status: 200 }) : new Response("", { status: 429 })));
+    const p = provider(fetch, () => t);
+    const first = await p.get();
+    good = false;
+    t = 86_400_000;
+    expect(await p.get()).toEqual(first);
+    expect(await p.get()).toEqual(first);
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it("shares one call between requests that arrive while it is in flight", async () => {

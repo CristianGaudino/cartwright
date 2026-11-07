@@ -8,10 +8,11 @@ import { CheckIcon } from "@/components/stock/icons";
 import { PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
-import { DEALER_PHONE, DEALER_TEL } from "@/lib/site";
 import { ConsentRow } from "./ConsentRow";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
+import { accentButton, press } from "@/components/ui";
+import { PhoneLink } from "@/components/PhoneLink";
 
 export type FieldBinding = { id: string; name: string; value: string; onChange(v: string): void; error?: string };
 export type PhotoBinding = {
@@ -23,7 +24,6 @@ export type PhotoBinding = {
 };
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
 
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 // Keys the form sets itself. An error on one of them is not something the buyer can fix, so it reads as a send failure.
 const HIDDEN = ["type", "carId", "clientRef", "sourcePath"];
 
@@ -177,15 +177,21 @@ export function LeadForm({
             <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
               {failure === "rate" ? (
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
+              ) : failure === "gone" ? (
+                <>
+                  <p className="font-semibold text-destructive">This car has just been sold.</p>
+                  <p className="text-meta">
+                    <Link href="/used-cars" className="font-semibold underline">
+                      See the cars we have
+                    </Link>
+                  </p>
+                </>
               ) : (
                 <>
                   <p className="font-semibold text-destructive">{failure === "captcha" ? "We could not check this request." : "We could not send this."}</p>
                   <p className="text-meta">
                     Your details are still here. Try again, or call us on{" "}
-                    <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
-                      {DEALER_PHONE}
-                    </a>
-                    .
+                    <PhoneLink />.
                   </p>
                 </>
               )}
@@ -251,7 +257,7 @@ export function LeadForm({
         )
       ) : (
         <div className={footer}>
-          <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`h-12 ${submitWidth} rounded-control bg-accent font-semibold text-white disabled:opacity-60 ${press}`}>
+          <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${submitWidth} disabled:opacity-60`}>
             {pending ? "Sending" : submitLabel}
           </button>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
-import { DEALER_FACTS_CONFIRMED, DEALER_PHONE, DEALER_TEL, SITE_NAME } from "@/lib/site";
+import { DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
+import { PhoneLink } from "@/components/PhoneLink";
 
 export const metadata: Metadata = { title: "Terms of use", description: `The terms for using the ${SITE_NAME} website.` };
 
@@ -24,9 +25,7 @@ export default function TermsPage() {
       <InfoSection title="Contact">
         <p>
           Call us on{" "}
-          <a href={`tel:${DEALER_TEL}`} className="font-semibold underline">
-            {DEALER_PHONE}
-          </a>{" "}
+          <PhoneLink />{" "}
           with any question about these terms.
         </p>
       </InfoSection>

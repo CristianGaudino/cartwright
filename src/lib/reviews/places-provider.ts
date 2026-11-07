@@ -39,7 +39,9 @@ function toReview(r: unknown, i: number, placeUri: string): Review | null {
   };
 }
 
-// Places API (New) Place Details. Any failure is null: the page hides the section, never shows an error (D-03).
+// Places API (New) Place Details. One call a day per isolate, win or lose: a failure is remembered too, so a Google outage
+// or a bad key never costs a request or a 3 second wait per page view. Stale reviews are served over none; with none the
+// result is null and the page hides the section, never shows an error (D-03).
 export function createPlacesProvider({
   placeId,
   apiKey,
@@ -48,10 +50,10 @@ export function createPlacesProvider({
 }: Options): ReviewsProvider {
   // shortcut: open-next.config.ts uses the dummy incremental cache, so fetch revalidate shares nothing across Worker
   // isolates and this memo is per isolate. Add the R2 incremental cache (as vintage) before go-live.
-  let last: { at: number; data: Reviews } | undefined;
+  let last: { at: number; data: Reviews | null } | undefined;
   let pending: Promise<Reviews | null> | undefined; // one call in flight, shared by every request that arrives meanwhile
 
-  async function load(): Promise<Reviews | null> {
+  async function fetchReviews(): Promise<Reviews | null> {
     try {
       const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
         headers: { "X-Goog-Api-Key": apiKey, "X-Goog-FieldMask": "rating,userRatingCount,googleMapsUri,reviews" },
@@ -70,11 +72,16 @@ export function createPlacesProvider({
       const count = num(body.userRatingCount);
       if (rating !== undefined) data.rating = rating;
       if (count !== undefined) data.count = count;
-      last = { at: now(), data };
       return data;
     } catch {
       return null;
     }
+  }
+
+  async function load(): Promise<Reviews | null> {
+    const data = (await fetchReviews()) ?? last?.data ?? null;
+    last = { at: now(), data };
+    return data;
   }
 
   return {

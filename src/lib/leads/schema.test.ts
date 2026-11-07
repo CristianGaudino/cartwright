@@ -110,11 +110,12 @@ describe("trade-in (LED-04, D-14)", () => {
     expect(errors({ ...sell, mileage }).mileage).toEqual(KM);
   });
 
-  it("takes an optional year from 1980 to next year", () => {
+  it("takes an optional year from 1900 to next year", () => {
     expect(errors({ ...sell, year: "" })).toEqual({});
     expect(leadSchema.parse({ ...sell, year: String(year) })).toMatchObject({ year });
+    expect(errors({ ...sell, year: "1972" })).toEqual({});
     expect(errors({ ...sell, year: String(year + 1) })).toEqual({});
-    expect(errors({ ...sell, year: "1979" }).year).toBeDefined();
+    expect(errors({ ...sell, year: "1899" }).year).toBeDefined();
     expect(errors({ ...sell, year: String(year + 2) }).year).toBeDefined();
     expect(errors({ ...sell, year: "19" }).year).toBeDefined();
   });
@@ -135,6 +136,12 @@ describe("finance application (FIN-03, D-17)", () => {
     expect(leadSchema.parse({ ...apply, carId })).toMatchObject({ carId });
     expect(leadSchema.parse({ ...apply, carId: "" })).toMatchObject({ carId: undefined });
     expect(errors({ ...apply, carId: "../1" }).carId).toBeDefined();
+  });
+
+  it("takes the price worked out on /finance, whole euros, and leaves it out when blank", () => {
+    expect(leadSchema.parse({ ...apply, price: "20,000" })).toMatchObject({ price: 20000 });
+    expect(leadSchema.parse({ ...apply, price: "" })).toMatchObject({ price: undefined });
+    expect(errors({ ...apply, price: "abc" }).price).toBeDefined();
   });
 
   it("needs an employment status from the list", () => {

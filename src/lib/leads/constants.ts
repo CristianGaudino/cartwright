@@ -11,7 +11,12 @@ export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as con
 export const CONTACT_ERROR = "Add a phone number or an email.";
 
 // YYYY-MM-DD for tomorrow in Ireland, where the dealer is, so the form's min and the server agree.
-export const tomorrow = (now = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Dublin" }).format(now.getTime() + 86_400_000);
+// One calendar day on from the Dublin date, not 24 hours on, which is wrong for the hour after the clocks go back.
+export const tomorrow = (now = new Date()) => {
+  const next = new Date(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Dublin" }).format(now) + "T00:00:00Z");
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next.toISOString().slice(0, 10);
+};
 // Trade-in photos (D-13, caps proven in the 03-01 spike). PHOTO_MAX_MB is checked on the picked original before the phone
 // shrinks it; the server enforces the stored and total caps, and next.config.ts's 18mb body cap sits just above the total.
 export const PHOTO_MAX_COUNT = 12;

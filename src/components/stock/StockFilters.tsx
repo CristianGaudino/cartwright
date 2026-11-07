@@ -7,10 +7,10 @@ import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { CheckIcon, ChevronDownIcon } from "./icons";
 import { useStock } from "./StockShell";
+import { press } from "@/components/ui";
 
 const COLLAPSED = 8;
 const legend = "text-body font-semibold";
-const press = "active:scale-[0.97] motion-reduce:active:scale-100";
 const link = `min-h-11 self-start text-body font-semibold underline ${press}`;
 const KMS = [20000, 50000, 80000, 100000, 150000];
 

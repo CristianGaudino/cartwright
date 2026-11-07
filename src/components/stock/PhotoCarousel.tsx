@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSlideIndex } from "@/components/car/useSlideIndex";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import type { Photo } from "@/lib/stock/types";
 import { arrow, arrowEnd, settle } from "./photo-load";
@@ -13,14 +14,12 @@ const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-
 // Native scroll-snap gives 1:1 finger tracking, momentum and interruptibility: no gesture code.
 export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo[]; href: string; label: string; priority: boolean }) {
   const root = useRef<HTMLDivElement>(null);
-  const scroller = useRef<HTMLDivElement>(null);
-  const frame = useRef(0);
   const [index, setIndex] = useState(0);
+  const { ref: scroller, onScroll } = useSlideIndex(setIndex);
 
   // Photos stay visible without JavaScript: the hide-until-loaded style only applies once this attribute is set.
   useEffect(() => {
     root.current?.setAttribute("data-js", "");
-    return () => cancelAnimationFrame(frame.current);
   }, []);
 
   if (photos.length === 0) {
@@ -29,14 +28,6 @@ export function PhotoCarousel({ photos, href, label, priority }: { photos: Photo
   const n = photos.length;
   const tile = n >= 2; // the "See all n photos" slide sits at index n, after the photos
 
-  const onScroll = () => {
-    if (frame.current) return;
-    frame.current = requestAnimationFrame(() => {
-      frame.current = 0;
-      const el = scroller.current;
-      if (el?.clientWidth) setIndex(Math.round(el.scrollLeft / el.clientWidth));
-    });
-  };
   const atStart = index <= 0;
   const atEnd = index >= (tile ? n : n - 1);
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });

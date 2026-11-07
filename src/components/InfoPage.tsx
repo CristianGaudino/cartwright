@@ -1,6 +1,7 @@
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { PhoneIcon } from "@/components/stock/icons";
 import { DEALER_FACTS_CONFIRMED, DEALER_TEL } from "@/lib/site";
+import { accentButton } from "@/components/ui";
 
 // Shared text-page frame (service, about, terms, privacy). The pill comes before the h1 so it is read first.
 export function InfoPage({ title, intro, placeholder, children }: { title: string; intro?: string; placeholder?: boolean; children: React.ReactNode }) {
@@ -32,7 +33,7 @@ export function CallButton({ children }: { children: React.ReactNode }) {
   return (
     <a
       href={`tel:${DEALER_TEL}`}
-      className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-6 font-semibold text-white active:scale-[0.97] motion-reduce:active:scale-100 sm:w-auto sm:min-w-60 sm:self-start"
+      className={`flex w-full items-center justify-center gap-2 sm:w-auto sm:min-w-60 sm:self-start ${accentButton}`}
     >
       <PhoneIcon className="size-5" />
       {children}

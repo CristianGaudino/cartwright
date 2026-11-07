@@ -24,6 +24,10 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
   // Kept off the Car objects so nothing internal leaks to callers.
   const searchText = new Map(cars.map((c) => [c.id, fold(`${c.make} ${c.model} ${c.variant ?? ""}`)]));
 
+  // The folded search words of a query, worked out once per query rather than once per car.
+  const terms = new WeakMap<StockQuery, string[]>();
+  const termsOf = (q: StockQuery) => terms.get(q) ?? terms.set(q, fold(q.q ?? "").split(/\s+/).filter(Boolean)).get(q)!;
+
   // In stock, or sold inside the period. The clock is read per call, never once here: a Worker lives for days.
   const visibleNow = () => {
     const t = now().getTime();
@@ -43,7 +47,7 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
     if (q.priceMax !== undefined && c.priceEur > q.priceMax) return false;
     if (q.kmMax !== undefined && (c.mileageKm === undefined || c.mileageKm > q.kmMax)) return false;
     const text = searchText.get(c.id)!;
-    return fold(q.q ?? "").split(/\s+/).filter(Boolean).every((t) => text.includes(t));
+    return termsOf(q).every((t) => text.includes(t));
   };
 
   // Options: every value in `universe` plus any selected value not in the pool. Count: pool cars passing every filter but this group's.
