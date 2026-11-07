@@ -74,3 +74,45 @@ export const MenuIcon = (p: Props) => (
     <path d="M4 7h16M4 12h16M4 17h16" />
   </Icon>
 );
+
+export const ArrowRightIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 12h15M13.5 6.5 19 12l-5.5 5.5" />
+  </Icon>
+);
+export const SearchIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="6" />
+    <path d="m20 20-4.2-4.2" />
+  </Icon>
+);
+export const ShieldCheckIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M12 3 5 6v5.5c0 4.2 2.8 7.6 7 9.5 4.2-1.9 7-5.3 7-9.5V6l-7-3Z" />
+    <path d="m9 12 2.2 2.2L15.5 10" />
+  </Icon>
+);
+export const LayersIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+    <path d="m3 12.5 9 5 9-5M3 16.5l9 5 9-5" />
+  </Icon>
+);
+export const CalculatorIcon = (p: Props) => (
+  <Icon {...p}>
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" />
+  </Icon>
+);
+export const SwapIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4" />
+  </Icon>
+);
+export const CarIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M5 16V11l2-5h10l2 5v5M3 16h18M5 16v3M19 16v3M5 11h14" />
+    <circle cx="8" cy="14" r=".6" />
+    <circle cx="16" cy="14" r=".6" />
+  </Icon>
+);
