@@ -39,8 +39,9 @@ test("from 1024px the header links both form pages", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
-  await header.getByRole("link", { name: "Sell your car" }).click();
+  await header.getByRole("link", { name: "Sell / Trade-In" }).click();
   await expect(page).toHaveURL(/\/sell-your-car$/);
+  await header.getByRole("button", { name: "Stock" }).click();
   await header.getByRole("link", { name: "Find a car" }).click();
   await expect(page).toHaveURL(/\/find-a-car$/);
 });
@@ -52,7 +53,7 @@ test("on a phone the form pages are in the footer, not the header, and the heade
     ["Sell your car", "/sell-your-car"],
     ["Find a car", "/find-a-car"],
   ]) {
-    await expect(page.getByRole("banner").getByRole("link", { name })).toBeHidden();
+    await expect(page.getByRole("banner").getByRole("link", { name, exact: true })).toBeHidden();
     await expect(page.getByRole("contentinfo").getByRole("link", { name })).toHaveAttribute("href", href);
   }
   await page.setViewportSize({ width: 320, height: 640 });
