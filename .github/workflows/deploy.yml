@@ -30,10 +30,8 @@ jobs:
       # The demo deploy is not production: every page is noindex, the sitemap is empty and robots.txt only lets the
       # share-preview bots in. Set production only when this deploys the client's live domain (owner decision 1).
       APP_ENV: demo
-      # Turnstile site key: public, inlined into the browser bundle at build. PLACEHOLDER: Cloudflare's always-pass test
-      # key until the owner creates the Managed widget (03-02); swap in the real site key then. With the real secret on
-      # the Worker, test-key tokens are refused, so leads fail closed until both keys are real.
-      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000BB
+      # Turnstile site key: public, inlined into the browser bundle at build. Its secret is a Worker secret.
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 0x4AAAAAAF3rGKbvV1v6bX8K
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       NEXT_TELEMETRY_DISABLED: 1
