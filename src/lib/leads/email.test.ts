@@ -27,8 +27,15 @@ describe("buildLeadEmail", () => {
     const drive = { ...row, type: "test_drive" as const, details: { preferredTime: "morning", preferredDay: "2026-11-09" } };
     const { subject, text } = buildLeadEmail(drive, { demo: false });
     expect(subject).toBe("Test drive request: 2011 Mercedes-Benz G Class");
-    expect(text).toContain("Preferred day: 2026-11-09\n\nPreferred time: morning");
+    expect(text).toContain("Preferred day: 2026-11-09\n\nPreferred time: Morning");
     expect(buildLeadEmail({ ...row, type: "reserve" }, { demo: false }).subject).toBe("Reservation request: 2011 Mercedes-Benz G Class");
+  });
+
+  it("writes words and formatted figures, not stored keys", () => {
+    const f = { ...row, type: "finance" as const, details: { employment: "self_employed", deposit: 3000, mileage: 120500, budgetMax: 15000 } };
+    const { text } = buildLeadEmail(f, { demo: false });
+    for (const line of ["Mileage: 120,500 km", "Budget up to: €15,000", "Deposit: €3,000", "Employment status: Self-employed"]) expect(text).toContain(line);
+    expect(text).not.toContain("self_employed");
   });
 
   it("prefixes [DEMO] on the demo and not in production", () => {
