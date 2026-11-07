@@ -73,13 +73,13 @@ test("saving in one tab updates another tab without a reload", async ({ context 
   await expect(firstHeart(b)).toHaveAttribute("aria-pressed", "true");
 });
 
-test("saving and unsaving are announced", async ({ page }) => {
+test("saving is announced by the heart, and removing by the toast", async ({ page }) => {
   await page.goto("/used-cars");
   const live = page.locator("article").first().locator('[aria-live="polite"]');
   await firstHeart(page).click();
   await expect(live).toHaveText("Saved");
   await firstHeart(page).click();
-  await expect(live).toHaveText("Removed from saved");
+  await expect(page.getByTestId("toast")).toContainText("Removed from saved");
 });
 
 test("with storage blocked a heart still toggles and nothing errors", async ({ page }) => {

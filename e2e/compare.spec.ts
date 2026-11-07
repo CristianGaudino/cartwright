@@ -18,6 +18,13 @@ async function compare(page: Page, path: string) {
   await button.click();
   return button;
 }
+async function openCompare(page: Page, n: number) {
+  const paths = await carPaths(page, n);
+  for (const p of paths) await compare(page, p);
+  await page.goto("/compare");
+  await ready(page);
+}
+const cards = (page: Page) => page.getByTestId("compare-card");
 
 test("a card has no compare button, only the heart", async ({ page }) => {
   await page.goto("/used-cars");
@@ -26,24 +33,68 @@ test("a card has no compare button, only the heart", async ({ page }) => {
   await expect(card.getByRole("button", { name: /^Save / })).toHaveCount(1);
 });
 
-test("pick two cars on their pages, open the compare page, remove one", async ({ page }) => {
+test("pick two cars on their pages: the compare page has a card each, and a place for a third", async ({ page }) => {
   const [a, b] = await carPaths(page, 2);
-  const first = await compare(page, a);
-  await expect(first).toHaveAttribute("aria-pressed", "true");
+  await expect(await compare(page, a)).toHaveAttribute("aria-pressed", "true");
   await compare(page, b);
   const bar = page.getByRole("region", { name: "Compare cars" });
   await expect(bar).toContainText("2 of 3 to compare");
   await bar.getByRole("link", { name: "Compare" }).click();
   await expect(page).toHaveURL(/\/compare$/);
   await expect(page.getByRole("heading", { level: 1, name: "Compare cars" })).toBeVisible();
-  const table = page.getByRole("table");
-  await expect(table.getByRole("columnheader")).toHaveCount(2);
-  for (const row of ["Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type"]) await expect(table.getByRole("rowheader", { name: row })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Compare cars" })).toHaveCount(0);
-  await table.getByRole("button", { name: /^Remove/ }).first().click();
-  await expect(table.getByRole("columnheader")).toHaveCount(1);
+  await expect(cards(page)).toHaveCount(2);
+  await expect(page.getByTestId("compare-placeholder")).toHaveCount(1);
+  await expect(page.getByTestId("compare-placeholder").getByRole("link", { name: "Add a car" })).toHaveAttribute("href", "/used-cars");
+  for (const row of ["Price", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Compare cars" })).toHaveCount(0); // the bar is for the other pages
+});
+
+test("one car: its card and a placeholder to add the next, beside it and not a link underneath", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await openCompare(page, 1);
+  await expect(cards(page)).toHaveCount(1);
+  const placeholder = page.getByTestId("compare-placeholder");
+  await expect(placeholder).toBeVisible();
+  const card = (await cards(page).boundingBox())!;
+  const slot = (await placeholder.boundingBox())!;
+  expect(slot.x).toBeGreaterThan(card.x + card.width - 1); // to the right of it
+  expect(Math.abs(slot.y - card.y)).toBeLessThan(2); // on the same row
+  // Nothing to mark with one car.
+  await expect(page.getByText(/^(Higher|Lower|Highest|Lowest)$/)).toHaveCount(0);
+});
+
+test("two cars: each row says which is higher and which is lower", async ({ page }) => {
+  await openCompare(page, 2);
+  const price = (i: number) => cards(page).nth(i).locator("dl > div").filter({ hasText: /^Price/ });
+  const rows = [await price(0).textContent(), await price(1).textContent()];
+  // Different prices: one card is Lower, the other Higher.
+  expect(rows.filter((m) => m!.includes("Lower")).length).toBe(1);
+  expect(rows.filter((m) => m!.includes("Higher")).length).toBe(1);
+  // Lower is good news for a price, so its marker is green; Higher is red. The word and the arrow are there too, so colour is never the only sign.
+  await expect(page.getByText("Lower", { exact: true }).first()).toHaveCSS("color", "rgb(74, 222, 128)");
+  await expect(page.getByText("Higher", { exact: true }).first()).toHaveCSS("color", "rgb(249, 112, 102)");
+});
+
+test("remove a car with an Undo, and Clear all with an Undo, which puts the list back", async ({ page }) => {
+  await openCompare(page, 2);
+  await cards(page).first().getByRole("button", { name: /^Remove/ }).click();
+  await expect(cards(page)).toHaveCount(1);
+  await expect(page.getByTestId("toast")).toContainText("Removed");
+  await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
+  await expect(cards(page)).toHaveCount(2);
+
   await page.getByRole("button", { name: "Clear all" }).click();
   await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
+  await expect(page.getByTestId("toast")).toContainText("Compare list cleared");
+  await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
+  await expect(cards(page)).toHaveCount(2);
+});
+
+test("Clear all is at the top, above the cards", async ({ page }) => {
+  await openCompare(page, 2);
+  const clear = (await page.getByRole("button", { name: "Clear all" }).boundingBox())!;
+  const card = (await cards(page).first().boundingBox())!;
+  expect(clear.y + clear.height).toBeLessThanOrEqual(card.y);
 });
 
 test("a fourth car is refused and said so, and the list stays at three", async ({ page }) => {

@@ -6,17 +6,32 @@ import { facetRows, toggle, withRange } from "@/lib/stock/query";
 import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { SelectBox } from "@/components/SelectBox";
-import { CheckIcon } from "./icons";
+import { CheckIcon, ChevronDownIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { press } from "@/components/ui";
 
 const COLLAPSED = 8;
-const legend = "text-body font-semibold";
+// One accordion row, as in the mockup: the title and a chevron, the options under it. It starts open when something in it is chosen,
+// or for the group that asks to (Make), and the buyer opens and closes it after that. The options stay in the page when it is closed.
+function Group({ title, active, defaultOpen = false, role, children }: { title: string; active: boolean; defaultOpen?: boolean; role?: "radiogroup"; children: React.ReactNode }) {
+  const [open] = useState(active || defaultOpen); // only the starting state: later the row is the buyer's to open and close
+  return (
+    <details open={open} className="group min-w-0">
+      <summary className={`flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-body font-semibold [&::-webkit-details-marker]:hidden ${press}`}>
+        {title}
+        <ChevronDownIcon className="size-5 shrink-0 transition-transform duration-150 group-open:rotate-180 motion-reduce:transition-none" />
+      </summary>
+      <div role={role ?? "group"} aria-label={title} className="flex flex-col pt-1">
+        {children}
+      </div>
+    </details>
+  );
+}
 const link = `min-h-11 self-start text-body font-semibold underline ${press}`;
 const KMS = [20000, 50000, 80000, 100000, 150000];
 
 // Make and Model: a checkbox list with counts. Collapsed it shows the top 8 plus every ticked row, so a ticked row never hides (BRW-01).
-function CheckGroup({ title, group, options }: { title: string; group: "make" | "model"; options: FacetOption[] }) {
+function CheckGroup({ title, group, options, defaultOpen }: { title: string; group: "make" | "model"; options: FacetOption[]; defaultOpen?: boolean }) {
   const { query, summary, facets, navigate } = useStock();
   const listId = useId();
   const [open, setOpen] = useState(false);
@@ -26,8 +41,7 @@ function CheckGroup({ title, group, options }: { title: string; group: "make" | 
   const shown = open ? rows : rows.filter((r, i) => i < COLLAPSED || selected.includes(r.value));
 
   return (
-    <fieldset className="flex min-w-0 flex-col">
-      <legend className={`${legend} mb-1`}>{title}</legend>
+    <Group title={title} active={selected.length > 0} defaultOpen={defaultOpen}>
       <div id={listId} data-testid="facet-list">
         {shown.map((row) => (
           <label key={row.value} className={`flex min-h-11 items-center gap-3 ${row.disabled ? "text-text-2" : ""}`}>
@@ -59,7 +73,7 @@ function CheckGroup({ title, group, options }: { title: string; group: "make" | 
           </button>
         )
       )}
-    </fieldset>
+    </Group>
   );
 }
 
@@ -70,9 +84,8 @@ function ChipGroup({ title, group, options }: { title: string; group: "body" | "
   const rows = facetRows(options, selected, summary !== null);
   if (rows.length === 0) return null;
   return (
-    <fieldset className="min-w-0">
-      <legend className={`${legend} mb-2`}>{title}</legend>
-      <div className="flex flex-wrap gap-2">
+    <Group title={title} active={selected.length > 0}>
+      <div className="flex flex-wrap gap-2 py-1">
         {rows.map((row) => {
           const on = selected.includes(row.value);
           return (
@@ -93,7 +106,7 @@ function ChipGroup({ title, group, options }: { title: string; group: "body" | "
           );
         })}
       </div>
-    </fieldset>
+    </Group>
   );
 }
 
@@ -168,8 +181,7 @@ function Transmission() {
   const name = useId();
   const options: { value: Gearbox | undefined; label: string }[] = [{ value: undefined, label: "Any" }, ...GEARBOXES.map((g) => ({ value: g, label: GEARBOX_LABELS[g] }))];
   return (
-    <fieldset role="radiogroup" className="min-w-0">
-      <legend className={`${legend} mb-2`}>Transmission</legend>
+    <Group title="Transmission" active={query.gearbox !== undefined} role="radiogroup">
       <div className="grid grid-cols-3 overflow-hidden rounded-control border border-control">
         {options.map((o) => {
           const on = query.gearbox === o.value;
@@ -188,16 +200,15 @@ function Transmission() {
           );
         })}
       </div>
-    </fieldset>
+    </Group>
   );
 }
 
-function Row({ title, children }: { title: string; children: React.ReactNode }) {
+function Row({ title, active, children }: { title: string; active: boolean; children: React.ReactNode }) {
   return (
-    <fieldset className="min-w-0">
-      <legend className={`${legend} mb-2`}>{title}</legend>
-      <div className="flex gap-3">{children}</div>
-    </fieldset>
+    <Group title={title} active={active}>
+      <div className="flex gap-3 py-1">{children}</div>
+    </Group>
   );
 }
 
@@ -216,20 +227,20 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
           <SearchBox />
         </div>
       )}
-      <CheckGroup title="Make" group="make" options={facets?.make ?? []} />
-      {query.make.length > 0 && <CheckGroup title="Model" group="model" options={models} />}
-      <Row title="Year">
+      <CheckGroup title="Make" group="make" options={facets?.make ?? []} defaultOpen />
+      {query.make.length > 0 && <CheckGroup title="Model" group="model" options={models} defaultOpen />}
+      <Row title="Year" active={query.yearFrom !== undefined || query.yearTo !== undefined}>
         <SelectField label="From" value={query.yearFrom} options={yearOptions} onChange={(yearFrom) => set({ yearFrom })} />
         <SelectField label="To" value={query.yearTo} options={yearOptions} onChange={(yearTo) => set({ yearTo })} />
       </Row>
-      <Row title="Budget">
+      <Row title="Budget" active={query.priceMin !== undefined || query.priceMax !== undefined}>
         <SelectField label="Min" value={query.priceMin} options={withSelected(BUDGETS, query.priceMin).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMin) => set({ priceMin })} />
         <SelectField label="Max" value={query.priceMax} options={withSelected(BUDGETS, query.priceMax).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMax) => set({ priceMax })} />
       </Row>
       <ChipGroup title="Body type" group="body" options={facets?.body ?? []} />
       <ChipGroup title="Fuel" group="fuel" options={facets?.fuel ?? []} />
       <Transmission />
-      <Row title="Mileage">
+      <Row title="Mileage" active={query.kmMax !== undefined}>
         <SelectField label="Up to" value={query.kmMax} options={withSelected(KMS, query.kmMax).map((v) => ({ value: v, label: formatKm(v) }))} onChange={(kmMax) => set({ kmMax })} />
       </Row>
       <label className="flex min-h-11 items-center gap-3">

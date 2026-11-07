@@ -11,6 +11,13 @@ async function open(page: Page, url = "/used-cars") {
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
 
+// The groups start closed unless something in them is chosen (and Make). Most tests want every option on screen.
+async function openGroups(page: Page) {
+  const scope = (await page.locator("aside").isVisible()) ? page.locator("aside") : sheet(page);
+  const closed = scope.locator("details:not([open]) > summary");
+  while (await closed.count()) await closed.first().click();
+}
+
 const makeGroup = (page: Page) => page.getByRole("group", { name: "Make" });
 const box = (page: Page, value: string) => makeGroup(page).locator(`input[value="${value}"]`);
 
@@ -177,6 +184,7 @@ test.describe("filters on a desktop", () => {
 
   test("Year, Budget, Mileage, Body, Fuel and Transmission each filter and write their param", async ({ page }) => {
     await open(page);
+    await openGroups(page);
     const all = (await page.getByTestId("count").textContent())!;
     const clear = async () => {
       await page.getByRole("button", { name: "Clear all filters" }).click();
@@ -231,6 +239,7 @@ test.describe("filters on a desktop", () => {
 
   test("a From above To (or Min above Max) pulls the other bound along instead of showing no cars", async ({ page }) => {
     await open(page);
+    await openGroups(page);
     const years = (await select(page, "From").locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))).filter(Boolean).map(Number);
     const [newest, oldest] = [Math.max(...years), Math.min(...years)];
     expect(newest).toBeGreaterThan(oldest);
@@ -266,6 +275,7 @@ test.describe("filters on a desktop", () => {
 
   test("an option with a zero count and no tick is aria-disabled; anything with a count is not", async ({ page }) => {
     await open(page);
+    await openGroups(page);
     if (await showAll(page).count()) await showAll(page).click();
     const smallest = (await rows(page)).filter((r) => r.count > 0).sort((x, y) => x.count - y.count)[0];
     await box(page, smallest.value).check();
@@ -282,8 +292,26 @@ test.describe("filters on a desktop", () => {
     expect(disabledBoxes).toBe(zeroBoxes);
   });
 
+  test("the groups are accordion rows: Make is open, the rest closed, and a chosen value opens its group", async ({ page }) => {
+    await open(page);
+    const group = (title: string) => page.locator("aside details").filter({ has: page.locator("summary", { hasText: new RegExp(`^${title}$`) }) });
+    await expect(group("Make")).toHaveAttribute("open", "");
+    await expect(group("Year")).not.toHaveAttribute("open", "");
+    await expect(select(page, "From")).toBeHidden();
+    await group("Year").locator("summary").click();
+    await expect(select(page, "From")).toBeVisible();
+    await group("Year").locator("summary").click();
+    await expect(select(page, "From")).toBeHidden();
+    // Closing a group does not drop what is chosen in it.
+    await open(page, "/used-cars?yearFrom=2020&fuel=petrol");
+    await expect(group("Year")).toHaveAttribute("open", "");
+    await expect(group("Fuel")).toHaveAttribute("open", "");
+    await expect(group("Mileage")).not.toHaveAttribute("open", "");
+  });
+
   test("a shared URL with filters and sort opens the same cars in the same order (BRW-03)", async ({ page, browser }) => {
     await open(page);
+    await openGroups(page);
     const a = (await rows(page)).find((r) => r.count > 0)!;
     await box(page, a.value).check();
     await expect(page.getByTestId("count")).toHaveText(countText(a.count));

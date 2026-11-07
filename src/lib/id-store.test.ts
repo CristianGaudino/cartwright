@@ -46,4 +46,16 @@ describe("createIdStore", () => {
     expect(seen).toHaveBeenCalledTimes(2);
     stop();
   });
+
+  it("restore puts removed ids back at the front and keeps what was added since", () => {
+    const s = createIdStore("k", 3);
+    s.set(["3", "2", "1"]);
+    s.remove(["2"]);
+    s.toggle("9"); // added after the removal
+    expect(JSON.parse(data.get("k")!)).toEqual(["9", "3", "1"]);
+    s.restore(["2"]);
+    expect(JSON.parse(data.get("k")!)).toEqual(["2", "9", "3"]); // the cap of three keeps the newest-first order, dropping the oldest
+    s.restore(["2"]); // already there: no duplicate
+    expect(JSON.parse(data.get("k")!)).toEqual(["2", "9", "3"]);
+  });
 });
