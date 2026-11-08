@@ -80,7 +80,6 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         {photos.map((photo, i) => (
           <li key={i} className="relative aspect-[4/3] overflow-hidden rounded-control bg-photo-bg">
             <Preview blob={photo} alt={`Photo ${i + 1}`} />
-            {slots[i] && <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-ink/70 px-2 py-1 text-meta">{slots[i]}</span>}
             <button
               type="button"
               onClick={() => remove(i)}

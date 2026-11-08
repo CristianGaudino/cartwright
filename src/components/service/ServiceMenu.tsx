@@ -7,8 +7,8 @@ import { card, subTitle } from "@/components/ui";
 
 export type Service = { readonly name: string; readonly blurb: string; readonly types: readonly string[] };
 
-// What we do, as a row of cards. A card opens a panel under the row (it slides open): what that service covers on the left, as a list with
-// the checks down the left edge, and the message form, already open, on the right.
+// What we do, as a row of cards. A card opens a panel under the row (it slides open): what that service covers on the left, as ruled rows
+// spread down the height of the form, and the message form, already open, on the right.
 export function ServiceMenu({ services }: { services: readonly Service[] }) {
   const [open, setOpen] = useState<string>();
   const [last, setLast] = useState<string>(); // what the panel still shows while it slides shut
@@ -49,19 +49,16 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
         <div className="min-h-0 overflow-hidden">
           {current && (
             <div className={`grid grid-cols-1 gap-6 ${card} p-5 sm:p-6 lg:grid-cols-2 lg:gap-10`}>
-              <div className="flex flex-col gap-4">
-                <h3 className={subTitle}>{current.name}: What We Do</h3>
-                <ul className="flex flex-col gap-3">
-                  {current.types.map((t) => (
-                    <li key={t} className="flex items-center gap-3 text-body">
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
-                        <CheckIcon className="size-4" />
-                      </span>
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="flex flex-col">
+                {current.types.map((t) => (
+                  <li key={t} className="flex flex-1 items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+                      <CheckIcon className="size-5" />
+                    </span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
               <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
                 <h4 className="text-body font-semibold">Tell us what your car needs</h4>
                 <LeadPageForm

@@ -1,5 +1,6 @@
 "use client";
 
+import { swipeRow } from "@/components/ui";
 import Image from "next/image";
 import { Brandmark } from "@/components/Brandmark";
 import { useEffect, useRef, useState } from "react";
@@ -58,7 +59,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
           role="group"
           aria-roledescription="carousel"
           aria-label={`Photos of ${name}`}
-          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+          className={swipeRow}
         >
           {photos.map((photo, i) => (
             <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">

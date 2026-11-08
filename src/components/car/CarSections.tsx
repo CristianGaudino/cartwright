@@ -1,7 +1,7 @@
 import { AutoCarousel } from "@/components/AutoCarousel";
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
-import { card, slash } from "@/components/ui";
+import { card, carSlide, slash } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
@@ -92,7 +92,7 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
       <div className="mt-4">
         <AutoCarousel label="Similar cars">
           {cars.map((c) => (
-            <li key={c.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
+            <li key={c.id} className={carSlide}>
               <ListingCard car={c} priority={false} oneLine />
             </li>
           ))}

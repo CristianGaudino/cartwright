@@ -101,12 +101,15 @@ export function Field({
 export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   const email = bind("email");
   const both = email.error === CONTACT_ERROR;
+  // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
   return (
-    <>
+    <div className="@container flex flex-col gap-4">
       <Field {...bind("name")} label="Name" autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
       <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
-      <Field {...bind("phone")} label="Phone" type="tel" autoComplete="tel" maxLength={LIMITS.phone} enterKeyHint="next" invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
-      <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
-    </>
+      <div className="grid grid-cols-1 gap-4 @md:grid-cols-2">
+        <Field {...bind("phone")} label="Phone" type="tel" autoComplete="tel" maxLength={LIMITS.phone} enterKeyHint="next" invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
+        <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
+      </div>
+    </div>
   );
 }

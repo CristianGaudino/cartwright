@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@/components/stock/icons";
 
-// A row of cards that moves along by itself, a page at a time, and stops while the buyer is using it. Native scroll-snap, so a finger swipes
-// it. Used for the featured cars, the reviews and the similar cars. The arrows, dots and a pause button sit under the row, not over the cards.
+// A row of cards that drifts along by itself, smoothly, and stops while the buyer is using it. It is a plain scrolling row, so a finger swipes
+// it. At either end it turns round. Used for the featured cars, the reviews and the similar cars. The arrows, dots and a pause button sit
+// under the row, not over the cards.
+const SPEED = 36; // px a second: slow enough to read a card as it goes by
+const RESUME_AFTER = 4000; // ms after a touch before it drifts again
 const control = "flex size-9 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
@@ -31,12 +34,10 @@ export function AutoCarousel({
   children,
   label,
   noun = "cars",
-  interval = 5000,
 }: {
   children: React.ReactNode;
   label: string;
   noun?: string; // what the cards are, for the arrows' names: "Next cars", "Next reviews"
-  interval?: number; // ms between moves
 }) {
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLUListElement>(null);
@@ -50,7 +51,8 @@ export function AutoCarousel({
     const el = scroller.current;
     if (!el) return;
     const { unit, pages } = geometry(el);
-    setState({ pages, page: Math.min(pages - 1, Math.round(el.scrollLeft / unit)) });
+    const page = Math.min(pages - 1, Math.round(el.scrollLeft / unit));
+    setState((s) => (s.pages === pages && s.page === page ? s : { pages, page })); // the same answer is no render: scroll fires every frame of a drift
   }, []);
   useEffect(() => {
     const el = scroller.current;
@@ -60,31 +62,47 @@ export function AutoCarousel({
     return () => watch.disconnect();
   }, [measure]);
 
-  // The auto move: not while the pointer is over it, focus is in it, a finger touched it lately, the tab is hidden or the row is off screen.
-  // At the end it goes back to the start.
+  // The drift: a frame at a time, not while the pointer is over it, focus is in it, a finger touched it lately, the tab is hidden or the row is
+  // off screen. `pos` is kept apart from scrollLeft, which a screen may round to whole pixels and so stall a slow move.
   useEffect(() => {
     const el = scroller.current;
     const box = root.current;
     if (!el || !box || stopped || reduced) return;
-    let visible = false;
-    const seen = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
-    seen.observe(box);
-    const id = setInterval(() => {
+    let pos = el.scrollLeft;
+    let dir = 1;
+    let last = 0;
+    let frame = 0;
+    // Frames run only while the row is on screen, so a row far down the page costs nothing.
+    const tick = (now: number) => {
+      const dt = last ? Math.min(now - last, 100) / 1000 : 0; // a long gap (tab away) is not caught up
+      last = now;
       const u = using.current;
-      if (u.over || u.within || !visible || document.hidden || Date.now() - u.lastTouch < interval * 2) return;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
-      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + geometry(el).unit });
-    }, interval);
+      if (Math.abs(el.scrollLeft - pos) > 2) pos = el.scrollLeft; // the buyer, an arrow or a dot moved it
+      if (!(u.over || u.within || document.hidden || Date.now() - u.lastTouch < RESUME_AFTER)) {
+        const max = el.scrollWidth - el.clientWidth;
+        pos = Math.max(0, Math.min(max, pos + dir * SPEED * dt));
+        if (pos >= max) dir = -1;
+        else if (pos <= 0) dir = 1;
+        el.scrollLeft = pos;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    const seen = new IntersectionObserver(([e]) => {
+      cancelAnimationFrame(frame);
+      last = 0;
+      if (e.isIntersecting) frame = requestAnimationFrame(tick);
+    });
+    seen.observe(box);
     return () => {
-      clearInterval(id);
+      cancelAnimationFrame(frame);
       seen.disconnect();
     };
-  }, [stopped, reduced, interval]);
+  }, [stopped, reduced]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: "smooth" });
   const goTo = (i: number) => {
     const el = scroller.current;
-    if (el) el.scrollTo({ left: i * geometry(el).unit });
+    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: "smooth" });
   };
 
   return (
@@ -103,7 +121,7 @@ export function AutoCarousel({
       <ul
         ref={scroller}
         onScroll={measure}
-        className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 scrollbar-none motion-reduce:scroll-auto [&::-webkit-scrollbar]:hidden"
+        className="relative flex gap-4 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </ul>

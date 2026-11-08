@@ -1,5 +1,6 @@
 "use client";
 
+import { doneBadge, swipeRow } from "@/components/ui";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -75,7 +76,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
         role="group"
         aria-roledescription="carousel"
         aria-label={`Photos of ${label}`}
-        className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden"
+        className={swipeRow}
       >
         {visible.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="relative h-full w-full flex-none snap-start">
@@ -99,7 +100,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
         {tile && (
           <div role="group" aria-roledescription="slide" aria-label={`See all ${n} photos`} className="h-full w-full flex-none snap-start bg-photo-bg">
             <Link href={href} className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center text-meta font-semibold focus-visible:-outline-offset-2">
-              <span className="flex size-11 items-center justify-center rounded-full bg-text text-ink">
+              <span className={doneBadge}>
                 <ChevronRightIcon />
               </span>
               <span className="line-clamp-2">See all {n} photos</span>

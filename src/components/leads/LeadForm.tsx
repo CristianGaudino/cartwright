@@ -14,7 +14,7 @@ import { useSteps } from "./useSteps";
 import type { FormStep } from "./useSteps";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
-import { accentButton, secondaryButton } from "@/components/ui";
+import { accentButton, doneBadge, secondaryButton } from "@/components/ui";
 import { PhoneLink } from "@/components/PhoneLink";
 
 export type FieldBinding = { id: string; name: string; value: string; onChange(v: string): void; error?: string };
@@ -228,7 +228,7 @@ export function LeadForm({
     >
       {done ? (
         <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
-          <span className="flex size-11 items-center justify-center rounded-full bg-text text-ink">
+          <span className={doneBadge}>
             <CheckIcon />
           </span>
           <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">

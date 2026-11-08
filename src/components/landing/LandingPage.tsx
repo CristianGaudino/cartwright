@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { pageMain, pageTitle, subTitle } from "@/components/ui";
+import { pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
@@ -11,7 +11,6 @@ import type { FacetOption } from "@/lib/stock/types";
 import type { LandingData } from "./data";
 
 const SHOWN = 12;
-const button = "inline-flex h-12 items-center rounded-control px-6 font-semibold active:scale-[0.97] motion-reduce:active:scale-100";
 
 function Breadcrumb({ landing }: { landing: Landing }) {
   const trail: { label: string; href?: string }[] = [{ label: "Used Cars", href: "/used-cars" }];
@@ -96,7 +95,7 @@ export function LandingPage({ data }: { data: LandingData }) {
             ))}
           </div>
           {facts.n > SHOWN && (
-            <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 border border-control ${button}`}>
+            <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 inline-flex h-12 items-center px-6 ${secondaryButton}`}>
               See all {facts.n} {name}
             </Link>
           )}

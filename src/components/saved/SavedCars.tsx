@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { StateBlock } from "@/components/StateBlock";
 import { useState, useSyncExternalStore } from "react";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
-import { StockError, stateButton } from "@/components/stock/StockError";
+import { EmptyCars, StockError } from "@/components/stock/StockError";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { removeSaved, useSavedIds } from "@/lib/saved/store";
 import { card } from "@/components/ui";
@@ -13,15 +11,7 @@ import { card } from "@/components/ui";
 const never = () => () => {};
 const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
 
-function Empty() {
-  return (
-    <StateBlock title="No saved cars yet" text="Tap the heart on any car to save it here.">
-      <Link href="/used-cars" className={stateButton}>
-        See Used Cars
-      </Link>
-    </StateBlock>
-  );
-}
+const Empty = () => <EmptyCars title="No saved cars yet" text="Tap the heart on any car to save it here." />;
 
 // The ids live in this browser, so the cars are fetched by id from /api/saved-cars (the stock stays on the server).
 export function SavedCars() {

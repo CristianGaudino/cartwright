@@ -109,9 +109,9 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
         </div>
       )}
       {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
-      <AutoCarousel label="Google reviews" noun="reviews" interval={6000}>
+      <AutoCarousel label="Google reviews" noun="reviews">
         {data.reviews.map((r) => (
-          <li key={r.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
+          <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
             <ReviewCard review={r} />
           </li>
         ))}

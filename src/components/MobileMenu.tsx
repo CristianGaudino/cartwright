@@ -1,10 +1,11 @@
 "use client";
 
+import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import Link from "next/link";
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
 import { PhoneLink } from "@/components/PhoneLink";
 import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
-import { accentButton, press } from "@/components/ui";
+import { accentButton, closeButton, press } from "@/components/ui";
 
 // Every page from one tap, below 1024px (the header links show from there). A native modal dialog docked to the bottom, in
 // thumb reach, with the same slide and scrim as the filter sheet (dialog.sheet in globals.css).
@@ -12,13 +13,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
-  // From 1024px the trigger is display:none; an open modal dialog would stay open there, invisible, keeping the page inert.
-  useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)");
-    const onChange = () => desktop.matches && dialog.current?.close();
-    desktop.addEventListener("change", onChange);
-    return () => desktop.removeEventListener("change", onChange);
-  }, []);
+  useCloseAtDesktop(() => dialog.current?.close());
 
   return (
     <>
@@ -36,7 +31,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
           <h2 id={titleId} className="text-heading font-semibold">
             Menu
           </h2>
-          <button type="button" aria-label="Close menu" onClick={() => dialog.current?.close()} className={`-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full ${press}`}>
+          <button type="button" aria-label="Close menu" onClick={() => dialog.current?.close()} className={closeButton}>
             <CloseIcon className="h-6 w-6" />
           </button>
         </div>

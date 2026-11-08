@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { StateBlock } from "@/components/StateBlock";
 import { useState, useSyncExternalStore } from "react";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
-import { StockError, stateButton } from "@/components/stock/StockError";
+import { EmptyCars, StockError } from "@/components/stock/StockError";
 import { CloseIcon, PlusIcon } from "@/components/stock/icons";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { showToast } from "@/components/toast";
@@ -46,15 +45,7 @@ function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of:
   );
 }
 
-function Empty() {
-  return (
-    <StateBlock title="Nothing to compare yet" text="Open a car and tap Compare. You can compare up to three.">
-      <Link href="/used-cars" className={stateButton}>
-        See Used Cars
-      </Link>
-    </StateBlock>
-  );
-}
+const Empty = () => <EmptyCars title="Nothing to compare yet" text="Open a car and tap Compare. You can compare up to three." />;
 
 // The empty place next to the cars picked so far: the whole card is the way to add the next one.
 function Placeholder() {
