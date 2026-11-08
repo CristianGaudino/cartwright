@@ -70,9 +70,15 @@ test.describe("desktop pointer", () => {
     const row = page.getByRole("group", { name: "Featured stock" });
     const next = row.getByRole("button", { name: "Next cars" });
     await expect(next).toBeVisible();
-    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0");
+    await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0.3");
+    // The arrows sit under the row, beside the dots, not over the cards; a dot is a button that goes to its page.
+    const rowBox = (await row.locator("ul").boundingBox())!;
+    expect((await next.boundingBox())!.y).toBeGreaterThan(rowBox.y + rowBox.height - 4);
     await next.click();
     await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "1");
+    await expect(row.getByRole("button", { name: /^Go to page 2 of/ })).toHaveAttribute("aria-current", "true");
+    await row.getByRole("button", { name: /^Go to page 1 of/ }).click();
+    await expect(row.getByRole("button", { name: /^Go to page 1 of/ })).toHaveAttribute("aria-current", "true");
     for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
       const box = (await icon.boundingBox())!;
       expect([box.width, box.height]).toEqual([32, 32]);

@@ -109,9 +109,21 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
       </div>
       {shown > 1 && (
         <>
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center gap-2">
+          {/* Each dot is a button that jumps to its photo. Out of the tab order: the arrows are the keyboard's way along. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
             {visible.map((photo, i) => (
-              <span key={photo.src} data-dot data-active={i === index ? "" : undefined} className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] data-[active]:bg-white" />
+              <button
+                key={photo.src}
+                type="button"
+                tabIndex={-1}
+                data-dot
+                data-active={i === index ? "" : undefined}
+                aria-label={`Photo ${i + 1} of ${n}`}
+                onClick={() => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth })}
+                className="group/dot pointer-events-auto flex size-6 items-center justify-center"
+              >
+                <span className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] group-data-[active]/dot:bg-white" />
+              </button>
             ))}
           </div>
           <button
