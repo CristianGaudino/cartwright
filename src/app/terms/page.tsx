@@ -17,7 +17,7 @@ export default function TermsPage() {
         <p>Cars and prices are shown as supplied by us and can change. Call to check a car is still available before you travel.</p>
       </InfoSection>
       <InfoSection title="Finance figures">
-        <p>Finance figures are representative only. They are not an offer of credit. Rates and terms depend on your circumstances and are confirmed by the dealer.</p>
+        <p>Finance figures are estimates only. They are not an approval or an offer of credit. Finance is provided through a lender, subject to status. The rate and amount you are offered depend on your circumstances and are confirmed by the lender.</p>
       </InfoSection>
       <InfoSection title="Reviews">
         <p>Reviews come from Google and are shown as written.</p>
