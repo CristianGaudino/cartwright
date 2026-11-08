@@ -5,7 +5,7 @@ import { formatKm, formatPrice } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
 import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
-import { SelectBox } from "@/components/SelectBox";
+import { Combobox } from "@/components/Combobox";
 import { CheckIcon, ChevronDownIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { press } from "@/components/ui";
@@ -111,18 +111,21 @@ function ChipGroup({ title, group, options }: { title: string; group: "body" | "
 }
 
 function SelectField({ label, value, options, onChange }: { label: string; value: number | undefined; options: { value: number; label: string }[]; onChange: (v: number | undefined) => void }) {
+  const id = useId();
+  // A <label for>, not a wrapping label: the open list would otherwise become part of the label's name.
   return (
-    <label className="flex min-w-0 flex-1 flex-col gap-1 text-meta font-semibold">
-      {label}
-      <SelectBox value={value ?? ""} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)} className="pl-3 font-normal">
-        <option value="">Any</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </SelectBox>
-    </label>
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <label htmlFor={id} className="text-meta font-semibold">
+        {label}
+      </label>
+      <Combobox
+        id={id}
+        value={value === undefined ? "" : String(value)}
+        onChange={(v) => onChange(v ? Number(v) : undefined)}
+        options={[{ value: "", label: "Any" }, ...options.map((o) => ({ value: String(o.value), label: o.label }))]}
+        className="pl-3 font-normal"
+      />
+    </div>
   );
 }
 

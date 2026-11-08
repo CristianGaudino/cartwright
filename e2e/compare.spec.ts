@@ -151,3 +151,32 @@ test("each compare card has swipeable photos, like a stock card", async ({ page 
     await expect.poll(() => carousel.evaluate((el) => el.scrollWidth > el.clientWidth * 2)).toBe(true);
   }
 });
+
+test.describe("desktop pointer", () => {
+  test.use({ viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
+
+  test("a compare card shows photo arrows on hover and the next one moves the photo", async ({ page }) => {
+    await openCompare(page, 2);
+    const card = cards(page).first();
+    const carousel = card.getByRole("group", { name: /^Photos of / });
+    await expect.poll(() => carousel.evaluate((el) => el.scrollWidth > el.clientWidth * 2)).toBe(true);
+    await card.hover();
+    const next = card.getByRole("button", { name: "Next photo" });
+    await expect(next).toBeVisible();
+    await expect(next).toHaveCSS("opacity", "1");
+    await next.click();
+    await expect.poll(() => carousel.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  });
+
+  test("the compare pill and the undo toast share one shape", async ({ page }) => {
+    const [a] = await carPaths(page, 1);
+    await compare(page, a);
+    await page.goto("/used-cars");
+    const bar = page.getByRole("region", { name: "Compare cars" });
+    const barRadius = await bar.evaluate((el) => getComputedStyle(el).borderRadius);
+    await bar.getByRole("button", { name: "Clear" }).click();
+    const toast = page.getByTestId("toast");
+    await expect(toast).toBeVisible();
+    expect(await toast.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(barRadius);
+  });
+});

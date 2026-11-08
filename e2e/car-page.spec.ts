@@ -102,12 +102,12 @@ test.describe("on a desktop", () => {
     expect(box.x).toBeGreaterThan(photo.x + photo.width);
     expect(box.y).toBeLessThan(photo.y + photo.height);
     await expect(buyBox(page)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)"); // no card behind it
-    // The three main buttons share one row, Enquire widest.
-    const row = ["Enquire About This Car", "Call Us", "WhatsApp"];
-    const boxes = [];
-    for (const name of row) boxes.push((await buyBox(page).getByRole(name === "Enquire About This Car" ? "button" : "link", { name: new RegExp(`^${name}`) }).boundingBox())!);
-    expect(new Set(boxes.map((b) => Math.round(b.y))).size).toBe(1);
-    expect(boxes[0].width).toBeGreaterThan(boxes[1].width);
+    // Enquire and Book a Test Drive share the first row; Call Us and WhatsApp the second.
+    const at = async (role: "button" | "link", name: string) => (await buyBox(page).getByRole(role, { name: new RegExp(`^${name}`) }).boundingBox())!;
+    const [enquire, drive, call, whatsapp] = [await at("button", "Enquire About This Car"), await at("button", "Book a Test Drive"), await at("link", "Call Us"), await at("link", "WhatsApp")];
+    expect(Math.round(enquire.y)).toBe(Math.round(drive.y));
+    expect(Math.round(call.y)).toBe(Math.round(whatsapp.y));
+    expect(call.y).toBeGreaterThan(enquire.y);
   });
 });
 

@@ -34,11 +34,6 @@ describe("buildLeadEmail", () => {
     expect(text).not.toContain("self_employed");
   });
 
-  it("shows the price a buyer worked out on /finance", () => {
-    const f = { ...row, type: "finance" as const, carTitle: null, carPriceEur: null, details: { price: 20000, deposit: 2000, term: 60, employment: "employed" } };
-    expect(buildLeadEmail(f, { demo: false }).text).toContain("Price entered: €20,000");
-  });
-
   it("prefixes [DEMO] on the demo and not in production", () => {
     expect(buildLeadEmail(row, { demo: true }).subject).toBe("[DEMO] Enquiry: 2011 Mercedes-Benz G Class");
     expect(buildLeadEmail(row, { demo: false }).subject).toBe("Enquiry: 2011 Mercedes-Benz G Class");

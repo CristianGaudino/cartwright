@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Warranty", description: `The warrant
 // PLACEHOLDER (flagged by InfoPage until DEALER_FACTS_CONFIRMED): the dealer writes what the warranties cover, for how long and what they cost.
 export default function WarrantyPage() {
   return (
-    <InfoPage placeholder title="Warranty" intro="Every car comes with cover, and you can add more.">
+    <InfoPage title="Warranty" intro="Every car comes with cover, and you can add more.">
       <InfoSection title={WARRANTY.title}>
         <p>{WARRANTY.text}</p>
         <p>It is included in the price of the car. Ask us for the full terms before you buy.</p>

@@ -7,6 +7,7 @@ import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { StockError, stateButton } from "@/components/stock/StockError";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { removeSaved, useSavedIds } from "@/lib/saved/store";
+import { subTitle } from "@/components/ui";
 
 const never = () => () => {};
 const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
@@ -14,7 +15,7 @@ const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
 function Empty() {
   return (
     <div className="py-16 text-center">
-      <h2 className="text-heading font-semibold">No saved cars yet</h2>
+      <h2 className={subTitle}>No saved cars yet</h2>
       <p className="mt-2 text-body text-text-2">Tap the heart on any car to save it here.</p>
       <Link href="/used-cars" className={stateButton}>
         See Used Cars

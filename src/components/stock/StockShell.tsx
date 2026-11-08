@@ -10,12 +10,12 @@ import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
 import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
-import { SelectBox } from "@/components/SelectBox";
+import { Combobox } from "@/components/Combobox";
 import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { slash } from "@/components/ui";
+import { pageMain, slash, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -50,21 +50,16 @@ function SortControl({ className }: { className: string }) {
       <label htmlFor={id} className="sr-only text-meta font-semibold sm:not-sr-only">
         Sort
       </label>
-      <SelectBox
+      <Combobox
         id={id}
         value={query.sort}
-        onChange={(e) => {
-          const sort = SORT_KEYS.find((k) => k === e.target.value);
+        onChange={(v) => {
+          const sort = SORT_KEYS.find((k) => k === v);
           if (sort) navigate({ ...query, sort, page: 1 });
         }}
+        options={SORT_KEYS.map((k) => ({ value: k, label: SORT_LABELS[k] }))}
         className="pl-3"
-      >
-        {SORT_KEYS.map((k) => (
-          <option key={k} value={k}>
-            {SORT_LABELS[k]}
-          </option>
-        ))}
-      </SelectBox>
+      />
     </div>
   );
 }
@@ -108,14 +103,14 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
 
   return (
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
-      <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+      <main className={pageMain}>
         <p className={`text-body ${slash}`}>Our Stock</p>
         <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
         <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
           <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">
             <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
-              <h2 className="text-heading font-semibold">Filter &amp; Refine</h2>
+              <h2 className={subTitle}>Filter &amp; Refine</h2>
               <button type="button" onClick={() => navigate(clearFilters(optimisticQuery))} className="min-h-11 text-meta font-semibold underline">
                 Clear All
               </button>
@@ -157,7 +152,7 @@ export function EmptyState() {
   const { query, navigate } = useStock();
   return (
     <div className="py-16 text-center">
-      <h2 className="text-heading font-semibold">No cars match these filters</h2>
+      <h2 className={subTitle}>No cars match these filters</h2>
       <p className="mt-2 text-body text-text-2">Try removing a filter.</p>
       <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Cannot find it? Ask us to find it for you.

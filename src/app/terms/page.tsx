@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Terms of use", description: `The ter
 // Draft copy (UI-SPEC); the dealer's own terms replace it.
 export default function TermsPage() {
   return (
-    <InfoPage placeholder title="Terms of Use">
+    <InfoPage title="Terms of Use">
       {!DEALER_FACTS_CONFIRMED && <p className="rounded-card border border-hairline bg-card p-4">This is a draft. The dealer&apos;s own terms replace it.</p>}
       <InfoSection title="Using this site">
         <p>You can browse this site freely. Do not use it to send us anything that is not true or not yours.</p>

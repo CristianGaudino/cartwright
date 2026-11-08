@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { accentButton } from "@/components/ui";
+import { accentButton, pageMain } from "@/components/ui";
 
 // Covers car pages and the landing pages under this segment. It never changes a 404 or 410 status.
 // Nothing is logged: the error and the URL are request data.
@@ -9,7 +9,7 @@ export default function SegmentError({ retry }: { error: unknown; retry: () => v
   const { slug } = useParams<{ slug: string }>();
   const isCar = /-\d+$/.test(slug);
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <div className="py-16 text-center">
         <h1 className="text-heading font-semibold">{isCar ? "We could not load this car" : "We could not load the cars"}</h1>
         <p className="mt-2 text-body text-text-2">Check your connection and try again.</p>

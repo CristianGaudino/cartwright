@@ -2,10 +2,9 @@ import Link from "next/link";
 import { ShareButton } from "@/components/car/ShareButton";
 import { CompareButton } from "@/components/compare/CompareButton";
 import { LeadActions } from "@/components/leads/LeadDialog";
-import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
-import { DEALER_FACTS_CONFIRMED, DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
+import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
 import { carMeta, carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
@@ -63,7 +62,6 @@ export function BuyBox({ car }: { car: Car }) {
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-body font-semibold">3 Month Warranty Included</p>
             <p className="text-meta text-text-2">{WARRANTY.text}</p>
-            {!DEALER_FACTS_CONFIRMED && <PlaceholderPill>Placeholder details</PlaceholderPill>}
           </div>
         </div>
       )}

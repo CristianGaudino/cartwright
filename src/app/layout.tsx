@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { CompareBar } from "@/components/compare/CompareBar";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
+
+// Montserrat, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
+// built. One variable file covers every weight; the latin range covers English and Irish.
+const montserrat = localFont({ src: "./fonts/montserrat-latin.woff2", weight: "100 900", display: "swap", variable: "--font-montserrat" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -20,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IE">
+    <html lang="en-IE" className={montserrat.variable}>
       <body>
         <SiteHeader />
         {children}

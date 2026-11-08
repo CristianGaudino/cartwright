@@ -1,8 +1,9 @@
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
+import { pageMain } from "@/components/ui";
 
 export default function Loading() {
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <h1 className="text-display font-semibold">Used cars</h1>
       {/* Stands in for the count and Sort rows of StockShell. */}
       <div className="h-[84px] lg:h-12" />

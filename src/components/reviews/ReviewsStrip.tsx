@@ -1,4 +1,3 @@
-import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
 import { sectionTitle, textLink } from "@/components/ui";
@@ -83,8 +82,6 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
   return (
     <section aria-labelledby="reviews-heading" className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        {/* In every environment: fictional reviews must never read as real (UI-SPEC deviation from D-01). */}
-        {data.source === "demo" && <PlaceholderPill>Demo reviews</PlaceholderPill>}
         <h2 id="reviews-heading" className={sectionTitle}>
           What Customers Say
         </h2>

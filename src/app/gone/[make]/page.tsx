@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { stock } from "@/lib/stock";
-import { accentButton } from "@/components/ui";
+import { accentButton, pageMain } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Car no longer available", robots: { index: false } };
 
@@ -12,7 +12,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
   if (!make) notFound();
 
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <h1 className="text-display font-semibold">This car is no longer available</h1>
       <p className="mt-4 max-w-[65ch] text-body text-text-2">It has been sold or taken off our site. Here is what else we have.</p>
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">

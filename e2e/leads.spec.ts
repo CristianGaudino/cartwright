@@ -95,20 +95,18 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
 
-test("an empty send lists every problem, focuses the list and marks each field", async ({ page }) => {
+test("an empty send says how many fields need a look, focuses the first and marks each field", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
   const d = dialog(page);
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("heading", { name: "Check these details" })).toBeFocused();
+  await expect(d.getByRole("alert")).toContainText(/\d fields need a look/);
+  await expect(d.getByLabel("Name")).toBeFocused();
   for (const label of ["Name", "Phone", "Email"]) await expect(d.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
   await expect(d.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
-  // The contact error shows once under Email, plus its link in the summary.
+  // The contact error shows once, under Email.
   await expect(d.locator("p", { hasText: "Add a phone number or an email." })).toHaveCount(1);
-
-  await d.getByRole("link", { name: "Enter your name." }).click();
-  await expect(d.getByLabel("Name")).toBeFocused();
 });
 
 test("a field error keeps what was typed, and consent is needed to send", async ({ page }) => {
@@ -119,9 +117,9 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("link", { name: "Tick the box to send your request." })).toBeVisible();
+  await expect(d.getByRole("alert")).toContainText("One field needs a look.");
   await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
-  await expect(d.getByRole("link", { name: "Enter your name." })).toHaveCount(0);
+  await expect(d.locator("p", { hasText: "Enter your name." })).toHaveCount(0);
   await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");
   await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
@@ -136,7 +134,7 @@ test("Book a Test Drive opens the same enquiry dialog with the note filled in, a
   await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
   await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
   const d = page.getByRole("dialog");
-  await expect(d).toHaveAccessibleName("Enquire");
+  await expect(d).toHaveAccessibleName("Book a Test Drive");
   await expect(d.getByLabel("Message")).toHaveValue("I would like to book a test drive.");
   await expect(d.getByRole("radio")).toHaveCount(0); // no more choosing a kind of request
   await d.getByLabel("Name").fill("Test Driver");
@@ -144,6 +142,20 @@ test("Book a Test Drive opens the same enquiry dialog with the note filled in, a
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send Enquiry" }).click();
   await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+});
+
+test("Enquire opened after Book a Test Drive does not keep the test drive note, but keeps a message typed in Enquire", async ({ page }) => {
+  await open(page, live.slug);
+  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I would like to book a test drive.");
+  await page.keyboard.press("Escape");
+  await enquire(page).click();
+  await expect(dialog(page)).toHaveAccessibleName("Enquire About This Car");
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("");
+  await dialog(page).getByLabel("Message").fill("Is it taxed?");
+  await page.keyboard.press("Escape");
+  await enquire(page).click();
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?"); // closing and reopening keeps what was typed
 });
 
 test("the enquiry dialog always shows the phone number with +353, as a link that dials", async ({ page }) => {

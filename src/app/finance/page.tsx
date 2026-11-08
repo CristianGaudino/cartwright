@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
-import { connection } from "next/server";
+import { FeatureCard, FeatureSection } from "@/components/Feature";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
-import { pageTitle } from "@/components/ui";
-import { financeable } from "@/lib/finance/payment";
-import { queryAllOrNull } from "@/lib/stock";
-import { carSummary } from "@/lib/stock/format";
+import { CheckIcon } from "@/components/stock/icons";
+import { pageMain, pageTitle } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Car finance estimator", description: "Estimate a monthly payment on a used car, then send us your details and we will contact you with the real amounts. Carright, Tralee, Co. Kerry." };
+export const metadata: Metadata = {
+  title: "Car finance estimator",
+  description: "Estimate a monthly payment on a used car. It is the start of the process: choose a car and send an enquiry and we will contact you with the real amounts. Carright, Tralee, Co. Kerry.",
+};
 
-export default async function FinancePage() {
-  await connection();
-  // A stock failure only hides the car picker: the estimator still works on a typed price.
-  const all = await queryAllOrNull();
-  const cars = all?.cars.filter((c) => financeable(c.priceEur)).map((c) => ({ ...carSummary(c), priceEur: c.priceEur }));
+const POINTS = [
+  { title: "An estimate, not an approval", text: "The figure is worked out at an example rate. It shows roughly what a payment could be." },
+  { title: "Your circumstances matter", text: "What you are offered depends on things such as your age, income and credit history, and is decided by the lender." },
+  { title: "We come back with real amounts", text: "Choose a car, send an enquiry, and we will contact you with the actual figures and the next steps." },
+];
+
+export default function FinancePage() {
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <h1 className={pageTitle}>Finance Estimator</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Pick a car, or type a price, for an estimate of the monthly payment. It is the start of the process, not an approval.</p>
+      <p className="mt-2 max-w-[65ch] text-body">Type a price and choose a deposit and a term to see roughly what a monthly payment could be.</p>
       <div className="mt-6 flex flex-col gap-4">
-        <FinanceCalculator cars={cars} />
+        <FinanceCalculator />
+      </div>
+      <div className="mt-12">
+        <FeatureSection title="Good to Know">
+          {POINTS.map((p) => (
+            <FeatureCard key={p.title} badge={<CheckIcon className="size-5" />} {...p} />
+          ))}
+        </FeatureSection>
       </div>
     </main>
   );

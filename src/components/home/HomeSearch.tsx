@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { SelectBox } from "@/components/SelectBox";
+import { Combobox } from "@/components/Combobox";
 import { SearchIcon } from "@/components/stock/icons";
 import { accentButton } from "@/components/ui";
 import { formatPrice } from "@/lib/stock/format";
@@ -14,7 +14,8 @@ type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; sl
 const tab = "relative inline-flex min-h-11 items-center px-4 text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
-// A plain GET form, so it works without JavaScript: /used-cars reads make, model, body and priceMax from the URL (BRW-03).
+// A plain GET form: /used-cars reads make, model, body and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
+// without them it still goes to the stock, with nothing chosen.
 // The mockup's "Find me a car" tab sits beside it.
 export function HomeSearch({ makes, bodies, models }: Props) {
   const [tabName, setTab] = useState<"search" | "find">("search");
@@ -44,7 +45,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
         <form action="/used-cars" method="get" className="grid grid-cols-2 gap-4 p-4 lg:grid-cols-[repeat(4,1fr)_auto] lg:items-end lg:p-6">
           <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
           <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
-          <Select name="body" label="Body Type" any="Any body type" options={bodies.map((b) => [b.slug, b.label])} />
+          <Select name="body" label="Body Type" any="Any type" options={bodies.map((b) => [b.slug, b.label])} />
           <Select name="priceMax" label="Price" any="Any price" options={BUDGETS.map((b) => [String(b), `Up to ${formatPrice(b)}`])} />
           <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 lg:col-span-1 ${accentButton}`}>
             <SearchIcon className="size-5" />
@@ -62,7 +63,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   );
 }
 
-// A labelled native select, so phones get their own picker. Controlled only when a value is passed.
+// A labelled drop-down (the site's own, typeable once the list is long). Controlled only when a value is passed.
 function Select({
   name,
   label,
@@ -84,14 +85,7 @@ function Select({
       <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>
-      <SelectBox id={id} name={name} tone="surface" className="pl-3" {...(onChange ? { value, onChange: (e) => onChange(e.target.value) } : {})}>
-        <option value="">{any}</option>
-        {options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {l}
-          </option>
-        ))}
-      </SelectBox>
+      <Combobox id={id} name={name} tone="surface" className="pl-3" options={[{ value: "", label: any }, ...options.map(([v, l]) => ({ value: v, label: l }))]} {...(onChange ? { value, onChange } : {})} />
     </div>
   );
 }

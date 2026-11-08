@@ -10,7 +10,7 @@ import { SITE_NAME } from "@/lib/site";
 const MENU = [
   { href: "/used-cars", label: "Used Cars" },
   { href: "/finance", label: "Finance" },
-  { href: "/sell-your-car", label: "Sell / Trade-In" },
+  { href: "/trade-in", label: "Trade-In" },
   { href: "/find-a-car", label: "Find a Car" },
   { href: "/compare", label: "Compare Cars" },
   { href: "/service", label: "Service" },

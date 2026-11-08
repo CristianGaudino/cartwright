@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { IconBadge } from "@/components/Feature";
 import { FeaturedRow } from "@/components/home/FeaturedRow";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { TrustStrip } from "@/components/home/TrustStrip";
@@ -8,7 +9,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press, sectionTitle, slash, textLink } from "@/components/ui";
+import { accentButton, press, sectionTitle, slash, subTitle, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
@@ -32,6 +33,9 @@ export default async function Home() {
   const search = searchOptions(all?.cars ?? []);
   return (
     <main className="flex flex-col">
+      {/* The hero photo is a CSS background, which the browser finds late: ask for the right size at once (React moves these to the head). */}
+      <link rel="preload" as="image" href="/brand/hero-sm.webp" media="(max-width: 767px)" fetchPriority="high" />
+      <link rel="preload" as="image" href="/brand/hero.webp" media="(min-width: 768px)" fetchPriority="high" />
       <JsonLd data={dealerJsonLd(reviews)} />
       <section className="hero-photo relative border-b border-hairline">
         <div className="relative mx-auto max-w-[1280px] px-4 pb-8 pt-12 sm:px-6 lg:px-8 lg:pb-12 lg:pt-20">
@@ -67,7 +71,7 @@ export default async function Home() {
             </>
           ) : result.cars.length === 0 ? (
             <>
-              <h2 className="text-heading font-semibold">No cars listed right now</h2>
+              <h2 className={subTitle}>No cars listed right now</h2>
               <Link href="/find-a-car" className={textLink}>
                 Cannot find it? Ask us to find it for you.
               </Link>
@@ -92,13 +96,30 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
-          <h2 className={sectionTitle}>Finance Made Simple</h2>
-          <p className="max-w-[40ch] text-body">Estimate your monthly payment online, then send us your details to start the process.</p>
-          <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
-            Check Finance Options
-            <ArrowRightIcon className="size-5" />
-          </Link>
+        <section className="hero-bg grid grid-cols-1 gap-8 rounded-card border border-hairline p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12">
+          <div className="flex flex-col items-start gap-4">
+            <h2 className={sectionTitle}>Finance Made Simple</h2>
+            <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
+            <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
+              Check Finance Options
+              <ArrowRightIcon className="size-5" />
+            </Link>
+          </div>
+          <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              ["1", "Pick a car", "Or type a price. Choose a deposit and a term."],
+              ["2", "See an estimate", "A monthly figure, worked out as you go."],
+              ["3", "We call you", "Send your details and we come back with the real amounts."],
+            ].map(([n, title, text]) => (
+              <li key={n} className="flex gap-4 rounded-card border border-hairline bg-surface/60 p-4 sm:flex-col">
+                <IconBadge size="sm">{n}</IconBadge>
+                <span className="flex flex-col gap-1">
+                  <span className="text-body font-semibold">{title}</span>
+                  <span className="text-meta text-text-2">{text}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <ReviewsStrip data={reviews} />

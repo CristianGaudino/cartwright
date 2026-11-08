@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
-import { DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
+import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
@@ -11,7 +11,7 @@ const GROUPS = [
     links: [
       { href: "/used-cars", label: "Used Cars" },
       { href: "/finance", label: "Finance" },
-      { href: "/sell-your-car", label: "Sell Your Car" },
+      { href: "/trade-in", label: "Trade-In Valuation" },
       { href: "/find-a-car", label: "Find a Car" },
       { href: "/saved", label: "Saved Cars" },
     ],
@@ -93,7 +93,7 @@ export function SiteFooter() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-x-6 border-t border-hairline pt-6 text-meta text-text-2">
           <p>© {SITE_NAME}</p>
-          <a href="https://www.checkwork.ie" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
+          <a href={CHECKWORK_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
             Powered by
             <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto" />
             <span className="sr-only">(opens in a new tab)</span>

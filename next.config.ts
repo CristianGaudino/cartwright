@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
   // The old site's pages (cartwright.ie), so links from Google and old messages keep working. The old car links are /car-details/.
   async redirects() {
     return [
+      { source: "/sell-your-car", destination: "/trade-in", permanent: true },
       { source: "/apply-for-finance", destination: "/finance", permanent: true },
       { source: "/car-sourcing", destination: "/find-a-car", permanent: true },
       { source: "/terms-and-conditions", destination: "/terms", permanent: true },
