@@ -23,7 +23,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await page.getByRole("button", { name: "Ask us to find it" }).click();
 
   await expect(page.getByRole("alert").filter({ hasText: "a look" })).toContainText("One field needs a look.");
-  await expect(page.locator("p", { hasText: "Tell us what you are looking for." })).toBeVisible();
+  await expect(page.locator("p", { hasText: "Tell us what you're looking for." })).toBeVisible();
   await expect(page.getByLabel("Name")).toHaveValue("Test Buyer");
 
   await page.getByLabel("Make").fill("Toyota");
@@ -31,7 +31,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
   await page.getByRole("button", { name: "Ask us to find it" }).click();
 
-  const thanks = page.getByRole("heading", { name: "Thanks, we will look for it." });
+  const thanks = page.getByRole("heading", { name: "Thanks, we'll look for it." });
   await expect(thanks).toBeFocused();
   await expect(page.getByRole("link", { name: "Back to used cars" })).toHaveAttribute("href", "/used-cars");
 });
@@ -78,11 +78,10 @@ for (const [path, heading] of [
     await open(page, path);
     await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
     if (path === "/service") {
-      // The form is closed until a service is opened and asked about; it arrives with a line already in it.
+      // The form is closed until a service is opened; it opens beside the checks with a line already in it.
       await expect(page.getByLabel("Name")).toHaveCount(0);
       await page.getByRole("button", { name: /^Servicing/ }).click();
-      await page.getByRole("button", { name: "Ask about Servicing" }).click();
-      await expect(page.getByLabel("How can we help?")).toHaveValue("I would like to ask about servicing.");
+      await expect(page.getByLabel("How can we help?")).toHaveValue("I'd like to ask about servicing.");
       await page.getByLabel("How can we help?").fill("");
     }
     await page.getByLabel("Name").fill("Test Buyer");

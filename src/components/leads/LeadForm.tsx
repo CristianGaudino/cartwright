@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
-import { PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { PHOTO_MIN_COUNT, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
@@ -27,6 +27,8 @@ export type PhotoBinding = {
 };
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
 export type { FormStep } from "./useSteps";
+
+const validator = () => import("@/lib/leads/validate"); // the server's rules, fetched when a form is first used, not with the page
 
 // Keys the form sets itself. An error on one of them is not something the buyer can fix, so it reads as a send failure.
 const HIDDEN = ["type", "carId", "clientRef", "sourcePath"];
@@ -65,8 +67,8 @@ export function LeadForm({
   const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
   const [shrinking, setShrinking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
-  // How many fields need a look and which one comes first: a new object on each failed send, so focus moves each time.
-  const [invalid, setInvalid] = useState<{ count: number; first: string }>();
+  // Which field to look at first: a new object on each failed send, so focus moves each time. How many is read from `errors`.
+  const [invalid, setInvalid] = useState<{ first: string }>();
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
   const [pending, start] = useTransition();
@@ -76,10 +78,38 @@ export function LeadForm({
   const slot = useRef<HTMLDivElement>(null);
   const turnstile = useTurnstile(slot);
   const { load } = turnstile;
-  const { step, setStep, wizard, last, heading: stepHeading, go, next, firstWith } = useSteps(steps, values, (found, names) => {
-    setErrors((prev) => ({ ...prev, ...found }));
-    setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
-  });
+  // What is wrong with the typed fields, by the server's own rules. A Promise kept in a ref, so the rules load once.
+  const rules = useRef<ReturnType<typeof validator>>(undefined);
+  const check = async (v: Record<string, string>) => (await (rules.current ??= validator())).fieldErrors(type, v, car?.id);
+  const { step, setStep, wizard, last, heading: stepHeading, go, next, firstWith } = useSteps(
+    steps,
+    async (s) => {
+      const all = await check(values);
+      const found: Record<string, string[]> = {};
+      for (const f of s.fields) if (all[f]) found[f] = all[f];
+      return { ...found, ...s.check?.({ photos: photos.length }) };
+    },
+    (found, names) => {
+      setErrors((prev) => ({ ...prev, ...found }));
+      setInvalid({ first: `${uid}-${names[0]}` });
+    },
+    (s) => setErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => !s.fields.includes(k)))), // a step passed: its errors go
+  );
+
+  // An error goes the moment what caused it is put right: after a failed send or a refused Next, every change is checked again and the
+  // errors that no longer apply are dropped. Only fields that already have an error are touched, so nothing new is flagged while typing.
+  const recheck = (v: Record<string, string>) => {
+    if (!Object.keys(errors).length) return;
+    check(v).then((all) =>
+      setErrors((prev) => {
+        const keep = Object.entries(prev).filter(([k]) => k === "photos" || all[k]);
+        return keep.length === Object.keys(prev).length ? prev : Object.fromEntries(keep);
+      }),
+    );
+  };
+  // The photos error is not stored away: it shows only while the photos are still too few or too big, so adding photos clears it.
+  const photosTotal = photos.reduce((n, p) => n + p.size, 0);
+  const shown = errors.photos && photos.length >= PHOTO_MIN_COUNT && photosTotal <= PHOTO_TOTAL_MAX_BYTES ? Object.fromEntries(Object.entries(errors).filter(([k]) => k !== "photos")) : errors;
 
   useEffect(() => {
     if (done) heading.current?.focus();
@@ -108,8 +138,11 @@ export function LeadForm({
     id: `${uid}-${name}`,
     name,
     value: values[name] ?? "",
-    onChange: (v) => setValues((s) => ({ ...s, [name]: v })),
-    error: errors[name]?.[0],
+    onChange: (v) => {
+      setValues((s) => ({ ...s, [name]: v }));
+      recheck({ ...values, [name]: v });
+    },
+    error: shown[name]?.[0],
   });
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -119,7 +152,7 @@ export function LeadForm({
     if (photos.reduce((n, p) => n + p.size, 0) > PHOTO_TOTAL_MAX_BYTES) {
       setFailure(undefined);
       setErrors({ photos: [PHOTO_TOTAL_ERROR] });
-      setInvalid({ count: 1, first: `${uid}-photos` });
+      setInvalid({ first: `${uid}-photos` });
       return;
     }
     // The DOM is the source here so the honeypot is read as a bot left it.
@@ -156,7 +189,7 @@ export function LeadForm({
         setFailure(Object.keys(fe).some((k) => HIDDEN.includes(k)) ? "server" : undefined);
         // One link per invalid field, in the order the fields sit in the form.
         const names = [...new Set(Array.from(form.current?.elements ?? [], (el) => (el as HTMLInputElement).name))].filter((n) => fe[n]?.[0]);
-        if (names.length) setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
+        if (names.length) setInvalid({ first: `${uid}-${names[0]}` });
         // Back to the earliest step that has something to fix.
         const at = firstWith(fe);
         if (at >= 0) setStep(at);
@@ -169,12 +202,14 @@ export function LeadForm({
     });
   }
 
+  const flaggedCount = Object.values(shown).filter((e) => e[0]).length; // read live, so the note counts down as fields are put right
   const dialog = variant === "dialog";
   const pad = dialog ? "px-4" : "";
-  const footer = `flex shrink-0 pt-3 ${dialog ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
-  // On a page the body is not its own scroll area, and the button is full width on phones, auto (240px or more) from 640px.
+  // The buttons sit on the right (a row of them fills the width on a phone). One width for Back, Next and Send, so they never jump about.
+  const footer = `flex shrink-0 justify-end gap-3 pt-3 ${dialog ? "border-t border-hairline px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]" : ""}`;
+  // On a page the body is not its own scroll area.
   const body = dialog ? "min-h-0 flex-1 overflow-y-auto overscroll-contain" : "";
-  const submitWidth = dialog ? "flex-1" : "w-full px-6 sm:w-auto sm:min-w-60";
+  const button = "flex-1 px-6 sm:w-48 sm:flex-none";
 
   // The form element stays put after a success so the Turnstile slot inside it keeps its widget for the next request.
   return (
@@ -231,7 +266,7 @@ export function LeadForm({
                 </>
               ) : (
                 <>
-                  <p className="font-semibold text-destructive">{failure === "captcha" ? "We could not check this request." : "We could not send this."}</p>
+                  <p className="font-semibold text-destructive">{failure === "captcha" ? "We couldn't check this request." : "We couldn't send this."}</p>
                   <p className="text-meta">
                     Your details are still here. Try again, or call us on{" "}
                     <PhoneLink />.
@@ -240,15 +275,15 @@ export function LeadForm({
               )}
             </div>
           )}
-          {invalid && (
+          {flaggedCount > 0 && (
             <p role="alert" className="flex items-center gap-2 rounded-control bg-destructive/10 px-3 py-2.5 text-meta font-semibold text-destructive">
               <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive text-ink">
                 !
               </span>
-              {invalid.count === 1 ? "One field needs a look." : `${invalid.count} fields need a look.`}
+              {flaggedCount === 1 ? "One field needs a look." : `${flaggedCount} fields need a look.`}
             </p>
           )}
-          <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
+          <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
           <div hidden={!last}>
             <ConsentRow {...bind("consent")} />
           </div>
@@ -275,20 +310,20 @@ export function LeadForm({
           </div>
         )
       ) : (
-        <div className={`${footer} gap-3`}>
+        <div className={footer}>
           {wizard && step > 0 && (
-            <button type="button" onClick={() => go(step - 1)} className={`h-12 px-6 ${secondaryButton}`}>
+            <button type="button" onClick={() => go(step - 1)} className={`h-12 ${button} ${secondaryButton}`}>
               Back
             </button>
           )}
           {/* Keyed, so React never turns the Next button into the submit one while the click that moved on is still being handled: that sent
               the form on arriving at the last step. */}
           {last ? (
-            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${wizard ? "flex-1 sm:flex-none sm:min-w-60" : submitWidth} disabled:opacity-60`}>
+            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} disabled:opacity-60`}>
               {pending ? "Sending" : submitLabel}
             </button>
           ) : (
-            <button key="next" type="button" onClick={next} className={`${accentButton} flex-1 sm:flex-none sm:min-w-60`}>
+            <button key="next" type="button" onClick={next} className={`${accentButton} ${button}`}>
               Next
             </button>
           )}

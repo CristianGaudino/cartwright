@@ -2,6 +2,7 @@ import { inspect } from "node:util";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import demoCars from "@/lib/stock/demo-cars.json";
 import type { Car } from "@/lib/stock/types";
+import { PHOTO_MIN_COUNT } from "./constants";
 import { processLead } from "./process";
 import type { Deps, Outcome } from "./process";
 
@@ -102,7 +103,7 @@ const cases: [string, Outcome, () => FormData, () => Deps][] = [
     "error",
     () => {
       const fd = form({ type: "trade_in", carId: "", reg: REG, mileage: "1000" });
-      fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `${REG}.jpg`));
+      for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `${REG}-${i}.jpg`));
       return fd;
     },
     () =>

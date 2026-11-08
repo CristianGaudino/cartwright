@@ -1,3 +1,4 @@
+import { AutoCarousel } from "@/components/AutoCarousel";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
 import { card, sectionTitle, textLink } from "@/components/ui";
@@ -107,17 +108,14 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
           </div>
         </div>
       )}
-      {/* Below 1024px a native scroll-snap strip bleeding to the screen edge; from 1024px a three column grid.
-          relative: the cards' sr-only text is absolutely positioned and would otherwise escape the clip and widen the page. */}
-      <div role="region" aria-label="Google reviews" tabIndex={0} className="relative -mx-4 snap-x snap-mandatory scroll-px-4 overflow-x-auto overscroll-x-contain motion-safe:scroll-smooth sm:-mx-6 sm:scroll-px-6 lg:mx-0 lg:overflow-visible">
-        <ul className="flex w-max gap-4 px-4 sm:px-6 lg:grid lg:w-auto lg:grid-cols-3 lg:px-0">
-          {data.reviews.map((r, i) => (
-            <li key={r.id} className={`w-64 shrink-0 snap-start sm:w-80 lg:w-auto ${i >= 3 ? "lg:hidden" : ""}`}>
-              <ReviewCard review={r} />
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
+      <AutoCarousel label="Google reviews" noun="reviews" interval={6000}>
+        {data.reviews.map((r) => (
+          <li key={r.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
+            <ReviewCard review={r} />
+          </li>
+        ))}
+      </AutoCarousel>
       {/* Google requires its review policy to be linked wherever its reviews show. */}
       <a href={POLICY_URI} {...NEW_TAB} className={`${textLink} self-start text-meta`}>
         Google&apos;s review policy

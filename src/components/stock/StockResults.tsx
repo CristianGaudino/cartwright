@@ -5,7 +5,10 @@ import type { StockQuery, StockResult } from "@/lib/stock/types";
 import { ListingCard } from "./ListingCard";
 import { EmptyState } from "./StockShell";
 
-const cell = "inline-flex size-11 items-center justify-center rounded-control border border-hairline bg-card font-semibold tabular-nums transition-colors hover:bg-hairline active:scale-[0.97] motion-reduce:active:scale-100";
+// One segment of the pager: a hairline-divided button, the current page filled.
+const seg = "flex min-h-11 min-w-11 items-center justify-center gap-1 px-3 text-meta font-semibold tabular-nums transition-colors";
+const segLink = `${seg} hover:bg-hairline active:bg-hairline`;
+const segOff = `${seg} pointer-events-none text-text-2 opacity-40`;
 
 // The pages to show: the first, the last, and the ones either side of this one, with a gap marked by null.
 function pagesToShow(page: number, count: number): (number | null)[] {
@@ -15,6 +18,7 @@ function pagesToShow(page: number, count: number): (number | null)[] {
 
 export function StockResults({ result, query }: { result: StockResult; query: StockQuery }) {
   const { cars, page, pageCount } = result;
+  const first = (page - 1) * query.pageSize + 1;
   if (result.total === 0) return <EmptyState />;
   return (
     <>
@@ -24,50 +28,61 @@ export function StockResults({ result, query }: { result: StockResult; query: St
         ))}
       </div>
       {pageCount > 1 && (
-        <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-2 text-meta">
-          {page > 1 ? (
-            <Link replace href={stockHref({ ...query, page: page - 1 })} aria-label="Previous page" className={cell}>
-              <ChevronLeftIcon className="size-5" />
-            </Link>
-          ) : (
-            <span aria-hidden="true" className={`${cell} pointer-events-none opacity-30`}>
-              <ChevronLeftIcon className="size-5" />
-            </span>
-          )}
-          {/* A phone has room for "Page 2 of 5"; from 640px the numbers show. */}
-          <p className="px-3 sm:hidden">
-            Page {page} of {pageCount}
-          </p>
-          <ul className="hidden items-center gap-2 sm:flex">
+        <nav aria-label="Pagination" className="mt-10 flex flex-col items-center gap-3">
+          <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
+            <li>
+              {page > 1 ? (
+                <Link replace href={stockHref({ ...query, page: page - 1 })} aria-label="Previous page" className={segLink}>
+                  <ChevronLeftIcon className="size-5" />
+                  <span className="hidden sm:inline">Previous</span>
+                </Link>
+              ) : (
+                <span aria-hidden="true" className={segOff}>
+                  <ChevronLeftIcon className="size-5" />
+                  <span className="hidden sm:inline">Previous</span>
+                </span>
+              )}
+            </li>
+            {/* A phone has room for "Page 2 of 5"; from 640px the numbers show. */}
+            <li className="flex items-center px-4 text-meta sm:hidden">
+              Page {page} of {pageCount}
+            </li>
             {pagesToShow(page, pageCount).map((p, i) =>
               p === null ? (
-                <li key={`gap-${i}`} aria-hidden="true" className="px-1 text-text-2">
+                <li key={`gap-${i}`} aria-hidden="true" className={`${seg} hidden text-text-2 sm:flex`}>
                   …
                 </li>
               ) : (
-                <li key={p}>
+                <li key={p} className="hidden sm:block">
                   {p === page ? (
-                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${cell} border-accent bg-accent text-white hover:bg-accent`}>
+                    <span aria-current="page" aria-label={`Page ${p}, current page`} className={`${seg} bg-accent text-white`}>
                       {p}
                     </span>
                   ) : (
-                    <Link replace href={stockHref({ ...query, page: p })} aria-label={`Page ${p}`} className={cell}>
+                    <Link replace href={stockHref({ ...query, page: p })} aria-label={`Page ${p}`} className={segLink}>
                       {p}
                     </Link>
                   )}
                 </li>
               ),
             )}
+            <li>
+              {page < pageCount ? (
+                <Link replace href={stockHref({ ...query, page: page + 1 })} aria-label="Next page" className={segLink}>
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRightIcon className="size-5" />
+                </Link>
+              ) : (
+                <span aria-hidden="true" className={segOff}>
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRightIcon className="size-5" />
+                </span>
+              )}
+            </li>
           </ul>
-          {page < pageCount ? (
-            <Link replace href={stockHref({ ...query, page: page + 1 })} aria-label="Next page" className={cell}>
-              <ChevronRightIcon className="size-5" />
-            </Link>
-          ) : (
-            <span aria-hidden="true" className={`${cell} pointer-events-none opacity-30`}>
-              <ChevronRightIcon className="size-5" />
-            </span>
-          )}
+          <p className="text-meta text-text-2">
+            Showing {first} to {first + cars.length - 1} of {result.total} cars
+          </p>
         </nav>
       )}
     </>

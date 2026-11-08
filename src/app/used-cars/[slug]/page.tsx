@@ -20,14 +20,14 @@ import { carJsonLd, carMetadata } from "@/lib/stock/seo";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
-// Up to 3 cars to buy: same make first, then same body type; never the car itself.
+// Up to 8 cars to buy, for a row that moves along: same make first, then same body type; never the car itself.
 async function similarCars(car: Car) {
   const pools = await Promise.all([
-    stock.query({ ...DEFAULT_QUERY, make: [car.makeSlug], pageSize: 6 }),
-    ...(car.bodySlug ? [stock.query({ ...DEFAULT_QUERY, body: [car.bodySlug], pageSize: 6 })] : []),
+    stock.query({ ...DEFAULT_QUERY, make: [car.makeSlug], pageSize: 8 }),
+    ...(car.bodySlug ? [stock.query({ ...DEFAULT_QUERY, body: [car.bodySlug], pageSize: 8 })] : []),
   ]);
   const seen = new Set([car.id]);
-  return pools.flatMap((r) => r.cars).filter((c) => !seen.has(c.id) && seen.add(c.id)).slice(0, 3);
+  return pools.flatMap((r) => r.cars).filter((c) => !seen.has(c.id) && seen.add(c.id)).slice(0, 8);
 }
 
 // Make first, then body type (both looked up in taxonomy() by resolveLanding), then car (D-06). Resolved once per request for generateMetadata and the page.

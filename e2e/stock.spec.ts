@@ -170,7 +170,7 @@ test("a provider failure shows the error state and Sort still works", async ({ p
   expect((await request.get(url)).status()).toBe(200);
   await page.goto(url);
   const error = () => Promise.all([
-    expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible(),
+    expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible(),
     expect(page.getByText("Check your connection and try again.")).toBeVisible(),
     expect(page.getByRole("button", { name: "Try loading cars again" })).toBeVisible(),
   ]);
@@ -205,7 +205,7 @@ test("zero matches show the empty state and Clear all filters brings the cars ba
   await page.goto("/used-cars?make=zzzz");
   await expect(page.getByRole("heading", { name: "No cars match these filters" })).toBeVisible();
   await expect(page.getByText("Try removing a filter.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Cannot find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.locator("article")).toHaveCount(0);
   await page.getByRole("button", { name: "Clear all filters" }).click();
   await expect(page).toHaveURL(/\/used-cars$/);

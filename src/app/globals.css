@@ -49,8 +49,8 @@
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* No scrollbar at all, for the swipe rows and strips (photos, featured cars). The thin scrollbar set for everything else (see base) would
-   otherwise come back on them, because setting scrollbar-width makes the browser ignore ::-webkit-scrollbar. */
+/* No scrollbar at all, for the swipe rows and strips (photos, featured cars): Firefox's way, beside the ::-webkit-scrollbar rule the
+   same classes carry for Chrome and Safari. */
 @utility scrollbar-none {
   scrollbar-width: none;
 }
@@ -58,11 +58,29 @@
 @custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
 
 @layer base {
-  /* Thin scrollbars with no track, so a scrollbar never draws a square edge over a rounded corner (drop-down lists, dialogs, the filter
-     panel). Not the page's own, which stays the browser's: it is the one scrollbar everyone needs to grab. */
-  :not(html) {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-control) transparent;
+  /* Thin, rounded scrollbars with no track colour, and room at both ends so the thumb never reaches a rounded corner (drop-down lists,
+     dialogs, the filter panel). The page's own scrollbar stays the browser's: it is the one everybody needs to grab. Chrome and Safari take
+     the ::-webkit-scrollbar rules; Firefox, which has no such thing, the two standard properties. */
+  :not(html)::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  :not(html)::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 12px;
+    margin-inline: 12px;
+  }
+  :not(html)::-webkit-scrollbar-thumb {
+    background: var(--color-control);
+    border: 3px solid transparent;
+    border-radius: 9999px;
+    background-clip: content-box;
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    :not(html) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-control) transparent;
+    }
   }
   html {
     color-scheme: dark;
@@ -402,13 +420,67 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   }
 
   [data-view="list"] [data-card-photo] {
-    width: 18rem;
+    width: 20rem;
     flex: none;
-    align-self: flex-start;
+    align-self: stretch;
+    aspect-ratio: auto;
+    min-height: 15rem;
   }
 
   [data-view="list"] [data-card-body] {
     flex: 1;
-    justify-content: center;
+    min-width: 0;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  [data-view="list"] [data-title] {
+    font-size: var(--text-heading);
+    line-height: 1.25;
+  }
+
+  [data-view="list"] [data-price] {
+    font-size: var(--text-display);
+  }
+
+  [data-view="list"] [data-meta] {
+    display: none;
+  }
+
+  [data-view="list"] [data-list-only] {
+    display: flex;
+  }
+}
+
+/* Subtle motion. Everything here stands still for anyone who asks for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  /* A block fades and rises a little as it scrolls into view, where the browser can tie an animation to scrolling. */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+  /* The filter groups open with a fade, not a snap (Chrome and Safari; others just open). */
+  details::details-content {
+    opacity: 0;
+    transition:
+      opacity 200ms ease-out,
+      content-visibility 200ms allow-discrete;
+  }
+  details[open]::details-content {
+    opacity: 1;
+  }
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

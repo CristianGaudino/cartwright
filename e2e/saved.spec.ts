@@ -165,7 +165,7 @@ test("if the cars cannot be loaded, nothing is pruned and Try again loads them",
   await seed(page, [UNKNOWN, live.id]);
   await page.route("**/api/saved-cars**", (r) => r.fulfill({ status: 500, body: "" }));
   await page.goto("/saved");
-  await expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible();
   await expect(page.getByText("Check your connection and try again.")).toBeVisible();
   expect(await stored(page)).toEqual([UNKNOWN, live.id]);
 

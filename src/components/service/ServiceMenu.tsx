@@ -3,18 +3,18 @@
 import { useMemo, useState } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CheckIcon } from "@/components/stock/icons";
-import { accentButton, card, subTitle } from "@/components/ui";
+import { card, subTitle } from "@/components/ui";
 
 export type Service = { readonly name: string; readonly blurb: string; readonly types: readonly string[] };
 
-// What we do, as a row of cards. A card opens to say more about that service and offers the message form, which stays closed until
-// asked for: the contact page already takes a general message.
+// What we do, as a row of cards. A card opens a panel under the row (it slides open): what that service covers on the left, as a list with
+// the checks down the left edge, and the message form, already open, on the right.
 export function ServiceMenu({ services }: { services: readonly Service[] }) {
   const [open, setOpen] = useState<string>();
-  const [ask, setAsk] = useState(false);
-  const current = services.find((s) => s.name === open);
+  const [last, setLast] = useState<string>(); // what the panel still shows while it slides shut
+  const current = services.find((s) => s.name === (open ?? last));
   // One object per service, so the form is not told to refill its message on every render.
-  const prefill = useMemo(() => ({ message: `I would like to ask about ${open?.toLowerCase()}.` }), [open]);
+  const prefill = useMemo(() => ({ message: `I'd like to ask about ${(open ?? last)?.toLowerCase()}.` }), [open, last]);
   return (
     <div className="flex flex-col gap-4">
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -28,14 +28,14 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
                 aria-controls="service-detail"
                 onClick={() => {
                   setOpen(on ? undefined : s.name);
-                  setAsk(false);
+                  if (!on) setLast(s.name);
                 }}
-                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left transition-colors ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
+                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left transition-[background-color,border-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
               >
                 <span className="flex w-full items-center justify-between gap-2">
-                  <span className="text-heading font-semibold">{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading ${on ? "bg-accent text-white" : "bg-accent/15 text-accent"}`}>
-                    {on ? "−" : "+"}
+                  <span className={subTitle}>{s.name}</span>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent"}`}>
+                    +
                   </span>
                 </span>
                 <span className="text-meta text-text-2">{s.blurb}</span>
@@ -44,23 +44,24 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
           );
         })}
       </ul>
-      <div id="service-detail">
-        {current && (
-          <div className={`flex flex-col gap-4 ${card} p-5 sm:p-6`}>
-            <h3 className={subTitle}>{current.name}: what we can do</h3>
-            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {current.types.map((t) => (
-                <li key={t} className="flex items-center gap-2 text-body">
-                  <CheckIcon className="size-4 shrink-0 text-accent" />
-                  {t}
-                </li>
-              ))}
-            </ul>
-            {!ask ? (
-              <button type="button" onClick={() => setAsk(true)} className={`self-start ${accentButton} w-full sm:w-auto sm:min-w-60`}>
-                Ask About {current.name}
-              </button>
-            ) : (
+      {/* Slides open and shut: a grid row that goes from 0fr to 1fr, so the height needs no measuring. */}
+      <div id="service-detail" className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`} inert={!open}>
+        <div className="min-h-0 overflow-hidden">
+          {current && (
+            <div className={`grid grid-cols-1 gap-6 ${card} p-5 sm:p-6 lg:grid-cols-2 lg:gap-10`}>
+              <div className="flex flex-col gap-4">
+                <h3 className={subTitle}>{current.name}: What We Do</h3>
+                <ul className="flex flex-col gap-3">
+                  {current.types.map((t) => (
+                    <li key={t} className="flex items-center gap-3 text-body">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+                        <CheckIcon className="size-4" />
+                      </span>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
                 <h4 className="text-body font-semibold">Tell us what your car needs</h4>
                 <LeadPageForm
@@ -68,12 +69,12 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
                   type="general"
                   prefill={prefill}
                   submitLabel="Send Message"
-                  success={{ heading: "Thanks, we have your message.", body: "We will get back to you." }}
+                  success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }}
                 />
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

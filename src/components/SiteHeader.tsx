@@ -3,7 +3,6 @@ import Link from "next/link";
 import { HeaderLinks } from "@/components/HeaderLinks";
 import { MobileMenu } from "@/components/MobileMenu";
 import { SavedLink } from "@/components/saved/SavedLink";
-import { press } from "@/components/ui";
 import { SITE_NAME } from "@/lib/site";
 
 // The phone menu holds every page; the footer repeats them (#57). From 1024px the header shows the mockup's links.
@@ -29,9 +28,6 @@ export function SiteHeader() {
         <nav aria-label="Main" className="flex items-center gap-3 lg:gap-6">
           <HeaderLinks />
           <SavedLink />
-          <Link href="/contact" className={`hidden h-10 items-center rounded-control bg-accent px-4 text-meta font-semibold text-white lg:inline-flex ${press}`}>
-            Enquire
-          </Link>
           <MobileMenu links={MENU} />
         </nav>
       </div>

@@ -65,9 +65,12 @@ describe("ReviewsStrip", () => {
     expect(render(data({ reviews: [review({ text: "" })] }))).not.toContain("line-clamp-8");
   });
 
-  it("hides every review after the third from 1024px", () => {
+  it("puts every review in the moving row, none hidden, with four across from 1024px", () => {
     const reviews = [1, 2, 3, 4, 5].map((n) => review({ id: `r${n}` }));
-    expect(render(data({ reviews })).match(/lg:hidden/g)).toHaveLength(2);
+    const html = render(data({ reviews }));
+    expect(html.match(/<article/g)).toHaveLength(5);
+    expect(html).not.toContain("lg:hidden");
+    expect(html).toContain("lg:w-[calc((100%-3rem)/4)]");
   });
 
   it("contains no em dash", () => {

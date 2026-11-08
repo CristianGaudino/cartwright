@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CloseIcon, PlusIcon } from "@/components/stock/icons";
+import { CameraIcon, CloseIcon, PlusIcon } from "@/components/stock/icons";
 import {
   PHOTO_COUNT_ERROR,
   PHOTO_MAX_COUNT,
@@ -20,10 +20,11 @@ const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
 // Trade-in photos (D-13, UI-SPEC Photos). Each pick is shrunk on the device before it is kept, so only the re-encoded JPEG is
 // ever held or sent. The photos live in LeadForm's state, which outlives a failed send; the file input is only a way to add more.
-export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBinding) {
+export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0 }: PhotoBinding & { slots?: readonly string[]; min?: number }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const picker = useRef<HTMLInputElement>(null);
   const helperId = `${id}-helper`;
   const errorId = error ? `${id}-error` : undefined;
 
@@ -70,15 +71,16 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBindin
   return (
     <fieldset className="flex min-w-0 flex-col gap-2">
       <legend className="mb-1 text-meta font-semibold">
-        Photos<span className="font-normal text-text-2"> (optional)</span>
+        Photos<span className="font-normal text-text-2">{min ? ` (at least ${min})` : " (optional)"}</span>
       </legend>
       <p id={helperId} className="text-meta text-text-2">
-        Up to {PHOTO_MAX_COUNT} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
+        {min ? `${photos.length} of ${min} needed. More is better. ` : ""}Up to {PHOTO_MAX_COUNT} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
       </p>
       <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {photos.map((photo, i) => (
           <li key={i} className="relative aspect-[4/3] overflow-hidden rounded-control bg-photo-bg">
             <Preview blob={photo} alt={`Photo ${i + 1}`} />
+            {slots[i] && <span className="pointer-events-none absolute inset-x-0 bottom-0 truncate bg-ink/70 px-2 py-1 text-meta">{slots[i]}</span>}
             <button
               type="button"
               onClick={() => remove(i)}
@@ -91,9 +93,28 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBindin
             </button>
           </li>
         ))}
+        {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
+        {photos.length < PHOTO_MAX_COUNT &&
+          slots.slice(photos.length).map((name, k) => (
+            <li key={name}>
+              {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => picker.current?.click()}
+                aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
+                className="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-control border border-dashed border-control p-2 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
+              >
+                <CameraIcon className="size-6" />
+                <span className="font-semibold">{name}</span>
+                <span>{photos.length + k < min ? "Required" : "Recommended"}</span>
+              </button>
+            </li>
+          ))}
         {/* The input stays in the page at 12 so a summary link can still reach it; only the Add tile goes. */}
-        <li className={photos.length >= PHOTO_MAX_COUNT ? "sr-only" : "relative"}>
+        <li className={photos.length >= PHOTO_MAX_COUNT ? "sr-only" : photos.length < slots.length ? "sr-only" : "relative"}>
           <input
+            ref={picker}
             id={id}
             name="photos"
             type="file"
@@ -105,7 +126,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBindin
             onChange={(e) => add(e.currentTarget)}
             className="peer sr-only"
           />
-          {photos.length < PHOTO_MAX_COUNT && (
+          {photos.length < PHOTO_MAX_COUNT && photos.length >= slots.length && (
             <label
               htmlFor={id}
               aria-busy={busy}

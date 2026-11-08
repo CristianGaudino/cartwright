@@ -30,12 +30,12 @@ const FOOTER = [
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
-test("from 1024px the header has Stock, five links and a red Enquire button", async ({ page }) => {
+test("from 1024px the header has Stock and five links, and no Enquire button", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   const banner = page.getByRole("banner");
   for (const [name, href] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
-  await expect(banner.getByRole("link", { name: "Enquire" })).toHaveAttribute("href", "/contact");
+  await expect(banner.getByRole("link", { name: "Enquire" })).toHaveCount(0);
   const stock = banner.getByRole("button", { name: "Stock" });
   await expect(stock).toHaveAttribute("aria-expanded", "false");
   await stock.click();

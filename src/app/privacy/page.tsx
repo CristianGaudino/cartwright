@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         </p>
       </InfoSection>
       <InfoSection title="Why we use it">
-        <p>Only to reply to your request. We do not use it for marketing, and we do not sell it.</p>
+        <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>
         <p>
           Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Cloudflare also keeps the
           requests in a database, and trade-in photos, in the EU.
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
               </a>
             </>
           )}{" "}
-          and we will delete your details.
+          and we&apos;ll delete your details.
         </p>
       </InfoSection>
     </InfoPage>

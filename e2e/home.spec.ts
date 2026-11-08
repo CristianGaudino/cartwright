@@ -136,7 +136,7 @@ test.describe("desktop pointer", () => {
     await expect(next).toBeVisible();
     await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "0.3");
     // The arrows sit under the row, beside the dots, not over the cards; a dot is a button that goes to its page.
-    const rowBox = (await row.locator("ul").boundingBox())!;
+    const rowBox = (await row.locator(":scope > ul").boundingBox())!;
     expect((await next.boundingBox())!.y).toBeGreaterThan(rowBox.y + rowBox.height - 4);
     await next.click();
     await expect(row.getByRole("button", { name: "Previous cars" })).toHaveCSS("opacity", "1");

@@ -44,7 +44,7 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
   );
 }
 
-const TEST_DRIVE_NOTE = "I would like to book a test drive.";
+const TEST_DRIVE_NOTE = "I'd like to book a test drive.";
 
 // The car page action area: Enquire About This Car in the accent with Book a Test Drive beside it, then Call Us and WhatsApp. A test
 // drive is an enquiry with the note filled in, so there is one form and one kind of lead; the dialog's title says which was opened.
@@ -94,7 +94,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           variant="dialog"
           prefill={prefill}
           submitLabel="Send Enquiry"
-          success={{ heading: "Thanks, we have your enquiry.", body: `We will get back to you about the ${car.name}.` }}
+          success={{ heading: "Thanks, we have your enquiry.", body: `We'll get back to you about the ${car.name}.` }}
         >
           {({ bind }) => (
             <>

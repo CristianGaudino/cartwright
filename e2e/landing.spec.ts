@@ -110,7 +110,7 @@ test("a make with nothing in stock and nothing recently sold shows the empty sta
   await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in stock right now` })).toBeVisible();
   await expect(page.getByText("Have a look at these instead.")).toBeVisible();
   expect((await chipHrefs(page, "Makes in stock")).length).toBeGreaterThan(0);
-  await expect(page.getByRole("link", { name: "Cannot find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveCount(0); // D-15 replaced it
   await expect(page.getByText(/^Recently sold/)).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);

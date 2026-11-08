@@ -90,7 +90,7 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("checkbox").check();
   await d.getByRole("button", { name: "Send enquiry" }).click();
-  await expect(d.getByRole("alert")).toContainText("We could not check this request.");
+  await expect(d.getByRole("alert")).toContainText("We couldn't check this request.");
   await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
@@ -135,7 +135,7 @@ test("Book a Test Drive opens the same enquiry dialog with the note filled in, a
   await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
   const d = page.getByRole("dialog");
   await expect(d).toHaveAccessibleName("Book a Test Drive");
-  await expect(d.getByLabel("Message")).toHaveValue("I would like to book a test drive.");
+  await expect(d.getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
   await expect(d.getByRole("radio")).toHaveCount(0); // no more choosing a kind of request
   await d.getByLabel("Name").fill("Test Driver");
   await d.getByLabel("Phone").fill("087 123 4567");
@@ -147,7 +147,7 @@ test("Book a Test Drive opens the same enquiry dialog with the note filled in, a
 test("Enquire opened after Book a Test Drive does not keep the test drive note, but keeps a message typed in Enquire", async ({ page }) => {
   await open(page, live.slug);
   await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
-  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I would like to book a test drive.");
+  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
   await page.keyboard.press("Escape");
   await enquire(page).click();
   await expect(dialog(page)).toHaveAccessibleName("Enquire About This Car");

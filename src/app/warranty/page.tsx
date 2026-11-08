@@ -10,10 +10,10 @@ export default function WarrantyPage() {
     <InfoPage title="Warranty" intro="Every car comes with cover, and you can add more.">
       <InfoSection title={WARRANTY.title}>
         <p>{WARRANTY.text}</p>
-        <p>It is included in the price of the car. Ask us for the full terms before you buy.</p>
+        <p>It&apos;s included in the price of the car. Ask us for the full terms before you buy.</p>
       </InfoSection>
       <InfoSection title="Extended Warranty">
-        <p>Longer cover is available. Ask us what it covers and what it costs for the car you are looking at.</p>
+        <p>Longer cover is available. Ask us what it covers and what it costs for the car you&apos;re looking at.</p>
       </InfoSection>
       <InfoSection title="Ask Us About It">
         <div className="flex flex-col gap-2">

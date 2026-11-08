@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { LeadPage, Tips } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 
-export const metadata: Metadata = { title: "Find a car", description: "Cannot see the car you want? Tell us what you are looking for and we will look for it. Carright, Tralee, Co. Kerry." };
+export const metadata: Metadata = { title: "Find a car", description: "Can't see the car you want? Tell us what you're looking for and we'll look for it. Carright, Tralee, Co. Kerry." };
 
 export default function FindACarPage() {
   return (
     <LeadPage
       title="Find a Car"
-      intro="Cannot see the car you want in stock? Tell us what you are looking for and we will look for it."
+      intro="Can't see the car you want in stock? Tell us what you're looking for and we'll look for it."
       how={[
         { title: "Tell us what you want", text: "The make and model if you know them, your budget, and what matters to you." },
         { title: "We look for it", text: "We search for a car that fits what you asked for." },
@@ -21,7 +21,7 @@ export default function FindACarPage() {
         />
       }
     >
-      <LeadPageForm type="sourcing" submitLabel="Ask Us to Find It" success={{ heading: "Thanks, we will look for it.", body: "We will get in touch if we find a match." }} />
+      <LeadPageForm type="sourcing" submitLabel="Ask Us to Find It" success={{ heading: "Thanks, we'll look for it.", body: "We'll get in touch if we find a match." }} />
     </LeadPage>
   );
 }

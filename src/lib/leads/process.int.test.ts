@@ -7,7 +7,7 @@ import type { Car } from "@/lib/stock/types";
 import { truncate } from "@/test/sqlite-db";
 import { processLead } from "./process";
 import type { Deps } from "./process";
-import { CONSENT } from "./constants";
+import { CONSENT, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR } from "./constants";
 import { createDrizzleStore } from "./store";
 
 vi.mock("@/lib/db", () => import("@/test/sqlite-db"));
@@ -51,10 +51,12 @@ const image = (name: string, size = 300, head = JPEG_HEAD) => {
   return new File([b], name, { type: "image/jpeg" });
 };
 
+// A trade-in needs PHOTO_MIN_COUNT photos: the ones a test cares about come first and plain ones fill up to the minimum.
 function tradeInForm(photos: File[] = [], fields: Record<string, string> = {}) {
-  const fd = enquiryForm({ type: "trade_in", carId: "", sourcePath: "/sell-your-car", reg: "191-KY-1234", mileage: "120500", ...fields });
+  const fd = enquiryForm({ type: "trade_in", carId: "", sourcePath: "/trade-in", reg: "191-KY-1234", mileage: "120500", ...fields });
   fd.delete("carId");
-  for (const p of photos) fd.append("photos", p);
+  const fill = Array.from({ length: Math.max(0, PHOTO_MIN_COUNT - photos.length) }, (_, i) => image(`fill${i}.jpg`));
+  for (const p of [...photos, ...fill]) fd.append("photos", p);
   return fd;
 }
 
@@ -154,8 +156,10 @@ describe("trade-in photos on SQLite (D-13)", () => {
     expect(await processLead(tradeInForm([image("car.jpg")]), ctx, d)).toEqual(OK);
     const [row] = await rows();
     expect(row).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
-    expect(row.photoKeys).toEqual([`trade-in/${row.id}/1.jpg`]);
-    expect([...objects.entries()]).toEqual([[`trade-in/${row.id}/1.jpg`, { size: 300, contentType: "image/jpeg" }]]);
+    expect(row.photoKeys).toHaveLength(PHOTO_MIN_COUNT);
+    expect(row.photoKeys[0]).toBe(`trade-in/${row.id}/1.jpg`);
+    expect(objects.size).toBe(PHOTO_MIN_COUNT);
+    expect(objects.get(`trade-in/${row.id}/1.jpg`)).toEqual({ size: 300, contentType: "image/jpeg" });
     // The dealer gets a signed link for it.
     expect(mail.mock.calls[0][0].text).toMatch(new RegExp(`Photo 1: \\S+/lead-photos/trade-in/${row.id}/1\\.jpg\\?exp=\\d+&sig=[\\w-]{43}`));
   });
@@ -165,14 +169,25 @@ describe("trade-in photos on SQLite (D-13)", () => {
     const png = image("second.jpg", 300, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     expect(await processLead(tradeInForm([image("first.jpg"), png]), ctx, d)).toEqual(OK);
     const [row] = await rows();
-    expect(row.photoKeys).toEqual([`trade-in/${row.id}/1.jpg`, `trade-in/${row.id}/2.png`]);
+    expect(row.photoKeys.slice(0, 2)).toEqual([`trade-in/${row.id}/1.jpg`, `trade-in/${row.id}/2.png`]);
     expect(objects.get(`trade-in/${row.id}/2.png`)?.contentType).toBe("image/png");
   });
 
+  it("refuses fewer than the minimum number of photos and stores nothing", async () => {
+    const { deps: d, objects, mail } = deps();
+    const few = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-KY-1234", mileage: "120500" });
+    few.delete("carId");
+    for (let i = 0; i < PHOTO_MIN_COUNT - 1; i++) few.append("photos", image(`p${i}.jpg`));
+    expect(await processLead(few, ctx, d)).toEqual({ status: "invalid", fieldErrors: { photos: [PHOTO_MIN_ERROR] } });
+    expect(objects.size).toBe(0);
+    expect(await rows()).toHaveLength(0);
+    expect(mail).not.toHaveBeenCalled();
+  });
+
   it.each([
-    ["a GIF named .jpg", () => [image("car.jpg"), image("old.jpg", 300, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61])], "old.jpg is not a photo we can use. Use a JPEG, PNG or WebP under 15 MB."],
+    ["a GIF named .jpg", () => [image("car.jpg"), image("old.jpg", 300, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61])], "old.jpg isn't a photo we can use. Use a JPEG, PNG or WebP under 15 MB."],
     ["a 13th photo", () => Array.from({ length: 13 }, (_, i) => image(`p${i}.jpg`)), "You can add up to 12 photos."],
-    ["a photo over 4 MB", () => [image("big.jpg", 4 * 1024 * 1024 + 1)], "big.jpg is not a photo we can use. Use a JPEG, PNG or WebP under 15 MB."],
+    ["a photo over 4 MB", () => [image("big.jpg", 4 * 1024 * 1024 + 1)], "big.jpg isn't a photo we can use. Use a JPEG, PNG or WebP under 15 MB."],
     ["a set over 16 MB in total", () => Array.from({ length: 5 }, (_, i) => image(`p${i}.jpg`, 3.5 * 1024 * 1024)), "The photos are too big to send together. Remove one and try again."],
   ])("refuses %s and stores nothing", async (_, photos, error) => {
     const { deps: d, objects, mail } = deps();

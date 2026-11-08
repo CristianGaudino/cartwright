@@ -13,11 +13,15 @@ const serverMode = (): Mode => "link";
 
 const look =
   `inline-flex h-11 items-center gap-2 px-4 max-[359px]:px-3 text-body text-text ${secondaryButton}`;
+// Just the icon, round, beside the heart: the same size and hover as the heart. The word stays for screen readers.
+const iconLook = "inline-flex size-11 items-center justify-center rounded-full text-text transition-colors hover:bg-card";
 const item = "flex h-11 w-full items-center rounded-control px-3 text-left text-body font-semibold text-text hover:bg-hairline";
 
 // title, text and url come from the server (canonical URL, never the current address), so the buyer's query string never leaves the site.
 // Server and first paint render a plain WhatsApp link (works without JavaScript); once hydrated it becomes the native sheet where the browser has one, else a two-item menu.
-export function ShareButton({ title, text, url }: { title: string; text: string; url: string }) {
+export function ShareButton({ title, text, url, iconOnly = false }: { title: string; text: string; url: string; iconOnly?: boolean }) {
+  const shape = iconOnly ? iconLook : look;
+  const word = <span className={iconOnly ? "sr-only" : "max-[359px]:sr-only"}>Share</span>;
   const base = useSyncExternalStore(never, clientMode, serverMode);
   const [fellBack, setFellBack] = useState(false);
   const [open, setOpen] = useState(false);
@@ -54,9 +58,9 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
 
   if (mode === "link") {
     return (
-      <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={look}>
+      <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={shape}>
         <ShareIcon />
-        <span className="max-[359px]:sr-only">Share</span>
+        {word}
       </a>
     );
   }
@@ -83,18 +87,18 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
 
   if (mode === "native") {
     return (
-      <button type="button" onClick={share} className={look}>
+      <button type="button" onClick={share} className={shape}>
         <ShareIcon />
-        <span className="max-[359px]:sr-only">Share</span>
+        {word}
       </button>
     );
   }
 
   return (
     <div ref={root} className="relative">
-      <button ref={trigger} type="button" aria-expanded={open} aria-controls={panelId} onClick={() => (open ? close() : setOpen(true))} className={look}>
+      <button ref={trigger} type="button" aria-expanded={open} aria-controls={panelId} onClick={() => (open ? close() : setOpen(true))} className={shape}>
         <ShareIcon />
-        <span className="max-[359px]:sr-only">Share</span>
+        {word}
       </button>
       {open && (
         <div
@@ -105,7 +109,7 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
             Share on WhatsApp
           </a>
           <button type="button" onClick={copyLink} className={item}>
-            <span aria-live="polite">{copy === "copied" ? "Link copied" : copy === "failed" ? "Could not copy the link" : "Copy link"}</span>
+            <span aria-live="polite">{copy === "copied" ? "Link copied" : copy === "failed" ? "Couldn't copy the link" : "Copy link"}</span>
           </button>
         </div>
       )}

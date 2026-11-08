@@ -21,6 +21,7 @@ export function Field({
   describedBy,
   suffix,
   prefix,
+  action,
   id,
   name,
   value,
@@ -28,7 +29,7 @@ export function Field({
   error,
   ...input
 }: FieldBinding &
-  InputProps & { label: string; optional?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string; suffix?: string; prefix?: string }) {
+  InputProps & { label: string; optional?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string; suffix?: string; prefix?: string; action?: React.ReactNode }) {
   const helperId = helper ? `${id}-helper` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const suffixId = suffix ? `${id}-suffix` : undefined; // read with the field, so "km" is not lost to screen readers
@@ -59,6 +60,12 @@ export function Field({
         />
       ) : multiline ? (
         <textarea {...common} maxLength={input.maxLength} enterKeyHint="enter" onChange={(e) => onChange(e.target.value)} className={`${control} min-h-28 resize-none px-4 py-3`} />
+      ) : action ? (
+        // A button joined to the field's right edge: one control, square where they meet.
+        <span className="flex">
+          <input {...common} {...input} onChange={(e) => onChange(e.target.value)} className={`${control} h-12 min-w-0 flex-1 rounded-r-none px-4`} />
+          {action}
+        </span>
       ) : suffix || prefix ? (
         <span className="relative">
           {prefix && (

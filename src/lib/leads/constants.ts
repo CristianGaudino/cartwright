@@ -17,7 +17,7 @@ export const PHOTO_MAX_MB = 15;
 export const PHOTO_STORED_MAX_BYTES = 4 * 1024 * 1024;
 export const PHOTO_TOTAL_MAX_BYTES = 16 * 1024 * 1024;
 export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
-export const photoError = (filename: string) => `${filename} is not a photo we can use. Use a JPEG, PNG or WebP under ${PHOTO_MAX_MB} MB.`;
+export const photoError = (filename: string) => `${filename} isn't a photo we can use. Use a JPEG, PNG or WebP under ${PHOTO_MAX_MB} MB.`;
 export const PHOTO_COUNT_ERROR = `You can add up to ${PHOTO_MAX_COUNT} photos.`;
 export const PHOTO_TOTAL_ERROR = "The photos are too big to send together. Remove one and try again.";
 
@@ -30,5 +30,8 @@ export const BAD_KM = "Enter the mileage in km, numbers only.";
 export const REG_PATTERN = /^[A-Z0-9 -]{1,12}$/;
 export const KM_PATTERN = /^\d{1,6}$/;
 
-// What to photograph for a trade-in valuation: shown on the photo step and beside the form, from here so the two never differ.
-export const PHOTO_GUIDE = ["The front and the back", "Both sides", "The inside, and the dashboard showing the mileage", "Each wheel and tyre", "Every dent, scratch or mark, close up"];
+// Trade-in photos: at least this many are needed to value a car, and more is better. The slots are what to photograph, in the order a
+// buyer is asked for them (the photo step shows one empty slot for each, and the page lists them). Shared so the two never differ.
+export const PHOTO_MIN_COUNT = 6;
+export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can value the car.`;
+export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];

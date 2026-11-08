@@ -15,7 +15,7 @@ export function FinanceFields({ bind }: { bind(name: string): FieldBinding }) {
       <ContactFields bind={bind} />
       <Field {...bind("deposit")} label="Deposit" prefix="€" inputMode="numeric" autoComplete="off" enterKeyHint="next" />
       <Field {...bind("term")} label="Term" options={TERM_OPTIONS} />
-      <p className="text-meta text-text-2">We do not ask for income, date of birth or bank details.</p>
+      <p className="text-meta text-text-2">We don&apos;t ask for income, date of birth or bank details.</p>
       <Field {...bind("employment")} label="Employment status" options={JOBS} />
       <Field {...bind("message")} label="Anything else we should know?" optional multiline maxLength={LIMITS.message} />
     </>

@@ -19,11 +19,16 @@ const WHY = [
 export default function ServicePage() {
   return (
     <main className={pageMain}>
-      <h1 className={pageTitle}>Service</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Keep your car running well. Call us to book it in, or choose a service to find out more.</p>
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <CallButton>Call {DEALER_PHONE}</CallButton>
-        <WhatsAppButton />
+      {/* From 1024px the call and WhatsApp buttons sit on the right, level with the title, like the stock page's controls. */}
+      <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
+        <div>
+          <h1 className={pageTitle}>Service</h1>
+          <p className="mt-2 max-w-[65ch] text-body">Keep your car running well. Call us to book it in, or choose a service to find out more.</p>
+        </div>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:mt-0 lg:shrink-0">
+          <CallButton>Call {DEALER_PHONE}</CallButton>
+          <WhatsAppButton />
+        </div>
       </div>
 
       <section className="mt-12 flex flex-col gap-4">
