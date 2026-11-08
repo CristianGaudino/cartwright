@@ -92,13 +92,30 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
-          <h2 className={sectionTitle}>Finance Made Simple</h2>
-          <p className="max-w-[40ch] text-body">Estimate your monthly payment online, then send us your details to start the process.</p>
-          <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
-            Check Finance Options
-            <ArrowRightIcon className="size-5" />
-          </Link>
+        <section className="hero-bg grid grid-cols-1 gap-8 rounded-card border border-hairline p-6 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-12 lg:p-12">
+          <div className="flex flex-col items-start gap-4">
+            <h2 className={sectionTitle}>Finance Made Simple</h2>
+            <p className="max-w-[40ch] text-body text-text-2">Estimate your monthly payment online, then send us your details to start the process.</p>
+            <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton} lg:h-14 lg:px-8 lg:text-heading`}>
+              Check Finance Options
+              <ArrowRightIcon className="size-5" />
+            </Link>
+          </div>
+          <ol className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              ["1", "Pick a car", "Or type a price. Choose a deposit and a term."],
+              ["2", "See an estimate", "A monthly figure, worked out as you go."],
+              ["3", "We call you", "Send your details and we come back with the real amounts."],
+            ].map(([n, title, text]) => (
+              <li key={n} className="flex gap-4 rounded-card border border-hairline bg-surface/60 p-4 sm:flex-col">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent ring-1 ring-accent/30">{n}</span>
+                <span className="flex flex-col gap-1">
+                  <span className="text-body font-semibold">{title}</span>
+                  <span className="text-meta text-text-2">{text}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <ReviewsStrip data={reviews} />

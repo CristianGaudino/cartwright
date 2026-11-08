@@ -81,7 +81,7 @@ test.describe("desktop pointer", () => {
     await expect(row.getByRole("button", { name: /^Go to page 1 of/ })).toHaveAttribute("aria-current", "true");
     for (const icon of await page.getByRole("region", { name: "Why buy from us" }).locator("svg").all()) {
       const box = (await icon.boundingBox())!;
-      expect([box.width, box.height]).toEqual([32, 32]);
+      expect([box.width, box.height]).toEqual([24, 24]);
     }
   });
 });
