@@ -9,7 +9,7 @@ test.skip(Boolean(process.env.E2E_BASE_URL), "Lead specs never run against a dep
 // A tap before React attaches does nothing.
 async function open(page: Page, path: string) {
   await page.goto(path);
-  await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 }
 
 test.beforeEach(async ({ page }) => stubTurnstile(page));
@@ -77,6 +77,14 @@ for (const [path, heading] of [
   test(`${path}: a message needs the message text, then ends on the thanks`, async ({ page }) => {
     await open(page, path);
     await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+    if (path === "/service") {
+      // The form is closed until a service is opened and asked about; it arrives with a line already in it.
+      await expect(page.getByLabel("Name")).toHaveCount(0);
+      await page.getByRole("button", { name: /^Servicing/ }).click();
+      await page.getByRole("button", { name: "Ask about Servicing" }).click();
+      await expect(page.getByLabel("How can we help?")).toHaveValue("I would like to ask about servicing.");
+      await page.getByLabel("How can we help?").fill("");
+    }
     await page.getByLabel("Name").fill("Test Buyer");
     await page.getByLabel("Phone").fill("087 123 4567");
     await page.getByRole("checkbox").check();

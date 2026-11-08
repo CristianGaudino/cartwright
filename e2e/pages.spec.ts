@@ -9,18 +9,35 @@ const fits320 = async (page: Page, path: string) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 };
 
-test("/service lists the services and offers Call to book", async ({ page }) => {
+test("/service has a call button with the number, WhatsApp, services that open, and no lone number", async ({ page }) => {
   await page.goto("/service");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Service");
   await expect(page.getByText("Placeholder details")).toHaveCount(0);
-  for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("listitem").filter({ hasText: s })).toBeVisible();
-  await expect(main(page).getByRole("link", { name: "Call to book" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
+  await expect(main(page).locator("p", { hasText: /^\+353 83 133 3154$/ })).toHaveCount(0); // the number is on the button, not under it
+  for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("button", { name: new RegExp(`^${s}`) })).toHaveAttribute("aria-expanded", "false");
+  await expect(main(page).getByRole("heading", { name: /what we can do/ })).toHaveCount(0);
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await main(page).getByRole("button", { name: /^Tyres/ }).click();
+  await expect(main(page).getByRole("heading", { name: "Tyres: what we can do" })).toBeVisible();
+  await expect(main(page).getByText("Puncture repair")).toBeVisible();
+  await expect(main(page).getByLabel("Name")).toHaveCount(0); // no form until asked for
 });
 
-test("/about links to the contact page", async ({ page }) => {
+test("/about has the photo on the right on desktop with the hours and directions under it, and no Visit us", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Us");
-  await expect(main(page).getByRole("link", { name: "Opening Hours and Directions" })).toHaveAttribute("href", "/contact");
+  await expect(main(page).getByRole("heading", { name: "Visit us" })).toHaveCount(0);
+  await expect(main(page).getByRole("heading", { name: "Who we are" })).toHaveCount(0);
+  await expect(main(page).getByRole("heading", { name: "Why Choose Us" })).toBeVisible();
+  const photo = (await main(page).locator("img").first().boundingBox())!;
+  const why = (await main(page).getByRole("heading", { name: "Why Choose Us" }).boundingBox())!;
+  expect(photo.x).toBeGreaterThan(why.x + 300); // the photo is in the right-hand column
+  const hours = (await main(page).getByRole("heading", { name: "Opening Hours" }).boundingBox())!;
+  expect(hours.y).toBeGreaterThan(photo.y + photo.height); // hours under the photo
+  await expect(main(page).getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
 });
 
 test("/terms is a labelled draft with five sections and the dealer's phone", async ({ page }) => {
@@ -38,17 +55,15 @@ test("/privacy keeps its copy on the shared frame, with no pill", async ({ page 
   await expect(page.getByText("Placeholder details")).toHaveCount(0);
 });
 
-test("/contact gives the phone, address, hours and links, and loads nothing from Google", async ({ page }) => {
-  const google: string[] = [];
-  page.on("request", (r) => {
-    if (r.url().includes("google.")) google.push(r.url());
-  });
+test("/contact gives the phone, WhatsApp, the hours under the map, and no address block", async ({ page }) => {
+  await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, body: "" }));
   await page.goto("/contact");
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
   await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
   await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
-  await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");
+  await expect(main(page).locator("address")).toHaveCount(0); // the address is in the footer
+  await expect(main(page).getByRole("heading", { name: "Address" })).toHaveCount(0);
   const rows = main(page).locator("dl > div");
   await expect(rows).toHaveCount(3);
   await expect(rows.first()).toContainText("Monday to Friday");
@@ -57,19 +72,24 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveAttribute("href", "/find-a-car");
   await expect(main(page).getByRole("link", { name: "Trade-In Valuation" })).toHaveAttribute("href", "/trade-in");
-  const directions = main(page).getByRole("link", { name: /Get directions/ });
+  const directions = main(page).getByRole("link", { name: /Get directions/i });
   await expect(directions).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
   expect(await directions.getAttribute("href")).toContain("V92%20NT93");
-  expect(google).toEqual([]);
 });
 
-test("/contact shows the map only once asked", async ({ page }) => {
+test("/contact shows the map at once, level with the form, with the hours under it", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
   await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, body: "" }));
   await page.goto("/contact");
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  await expect(page.locator("iframe")).toHaveCount(0);
-  await page.getByRole("button", { name: "Show map" }).click();
-  await expect(page.locator('iframe[title="Map of Carright, Tralee"]')).toBeVisible();
+  const map = page.locator('iframe[title="Map of Carright, Tralee"]');
+  await expect(map).toBeVisible();
+  await expect(page.getByRole("button", { name: "Show map" })).toHaveCount(0);
+  const call = (await main(page).getByRole("link", { name: /^Call / }).boundingBox())!;
+  const frame = (await map.boundingBox())!;
+  expect(Math.abs(call.y - frame.y)).toBeLessThan(40); // the two columns start together
+  const hours = (await main(page).getByRole("heading", { name: "Opening Hours" }).boundingBox())!;
+  expect(hours.y).toBeGreaterThan(frame.y + frame.height); // under the map
+  expect(hours.x).toBeGreaterThan(640); // in the map's column
 });
 
 test("/contact carries AutoDealer JSON-LD with no placeholder or demo facts", async ({ page }) => {
@@ -87,10 +107,11 @@ test("/contact carries AutoDealer JSON-LD with no placeholder or demo facts", as
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("/contact still offers directions, and no iframe", async ({ page }) => {
+  test("/contact still offers directions and the map", async ({ page }) => {
+    await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, body: "" }));
     await page.goto("/contact");
-    await expect(page.getByRole("link", { name: /Get directions/ })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
-    await expect(page.locator("iframe")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
+    await expect(page.locator("iframe")).toHaveCount(1);
   });
 });
 
