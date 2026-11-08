@@ -117,7 +117,7 @@ export function CompareCards() {
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {cars.map((car, ci) => (
-          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="flex flex-col overflow-hidden rounded-card border border-hairline bg-card">
+          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="group flex flex-col overflow-hidden rounded-card border border-hairline bg-card">
             <div className="relative aspect-[4/3] bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
               <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />
