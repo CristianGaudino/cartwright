@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { Montserrat } from "next/font/google";
 import { CompareBar } from "@/components/compare/CompareBar";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
+
+// Self-hosted at build time by next/font: no request to Google when a visitor loads the site. One variable file covers every weight.
+const montserrat = Montserrat({ subsets: ["latin"], display: "swap", variable: "--font-montserrat" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -20,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IE">
+    <html lang="en-IE" className={montserrat.variable}>
       <body>
         <SiteHeader />
         {children}

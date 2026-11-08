@@ -2,7 +2,7 @@
 
 /* UI-SPEC tokens. Resetting the default sizes and weights makes "no font size outside the table" a build-time fact. */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --text-*: initial;
   --text-meta: 0.875rem;

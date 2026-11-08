@@ -44,7 +44,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
         <form action="/used-cars" method="get" className="grid grid-cols-2 gap-4 p-4 lg:grid-cols-[repeat(4,1fr)_auto] lg:items-end lg:p-6">
           <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
           <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
-          <Select name="body" label="Body Type" any="Any body type" options={bodies.map((b) => [b.slug, b.label])} />
+          <Select name="body" label="Body Type" any="Any type" options={bodies.map((b) => [b.slug, b.label])} />
           <Select name="priceMax" label="Price" any="Any price" options={BUDGETS.map((b) => [String(b), `Up to ${formatPrice(b)}`])} />
           <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 lg:col-span-1 ${accentButton}`}>
             <SearchIcon className="size-5" />

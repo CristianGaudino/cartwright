@@ -39,6 +39,16 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
   await expect(result(page)).toContainText("€12,000");
 });
 
+test("/finance is the estimator only: no car picker, no application, a button to choose a car, and the facts", async ({ page }) => {
+  await open(page, "/finance");
+  await expect(calc(page).getByLabel("Car")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Start Your Application" })).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Select a car to estimate and enquire" })).toHaveAttribute("href", "/used-cars");
+  await expect(page.getByRole("heading", { name: "Good to Know" })).toBeVisible();
+  await expect(page.getByText("An estimate, not an approval", { exact: true })).toBeVisible();
+});
+
 test("/finance shows what to fix, never NaN or a stale figure", async ({ page }) => {
   await open(page, "/finance");
   await calc(page).getByLabel("Price").fill("15000");
@@ -78,7 +88,7 @@ test.describe("finance application", () => {
   test.beforeEach(async ({ page }) => stubTurnstile(page));
 
   test("Apply carries the deposit and term over, needs employment, asks nothing about money or identity", async ({ page }) => {
-    await open(page, "/finance");
+    await open(page, `/used-cars/${live.slug}`);
     await calc(page).getByLabel("Deposit").fill("4000");
     await choose(calc(page).getByLabel("Term"), "36 months");
     await page.getByRole("button", { name: "Start Your Application" }).click();
@@ -89,7 +99,6 @@ test.describe("finance application", () => {
     await expect(d.getByLabel("Term")).toHaveValue("36 months");
     await expect(d.getByText("We do not ask for income, date of birth or bank details.")).toBeVisible();
     await expect(d.getByLabel(/income|date of birth|bank/i)).toHaveCount(0);
-    await expect(d.getByRole("img")).toHaveCount(0); // no car summary row from /finance
 
     await d.getByLabel("Name").fill("Test Buyer");
     await d.getByLabel("Phone").fill("087 123 4567");
@@ -100,31 +109,6 @@ test.describe("finance application", () => {
     await choose(d.getByLabel("Employment status"), "Self-employed");
     await d.getByRole("button", { name: "Send Details" }).click();
     await expect(d.getByRole("heading", { name: "Thanks, we have your details." })).toBeFocused();
-  });
-
-  test("picking a car on /finance fixes the price and the application is for that car", async ({ page }) => {
-    await open(page, "/finance");
-    await choose(calc(page).getByLabel("Car"), 1);
-    await expect(calc(page).getByLabel("Price")).toHaveCount(0); // the car's price, as text
-    await calc(page).getByLabel("Deposit").fill("0");
-    await expect(result(page)).toContainText(/About €[\d,]+ a month/);
-    await page.getByRole("button", { name: "Start Your Application" }).click();
-    const d = page.getByRole("dialog", { name: "Start Your Application" });
-    const title = (await calc(page).getByLabel("Car").inputValue()).split(",")[0];
-    await expect(d.getByText(title)).toBeVisible(); // the application names the car
-    await d.getByRole("button", { name: "Close" }).click();
-    await choose(calc(page).getByLabel("Car"), "No car, just estimate a price");
-    await expect(calc(page).getByLabel("Price")).toBeVisible(); // back to typing a price
-  });
-
-  test("picking a car cheaper than the deposit in the box resets the deposit to nothing, not an error", async ({ page }) => {
-    const cheapest = cars.filter((c) => !c.soldAt).sort((x, y) => x.priceEur - y.priceEur)[0];
-    await open(page, "/finance");
-    await calc(page).getByLabel("Deposit").fill("99999");
-    await choose(calc(page).getByLabel("Car"), price(cheapest.priceEur)); // "€4,950" is not inside "€14,950"
-    await expect(calc(page).getByLabel("Deposit")).toHaveValue("0");
-    await expect(page.getByText("Deposit must be less than the price.")).toHaveCount(0);
-    await expect(result(page)).toContainText(/About €[\d,]+ a month/);
   });
 
   test("a car page works out finance on that car's price and applies for that car", async ({ page }) => {

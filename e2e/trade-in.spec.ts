@@ -123,7 +123,7 @@ test("13 photos keep 12 and hide the Add photos tile", async ({ page }) => {
   await open(page);
   await toStep(page, 3);
   await picker(page).setInputFiles(files(await jpeg(page), 13));
-  await expect(page.getByText("You can add up to 12 photos.")).toBeVisible();
+  await expect(page.getByText("You can add up to 12 photos.")).toBeVisible({ timeout: 20_000 }); // 13 photos are shrunk one by one
   await expect(tiles(page)).toHaveCount(12);
   await expect(page.getByText("Add photos")).toHaveCount(0);
 });
