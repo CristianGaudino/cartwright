@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
+import { IconBadge } from "@/components/Feature";
 import { FeaturedRow } from "@/components/home/FeaturedRow";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { TrustStrip } from "@/components/home/TrustStrip";
@@ -8,7 +9,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press, sectionTitle, slash, textLink } from "@/components/ui";
+import { accentButton, press, sectionTitle, slash, subTitle, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
@@ -67,7 +68,7 @@ export default async function Home() {
             </>
           ) : result.cars.length === 0 ? (
             <>
-              <h2 className="text-heading font-semibold">No cars listed right now</h2>
+              <h2 className={subTitle}>No cars listed right now</h2>
               <Link href="/find-a-car" className={textLink}>
                 Cannot find it? Ask us to find it for you.
               </Link>
@@ -108,7 +109,7 @@ export default async function Home() {
               ["3", "We call you", "Send your details and we come back with the real amounts."],
             ].map(([n, title, text]) => (
               <li key={n} className="flex gap-4 rounded-card border border-hairline bg-surface/60 p-4 sm:flex-col">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent ring-1 ring-accent/30">{n}</span>
+                <IconBadge size="sm">{n}</IconBadge>
                 <span className="flex flex-col gap-1">
                   <span className="text-body font-semibold">{title}</span>
                   <span className="text-meta text-text-2">{text}</span>

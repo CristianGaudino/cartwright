@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconBadge } from "@/components/Feature";
 import { CalculatorIcon, CarIcon, LayersIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { WARRANTY } from "@/lib/site";
 
@@ -21,9 +22,9 @@ export function TrustStrip() {
         {ITEMS.map(({ Icon, title, text, href }) => (
           <li key={title} className="sm:border-b sm:border-hairline sm:odd:border-r lg:border-b-0 lg:odd:border-r-0 sm:[&:nth-last-child(-n+1)]:border-b-0">
             <Link href={href} className="flex h-full min-h-11 items-start gap-4 p-5 transition-colors hover:bg-hairline/50 lg:flex-col lg:gap-3">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent ring-1 ring-accent/30">
+              <IconBadge>
                 <Icon className="size-6" />
-              </span>
+              </IconBadge>
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="text-body font-semibold">{title}</span>
                 <span className="text-meta text-text-2">{text}</span>

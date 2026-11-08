@@ -9,6 +9,7 @@ import { PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants"
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
+import { Stepper } from "./Stepper";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
 import { accentButton, secondaryButton } from "@/components/ui";
@@ -222,27 +223,7 @@ export function LeadForm({
         </div>
       ) : (
         <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad}`}>
-          {wizard && (
-            <div className="flex flex-col gap-4">
-              <ol aria-label="Progress" className="flex items-center gap-2">
-                {steps.map((s, i) => (
-                  <li key={s.title} aria-current={i === step ? "step" : undefined} className="flex flex-1 items-center gap-2 last:flex-none">
-                    <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold ${i < step ? "bg-accent text-white" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
-                      {i < step ? <CheckIcon className="size-4" /> : i + 1}
-                    </span>
-                    <span className={`hidden text-meta sm:block ${i === step ? "font-semibold" : "text-text-2"}`}>{s.title}</span>
-                    {i < steps.length - 1 && <span aria-hidden="true" className={`h-px flex-1 ${i < step ? "bg-accent" : "bg-hairline"}`} />}
-                  </li>
-                ))}
-              </ol>
-              <h2 ref={stepHeading} tabIndex={-1} className="text-heading font-semibold outline-none">
-                <span className="text-text-2">
-                  Step {step + 1} of {steps.length}
-                </span>{" "}
-                {steps[step].title}
-              </h2>
-            </div>
-          )}
+          {wizard && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} />}
           {car && (
             <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
               <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">

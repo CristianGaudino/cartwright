@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { FeatureCard } from "@/components/Feature";
 import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { OpeningHours } from "@/components/OpeningHours";
-import { accentButton, pageTitle, secondaryButton } from "@/components/ui";
-import { directionsUrl } from "@/lib/dealer";
+import { accentButton, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
+import { dealerDirectionsUrl } from "@/lib/dealer";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a used car dealer in Tralee, Co. Kerry: a carefully selected range of used cars, finance help and trade-ins.` };
@@ -23,7 +24,7 @@ const EXPECT = [
 
 export default function AboutPage() {
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <h1 className={pageTitle}>About Us</h1>
       <p className="mt-2 max-w-[65ch] text-body">{SITE_NAME} is a used car dealer in Tralee, Co. Kerry. Call in, look around and ask us anything.</p>
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
@@ -31,29 +32,21 @@ export default function AboutPage() {
         <div className="flex flex-col gap-6 lg:order-2">
           <Image src="/brand/about.webp" width={1200} height={900} alt="" className="aspect-[4/3] w-full rounded-card object-cover" />
           <OpeningHours />
-          <a href={directionsUrl(process.env.GOOGLE_PLACE_ID)} target="_blank" rel="noopener noreferrer" className={`inline-flex h-12 items-center justify-center px-6 ${secondaryButton}`}>
+          <a href={dealerDirectionsUrl()} target="_blank" rel="noopener noreferrer" className={`inline-flex h-12 items-center justify-center px-6 ${secondaryButton}`}>
             Get Directions<span className="sr-only"> (opens in a new tab)</span>
           </a>
         </div>
         <div className="flex flex-col gap-10 lg:order-1">
           <section className="flex flex-col gap-4">
-            <h2 className="text-heading font-semibold">Why Choose Us</h2>
+            <h2 className={subTitle}>Why Choose Us</h2>
             <ul className="grid grid-cols-1 gap-3">
-              {WHY.map(({ Icon, title, text }) => (
-                <li key={title} className="flex items-start gap-4 rounded-card border border-hairline bg-card p-4">
-                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent ring-1 ring-accent/30">
-                    <Icon className="size-6" />
-                  </span>
-                  <span className="flex flex-col gap-1">
-                    <span className="text-body font-semibold">{title}</span>
-                    <span className="text-meta text-text-2">{text}</span>
-                  </span>
-                </li>
+              {WHY.map(({ Icon, ...f }) => (
+                <FeatureCard key={f.title} badge={<Icon className="size-6" />} {...f} />
               ))}
             </ul>
           </section>
           <section className="flex flex-col gap-4">
-            <h2 className="text-heading font-semibold">What to Expect</h2>
+            <h2 className={subTitle}>What to Expect</h2>
             <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {EXPECT.map((s, i) => (
                 <li key={s.title} className="flex gap-4 sm:flex-col">

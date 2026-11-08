@@ -64,3 +64,6 @@ export function dealerJsonLd(reviews: Reviews | null, confirmed = DEALER_FACTS_C
   }
   return data;
 }
+
+// Directions to the dealer, by Google place when its ID is set and by the address otherwise.
+export const dealerDirectionsUrl = () => directionsUrl(process.env.GOOGLE_PLACE_ID);

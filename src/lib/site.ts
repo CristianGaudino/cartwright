@@ -7,6 +7,8 @@ export const DEALER_PHONE = "+353 83 133 3154"; // as published on cartwright.ie
 export const DEALER_EMAIL = "hello@carright.ie";
 export const DEALER_TEL = "+353831333154";
 // The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
+// The agency that built the site, credited in the footer.
+export const CHECKWORK_URL = "https://www.checkwork.ie";
 export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 // Placeholder until 03-02 onboards the sending domain and records the address; must be on that domain. Swap at handover.
 export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
@@ -19,7 +21,11 @@ export const indexable = () => isProduction();
 // fails a production deploy while it is false; dealer.test.ts fails if it is set while a bracketed value remains.
 export const DEALER_FACTS_CONFIRMED = false;
 // PLACEHOLDER: the dealer confirms the list.
-export const SERVICES = ["Servicing", "Repairs", "Tyres"] as const;
+export const SERVICES = [
+  { name: "Servicing", blurb: "Regular servicing keeps your car reliable.", types: ["Interim service", "Full service", "Oil and filter change", "Pre-NCT check"] },
+  { name: "Repairs", blurb: "Faults found and fixed, with the cost agreed first.", types: ["Brakes and suspension", "Engine and gearbox", "Diagnostics and warning lights", "Clutch and exhaust"] },
+  { name: "Tyres", blurb: "The right tyres, fitted and checked.", types: ["New tyres fitted", "Puncture repair", "Wheel balancing", "Wheel alignment"] },
+] as const;
 // Confirmed by the dealer, 2026-11-07.
 export const DEALER_ADDRESS = { street: "Ballymac, Maglass", town: "Tralee", county: "Co. Kerry", eircode: "V92 NT93" };
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.

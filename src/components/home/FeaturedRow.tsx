@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
 // A row of cards that scrolls a page at a time: native scroll-snap, so a finger swipes it. The arrows sit beside the dots under the
@@ -8,39 +8,41 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 const arrow =
   "flex size-9 items-center justify-center rounded-full border border-hairline bg-card text-text transition-opacity duration-150 hover:bg-hairline";
 
+// Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
+// `unit` is how far one dot moves the row. Read from the row's own sizes, not copied (the gap is the row's gap-4).
+function geometry(el: HTMLUListElement) {
+  const first = el.firstElementChild as HTMLElement | null;
+  const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
+  const step = first ? first.offsetWidth + gap : el.clientWidth;
+  const perCard = Math.floor((el.clientWidth + gap) / step) <= 1;
+  return {
+    unit: perCard ? step : el.clientWidth,
+    pages: perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth)),
+  };
+}
+
 export function FeaturedRow({ children, label }: { children: React.ReactNode; label: string }) {
   const scroller = useRef<HTMLUListElement>(null);
   const [state, setState] = useState({ page: 0, pages: 1 });
 
   // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
-  // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
-  const measure = () => {
+  const measure = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
-    const first = el.firstElementChild as HTMLElement | null;
-    const gap = parseFloat(getComputedStyle(el).columnGap) || 0; // the row's gap-4, read rather than copied
-    const step = first ? first.offsetWidth + gap : el.clientWidth;
-    const perCard = Math.floor((el.clientWidth + gap) / step) <= 1;
-    const unit = perCard ? step : el.clientWidth;
-    const pages = perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth));
+    const { unit, pages } = geometry(el);
     setState({ pages, page: Math.min(pages - 1, Math.round(el.scrollLeft / unit)) });
-  };
+  }, []);
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
     const watch = new ResizeObserver(measure);
     watch.observe(el);
     return () => watch.disconnect();
-  }, []);
+  }, [measure]);
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
-  // A dot is a page (or a card on a phone): the same step the measure above counts in.
   const goTo = (i: number) => {
     const el = scroller.current;
-    const first = el?.firstElementChild as HTMLElement | null;
-    if (!el) return;
-    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
-    const step = first ? first.offsetWidth + gap : el.clientWidth;
-    el.scrollTo({ left: i * (Math.floor((el.clientWidth + gap) / step) <= 1 ? step : el.clientWidth) });
+    if (el) el.scrollTo({ left: i * geometry(el).unit });
   };
 
   return (

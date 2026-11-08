@@ -8,7 +8,7 @@ import { StockError, stateButton } from "@/components/stock/StockError";
 import { CloseIcon, PlusIcon } from "@/components/stock/icons";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { showToast } from "@/components/toast";
-import { secondaryButton } from "@/components/ui";
+import { secondaryButton, subTitle } from "@/components/ui";
 import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds } from "@/lib/compare/store";
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
@@ -48,7 +48,7 @@ function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of:
 function Empty() {
   return (
     <div className="py-16 text-center">
-      <h2 className="text-heading font-semibold">Nothing to compare yet</h2>
+      <h2 className={subTitle}>Nothing to compare yet</h2>
       <p className="mt-2 text-body text-text-2">Open a car and tap Compare. You can compare up to three.</p>
       <Link href="/used-cars" className={stateButton}>
         See Used Cars

@@ -9,6 +9,8 @@ export type ComboOption = { value: string; label: string };
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 // A short list is a plain picker (no keyboard on a phone); a longer one can be typed into and narrows as the buyer types.
 const TYPEABLE_FROM = 6;
+// A list is about this tall (16rem, plus its border and gap). With less room than this below the field it opens upward if there is more above.
+const LIST_ROOM_PX = 280;
 
 // The site's one drop-down, in place of the browser's own. The ARIA 1.2 combobox pattern: an input that shows the chosen label, a list
 // of options under it, arrow keys, Enter, Escape, and a hidden input so a plain form still sends `name`. Controlled when `value` is
@@ -55,7 +57,7 @@ export function Combobox({
   const show = () => {
     const r = root.current?.getBoundingClientRect();
     // Opens upward when there is little room below and more above (a field at the foot of a sheet).
-    if (r) setUp(window.innerHeight - r.bottom < 280 && r.top > window.innerHeight - r.bottom);
+    if (r) setUp(window.innerHeight - r.bottom < LIST_ROOM_PX && r.top > window.innerHeight - r.bottom);
     setActive(Math.max(0, shown.findIndex((o) => o.value === current)));
     setOpen(true);
   };

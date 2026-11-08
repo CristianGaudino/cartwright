@@ -7,10 +7,10 @@ import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
 import { OpeningHours } from "@/components/OpeningHours";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { dealerJsonLd, directionsUrl, mapEmbedUrl } from "@/lib/dealer";
+import { dealerDirectionsUrl, dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, SITE_NAME } from "@/lib/site";
-import { pageTitle, textLink as link } from "@/components/ui";
+import { pageMain, pageTitle, subTitle, textLink as link } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, map and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
 
@@ -22,7 +22,7 @@ export default async function ContactPage() {
   // The place ID and the reviews provider come from env at request time.
   await connection();
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <JsonLd data={dealerJsonLd(await getReviews())} />
       <h1 className={pageTitle}>Contact</h1>
       <p className="mt-2 max-w-[65ch] text-body">Call or message us, or come and see us.</p>
@@ -42,7 +42,7 @@ export default async function ContactPage() {
             </p>
           )}
           <section data-wells className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-5 sm:p-6">
-            <h2 className="text-heading font-semibold">Send Us a Message</h2>
+            <h2 className={subTitle}>Send Us a Message</h2>
             <LeadPageForm type="general" submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We will get back to you." }} />
           </section>
           <div className="flex flex-col">
@@ -55,7 +55,7 @@ export default async function ContactPage() {
           </div>
         </div>
         <div className="flex flex-col gap-6">
-          <MapBox embedUrl={mapEmbedUrl()} directionsUrl={directionsUrl(process.env.GOOGLE_PLACE_ID)} title={`Map of ${SITE_NAME}, Tralee`} />
+          <MapBox embedUrl={mapEmbedUrl()} directionsUrl={dealerDirectionsUrl()} title={`Map of ${SITE_NAME}, Tralee`} />
           <OpeningHours />
         </div>
       </div>

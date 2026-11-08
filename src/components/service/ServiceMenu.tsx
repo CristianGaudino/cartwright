@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CheckIcon } from "@/components/stock/icons";
-import { accentButton } from "@/components/ui";
+import { accentButton, subTitle } from "@/components/ui";
 
-export type Service = { name: string; blurb: string; types: string[] };
+export type Service = { readonly name: string; readonly blurb: string; readonly types: readonly string[] };
 
 // What we do, as a row of cards. A card opens to say more about that service and offers the message form, which stays closed until
 // asked for: the contact page already takes a general message.
-export function ServiceMenu({ services }: { services: Service[] }) {
+export function ServiceMenu({ services }: { services: readonly Service[] }) {
   const [open, setOpen] = useState<string>();
   const [ask, setAsk] = useState(false);
   const current = services.find((s) => s.name === open);
+  // One object per service, so the form is not told to refill its message on every render.
+  const prefill = useMemo(() => ({ message: `I would like to ask about ${open?.toLowerCase()}.` }), [open]);
   return (
     <div className="flex flex-col gap-4">
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -45,7 +47,7 @@ export function ServiceMenu({ services }: { services: Service[] }) {
       <div id="service-detail" aria-live="polite">
         {current && (
           <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-5 sm:p-6">
-            <h3 className="text-heading font-semibold">{current.name}: what we can do</h3>
+            <h3 className={subTitle}>{current.name}: what we can do</h3>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {current.types.map((t) => (
                 <li key={t} className="flex items-center gap-2 text-body">
@@ -64,7 +66,7 @@ export function ServiceMenu({ services }: { services: Service[] }) {
                 <LeadPageForm
                   key={current.name}
                   type="general"
-                  prefill={{ message: `I would like to ask about ${current.name.toLowerCase()}.` }}
+                  prefill={prefill}
                   submitLabel="Send Message"
                   success={{ heading: "Thanks, we have your message.", body: "We will get back to you." }}
                 />

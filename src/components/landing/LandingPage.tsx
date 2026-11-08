@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { pageTitle } from "@/components/ui";
+import { pageMain, pageTitle, subTitle } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
@@ -46,7 +46,7 @@ function LinkChips({ heading, options, href }: { heading: string; options: Facet
   if (!shown.length) return null;
   return (
     <section className="mt-6">
-      <h2 className="text-heading font-semibold">{heading}</h2>
+      <h2 className={subTitle}>{heading}</h2>
       <ul className="mt-3 flex flex-wrap gap-2">
         {shown.map((o) => (
           <li key={o.value} className="min-w-0 max-w-full">
@@ -72,7 +72,7 @@ export function LandingPage({ data }: { data: LandingData }) {
   const name = landingName(landing);
   const shown = cars.slice(0, SHOWN);
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <Breadcrumb landing={landing} />
       <h1 className={`mt-6 ${pageTitle}`}>Used {name}</h1>
       {facts && (
@@ -114,7 +114,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           )}
           {sold.length > 0 && (
             <section className="mt-8">
-              <h2 className="text-heading font-semibold">Recently sold {name}</h2>
+              <h2 className={subTitle}>Recently sold {name}</h2>
               <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {sold.map((car) => (
                   <ListingCard key={car.id} car={car} priority={false} />

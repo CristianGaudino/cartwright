@@ -10,3 +10,8 @@ export const slash = "before:mr-3 before:inline-block before:h-[0.9em] before:w-
 // One look for every page title and every section heading, so no page reads as a different site.
 export const pageTitle = `text-display font-bold lg:text-hero ${slash}`;
 export const sectionTitle = `text-heading font-bold sm:text-display ${slash}`;
+// The page frame every page shares: centred, 1280px wide, the same side padding at each width. `pageMain` adds the vertical space.
+export const pageWidth = "mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8";
+export const pageMain = `${pageWidth} pb-16 pt-12`;
+// A plain heading for a section inside a page (the slashed one is `sectionTitle`).
+export const subTitle = "text-heading font-semibold";

@@ -1,4 +1,5 @@
-import { pageTitle } from "@/components/ui";
+import { IconBadge } from "@/components/Feature";
+import { pageMain, pageTitle, subTitle } from "@/components/ui";
 
 export type HowStep = { title: string; text: string };
 
@@ -6,14 +7,14 @@ export type HowStep = { title: string; text: string };
 // things worth knowing beside it (under it below 1024px). Every form page says something before it asks something.
 export function LeadPage({ title, intro, how, aside, children }: { title: string; intro: string; how?: HowStep[]; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className={pageMain}>
       <h1 className={pageTitle}>{title}</h1>
       <p className="mt-2 max-w-[65ch] text-body">{intro}</p>
       {how && (
         <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {how.map((s, i) => (
             <li key={s.title} className="flex gap-4 rounded-card border border-hairline bg-card p-4">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent ring-1 ring-accent/30">{i + 1}</span>
+              <IconBadge size="sm">{i + 1}</IconBadge>
               <span className="flex flex-col gap-1">
                 <span className="text-body font-semibold">{s.title}</span>
                 <span className="text-meta text-text-2">{s.text}</span>
@@ -36,7 +37,7 @@ export function LeadPage({ title, intro, how, aside, children }: { title: string
 export function Tips({ title, items }: { title: string; items: string[] }) {
   return (
     <section className="flex flex-col gap-3 rounded-card border border-hairline p-5">
-      <h2 className="text-heading font-semibold">{title}</h2>
+      <h2 className={subTitle}>{title}</h2>
       <ul className="flex flex-col gap-2 text-meta">
         {items.map((t) => (
           <li key={t} className="flex items-start gap-2">
