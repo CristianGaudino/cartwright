@@ -9,7 +9,7 @@ import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { dealerJsonLd, directionsUrl, groupHours, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, DEALER_WHATSAPP, SITE_NAME } from "@/lib/site";
-import { textLink as link } from "@/components/ui";
+import { pageTitle, textLink as link } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Contact", description: `Opening hours, address and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
 
@@ -29,7 +29,7 @@ export default async function ContactPage() {
           <PlaceholderPill>Placeholder details</PlaceholderPill>
         </div>
       )}
-      <h1 className="text-display font-semibold">Contact</h1>
+      <h1 className={pageTitle}>Contact</h1>
       <p className="mt-2 max-w-[65ch] text-body">Call or message us, or come and see us.</p>
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-8">

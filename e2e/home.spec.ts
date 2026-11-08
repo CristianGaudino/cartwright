@@ -99,6 +99,8 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
+    [/^3 Month Warranty/, "/warranty"],
+    [/^Extended Warranty/, "/warranty"],
     [/^Flexible Finance/, "/finance"],
     [/^Trade-In Welcome/, "/sell-your-car"],
     [/^Test Drives/, "/used-cars"],
@@ -121,6 +123,16 @@ test("the hero uses the dealer's photo, and the header logo is the vector one", 
   await expect(page.locator("section.hero-photo")).toHaveCSS("background-image", /\/brand\/hero(-sm)?\.webp/);
   await expect(page.getByRole("banner").getByRole("img", { name: "Carright" })).toHaveAttribute("src", "/brand/logo.svg");
   for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg"]) expect((await request.get(path)).status(), path).toBe(200);
+});
+
+test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const links = page.getByRole("region", { name: "Why buy from us" }).getByRole("link");
+  await expect(links).toHaveCount(5);
+  const boxes = await Promise.all((await links.all()).map((l) => l.boundingBox()));
+  expect(new Set(boxes.map((b) => Math.round(b!.y))).size).toBe(1);
+  expect(new Set(boxes.map((b) => Math.round(b!.height))).size).toBe(1);
 });
 
 test("at 320px nothing scrolls sideways and the search selects sit two to a row", async ({ page }) => {

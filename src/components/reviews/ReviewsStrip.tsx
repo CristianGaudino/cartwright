@@ -1,7 +1,7 @@
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
-import { textLink } from "@/components/ui";
+import { sectionTitle, textLink } from "@/components/ui";
 
 const POLICY_URI = "https://support.google.com/contributionpolicy/answer/7422880";
 const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;
@@ -85,7 +85,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
       <div className="flex flex-col gap-2">
         {/* In every environment: fictional reviews must never read as real (UI-SPEC deviation from D-01). */}
         {data.source === "demo" && <PlaceholderPill>Demo reviews</PlaceholderPill>}
-        <h2 id="reviews-heading" className="text-heading font-semibold">
+        <h2 id="reviews-heading" className={sectionTitle}>
           What Customers Say
         </h2>
         <p className="text-meta text-text-2">Showing the most relevant reviews from Google Maps.</p>
