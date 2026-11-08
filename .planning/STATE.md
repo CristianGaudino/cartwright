@@ -1,38 +1,35 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 01
-current_phase_name: Design and Stock Browsing
-status: verifying
-stopped_at: "Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)"
-last_updated: "2026-11-07T00:54:56.240Z"
-last_activity: 2026-11-05
-last_activity_desc: Phase 01 execution started
-state_head: 3f93f167cdccd8cb1b5ebbf8d9ad0f6db8f3c44e
+current_phase: 05
+current_phase_name: Quality Pass
+status: in_progress
+last_updated: "2026-11-08"
+last_activity: 2026-11-08
+last_activity_desc: Phases 1 to 4 built and merged; Quality Pass open on Lighthouse (#92)
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 4
   total_plans: 33
-  completed_plans: 30
-  percent: 0
+  completed_plans: 33
+  percent: 90
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-11-03)
+See: .planning/PROJECT.md (updated 2026-11-08)
 
 **Core value:** A buyer can find a car on their phone, fast, and send the dealer an enquiry about it.
-**Current focus:** Phase 01 — Design and Stock Browsing
+**Current focus:** Phase 05 — Quality Pass
 
 ## Current Position
 
-Phase: 01 (Design and Stock Browsing) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
-Last activity: 2026-11-05 — Phase 01 execution started
+Phase: 05 (Quality Pass), in progress. Phases 1 to 4 are built and merged.
+Open: Lighthouse 95+ on the stock and car pages (#92), real-device checks (#44, #77), and the dealer inputs under Blockers.
+Last activity: 2026-11-08, PR #96 and the social, Checkwork and compare-photo PR.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -125,9 +122,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- Client inputs still open: CarsIreland/Carsie API access (#16, Phase 1), real finance terms and required wording (#9, Phase 3), Google Business place ID (#13, Phase 4), real stock and images. Demo data and clearly labelled placeholders cover each until the client supplies them.
-- Issue #3 says the stock provider is "cached with Cache Components", but Cache Components are off on this project (opennextjs-cloudflare#1450). Phase 1 planning should use caching that works on OpenNext/Workers.
-- `.claude/CLAUDE.md` still says "Do not run GSD (`/gsd-*`) on this project", but PROJECT.md records the owner's decision (2026-11-03) to use GSD for planning with GitHub issues as the scope source. CLAUDE.md should be updated to match.
+- Client inputs still open: finance terms and wording (#55), Google place ID and key (#56, #64), dealer email and domain (#54, #63), social links (#97), stock feed (#65), real stock and resized photos (#92). Demo data and clearly labelled placeholders cover each until the client supplies them.
+- After the domain is bought: add the site to the uptime alert (#98) and set the Cloudflare rate-limit rule (#66).
 - Deploy on merge is the decision (owner, 2026-11-06). Reverting to release-tag deploys is tracked in #37.
 - Cloudflare Access must stay on `carright.cgaudino.com` while the demo data (the dealer's photos) is in. The demo is not public.
 
@@ -141,6 +137,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-11-07T00:54:56.203Z
-Stopped at: Completed 03-16-PLAN.md (#9 PR #51 open, waits on #49, #50 and dealer finance terms)
+Last session: 2026-11-08
+Stopped at: PR for social icons, Checkwork credit, compare photos and the iOS card fix
 Resume file: None

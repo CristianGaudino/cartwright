@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
-import { Brandmark } from "@/components/Brandmark";
+import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { StockError, stateButton } from "@/components/stock/StockError";
 import { CloseIcon, PlusIcon } from "@/components/stock/icons";
@@ -120,8 +119,8 @@ export function CompareCards() {
         {cars.map((car, ci) => (
           <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="flex flex-col overflow-hidden rounded-card border border-hairline bg-card">
             <div className="relative aspect-[4/3] bg-photo-bg">
-              {car.photos[0] && <Image src={car.photos[0].src} width={600} height={450} alt="" className="size-full object-cover" />}
-              <Brandmark />
+              {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
+              <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />
               <button
                 type="button"
                 aria-label={`Remove ${carTitle(car)}`}

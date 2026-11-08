@@ -35,3 +35,10 @@ export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] =
   { day: "Saturday", opens: "10:00", closes: "16:00" },
   { day: "Sunday" },
 ];
+
+// PLACEHOLDER (issue #97): these point at each network's home page until the dealer gives us the real profile links.
+export const SOCIAL_LINKS = [
+  { name: "Facebook", href: "https://www.facebook.com/" },
+  { name: "Instagram", href: "https://www.instagram.com/" },
+  { name: "TikTok", href: "https://www.tiktok.com/" },
+] as const;

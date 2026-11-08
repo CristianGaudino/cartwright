@@ -83,9 +83,12 @@ test.describe("desktop pointer", () => {
 // Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
 test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
   await page.goto("/");
-  for (const el of [page.locator("article").first(), page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse our stock" })]) {
+  for (const el of [page.getByRole("button", { name: "Search cars" }), page.getByRole("main").getByRole("link", { name: "Browse our stock" })]) {
     await expect(el).toHaveCSS("transition-property", /\bscale\b/);
   }
+  // A card never scales on press: on iOS that cancelled the photo swipe inside it (#44). Its body lightens instead.
+  await expect(page.locator("article[data-card]").first()).toHaveCSS("scale", "none");
+  expect(await page.locator("article[data-card][class*='active:scale']").count()).toBe(0);
   for (const link of await page.getByRole("navigation", { name: "Main" }).getByRole("link").filter({ visible: true }).all()) {
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }

@@ -63,6 +63,20 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   await expect(footer.getByText("© Carright")).toBeVisible();
 });
 
+test("the footer has social icons and a Powered by Checkwork link that opens checkwork.ie", async ({ page }) => {
+  await page.goto("/");
+  const footer = page.getByRole("contentinfo");
+  for (const name of ["Facebook", "Instagram", "TikTok"]) {
+    const l = footer.getByRole("link", { name: new RegExp(`^${name}`) });
+    await expect(l).toHaveAttribute("href", new RegExp(`^https://www\\.${name.toLowerCase()}\\.com/`));
+    await expect(l).toHaveAttribute("target", "_blank");
+  }
+  const credit = footer.getByRole("link", { name: /Checkwork/ });
+  await expect(credit).toHaveAttribute("href", "https://www.checkwork.ie");
+  await expect(credit).toContainText("Powered by");
+  await expect(credit.getByRole("img", { name: "Checkwork" })).toBeVisible();
+});
+
 test("from 360px the header also shows Used cars, and it still fits", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
