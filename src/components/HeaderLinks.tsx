@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDownIcon } from "@/components/stock/icons";
+import { card } from "@/components/ui";
 
 // The desktop links (from 1024px) and the one phone link. A red bar under the current section, as in the mockup.
 const item = "relative inline-flex min-h-11 items-center gap-1 text-meta font-semibold transition-colors hover:text-text-2 focus-visible:outline-white";
@@ -57,7 +58,7 @@ export function HeaderLinks() {
             <ChevronDownIcon className={`size-4 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
-            <ul id={menuId} className="absolute left-0 top-full z-30 mt-1 min-w-48 rounded-card border border-hairline bg-card p-2 shadow-lift">
+            <ul id={menuId} className={`absolute left-0 top-full z-30 mt-1 min-w-48 ${card} p-2 shadow-lift`}>
               {STOCK.map((s) => (
                 <li key={s.href}>
                   <Link href={s.href} onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-control px-3 text-meta font-semibold hover:bg-hairline">

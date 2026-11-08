@@ -1,6 +1,6 @@
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
-import { sectionTitle, textLink } from "@/components/ui";
+import { card, sectionTitle, textLink } from "@/components/ui";
 
 const POLICY_URI = "https://support.google.com/contributionpolicy/answer/7422880";
 const NEW_TAB = { target: "_blank", rel: "noopener noreferrer" } as const;
@@ -32,7 +32,7 @@ function StarRating({ value, size }: { value: number; size: 16 | 20 }) {
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <article className="flex h-full flex-col gap-3 rounded-card border border-hairline bg-card p-4 contrast-more:border-text">
+    <article className={`flex h-full flex-col gap-3 ${card} p-4 contrast-more:border-text`}>
       <div>
         <StarRating value={review.rating} size={16} />
         <span className="sr-only">Rated {review.rating} out of 5</span>

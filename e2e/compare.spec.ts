@@ -168,6 +168,16 @@ test.describe("desktop pointer", () => {
     await expect.poll(() => carousel.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
   });
 
+  test("the figures start on the same line in every card, whatever the title does", async ({ page }) => {
+    await openCompare(page, 3);
+    await expect(cards(page)).toHaveCount(3); // they arrive after the page does
+    const tops = await cards(page).evaluateAll((cs) => cs.map((c) => c.querySelector("dl")!.getBoundingClientRect().top));
+    expect(tops.length).toBe(3);
+    expect(new Set(tops.map(Math.round)).size).toBe(1);
+    const photos = await cards(page).evaluateAll((cs) => cs.map((c) => c.querySelector("div")!.getBoundingClientRect().height));
+    expect(Math.max(...photos) - Math.min(...photos)).toBeLessThan(2); // the same size, give or take a rounded pixel
+  });
+
   test("the compare pill and the undo toast share one shape", async ({ page }) => {
     const [a] = await carPaths(page, 1);
     await compare(page, a);

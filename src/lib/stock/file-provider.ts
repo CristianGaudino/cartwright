@@ -4,7 +4,6 @@ import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, 
 // Search ignores case and accents, so "skoda" finds "Škoda" and "citroen" finds "Citroën".
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 
-const byCount = (a: FacetOption, b: FacetOption) => b.count - a.count || a.label.localeCompare(b.label, "en-IE");
 
 // `cars` is presorted newest first and Array.prototype.sort is stable, so every key ties by id descending.
 const SORTS: Record<SortKey, (a: Car, b: Car) => number> = {
@@ -63,7 +62,13 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
       const o = pick(c);
       if (o && matches(c, q, group)) options.get(o.value)!.count++;
     }
-    return [...options.values()].sort(byCount);
+    // Ordered by how many cars the option has in all, not by the count shown: a list that re-sorted on every filter would jump about.
+    const total = new Map<string, number>();
+    for (const c of universe) {
+      const o = pick(c);
+      if (o) total.set(o.value, (total.get(o.value) ?? 0) + 1);
+    }
+    return [...options.values()].sort((a, b) => (total.get(b.value) ?? 0) - (total.get(a.value) ?? 0) || a.label.localeCompare(b.label, "en-IE"));
   };
 
   return {

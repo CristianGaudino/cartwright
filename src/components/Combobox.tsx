@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
 
 export type ComboOption = { value: string; label: string };
@@ -9,8 +9,15 @@ export type ComboOption = { value: string; label: string };
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 // A short list is a plain picker (no keyboard on a phone); a longer one can be typed into and narrows as the buyer types.
 const TYPEABLE_FROM = 6;
-// A list is about this tall (16rem, plus its border and gap). With less room than this below the field it opens upward if there is more above.
-const LIST_ROOM_PX = 280;
+// A list is at most this tall (18rem: six options without a scrollbar). With less than LIST_ROOM_PX below the field it opens upward if there is more room above.
+const LIST_MAX_PX = 288;
+const LIST_MIN_PX = 120;
+const LIST_ROOM_PX = 300;
+const LIST_GAP_PX = 4;
+
+// Where the open list sits, in viewport coordinates: it is in the top layer (a popover), so no scrolling or clipping ancestor
+// (the filter panel, a dialog's body) can cut it off.
+type Place = { left: number; width: number; top?: number; bottom?: number; maxHeight: number };
 
 // The site's one drop-down, in place of the browser's own. The ARIA 1.2 combobox pattern: an input that shows the chosen label, a list
 // of options under it, arrow keys, Enter, Escape, and a hidden input so a plain form still sends `name`. Controlled when `value` is
@@ -47,18 +54,53 @@ export function Combobox({
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState<string | null>(null); // null: show the chosen label; a string: what the buyer has typed
   const [active, setActive] = useState(0);
-  const [up, setUp] = useState(false);
+  const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
   const typeable = options.length >= TYPEABLE_FROM;
   const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
 
-  const show = () => {
+  const measure = useCallback(() => {
     const r = root.current?.getBoundingClientRect();
-    // Opens upward when there is little room below and more above (a field at the foot of a sheet).
-    if (r) setUp(window.innerHeight - r.bottom < LIST_ROOM_PX && r.top > window.innerHeight - r.bottom);
+    if (!r) return;
+    const below = window.innerHeight - r.bottom - LIST_GAP_PX;
+    const above = r.top - LIST_GAP_PX;
+    const up = below < LIST_ROOM_PX && above > below; // little room below and more above, as for a field at the foot of a sheet
+    const next: Place = {
+      left: r.left,
+      width: r.width,
+      ...(up ? { bottom: window.innerHeight - r.top + LIST_GAP_PX } : { top: r.bottom + LIST_GAP_PX }),
+      maxHeight: Math.min(LIST_MAX_PX, Math.max(LIST_MIN_PX, up ? above : below)),
+    };
+    // The same place again (a scroll that did not move the field) keeps the old object, so nothing is redrawn.
+    setPlace((prev) => (prev && prev.left === next.left && prev.width === next.width && prev.top === next.top && prev.bottom === next.bottom && prev.maxHeight === next.maxHeight ? prev : next));
+  }, []);
+  const show = () => {
+    measure();
     setActive(Math.max(0, shown.findIndex((o) => o.value === current)));
     setOpen(true);
   };
+  // The list follows its field while the page or a panel scrolls or the window changes size.
+  useEffect(() => {
+    if (!open) return;
+    measure(); // opened by typing into a focused field: no click or arrow key measured it yet
+    const follow = (e: Event) => {
+      if (!(e.target instanceof Node && document.getElementById(listId)?.contains(e.target))) measure(); // not the list's own scrolling
+    };
+    window.addEventListener("resize", follow);
+    window.addEventListener("scroll", follow, true);
+    return () => {
+      window.removeEventListener("resize", follow);
+      window.removeEventListener("scroll", follow, true);
+    };
+  }, [open, measure, listId]);
+  // Shown in the top layer as soon as it is in the page. Without popover support it stays where it is, fixed in place.
+  const toTopLayer = useCallback((el: HTMLUListElement | null) => {
+    if (el && !el.matches(":popover-open")) {
+      try {
+        el.showPopover();
+      } catch {}
+    }
+  }, []);
   const close = () => {
     setOpen(false);
     setTyped(null);
@@ -136,11 +178,15 @@ export function Combobox({
       <ChevronDownIcon className={`pointer-events-none absolute right-3 top-3 h-6 w-6 transition-transform ${open ? "rotate-180" : ""}`} />
       {open && (
         <ul
+          ref={toTopLayer}
+          popover="manual"
           id={listId}
           role="listbox"
           // mousedown anywhere on the list (an option, the gaps, the scrollbar) would take focus from the input and close the list
           onMouseDown={(e) => e.preventDefault()}
-          className={`absolute left-0 z-50 max-h-64 w-full min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 shadow-lift ${up ? "bottom-full mb-1" : "top-full mt-1"}`}
+          // `inset: auto` first: a popover's own style pins it to every edge
+          style={{ inset: "auto", margin: 0, ...place }}
+          className="fixed z-50 min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 text-text shadow-lift"
         >
           {shown.length === 0 && (
             <li role="presentation" className="px-3 py-2.5 text-body text-text-2">
@@ -155,7 +201,7 @@ export function Combobox({
               aria-selected={o.value === current}
               onClick={() => choose(o)}
               onMouseMove={() => setActive(i)}
-              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""}`}
+              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body active:bg-hairline ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""}`}
             >
               <span className="min-w-0 truncate">{o.label}</span>
               {o.value === current && <CheckIcon className="size-4 shrink-0" />}

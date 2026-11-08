@@ -5,11 +5,12 @@ import Link from "next/link";
 import { carMeta, carName, formatPrice } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
+import { card } from "@/components/ui";
 
 export function ListingCard({ car, priority }: { car: Car; priority: boolean }) {
   const href = `/used-cars/${car.slug}`;
   return (
-    <article data-card className="group relative overflow-hidden rounded-card border border-hairline bg-card [transition:box-shadow_200ms_ease-out,background-color_100ms_ease-out] has-[h2_a:active]:bg-hairline [@media(hover:hover)]:hover:shadow-lift">
+    <article data-card className={`group relative overflow-hidden ${card} [transition:box-shadow_200ms_ease-out,background-color_100ms_ease-out] has-[h2_a:active]:bg-hairline [@media(hover:hover)]:hover:shadow-lift`}>
       <div data-card-photo className="relative aspect-[4/3] bg-photo-bg">
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}

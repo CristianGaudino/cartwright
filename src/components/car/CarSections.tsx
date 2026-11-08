@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
-import { slash } from "@/components/ui";
+import { card, slash } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
@@ -23,7 +23,7 @@ export function Specifications({ car }: { car: Car }) {
   return (
     <section>
       <h2 className={h2}>Specifications</h2>
-      <dl className="mt-4 grid grid-cols-1 gap-x-6 rounded-card border border-hairline bg-card p-4 sm:grid-cols-2">
+      <dl className={`mt-4 grid grid-cols-1 gap-x-6 ${card} p-4 sm:grid-cols-2`}>
         {specRows(car).map((r) => (
           <div key={r.label} className="flex justify-between gap-4 border-b border-hairline py-3">
             <dt className="text-text-2">{r.label}</dt>

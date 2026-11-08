@@ -145,7 +145,9 @@ export function runContract(name: string, makeProvider: (cars: Car[], opts: Cloc
     it("keeps filtered-out values in a facet at zero", async () => {
       const r = await provider().query(q({ make: ["ford"], fuel: ["petrol"] }));
       expect(r.cars.map((c) => c.id)).toEqual(["106"]);
-      expect(r.facets.make.map((o) => [o.label, o.count])).toEqual([["BMW", 1], ["Ford", 1], ["Audi", 0]]);
+      // Same order as with no filter (most cars in stock first), so the list does not move while filtering; only the counts change.
+      expect(r.facets.make.map((o) => [o.label, o.count])).toEqual([["Audi", 0], ["Ford", 1], ["BMW", 1]]);
+      expect(r.facets.make.map((o) => o.label)).toEqual((await provider().query(q({}))).facets.make.map((o) => o.label));
     });
 
     it("keeps an unknown selected value in its facet", async () => {

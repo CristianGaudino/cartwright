@@ -14,6 +14,7 @@ import {
 } from "@/lib/leads/constants";
 import { downscale } from "./downscale";
 import type { PhotoBinding } from "./LeadForm";
+import { glass } from "@/components/ui";
 
 const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
@@ -84,7 +85,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy }: PhotoBindin
               aria-label={`Remove photo ${i + 1}`}
               className="absolute right-0 top-0 flex size-11 items-center justify-center active:scale-[0.97] motion-reduce:active:scale-100"
             >
-              <span className="flex size-7 items-center justify-center rounded-full bg-[rgb(14_14_16/0.6)] text-white backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none contrast-more:border contrast-more:border-white">
+              <span className={`flex size-7 items-center justify-center ${glass}`}>
                 <CloseIcon className="size-5" />
               </span>
             </button>

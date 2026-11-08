@@ -2,11 +2,12 @@ import { WhatsAppIcon } from "@/components/stock/icons";
 import { secondaryButton } from "@/components/ui";
 import { DEALER_WHATSAPP } from "@/lib/site";
 
-// A labelled WhatsApp button (icon and the word), the pair of the Call button. Opens a chat on the dealer's number in a new tab.
-export function WhatsAppButton() {
+// A labelled WhatsApp button (icon and the word), the pair of the Call button. Opens a chat in a new tab: on the dealer's number, or on
+// `href` (the car page's, with the car's name already typed). `sizing` is the width and side padding.
+export function WhatsAppButton({ href = DEALER_WHATSAPP, sizing = "w-full px-6 sm:w-auto sm:min-w-48" }: { href?: string; sizing?: string }) {
   return (
-    <a href={DEALER_WHATSAPP} target="_blank" rel="noopener noreferrer" className={`flex h-12 w-full items-center justify-center gap-2 px-6 text-text sm:w-auto sm:min-w-48 ${secondaryButton}`}>
-      <WhatsAppIcon className="size-5" />
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`flex h-12 items-center justify-center gap-2 text-text ${sizing} ${secondaryButton}`}>
+      <WhatsAppIcon className="size-5 text-whatsapp" />
       WhatsApp<span className="sr-only"> (opens in a new tab)</span>
     </a>
   );

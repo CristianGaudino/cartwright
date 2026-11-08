@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { StateBlock } from "@/components/StateBlock";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useId, useOptimistic, useState, useTransition } from "react";
+import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
 import { clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
@@ -95,6 +96,17 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
   useEffect(() => rememberList(query), [query]); // so the car page can link back to this list
 
+  // A new filter or sort starts the list again, so the page returns to the top of the results if the buyer had scrolled past it. Without
+  // this, results that are fewer than the buyer had scrolled through shorten the page and push the sticky filter panel up with them.
+  const results = useRef<HTMLDivElement>(null);
+  const listKey = stockHref({ ...query, page: 1 });
+  const seenKey = useRef(listKey);
+  useEffect(() => {
+    if (seenKey.current === listKey) return; // arriving, or coming back to a scroll position the browser restores: leave it
+    seenKey.current = listKey;
+    const el = results.current;
+    if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start" });
+  }, [listKey]);
   const navigate: Stock["navigate"] = (next, { scroll = false } = {}) =>
     startTransition(() => {
       setOptimisticQuery(next);
@@ -117,7 +129,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             </div>
             <StockFilters />
           </aside>
-          <div className="min-w-0">
+          {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
+          <div ref={results} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div className="flex items-center justify-between gap-4">
               <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
                 {summary && countLabel(summary.total)}
@@ -151,15 +164,13 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
 export function EmptyState() {
   const { query, navigate } = useStock();
   return (
-    <div className="py-16 text-center">
-      <h2 className={subTitle}>No cars match these filters</h2>
-      <p className="mt-2 text-body text-text-2">Try removing a filter.</p>
+    <StateBlock title="No cars match these filters" text="Try removing a filter.">
       <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Cannot find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear All Filters
       </button>
-    </div>
+    </StateBlock>
   );
 }

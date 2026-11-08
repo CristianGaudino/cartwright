@@ -180,3 +180,10 @@ export const TikTokIcon = (p: Props) => (
     <path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.3 2.3 1.8 3.8 4 4" />
   </Icon>
 );
+
+export const PinIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 0 0-13 0c0 5.4 6.5 11 6.5 11Z" />
+    <circle cx="12" cy="10" r="2.4" />
+  </Icon>
+);

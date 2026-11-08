@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CheckIcon } from "@/components/stock/icons";
-import { accentButton, subTitle } from "@/components/ui";
+import { accentButton, card, subTitle } from "@/components/ui";
 
 export type Service = { readonly name: string; readonly blurb: string; readonly types: readonly string[] };
 
@@ -46,7 +46,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
       </ul>
       <div id="service-detail">
         {current && (
-          <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-5 sm:p-6">
+          <div className={`flex flex-col gap-4 ${card} p-5 sm:p-6`}>
             <h3 className={subTitle}>{current.name}: what we can do</h3>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {current.types.map((t) => (

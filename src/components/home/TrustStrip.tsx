@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { IconBadge } from "@/components/Feature";
+import { IconBadge, TitleText } from "@/components/Feature";
 import { CalculatorIcon, CarIcon, LayersIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { WARRANTY } from "@/lib/site";
+import { card } from "@/components/ui";
 
 // The mockup's five reasons to buy, each a link to the page that says more. The two warranty lines are the dealer's to confirm
 // (DEALER_FACTS_CONFIRMED, which still fails a production deploy).
@@ -17,7 +18,7 @@ const ITEMS = [
 // push its text past its box.
 export function TrustStrip() {
   return (
-    <section aria-label="Why buy from us" className="overflow-hidden rounded-card border border-hairline bg-card">
+    <section aria-label="Why buy from us" className={`overflow-hidden ${card}`}>
       <ul className="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
         {ITEMS.map(({ Icon, title, text, href }) => (
           <li key={title} className="sm:border-b sm:border-hairline sm:odd:border-r lg:border-b-0 lg:odd:border-r-0 sm:[&:nth-last-child(-n+1)]:border-b-0">
@@ -25,10 +26,7 @@ export function TrustStrip() {
               <IconBadge>
                 <Icon className="size-6" />
               </IconBadge>
-              <span className="flex min-w-0 flex-col gap-1">
-                <span className="text-body font-semibold">{title}</span>
-                <span className="text-meta text-text-2">{text}</span>
-              </span>
+              <TitleText title={title} text={text} />
             </Link>
           </li>
         ))}

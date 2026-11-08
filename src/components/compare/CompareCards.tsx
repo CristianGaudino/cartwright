@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { StateBlock } from "@/components/StateBlock";
 import { useState, useSyncExternalStore } from "react";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
@@ -8,7 +9,7 @@ import { StockError, stateButton } from "@/components/stock/StockError";
 import { CloseIcon, PlusIcon } from "@/components/stock/icons";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { showToast } from "@/components/toast";
-import { secondaryButton, subTitle } from "@/components/ui";
+import { card, glass, secondaryButton } from "@/components/ui";
 import { MAX_COMPARE, clearCompare, removeCompare, restoreCompare, useCompareIds } from "@/lib/compare/store";
 import { rank } from "@/lib/compare/rank";
 import type { Mark } from "@/lib/compare/rank";
@@ -47,13 +48,11 @@ function Marker({ mark, better, of }: { mark: Mark; better?: "low" | "high"; of:
 
 function Empty() {
   return (
-    <div className="py-16 text-center">
-      <h2 className={subTitle}>Nothing to compare yet</h2>
-      <p className="mt-2 text-body text-text-2">Open a car and tap Compare. You can compare up to three.</p>
+    <StateBlock title="Nothing to compare yet" text="Open a car and tap Compare. You can compare up to three.">
       <Link href="/used-cars" className={stateButton}>
         See Used Cars
       </Link>
-    </div>
+    </StateBlock>
   );
 }
 
@@ -63,7 +62,7 @@ function Placeholder() {
     <Link
       href="/used-cars"
       data-testid="compare-placeholder"
-      className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-hairline p-6 text-center transition-colors hover:border-text hover:bg-card"
+      className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-hairline p-6 text-center transition-colors hover:border-text hover:bg-card md:row-span-3"
     >
       <span className="flex size-12 items-center justify-center rounded-full bg-card">
         <PlusIcon className="size-6" />
@@ -88,7 +87,7 @@ export function CompareCards() {
   if (!loaded) {
     return (
       <div aria-hidden className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : MAX_COMPARE} />
+        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} />
       </div>
     );
   }
@@ -115,9 +114,10 @@ export function CompareCards() {
         </button>
       </div>
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}
+      {/* From md each card is three rows (photo, title, figures) of a shared grid, so a title that wraps pushes the figures of every card down. */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {cars.map((car, ci) => (
-          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="group flex flex-col overflow-hidden rounded-card border border-hairline bg-card">
+          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className={`group flex flex-col overflow-hidden ${card} md:row-span-3 md:grid md:grid-rows-subgrid`}>
             <div className="relative aspect-[4/3] bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
               <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />
@@ -128,7 +128,7 @@ export function CompareCards() {
                   removeCompare([car.id]);
                   showToast(`Removed ${car.make} ${car.model}`, () => restoreCompare([car.id]));
                 }}
-                className="absolute right-2 top-2 z-20 flex size-11 items-center justify-center rounded-full bg-ink/60 backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none"
+                className={`absolute right-2 top-2 z-20 flex size-11 items-center justify-center ${glass}`}
               >
                 <CloseIcon className="size-5" />
               </button>
