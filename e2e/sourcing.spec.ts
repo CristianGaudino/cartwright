@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -26,7 +27,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await expect(page.getByLabel("Name")).toHaveValue("Test Buyer");
 
   await page.getByLabel("Make").fill("Toyota");
-  await page.getByLabel("Budget up to").selectOption({ label: "€20,000" });
+  await choose(page.getByLabel("Budget up to"), "€20,000");
   await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
   await page.getByRole("button", { name: "Ask us to find it" }).click();
 

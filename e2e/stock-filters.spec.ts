@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
+import { choose, optionLabels } from "./combo";
+import { formatKm, formatPrice } from "../src/lib/stock/format";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -191,22 +193,22 @@ test.describe("filters on a desktop", () => {
       await expect(page.getByTestId("count")).toHaveText(all); // wait for the unfiltered facets before reading chips
     };
     const from = select(page, "From");
-    const years = (await from.locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))).filter(Boolean).map(Number);
+    const years = (await optionLabels(from)).map(Number).filter(Boolean);
     const newest = Math.max(...years);
-    await from.selectOption(String(newest));
+    await choose(from, String(newest));
     await expect(page).toHaveURL(new RegExp(`yearFrom=${newest}$`));
     await expect.poll(async () => (await metas(page)).length > 0 && (await metas(page)).every((m) => m.startsWith(String(newest)))).toBe(true);
     await clear();
 
-    await select(page, "Max").selectOption("25000");
+    await choose(select(page, "Max"), formatPrice(25000));
     await expect(page).toHaveURL(/priceMax=25000$/);
     await expect.poll(async () => (await prices(page)).length > 0 && (await prices(page)).every((p) => p <= 25000)).toBe(true);
-    await select(page, "Min").selectOption("10000");
+    await choose(select(page, "Min"), formatPrice(10000));
     await expect(page).toHaveURL(/priceMin=10000&priceMax=25000$/);
     await expect.poll(async () => (await prices(page)).every((p) => p >= 10000 && p <= 25000)).toBe(true);
     await clear();
 
-    await select(page, "Up to").selectOption("80000");
+    await choose(select(page, "Up to"), formatKm(80000));
     await expect(page).toHaveURL(/kmMax=80000$/);
     await expect
       .poll(async () => {
@@ -240,22 +242,22 @@ test.describe("filters on a desktop", () => {
   test("a From above To (or Min above Max) pulls the other bound along instead of showing no cars", async ({ page }) => {
     await open(page);
     await openGroups(page);
-    const years = (await select(page, "From").locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value))).filter(Boolean).map(Number);
+    const years = (await optionLabels(select(page, "From"))).map(Number).filter(Boolean);
     const [newest, oldest] = [Math.max(...years), Math.min(...years)];
     expect(newest).toBeGreaterThan(oldest);
-    await select(page, "To").selectOption(String(oldest));
+    await choose(select(page, "To"), String(oldest));
     await expect(page).toHaveURL(new RegExp(`yearTo=${oldest}$`));
-    await select(page, "From").selectOption(String(newest));
+    await choose(select(page, "From"), String(newest));
     await expect(page).toHaveURL(new RegExp(`yearFrom=${newest}&yearTo=${newest}$`));
     await expect(select(page, "To")).toHaveValue(String(newest));
-    await select(page, "To").selectOption(String(oldest));
+    await choose(select(page, "To"), String(oldest));
     await expect(page).toHaveURL(new RegExp(`yearFrom=${oldest}&yearTo=${oldest}$`));
     await expect(select(page, "From")).toHaveValue(String(oldest));
 
-    await select(page, "Min").selectOption("25000");
-    await select(page, "Max").selectOption("10000");
+    await choose(select(page, "Min"), formatPrice(25000));
+    await choose(select(page, "Max"), formatPrice(10000));
     await expect(page).toHaveURL(/priceMin=10000&priceMax=10000$/);
-    await expect(select(page, "Min")).toHaveValue("10000");
+    await expect(select(page, "Min")).toHaveValue(formatPrice(10000));
   });
 
   test("Back to used cars on a car page returns to the filtered list the buyer came from", async ({ page }) => {
@@ -318,7 +320,7 @@ test.describe("filters on a desktop", () => {
     const body = (await chips(page, "Body type")).find((c) => c.count > 0)!;
     await chip(page, "Body type", body.label).click();
     await expect(page).toHaveURL(/body=/);
-    await page.getByRole("combobox", { name: "Sort" }).selectOption({ label: "Price: high to low" });
+    await choose(page.getByRole("combobox", { name: "Sort" }), "Price: high to low");
     await expect(page).toHaveURL(/sort=price-desc/);
     await expect
       .poll(async () => {

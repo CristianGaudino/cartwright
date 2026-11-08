@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { choose, optionLabels } from "./combo";
 import { expect, test } from "@playwright/test";
 
-type Demo = { id: string; slug: string; make: string; modelSlug: string; soldAt?: string };
+type Demo = { id: string; slug: string; make: string; model: string; modelSlug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const inStock = cars.filter((c) => !c.soldAt).sort((a, b) => Number(b.id) - Number(a.id));
 const newest = inStock[0];
@@ -12,7 +13,7 @@ test("title, one h1 and a search that lands on used cars", async ({ page }) => {
   await expect(page).toHaveTitle("Carright | Used cars in Tralee");
   await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toHaveCount(1);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
+  await choose(page.getByLabel("Make", { exact: true }), newest.make);
   await page.getByRole("button", { name: "Search cars" }).click();
   await expect(page).toHaveURL(/\/used-cars\?/);
   expect(new URL(page.url()).searchParams.get("make")).toBe(newest.make.toLowerCase().replaceAll(" ", "-"));
@@ -22,9 +23,9 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   const model = page.getByLabel("Model", { exact: true });
-  const all = await model.locator("option").count();
-  await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
-  expect(await model.locator("option").count()).toBeLessThan(all);
+  const all = (await optionLabels(model)).length;
+  await choose(page.getByLabel("Make", { exact: true }), newest.make);
+  expect((await optionLabels(model)).length).toBeLessThan(all);
   await page.getByRole("tab", { name: "Find me a car" }).click();
   await expect(page.getByRole("link", { name: "Ask us to find it" })).toHaveAttribute("href", "/find-a-car");
   await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
@@ -34,21 +35,42 @@ test("on a phone the featured row has one dot per card", async ({ page }) => {
   await page.goto("/");
   const row = page.getByRole("group", { name: "Featured stock" });
   const cards = await row.locator("article").count();
-  await expect(row.locator(':scope > div[aria-hidden="true"] > span')).toHaveCount(cards);
+  await expect(row.getByRole("button", { name: /^Go to page \d+ of/ })).toHaveCount(cards);
+});
+
+test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  expect(await page.locator("select").count()).toBe(0); // no browser drop-downs left
+  const make = page.getByLabel("Make", { exact: true });
+  await make.click();
+  const options = page.getByRole("listbox").getByRole("option");
+  const total = await options.count();
+  await make.fill(newest.make.slice(0, 3).toLowerCase());
+  expect(await options.count()).toBeLessThan(total);
+  await expect(options.first()).toContainText(newest.make.slice(0, 3), { ignoreCase: true });
+  await make.press("Enter");
+  await expect(make).toHaveValue(newest.make);
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await make.click();
+  await make.fill("zzzz");
+  await expect(page.getByText("No match")).toBeVisible();
+  await make.press("Escape");
+  await expect(make).toHaveValue(newest.make); // what was typed is dropped, the pick stays
 });
 
 test("every model the search offers has a car in stock", async ({ page }) => {
   await page.goto("/");
-  const offered = await page.getByLabel("Model", { exact: true }).locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value).filter(Boolean));
-  const liveModels = new Set(inStock.map((c) => c.modelSlug));
+  const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any model");
+  const liveModels = new Set(inStock.map((c) => c.model));
   expect(offered.length).toBeGreaterThan(0);
   for (const model of offered) expect(liveModels.has(model), model).toBe(true);
 });
 
 test("the search offers only makes that have a car in stock", async ({ page }) => {
   await page.goto("/");
-  const offered = await page.getByLabel("Make", { exact: true }).locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value).filter(Boolean));
-  const inStockMakes = new Set(inStock.map((c) => c.make.toLowerCase().replaceAll(" ", "-")));
+  const offered = (await optionLabels(page.getByLabel("Make", { exact: true }))).filter((l) => l !== "Any make");
+  const inStockMakes = new Set(inStock.map((c) => c.make));
   expect(offered.length).toBeGreaterThan(0);
   for (const make of offered) expect(inStockMakes.has(make), make).toBe(true);
 });
@@ -153,8 +175,7 @@ test.describe("without JavaScript", () => {
 
   test("the search still lands on used cars", async ({ page }) => {
     await page.goto("/");
-    await page.getByLabel("Make", { exact: true }).selectOption({ label: newest.make });
     await page.getByRole("button", { name: "Search cars" }).click();
-    await expect(page).toHaveURL(/\/used-cars\?.*make=/);
+    await expect(page).toHaveURL(/\/used-cars/); // the drop-downs need scripts to pick from; the search still goes to the stock
   });
 });

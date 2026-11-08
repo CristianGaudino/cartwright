@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { choose } from "./combo";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -114,7 +115,7 @@ test("sort replaces the URL and dims the old results, never a skeleton", async (
   });
   expect(await page.evaluate(() => window.__skeletonSeen)).toBe(false);
 
-  await page.locator("select:visible").selectOption({ label: "Price: low to high" });
+  await choose(page.getByRole("combobox", { name: "Sort" }), "Price: low to high");
   await expect(page).toHaveURL(/sort=price-asc/);
   await expect.poll(async () => {
     const p = await prices(page);
@@ -179,7 +180,7 @@ test("a provider failure shows the error state and Sort still works", async ({ p
 
   const sort = page.getByRole("combobox", { name: "Sort" });
   await expect(sort).toBeEnabled();
-  await sort.selectOption({ label: "Price: low to high" });
+  await choose(sort, "Price: low to high");
   await expect(page).toHaveURL(/sort=price-asc/);
   await expect(page).toHaveURL(/q=e2e-forced-failure/);
   await error();

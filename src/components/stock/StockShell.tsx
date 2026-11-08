@@ -10,7 +10,7 @@ import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
 import { rememberList } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
-import { SelectBox } from "@/components/SelectBox";
+import { Combobox } from "@/components/Combobox";
 import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
@@ -50,21 +50,16 @@ function SortControl({ className }: { className: string }) {
       <label htmlFor={id} className="sr-only text-meta font-semibold sm:not-sr-only">
         Sort
       </label>
-      <SelectBox
+      <Combobox
         id={id}
         value={query.sort}
-        onChange={(e) => {
-          const sort = SORT_KEYS.find((k) => k === e.target.value);
+        onChange={(v) => {
+          const sort = SORT_KEYS.find((k) => k === v);
           if (sort) navigate({ ...query, sort, page: 1 });
         }}
+        options={SORT_KEYS.map((k) => ({ value: k, label: SORT_LABELS[k] }))}
         className="pl-3"
-      >
-        {SORT_KEYS.map((k) => (
-          <option key={k} value={k}>
-            {SORT_LABELS[k]}
-          </option>
-        ))}
-      </SelectBox>
+      />
     </div>
   );
 }

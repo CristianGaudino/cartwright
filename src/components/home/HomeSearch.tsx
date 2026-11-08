@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState } from "react";
-import { SelectBox } from "@/components/SelectBox";
+import { Combobox } from "@/components/Combobox";
 import { SearchIcon } from "@/components/stock/icons";
 import { accentButton } from "@/components/ui";
 import { formatPrice } from "@/lib/stock/format";
@@ -62,7 +62,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   );
 }
 
-// A labelled native select, so phones get their own picker. Controlled only when a value is passed.
+// A labelled drop-down (the site's own, typeable once the list is long). Controlled only when a value is passed.
 function Select({
   name,
   label,
@@ -84,14 +84,7 @@ function Select({
       <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>
-      <SelectBox id={id} name={name} tone="surface" className="pl-3" {...(onChange ? { value, onChange: (e) => onChange(e.target.value) } : {})}>
-        <option value="">{any}</option>
-        {options.map(([v, l]) => (
-          <option key={v} value={v}>
-            {l}
-          </option>
-        ))}
-      </SelectBox>
+      <Combobox id={id} name={name} tone="surface" className="pl-3" options={[{ value: "", label: any }, ...options.map(([v, l]) => ({ value: v, label: l }))]} {...(onChange ? { value, onChange } : {})} />
     </div>
   );
 }
