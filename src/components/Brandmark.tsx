@@ -1,4 +1,4 @@
-import mark from "@/app/icon.png";
+import mark from "@/app/icon.svg";
 
 // The CR mark, small in the bottom left of every car photo, so a screenshot of one always carries it.
 // A background, not an img: it is decoration, so it is no photo to count and nothing for a screen reader.

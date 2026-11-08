@@ -24,7 +24,7 @@ export function SiteHeader() {
     <header className="border-b border-hairline bg-ink text-white">
       <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:h-16 lg:px-8">
         <Link href="/" className="flex h-11 items-center focus-visible:outline-white">
-          <Image src="/brand/logo.png" width={480} height={109} alt={SITE_NAME} loading="eager" className="h-7 w-auto sm:h-8 lg:h-9" />
+          <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} loading="eager" className="h-7 w-auto sm:h-8 lg:h-9" />
         </Link>
         <nav aria-label="Main" className="flex items-center gap-3 lg:gap-6">
           <HeaderLinks />

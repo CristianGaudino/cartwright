@@ -353,6 +353,30 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
     linear-gradient(180deg, #0d141b 0%, var(--color-surface) 100%);
 }
 
+/* The home hero: the dealer's photo with a dark wash over the side the words sit on (left on a desktop, all over on a phone). A smaller
+   file on phones, where the search card covers the lower half and the car would sit under the buttons. */
+.hero-photo {
+  background:
+    url("/brand/hero-sm.webp") 78% center / cover no-repeat,
+    var(--color-surface);
+}
+.hero-photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(10 15 19 / 0.45), rgb(10 15 19 / 0.75));
+}
+@media (min-width: 768px) {
+  .hero-photo {
+    background:
+      url("/brand/hero.webp") right center / cover no-repeat,
+      var(--color-surface);
+  }
+  .hero-photo::before {
+    background: linear-gradient(90deg, rgb(10 15 19 / 0.8) 0%, rgb(10 15 19 / 0.45) 38%, transparent 62%);
+  }
+}
+
 /* Stock list view (the toggle on /used-cars): one column of wide cards, photo on the left. From 1024px only, where the toggle shows,
    so a choice made on a desktop never sticks on a tablet with no way back. Unlayered so it beats the grid utilities. */
 @media (min-width: 1024px) {
