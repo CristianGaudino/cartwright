@@ -1,11 +1,12 @@
 import { PhoneLink } from "@/components/PhoneLink";
+import { pageTitle } from "@/components/ui";
 
 // The frame for the form pages (UI-SPEC Trade-in page): the form in a column of at most 640px, and the Prefer to talk card
 // beside it from 1024px, under it below that.
 export function LeadPage({ title, intro, children }: { title: string; intro: string; children: React.ReactNode }) {
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-      <h1 className="text-display font-semibold">{title}</h1>
+      <h1 className={pageTitle}>{title}</h1>
       <p className="mt-2 max-w-[65ch] text-body">{intro}</p>
       <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start">
         <div className="w-full max-w-[640px]">{children}</div>

@@ -105,14 +105,14 @@ test.describe("without JavaScript", () => {
   });
 });
 
-for (const path of ["/service", "/about", "/terms", "/privacy", "/contact"]) {
+for (const path of ["/service", "/warranty", "/about", "/terms", "/privacy", "/contact"]) {
   test(`${path} fits 320px with no sideways scroll`, async ({ page }) => {
     await fits320(page, path);
   });
 }
 
 // Every page can be shared and found: its own description, a canonical address and a share image (a car has its own photo).
-for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/privacy", "/terms"]) {
+for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
   test(`${path}: a description of its own, a canonical link and a share image`, async ({ page }) => {
     await page.goto(path);
     const desc = await page.locator('meta[name="description"]').getAttribute("content");
@@ -125,7 +125,7 @@ for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-ca
 
 test("no two of the main pages share a description", async ({ page }) => {
   const seen = new Set<string>();
-  for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/privacy", "/terms"]) {
+  for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
     await page.goto(path);
     const desc = (await page.locator('meta[name="description"]').getAttribute("content"))!;
     expect(seen.has(desc), `${path}: ${desc}`).toBe(false);

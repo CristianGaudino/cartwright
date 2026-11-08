@@ -1,7 +1,7 @@
 import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { PhoneIcon } from "@/components/stock/icons";
 import { DEALER_FACTS_CONFIRMED, DEALER_TEL } from "@/lib/site";
-import { accentButton } from "@/components/ui";
+import { accentButton, pageTitle } from "@/components/ui";
 
 // Shared text-page frame (service, about, terms, privacy). The pill comes before the h1 so it is read first.
 export function InfoPage({ title, intro, placeholder, children }: { title: string; intro?: string; placeholder?: boolean; children: React.ReactNode }) {
@@ -12,7 +12,7 @@ export function InfoPage({ title, intro, placeholder, children }: { title: strin
           <PlaceholderPill>Placeholder details</PlaceholderPill>
         </div>
       )}
-      <h1 className="text-display font-semibold">{title}</h1>
+      <h1 className={pageTitle}>{title}</h1>
       {intro && <p className="mt-2 max-w-[65ch] text-body">{intro}</p>}
       <div className="mt-6 flex max-w-[65ch] flex-col gap-8 text-body">{children}</div>
     </main>

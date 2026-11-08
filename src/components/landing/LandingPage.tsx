@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
+import { pageTitle } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
@@ -73,7 +74,7 @@ export function LandingPage({ data }: { data: LandingData }) {
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <Breadcrumb landing={landing} />
-      <h1 className="mt-6 text-display font-semibold">Used {name}</h1>
+      <h1 className={`mt-6 ${pageTitle}`}>Used {name}</h1>
       {facts && (
         <>
           <JsonLd data={itemListJsonLd(shown)} />
