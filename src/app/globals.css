@@ -353,8 +353,8 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
     linear-gradient(180deg, #0d141b 0%, var(--color-surface) 100%);
 }
 
-/* The home hero: the dealer's photo, already faded to the page colour on its left so the words sit on dark. A smaller file on phones,
-   where a darker wash also covers the car so the words stay readable. The gradient above stays as the colour behind it. */
+/* The home hero: the dealer's photo with a dark wash over the side the words sit on (left on a desktop, all over on a phone). A smaller
+   file on phones, where the search card covers the lower half and the car would sit under the buttons. */
 .hero-photo {
   background:
     url("/brand/hero-sm.webp") 78% center / cover no-repeat,
@@ -373,7 +373,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
       var(--color-surface);
   }
   .hero-photo::before {
-    display: none;
+    background: linear-gradient(90deg, rgb(10 15 19 / 0.8) 0%, rgb(10 15 19 / 0.45) 38%, transparent 62%);
   }
 }
 
