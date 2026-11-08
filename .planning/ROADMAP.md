@@ -16,10 +16,10 @@ Scope source: GitHub issues #2-16 are v1. Each phase lists its issues so the pha
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Design and Stock Browsing** - Design contract, stock provider, and a searchable, filterable stock page with image carousels
-- [ ] **Phase 2: Car Pages and Discovery** - Indexable car pages, one-tap share with rich previews, make and body-type landing pages
-- [ ] **Phase 3: Leads, Finance and Saved Cars** - Enquiry, test drive, reserve, trade-in, sourcing and finance forms that reach the dealer, plus saved cars
-- [ ] **Phase 4: Reviews and Core Pages** - Google reviews, home, service, contact, about, privacy and terms, one shared header and footer
+- [x] **Phase 1: Design and Stock Browsing** - Design contract, stock provider, and a searchable, filterable stock page with image carousels
+- [x] **Phase 2: Car Pages and Discovery** - Indexable car pages, one-tap share with rich previews, make and body-type landing pages
+- [x] **Phase 3: Leads, Finance and Saved Cars** - Enquiry, trade-in, sourcing and finance forms that reach the dealer, plus saved cars
+- [x] **Phase 4: Reviews and Core Pages** - Google reviews, home, service, contact, about, privacy and terms, one shared header and footer
 - [ ] **Phase 5: Quality Pass** - WCAG 2.2 AA, Lighthouse 95+ on mobile, old-URL redirects, production robots and sitemap
 
 ## Phase Details
@@ -84,21 +84,23 @@ Plans:
 
 ### Phase 3: Leads, Finance and Saved Cars
 
-**Goal**: A buyer can act on a car they like: save it, enquire, book a test drive, reserve, apply for finance, or offer a trade-in, and the dealer receives it.
+**Goal**: A buyer can act on a car they like: save it, enquire (a test drive is an enquiry), apply for finance, or offer a trade-in, and the dealer receives it.
 **Depends on**: Phase 2
 **Requirements**: LED-01, LED-02, LED-03, LED-04, LED-05, LED-06, FIN-01, FIN-02, FIN-03, SAV-01, SAV-02
 **Issues**: #11 (LED-01, LED-02, LED-03), #12 (LED-04, LED-05, LED-06), #9 (FIN-01, FIN-02, FIN-03), #10 (SAV-01, SAV-02)
 **Order**: #11 first: it sets up the database, email delivery and the shared form pattern that #12 and #9 reuse. #10 has no dependency on the forms and can run any time after Phase 2.
 **Success Criteria** (what must be TRUE):
-  1. User can send an enquiry, book a test drive or reserve a car from a car page, and the dealer receives an email that names the car and the page it came from
+  1. User can send an enquiry from a car page (a test drive is an enquiry with a note filled in), and the dealer receives an email that names the car and the page it came from
   2. Invalid or spam submissions are rejected with clear field errors, the form asks for consent before sending, and no personal data appears in logs
   3. User can request a trade-in valuation (reg, mileage, optional photos) and request a car the dealer does not have, with the same form behaviour as the enquiry
   4. User can use a finance calculator (price, deposit, term, APR) that works, sees every figure labelled representative with the dealer's required wording or a clear placeholder label, and can submit a finance application that arrives as a lead
   5. User can save and unsave a car from cards and the detail page without signing in, see the saved count in the header, and find the cars on the saved page after closing and reopening the browser
 
-**Plans**: TBD
+**Plans:** 16/16 plans executed
+
+Plans:
 - [x] 03-01-PLAN.md
-- [ ] 03-02-PLAN.md
+- [x] 03-02-PLAN.md
 - [x] 03-03-PLAN.md
 - [x] 03-04-PLAN.md
 - [x] 03-05-PLAN.md
@@ -152,7 +154,11 @@ Plans:
   3. Old cartwright.ie URLs redirect to their new equivalents
   4. robots.txt and the sitemap are correct for the production domain and list every car and landing page
 
-**Plans**: TBD
+**Status**: In progress. Done: old-URL redirects and the car-details route (QLT-03), production robots and sitemap (QLT-04), the accessibility and SEO pass (QLT-01). Open: Lighthouse 95+ on the stock and car pages needs resized photos (#92, QLT-02); real-device checks (#44, #77).
+
+## After the plans
+
+Work done outside the numbered plans, from the owner's mockups (docs/mockups) and reviews: a restyle to the mockup, a compare page (up to three cars, with swipeable photos), an undo toast, one enquiry form, WhatsApp, social icons and a Checkwork credit in the footer, and fixes from the audits. The issues and merged PRs are the record.
 
 ## Progress
 
@@ -161,8 +167,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Design and Stock Browsing | 9/9 | In Progress | - |
-| 2. Car Pages and Discovery | 8/8 | In Progress | - |
-| 3. Leads, Finance and Saved Cars | 13/16 | In Progress | - |
-| 4. Reviews and Core Pages | 4/4 | In Progress | - |
-| 5. Quality Pass | 0/TBD | Not started | - |
+| 1. Design and Stock Browsing | 9/9 | Complete | 2026-11 |
+| 2. Car Pages and Discovery | 8/8 | Complete | 2026-11 |
+| 3. Leads, Finance and Saved Cars | 16/16 | Complete (finance figures are placeholders, #55) | 2026-11 |
+| 4. Reviews and Core Pages | 4/4 | Complete (demo reviews until the place ID, #64) | 2026-11 |
+| 5. Quality Pass | n/a | In progress (Lighthouse, #92) | - |

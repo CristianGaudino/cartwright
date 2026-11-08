@@ -23,27 +23,27 @@ A buyer can find a car on their phone, fast, and send the dealer an enquiry abou
 
 - ✓ Project foundation: Next.js 16, Tailwind v4, Cloudflare Workers via OpenNext, CI, deploy-on-merge (#1) — existing
 
-### Active
+### Built and merged
 
-- [ ] Design direction: modern identity around the locked logo, as a UI-SPEC.md (#2)
-- [ ] `StockProvider` interface with file-backed demo data (#3)
-- [ ] Stock page with search, filters, sorting, URL-synced state (#4)
-- [ ] Listing cards with multi-image carousel (#5)
-- [ ] Indexable car detail pages with Vehicle structured data (#6)
-- [ ] One-tap share with rich OG preview (#7)
-- [ ] Make and body-type landing pages (#8)
-- [ ] Finance calculator and application form (#9)
-- [ ] Saved cars in localStorage and a saved page (#10)
-- [ ] Lead forms: enquiry, test drive, reserve, with email delivery (#11)
-- [ ] Trade-in valuation and car sourcing forms (#12)
-- [ ] Google reviews behind a `ReviewsProvider` (#13)
-- [ ] Core pages: home, service, contact, about, privacy, terms (#14)
-- [ ] Accessibility, performance and SEO pass (#15)
-- [ ] Investigate CarsIreland / Carsie API access (#16)
+- ✓ Design direction: modern identity around the locked logo, as a UI-SPEC.md (#2)
+- ✓ `StockProvider` interface with file-backed demo data (#3)
+- ✓ Stock page with search, filters, sorting, URL-synced state (#4)
+- ✓ Listing cards with multi-image carousel (#5)
+- ✓ Indexable car detail pages with Vehicle structured data (#6)
+- ✓ One-tap share with rich OG preview (#7)
+- ✓ Make and body-type landing pages (#8)
+- ✓ Finance calculator and application form (#9)
+- ✓ Saved cars in localStorage and a saved page (#10)
+- ✓ Lead forms: one enquiry form (a test drive is an enquiry with a note), with email delivery (#11)
+- ✓ Trade-in valuation and car sourcing forms (#12)
+- ✓ Google reviews behind a `ReviewsProvider` (#13)
+- ✓ Core pages: home, service, contact, about, privacy, terms (#14)
+- ✓ Accessibility and SEO pass (#15). Lighthouse 95+ on stock and car pages is still open (#92)
+- ✓ Investigate CarsIreland / Carsie API access (#16)
 
 ### Out of Scope
 
-- Back-in-stock and price-drop alerts (#17), newsletter (#19), social embeds (#18), Clerk admin area and lead inbox (#20), analytics (#21-24), admin extras (#25) — Backlog, paid enhancements, not v1
+- Back-in-stock and price-drop alerts (#17), newsletter (#19), social embeds (#18), admin dashboard with the lead inbox (#20, the inbox comes with the dashboard), analytics (#21-24), admin extras (#25) — Backlog, paid enhancements, not v1
 - Private pages or accounts for customers — public pages only; saved cars live in localStorage
 - A stock database — stock sits behind `StockProvider`; a CarsIreland/Carsie provider replaces the demo file once the client has API access
 - Copying the current site's design — the logo is the only locked asset
@@ -51,11 +51,11 @@ A buyer can find a car on their phone, fast, and send the dealer an enquiry abou
 ## Context
 
 - Stock: `StockProvider` interface. v1 is a generated file-backed provider; a CarsIreland/Carsie provider follows once the client has a key (#16). Reviews work the same way (`ReviewsProvider`, #13).
-- Data: Neon Postgres + Drizzle only for leads (and later alert/newsletter subscriptions). Deferred until the lead forms (#11). Clerk only for the future admin area. The public site has no auth.
+- Data: Cloudflare D1 (SQLite) + Drizzle for leads (and later alert/newsletter subscriptions, and stock if the site ever manages it). Cloudflare Access, not Clerk, protects the future admin area (#20). The public site has no auth.
 - The current site is "powered by CarsIreland.ie", images on a Carsie CDN, has a broken finance widget, duplicated header/footer markup and dead `#` links.
 - The `vintage` repo (`C:\Git\vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process.
 - Design skills live in `.agents/skills`, primarily `apple-design`. Write the design contract before building UI.
-- Open client inputs: real finance terms and required wording (#9), Google Business place ID (#13), CarsIreland/Carsie API access (#16), real stock and images.
+- Open client inputs: real finance terms and wording (#55), Google place ID and key (#56, #64), dealer email (#54), real social links (#97), stock feed (#65), real stock and images (#92).
 
 ## Constraints
 
@@ -72,7 +72,7 @@ A buyer can find a car on their phone, fast, and send the dealer an enquiry abou
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | No database for stock, behind `StockProvider` | Client feed arrives later; demo must not depend on it | — Pending |
-| Neon + Drizzle for leads only, deferred to #11 | Nothing before the forms needs a database | — Pending |
+| D1 + Drizzle for leads (was Neon) | Same platform as the Worker, no extra service; Cloudflare Access protects the future admin | ✓ Good |
 | Saved cars in localStorage | No auth on the public site | — Pending |
 | Cache Components off | OpenNext on Workers can't run them yet (opennextjs-cloudflare#1450); same as vintage | ✓ Good |
 | Deploy on every merge to `main` | Demo phase, no release tags yet; revisit once there is a live client site | — Pending |
@@ -97,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-11-03 after initialization*
+*Last updated: 2026-11-08 after PR #96 (car page and home to match the mockup)*

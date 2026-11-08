@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
+import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
+import { DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
@@ -32,6 +33,8 @@ const GROUPS = [
   },
 ];
 
+const SOCIAL_ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon };
+
 const link = "inline-flex min-h-11 items-center transition-colors hover:text-text-2";
 
 // No top margin of its own: pages already end with 64px padding (03-10). No year in the copyright, so a cached page
@@ -56,6 +59,18 @@ export function SiteFooter() {
             <Link href="/contact" className={`${link} underline`}>
               Opening Hours and Directions
             </Link>
+            <ul aria-label="Social media" className="-ml-3 flex">
+              {SOCIAL_LINKS.map(({ name, href }) => {
+                const Icon = SOCIAL_ICONS[name];
+                return (
+                  <li key={name}>
+                    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={`${name} (opens in a new tab)`} className="inline-flex size-11 items-center justify-center rounded-full transition-colors hover:text-text-2">
+                      <Icon className="size-6" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}
           <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-8 lg:col-span-3 lg:grid-cols-3">
@@ -75,7 +90,14 @@ export function SiteFooter() {
             ))}
           </nav>
         </div>
-        <p className="border-t border-hairline pt-8 text-meta text-text-2">© {SITE_NAME}</p>
+        <div className="flex flex-wrap items-center justify-between gap-x-6 border-t border-hairline pt-6 text-meta text-text-2">
+          <p>© {SITE_NAME}</p>
+          <a href="https://www.checkwork.ie" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
+            Powered by
+            <Image src="/brand/checkwork-logo-on-dark.svg" width={345} height={60} alt="Checkwork" unoptimized className="h-4 w-auto" />
+            <span className="sr-only">(opens in a new tab)</span>
+          </a>
+        </div>
       </div>
     </footer>
   );

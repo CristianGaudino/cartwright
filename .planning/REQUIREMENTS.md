@@ -32,26 +32,26 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Car pages
 
-- [ ] **CAR-01**: Each car has its own URL with gallery and spec table (#6)
-- [ ] **CAR-02**: A removed car returns 410 or redirects. A sold car stays visible for a set period (see CAR-07), then returns 410 or redirects (#6)
-- [ ] **CAR-03**: Car pages have canonical URLs, are in the sitemap, and carry `Vehicle`/`Offer` JSON-LD (#6)
-- [ ] **CAR-04**: User can share a car with the native share sheet or a WhatsApp button (#7)
-- [ ] **CAR-05**: Each car has a generated OG image with photo, name and price that previews correctly in WhatsApp, iMessage and Facebook (#7)
-- [ ] **CAR-06**: Make, body-type and make+model landing pages exist (e.g. /used-cars/audi, /used-cars/suv) with unique metadata and copy, an empty state, internal links and sitemap entries (#8)
-- [ ] **CAR-07**: When the dealer marks a car sold, it stays on the site for a set period, clearly labelled Sold, so new visitors see what stock to expect. The period is one setting, to confirm with the dealer. Sold cars cannot be enquired about, booked or reserved, stay out of the default stock list unless the buyer opts in, and keep their page until the period ends (#6)
+- [x] **CAR-01**: Each car has its own URL with gallery and spec table (#6)
+- [x] **CAR-02**: A removed car returns 410 or redirects. A sold car stays visible for a set period (see CAR-07), then returns 410 or redirects (#6)
+- [x] **CAR-03**: Car pages have canonical URLs, are in the sitemap, and carry `Vehicle`/`Offer` JSON-LD (#6)
+- [x] **CAR-04**: User can share a car with the native share sheet or a WhatsApp button (#7)
+- [x] **CAR-05**: Each car has a generated OG image with photo, name and price that previews correctly in WhatsApp, iMessage and Facebook (#7)
+- [x] **CAR-06**: Make, body-type and make+model landing pages exist (e.g. /used-cars/audi, /used-cars/suv) with unique metadata and copy, an empty state, internal links and sitemap entries (#8)
+- [x] **CAR-07**: When the dealer marks a car sold, it stays on the site for a set period, clearly labelled Sold, so new visitors see what stock to expect. The period is one setting, to confirm with the dealer. Sold cars cannot be enquired about, stay out of the default stock list unless the buyer opts in, and keep their page until the period ends (#6)
 
 ### Saved cars
 
-- [ ] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
-- [ ] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
+- [x] **SAV-01**: User can save and unsave a car from cards and the detail page, with no sign-in (#10)
+- [x] **SAV-02**: The header shows a saved count and a saved page lists saved cars, kept in localStorage (#10)
 
 ### Leads and forms
 
-- [ ] **LED-01**: User can send an enquiry, book a test drive or reserve a car; the form is validated server-side, spam-protected, stored in Neon and emailed to the dealer (#11)
-- [ ] **LED-02**: Every lead records the car and the source page (#11)
-- [ ] **LED-03**: Leads are collected with consent, kept minimal and never logged (#11)
+- [x] **LED-01**: User can send an enquiry about a car (a test drive is an enquiry with a note filled in; there is no reserve); the form is validated server-side, spam-protected, stored in Cloudflare D1 and emailed to the dealer (#11)
+- [x] **LED-02**: Every lead records the car and the source page (#11)
+- [x] **LED-03**: Leads are collected with consent, kept minimal and never logged (#11)
 - [x] **LED-04**: User can request a trade-in valuation (reg, mileage, optional photos) (#12)
-- [ ] **LED-05**: User can request a car the dealer does not have in stock (#12)
+- [x] **LED-05**: User can request a car the dealer does not have in stock (#12)
 - [x] **LED-06**: Valuation and sourcing forms reuse the shared lead form pattern (#12)
 
 ### Finance
@@ -75,19 +75,19 @@ Each requirement notes its GitHub issue. Scope and status live in the issues; th
 
 ### Quality
 
-- [ ] **QLT-01**: The site meets WCAG 2.2 AA (#15)
+- [x] **QLT-01**: The site meets WCAG 2.2 AA (#15)
 - [ ] **QLT-02**: Mobile Lighthouse score is 95 or more (#15)
-- [ ] **QLT-03**: Old site URLs redirect to their new pages (#15)
-- [ ] **QLT-04**: robots.txt and the sitemap are correct for production (#15)
+- [x] **QLT-03**: Old site URLs redirect to their new pages (#15)
+- [x] **QLT-04**: robots.txt and the sitemap are correct for production (#15)
 
 ## v2 Requirements
 
 Backlog, paid enhancements. Tracked but not in the current roadmap.
 
 - **ALR-01**: Back-in-stock and price-drop alerts (#17)
-- **SOC-01**: Social links and latest-post embeds (#18)
+- **SOC-01**: Latest-post embeds (#18). Social icons in the footer are done; they link to each network's home page until the dealer gives the real links (#97)
 - **NWS-01**: Newsletter signup and sending (#19)
-- **ADM-01**: Clerk-protected admin area and lead inbox (#20)
+- **ADM-01**: Admin dashboard with the lead inbox, behind Cloudflare Access (#20). The inbox comes with the dashboard, not as separate work
 - **ANA-01**: Analytics: visitors, location, sources (#21)
 - **ANA-02**: Analytics: most viewed cars and stock performance (#22)
 - **ANA-03**: Analytics: funnel and drop-off (#23)
@@ -121,18 +121,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRW-03 | Phase 1 | Complete |
 | BRW-04 | Phase 1 | Complete |
 | BRW-05 | Phase 1 | Complete |
-| CAR-01 | Phase 2 | Pending |
-| CAR-02 | Phase 2 | Pending |
-| CAR-03 | Phase 2 | Pending |
-| CAR-04 | Phase 2 | Pending |
-| CAR-05 | Phase 2 | Pending |
-| CAR-06 | Phase 2 | Pending |
-| CAR-07 | Phase 2 | Pending |
-| LED-01 | Phase 3 | Pending |
-| LED-02 | Phase 3 | Pending |
-| LED-03 | Phase 3 | Pending |
+| CAR-01 | Phase 2 | Complete |
+| CAR-02 | Phase 2 | Complete |
+| CAR-03 | Phase 2 | Complete |
+| CAR-04 | Phase 2 | Complete |
+| CAR-05 | Phase 2 | Complete |
+| CAR-06 | Phase 2 | Complete |
+| CAR-07 | Phase 2 | Complete |
+| LED-01 | Phase 3 | Complete |
+| LED-02 | Phase 3 | Complete |
+| LED-03 | Phase 3 | Complete |
 | LED-04 | Phase 3 | Complete |
-| LED-05 | Phase 3 | Pending |
+| LED-05 | Phase 3 | Complete |
 | LED-06 | Phase 3 | Complete |
 | FIN-01 | Phase 3 | Complete |
 | FIN-02 | Phase 3 | Pending (dealer wording) |
@@ -146,10 +146,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PGS-02 | Phase 4 | Complete |
 | PGS-03 | Phase 4 | Complete |
 | PGS-04 | Phase 4 | Complete |
-| QLT-01 | Phase 5 | Pending |
-| QLT-02 | Phase 5 | Pending |
-| QLT-03 | Phase 5 | Pending |
-| QLT-04 | Phase 5 | Pending |
+| QLT-01 | Phase 5 | Complete |
+| QLT-02 | Phase 5 | Pending (stock and car pages need resized photos, #92) |
+| QLT-03 | Phase 5 | Complete |
+| QLT-04 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 40 total

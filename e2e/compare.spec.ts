@@ -138,5 +138,16 @@ test("on a car page, Compare in the pill opens the list with that car in it", as
   await bar.getByRole("link", { name: "Compare" }).click();
   await expect(page).toHaveURL(/\/compare$/);
   await expect(cards(page)).toHaveCount(2); // the one picked, and the one that was open
-  await expect(cards(page).nth(0).getByRole("link")).toHaveAttribute("href", b); // newest first
+  await expect(cards(page).nth(0).getByRole("heading").getByRole("link")).toHaveAttribute("href", b); // newest first
+});
+
+test("each compare card has swipeable photos, like a stock card", async ({ page }) => {
+  await openCompare(page, 2);
+  for (const card of await cards(page).all()) {
+    const carousel = card.getByRole("group", { name: /^Photos of / });
+    await expect(carousel).toBeVisible();
+    await expect(carousel.getByRole("group", { name: /^Photo \d+ of / }).first()).toBeVisible();
+    // The rest of the photos load after the card is near the screen; then there is more than one screen of them to swipe through.
+    await expect.poll(() => carousel.evaluate((el) => el.scrollWidth > el.clientWidth * 2)).toBe(true);
+  }
 });

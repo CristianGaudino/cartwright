@@ -162,3 +162,21 @@ export const WhatsAppIcon = (p: Props) => (
     <path d="M9.2 8.8c.3-.6.8-.6 1-.1l.5 1.2c.1.3 0 .5-.3.8-.2.2-.2.4 0 .7.5.9 1.3 1.6 2.2 2 .3.1.5.1.7-.1l.5-.6c.2-.3.5-.3.8-.1l1.1.6c.4.2.4.6 0 1-.6.7-1.6.9-2.5.6-2.1-.7-3.7-2.3-4.4-4.3-.2-.7 0-1.3.4-1.7Z" />
   </Icon>
 );
+
+export const FacebookIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M14 8h2V5h-2.5C11 5 10 6.5 10 8.5V11H8v3h2v6h3v-6h2.2l.5-3H13V8.7c0-.5.3-.7 1-.7Z" />
+  </Icon>
+);
+export const InstagramIcon = (p: Props) => (
+  <Icon {...p}>
+    <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.2" cy="6.8" r=".6" />
+  </Icon>
+);
+export const TikTokIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M14 4v10.5a3.5 3.5 0 1 1-3.5-3.5M14 4c.3 2.3 1.8 3.8 4 4" />
+  </Icon>
+);
