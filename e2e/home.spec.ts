@@ -59,6 +59,34 @@ test("the drop-downs are the site's own: typing narrows the list, Enter picks, E
   await expect(make).toHaveValue(newest.make); // what was typed is dropped, the pick stays
 });
 
+test("the drop-downs work from the keyboard: arrows move, Home and End jump, Enter picks, leaving closes", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const make = page.getByLabel("Make", { exact: true });
+  await make.focus();
+  await make.press("ArrowDown"); // opens on the chosen option, "Any make"
+  const options = page.getByRole("listbox").getByRole("option");
+  await expect(make).toHaveAttribute("aria-expanded", "true");
+  await make.press("ArrowDown");
+  await make.press("ArrowDown");
+  const third = (await options.nth(2).textContent())!.trim();
+  await expect(make).toHaveAttribute("aria-activedescendant", /-opt-2$/);
+  await make.press("End");
+  await expect(make).toHaveAttribute("aria-activedescendant", new RegExp(`-opt-${(await options.count()) - 1}$`));
+  await make.press("Home");
+  await expect(make).toHaveAttribute("aria-activedescendant", /-opt-0$/);
+  await make.press("ArrowDown");
+  await make.press("ArrowDown");
+  await make.press("Enter");
+  await expect(make).toHaveValue(third);
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await make.press("ArrowDown");
+  await expect(page.getByRole("listbox")).toHaveCount(1);
+  await page.getByLabel("Model", { exact: true }).focus(); // focus leaves: the list closes
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await expect(make).toHaveValue(third);
+});
+
 test("every model the search offers has a car in stock", async ({ page }) => {
   await page.goto("/");
   const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any model");

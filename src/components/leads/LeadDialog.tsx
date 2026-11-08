@@ -57,7 +57,9 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
   const show = (el: HTMLButtonElement, message?: string) => {
     opener.current = el;
     setTestDrive(Boolean(message));
-    setPrefill(message ? { message } : {}); // a new object each time: a typed message is kept unless a note is being filled in
+    // A new object each time. A typed message is kept unless a note is being filled in, or the test drive note is being cleared
+    // because Enquire was opened after it.
+    setPrefill(message ? { message } : testDrive ? { message: "" } : {});
     setOpen(true);
   };
 

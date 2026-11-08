@@ -26,7 +26,6 @@ export function Combobox({
   className = "",
   invalid,
   describedBy,
-  label,
 }: {
   id?: string;
   name?: string;
@@ -38,7 +37,6 @@ export function Combobox({
   className?: string;
   invalid?: boolean;
   describedBy?: string;
-  label?: string; // only where there is no visible <label>
 }) {
   const auto = useId();
   const uid = id ?? auto;
@@ -119,7 +117,6 @@ export function Combobox({
         aria-activedescendant={open && shown[active] ? `${uid}-opt-${active}` : undefined}
         aria-invalid={invalid ? true : undefined}
         aria-describedby={describedBy}
-        aria-label={label}
         autoComplete="off"
         readOnly={!typeable}
         value={open && typed !== null ? typed : (selected?.label ?? "")}
@@ -141,7 +138,6 @@ export function Combobox({
         <ul
           id={listId}
           role="listbox"
-          aria-label={label}
           className={`absolute left-0 z-50 max-h-64 w-full min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 shadow-lift ${up ? "bottom-full mb-1" : "top-full mt-1"}`}
         >
           {shown.length === 0 && (

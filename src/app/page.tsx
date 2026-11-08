@@ -33,6 +33,9 @@ export default async function Home() {
   const search = searchOptions(all?.cars ?? []);
   return (
     <main className="flex flex-col">
+      {/* The hero photo is a CSS background, which the browser finds late: ask for the right size at once (React moves these to the head). */}
+      <link rel="preload" as="image" href="/brand/hero-sm.webp" media="(max-width: 767px)" fetchPriority="high" />
+      <link rel="preload" as="image" href="/brand/hero.webp" media="(min-width: 768px)" fetchPriority="high" />
       <JsonLd data={dealerJsonLd(reviews)} />
       <section className="hero-photo relative border-b border-hairline">
         <div className="relative mx-auto max-w-[1280px] px-4 pb-8 pt-12 sm:px-6 lg:px-8 lg:pb-12 lg:pt-20">

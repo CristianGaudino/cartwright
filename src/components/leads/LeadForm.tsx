@@ -10,6 +10,8 @@ import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
 import { Stepper } from "./Stepper";
+import { useSteps } from "./useSteps";
+import type { FormStep } from "./useSteps";
 import type { CarSummary } from "./LeadDialog";
 import { useTurnstile } from "./useTurnstile";
 import { accentButton, secondaryButton } from "@/components/ui";
@@ -24,8 +26,7 @@ export type PhotoBinding = {
   onBusy(busy: boolean): void; // true while picked photos are being shrunk; send waits for them
 };
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
-// A stepped form: the fields each step owns, and an optional check run before Next (the server still checks everything at the end).
-export type FormStep = { title: string; fields: string[]; check?(values: Record<string, string>): Record<string, string[]> | undefined };
+export type { FormStep } from "./useSteps";
 
 // Keys the form sets itself. An error on one of them is not something the buyer can fix, so it reads as a send failure.
 const HIDDEN = ["type", "carId", "clientRef", "sourcePath"];
@@ -68,42 +69,21 @@ export function LeadForm({
   const [invalid, setInvalid] = useState<{ count: number; first: string }>();
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
-  const [step, setStep] = useState(0);
   const [pending, start] = useTransition();
-  const wizard = steps !== undefined && steps.length > 1;
-  const last = !wizard || step === steps.length - 1;
-  const stepHeading = useRef<HTMLHeadingElement>(null);
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const slot = useRef<HTMLDivElement>(null);
   const turnstile = useTurnstile(slot);
   const { load } = turnstile;
+  const { step, setStep, wizard, last, heading: stepHeading, go, next, firstWith } = useSteps(steps, values, (found, names) => {
+    setErrors((prev) => ({ ...prev, ...found }));
+    setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
+  });
 
   useEffect(() => {
     if (done) heading.current?.focus();
   }, [done]);
-
-  // A new step takes focus on its heading, so a screen reader hears where it is and the page is not left scrolled past it.
-  const [focusStep, setFocusStep] = useState(0);
-  useEffect(() => {
-    if (focusStep) stepHeading.current?.focus({ preventScroll: false });
-  }, [focusStep]);
-  const go = (to: number) => {
-    setStep(to);
-    setFocusStep((n) => n + 1);
-  };
-  const next = () => {
-    const found = steps?.[step].check?.(values);
-    if (found && Object.keys(found).length) {
-      setErrors((prev) => ({ ...prev, ...found }));
-      const names = steps![step].fields.filter((n) => found[n]);
-      setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
-      return;
-    }
-    setInvalid(undefined);
-    go(step + 1);
-  };
 
   // On a failed send the first field to fix takes focus (a screen reader reads its error with it), and the slim note above says how many.
   useEffect(() => {
@@ -178,7 +158,7 @@ export function LeadForm({
         const names = [...new Set(Array.from(form.current?.elements ?? [], (el) => (el as HTMLInputElement).name))].filter((n) => fe[n]?.[0]);
         if (names.length) setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
         // Back to the earliest step that has something to fix.
-        const at = steps?.findIndex((s) => s.fields.some((f) => fe[f]?.[0])) ?? -1;
+        const at = firstWith(fe);
         if (at >= 0) setStep(at);
       } else {
         setErrors({});
@@ -223,7 +203,7 @@ export function LeadForm({
         </div>
       ) : (
         <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad}`}>
-          {wizard && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} />}
+          {wizard && steps && <Stepper titles={steps.map((s) => s.title)} step={step} headingRef={stepHeading} />}
           {car && (
             <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
               <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">

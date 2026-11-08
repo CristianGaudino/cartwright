@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 import { CompareBar } from "@/components/compare/CompareBar";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -7,8 +7,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
-// Self-hosted at build time by next/font: no request to Google when a visitor loads the site. One variable file covers every weight.
-const montserrat = Montserrat({ subsets: ["latin"], display: "swap", variable: "--font-montserrat" });
+// Montserrat, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
+// built. One variable file covers every weight; the latin range covers English and Irish.
+const montserrat = localFont({ src: "./fonts/montserrat-latin.woff2", weight: "100 900", display: "swap", variable: "--font-montserrat" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

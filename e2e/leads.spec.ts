@@ -144,6 +144,20 @@ test("Book a Test Drive opens the same enquiry dialog with the note filled in, a
   await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
 });
 
+test("Enquire opened after Book a Test Drive does not keep the test drive note, but keeps a message typed in Enquire", async ({ page }) => {
+  await open(page, live.slug);
+  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I would like to book a test drive.");
+  await page.keyboard.press("Escape");
+  await enquire(page).click();
+  await expect(dialog(page)).toHaveAccessibleName("Enquire About This Car");
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("");
+  await dialog(page).getByLabel("Message").fill("Is it taxed?");
+  await page.keyboard.press("Escape");
+  await enquire(page).click();
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?"); // closing and reopening keeps what was typed
+});
+
 test("the enquiry dialog always shows the phone number with +353, as a link that dials", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
