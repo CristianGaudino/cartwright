@@ -16,7 +16,7 @@ const STOCK = [
 ];
 const LINKS = [
   { href: "/finance", label: "Finance" },
-  { href: "/sell-your-car", label: "Sell / Trade-In" },
+  { href: "/trade-in", label: "Trade-In" },
   { href: "/service", label: "Service" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

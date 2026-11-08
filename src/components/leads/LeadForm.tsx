@@ -23,6 +23,8 @@ export type PhotoBinding = {
   onBusy(busy: boolean): void; // true while picked photos are being shrunk; send waits for them
 };
 type Failure = Extract<LeadResult, { status: "failed" }>["kind"];
+// A stepped form: the fields each step owns, and an optional check run before Next (the server still checks everything at the end).
+export type FormStep = { title: string; fields: string[]; check?(values: Record<string, string>): Record<string, string[]> | undefined };
 
 // Keys the form sets itself. An error on one of them is not something the buyer can fix, so it reads as a send failure.
 const HIDDEN = ["type", "carId", "clientRef", "sourcePath"];
@@ -38,6 +40,7 @@ export function LeadForm({
   success,
   back = { href: "/used-cars", label: "Back to Used Cars" },
   prefill,
+  steps,
   children,
 }: {
   type: LeadType;
@@ -47,7 +50,8 @@ export function LeadForm({
   success: { heading: string; body: string };
   back?: { href: string; label: string }; // where the page variant's success button goes
   prefill?: Record<string, string>; // a new object overwrites those fields and keeps the rest (the calculator's deposit and term)
-  children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding }) => React.ReactNode;
+  steps?: FormStep[]; // more than one: guided stages with Back and Next, every step's fields kept in the form
+  children: (form: { bind(name: string): FieldBinding; photos: PhotoBinding; step: number }) => React.ReactNode;
 }) {
   const uid = useId();
   const [values, setValues] = useState<Record<string, string>>(prefill ?? {});
@@ -59,14 +63,18 @@ export function LeadForm({
   const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
   const [shrinking, setShrinking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [summary, setSummary] = useState<{ id: string; message: string }[]>([]);
+  // How many fields need a look and which one comes first: a new object on each failed send, so focus moves each time.
+  const [invalid, setInvalid] = useState<{ count: number; first: string }>();
   const [failure, setFailure] = useState<Failure>();
   const [done, setDone] = useState(false);
+  const [step, setStep] = useState(0);
   const [pending, start] = useTransition();
+  const wizard = steps !== undefined && steps.length > 1;
+  const last = !wizard || step === steps.length - 1;
+  const stepHeading = useRef<HTMLHeadingElement>(null);
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const summaryHeading = useRef<HTMLHeadingElement>(null);
   const slot = useRef<HTMLDivElement>(null);
   const turnstile = useTurnstile(slot);
   const { load } = turnstile;
@@ -75,10 +83,31 @@ export function LeadForm({
     if (done) heading.current?.focus();
   }, [done]);
 
-  // A new array on every failed submit, so focus moves to the summary each time (UI-SPEC Validation).
+  // A new step takes focus on its heading, so a screen reader hears where it is and the page is not left scrolled past it.
+  const [focusStep, setFocusStep] = useState(0);
   useEffect(() => {
-    if (summary.length) summaryHeading.current?.focus();
-  }, [summary]);
+    if (focusStep) stepHeading.current?.focus({ preventScroll: false });
+  }, [focusStep]);
+  const go = (to: number) => {
+    setStep(to);
+    setFocusStep((n) => n + 1);
+  };
+  const next = () => {
+    const found = steps?.[step].check?.(values);
+    if (found && Object.keys(found).length) {
+      setErrors((prev) => ({ ...prev, ...found }));
+      const names = steps![step].fields.filter((n) => found[n]);
+      setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
+      return;
+    }
+    setInvalid(undefined);
+    go(step + 1);
+  };
+
+  // On a failed send the first field to fix takes focus (a screen reader reads its error with it), and the slim note above says how many.
+  useEffect(() => {
+    if (invalid) document.getElementById(invalid.first)?.focus();
+  }, [invalid]);
 
   // Back to a fresh form once the dialog that showed the thanks is closed. The bot check script loads on the first focus
   // inside the dialog (showModal focuses Close) or the form, never on page load.
@@ -104,11 +133,12 @@ export function LeadForm({
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!last) return next(); // Enter in a field moves on, it does not send half a form
     // A backstop: the picker already refuses a photo that would pass the total, and the server checks it again.
     if (photos.reduce((n, p) => n + p.size, 0) > PHOTO_TOTAL_MAX_BYTES) {
       setFailure(undefined);
       setErrors({ photos: [PHOTO_TOTAL_ERROR] });
-      setSummary([{ id: `${uid}-photos`, message: PHOTO_TOTAL_ERROR }]);
+      setInvalid({ count: 1, first: `${uid}-photos` });
       return;
     }
     // The DOM is the source here so the honeypot is read as a bot left it.
@@ -130,9 +160,10 @@ export function LeadForm({
       }
       // A field error or the rate limit is answered before the token is checked, so only the other answers spend it.
       if (r.status !== "invalid" && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
-      setSummary([]);
+      setInvalid(undefined);
       if (r.status === "ok") {
         setValues({});
+        setStep(0);
         setPhotos([]);
         setErrors({});
         setFailure(undefined);
@@ -144,7 +175,10 @@ export function LeadForm({
         setFailure(Object.keys(fe).some((k) => HIDDEN.includes(k)) ? "server" : undefined);
         // One link per invalid field, in the order the fields sit in the form.
         const names = [...new Set(Array.from(form.current?.elements ?? [], (el) => (el as HTMLInputElement).name))].filter((n) => fe[n]?.[0]);
-        setSummary(names.map((n) => ({ id: `${uid}-${n}`, message: fe[n][0] })));
+        if (names.length) setInvalid({ count: names.length, first: `${uid}-${names[0]}` });
+        // Back to the earliest step that has something to fix.
+        const at = steps?.findIndex((s) => s.fields.some((f) => fe[f]?.[0])) ?? -1;
+        if (at >= 0) setStep(at);
       } else {
         setErrors({});
         setFailure(r.kind);
@@ -163,7 +197,19 @@ export function LeadForm({
 
   // The form element stays put after a success so the Turnstile slot inside it keeps its widget for the next request.
   return (
-    <form ref={form} noValidate onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+    <form
+      ref={form}
+      noValidate
+      onSubmit={onSubmit}
+      // With no submit button on a step, Enter in a field would do nothing at all: it moves to the next step instead.
+      onKeyDown={(e) => {
+        if (!last && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "file" && e.target.type !== "checkbox") {
+          e.preventDefault();
+          next();
+        }
+      }}
+      className="flex min-h-0 flex-1 flex-col"
+    >
       {done ? (
         <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
           <span className="flex size-11 items-center justify-center rounded-full bg-text text-ink">
@@ -176,6 +222,38 @@ export function LeadForm({
         </div>
       ) : (
         <div className={`relative flex flex-col gap-6 py-2 ${body} ${pad}`}>
+          {wizard && (
+            <div className="flex flex-col gap-4">
+              <ol aria-label="Progress" className="flex items-center gap-2">
+                {steps.map((s, i) => (
+                  <li key={s.title} aria-current={i === step ? "step" : undefined} className="flex flex-1 items-center gap-2 last:flex-none">
+                    <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold ${i < step ? "bg-accent text-white" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
+                      {i < step ? <CheckIcon className="size-4" /> : i + 1}
+                    </span>
+                    <span className={`hidden text-meta sm:block ${i === step ? "font-semibold" : "text-text-2"}`}>{s.title}</span>
+                    {i < steps.length - 1 && <span aria-hidden="true" className={`h-px flex-1 ${i < step ? "bg-accent" : "bg-hairline"}`} />}
+                  </li>
+                ))}
+              </ol>
+              <h2 ref={stepHeading} tabIndex={-1} className="text-heading font-semibold outline-none">
+                <span className="text-text-2">
+                  Step {step + 1} of {steps.length}
+                </span>{" "}
+                {steps[step].title}
+              </h2>
+            </div>
+          )}
+          {car && (
+            <div className="flex items-center gap-3 rounded-card border border-hairline bg-surface p-3">
+              <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">
+                {car.photo && <Image src={car.photo} width={80} height={60} alt="" loading="lazy" className="size-full object-cover" />}
+              </div>
+              <div className="min-w-0">
+                <p className="line-clamp-2 font-semibold">{car.title}</p>
+                <p className="text-meta text-text-2">{car.price}</p>
+              </div>
+            </div>
+          )}
           {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
           {failure && (
             <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
@@ -201,42 +279,18 @@ export function LeadForm({
               )}
             </div>
           )}
-          {summary.length > 0 && (
-            <div role="alert" className="flex flex-col gap-2 rounded-card border border-hairline p-4">
-              <h3 ref={summaryHeading} tabIndex={-1} className="text-heading font-semibold text-destructive outline-none">
-                Check these details
-              </h3>
-              <ul className="flex flex-col">
-                {summary.map((s) => (
-                  <li key={s.id}>
-                    <a
-                      href={`#${s.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById(s.id)?.focus();
-                      }}
-                      className="inline-flex min-h-11 items-center underline"
-                    >
-                      {s.message}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {invalid && (
+            <p role="alert" className="flex items-center gap-2 rounded-control bg-destructive/10 px-3 py-2.5 text-meta font-semibold text-destructive">
+              <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive text-ink">
+                !
+              </span>
+              {invalid.count === 1 ? "One field needs a look." : `${invalid.count} fields need a look.`}
+            </p>
           )}
-          {car && (
-            <div className="flex items-center gap-3">
-              <div className="h-[60px] w-20 shrink-0 overflow-hidden rounded-control bg-photo-bg">
-                {car.photo && <Image src={car.photo} width={80} height={60} alt="" loading="lazy" className="size-full object-cover" />}
-              </div>
-              <div className="min-w-0">
-                <p className="line-clamp-2 font-semibold">{car.title}</p>
-                <p className="text-meta text-text-2">{car.price}</p>
-              </div>
-            </div>
-          )}
-          <div className="flex flex-col gap-4">{children({ bind, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
-          <ConsentRow {...bind("consent")} />
+          <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: errors.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
+          <div hidden={!last}>
+            <ConsentRow {...bind("consent")} />
+          </div>
           {/* Honeypot (D-05): off-screen, not display:none, so bots fill it and people never meet it. */}
           <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
             <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
@@ -260,10 +314,21 @@ export function LeadForm({
           </div>
         )
       ) : (
-        <div className={footer}>
-          <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${submitWidth} disabled:opacity-60`}>
-            {pending ? "Sending" : submitLabel}
-          </button>
+        <div className={`${footer} gap-3`}>
+          {wizard && step > 0 && (
+            <button type="button" onClick={() => go(step - 1)} className={`h-12 px-6 ${secondaryButton}`}>
+              Back
+            </button>
+          )}
+          {last ? (
+            <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${wizard ? "flex-1 sm:flex-none sm:min-w-60" : submitWidth} disabled:opacity-60`}>
+              {pending ? "Sending" : submitLabel}
+            </button>
+          ) : (
+            <button type="button" onClick={next} className={`${accentButton} flex-1 sm:flex-none sm:min-w-60`}>
+              Next
+            </button>
+          )}
         </div>
       )}
     </form>

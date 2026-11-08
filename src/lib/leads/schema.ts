@@ -2,7 +2,7 @@ import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable } from "@/lib/finance/payment";
 import { BUDGETS } from "@/lib/stock/types";
-import { CONTACT_ERROR, EMPLOYMENT, LIMITS } from "./constants";
+import { BAD_KM, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -53,16 +53,14 @@ const sourcing = {
 };
 
 // D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.
-const BAD_REG = "Enter the registration as shown on the car.";
-const BAD_KM = "Enter the mileage in km, numbers only.";
 const nextYear = () => new Date().getUTCFullYear() + 1;
 const tradeIn = {
-  reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(/^[A-Z0-9 -]{1,12}$/, BAD_REG)),
+  reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG)),
   mileage: given(
     z
       .string({ error: BAD_KM })
       .transform((v) => v.replaceAll(",", "").trim())
-      .pipe(z.string().regex(/^\d{1,6}$/, BAD_KM))
+      .pipe(z.string().regex(KM_PATTERN, BAD_KM))
       .transform(Number),
   ),
   ...carText,

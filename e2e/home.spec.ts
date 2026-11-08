@@ -130,7 +130,7 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
     [/^3 Month Warranty/, "/warranty"],
     [/^Extended Warranty/, "/warranty"],
     [/^Flexible Finance/, "/finance"],
-    [/^Trade-In Welcome/, "/sell-your-car"],
+    [/^Trade-In Welcome/, "/trade-in"],
     [/^Test Drives/, "/used-cars"],
     ["Check finance options", "/finance"],
     ["Estimate your finance", "/finance"],

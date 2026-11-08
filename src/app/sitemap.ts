@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/` },
     { url: `${SITE_URL}/used-cars` },
     { url: `${SITE_URL}/finance` },
-    { url: `${SITE_URL}/sell-your-car` },
+    { url: `${SITE_URL}/trade-in` },
     { url: `${SITE_URL}/find-a-car` },
     { url: `${SITE_URL}/service` },
     { url: `${SITE_URL}/warranty` },

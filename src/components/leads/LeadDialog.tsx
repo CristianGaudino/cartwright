@@ -45,25 +45,31 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
 
 const TEST_DRIVE_NOTE = "I would like to book a test drive.";
 
-// The car page action area (mockup): Enquire About This Car in the accent, Call Us and WhatsApp beside it, and Book a Test Drive as a
-// quiet link underneath. A test drive is an enquiry with the note filled in, so there is one form and one kind of lead.
+// The car page action area: Enquire About This Car in the accent with Book a Test Drive beside it, then Call Us and WhatsApp. A test
+// drive is an enquiry with the note filled in, so there is one form and one kind of lead; the dialog's title says which was opened.
 export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: string }) {
   const [open, setOpen] = useState(false);
   const [prefill, setPrefill] = useState<Record<string, string>>();
+  const [testDrive, setTestDrive] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   const secondary = `flex h-12 items-center justify-center gap-2 px-3 text-text ${secondaryButton}`;
 
   const show = (el: HTMLButtonElement, message?: string) => {
     opener.current = el;
+    setTestDrive(Boolean(message));
     setPrefill(message ? { message } : {}); // a new object each time: a typed message is kept unless a note is being filled in
     setOpen(true);
   };
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 whitespace-nowrap sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
         <button type="button" onClick={(e) => show(e.currentTarget)} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-white sm:col-span-1 ${press}`}>
           Enquire About This Car
+        </button>
+        <button type="button" onClick={(e) => show(e.currentTarget, TEST_DRIVE_NOTE)} className={`col-span-2 sm:col-span-1 ${secondary}`}>
+          <CalendarIcon className="size-5 text-accent" />
+          Book a Test Drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
           <PhoneIcon className="size-5 text-accent" />
@@ -74,12 +80,8 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           WhatsApp<span className="sr-only"> (opens in a new tab)</span>
         </a>
       </div>
-      <button type="button" onClick={(e) => show(e.currentTarget, TEST_DRIVE_NOTE)} className="inline-flex min-h-11 items-center gap-2 self-start text-body font-semibold hover:text-text-2">
-        <CalendarIcon className="size-5" />
-        Book a Test Drive
-      </button>
       <LeadDialog
-        title="Enquire"
+        title={testDrive ? "Book a Test Drive" : "Enquire About This Car"}
         open={open}
         onClose={() => {
           setOpen(false);

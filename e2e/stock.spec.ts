@@ -238,3 +238,17 @@ test.describe("list and grid, on a desktop", () => {
     await expect(page).toHaveURL(/\/used-cars$/);
   });
 });
+
+test("pagination has previous and next, page numbers and the current page marked", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/used-cars");
+  const nav = page.getByRole("navigation", { name: "Pagination" });
+  test.skip(!(await nav.count()), "Fewer cars than one page");
+  await expect(nav.getByRole("link", { name: "Previous page" })).toHaveCount(0);
+  await expect(nav.locator("[aria-current=page]")).toHaveText("1");
+  await nav.getByRole("link", { name: "Page 2", exact: true }).click();
+  await expect(page).toHaveURL(/page=2$/);
+  await expect(page.getByRole("navigation", { name: "Pagination" }).locator("[aria-current=page]")).toHaveText("2");
+  await page.getByRole("navigation", { name: "Pagination" }).getByRole("link", { name: "Previous page" }).click();
+  await expect(page).toHaveURL(/used-cars$/);
+});

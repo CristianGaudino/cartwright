@@ -12,8 +12,10 @@ const BUDGET_OPTIONS = [{ value: "", label: "Any" }, ...BUDGETS.map((v) => ({ va
 export function SourcingFields({ bind }: { bind(name: string): FieldBinding }) {
   return (
     <>
-      <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
-      <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
+        <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />
+      </div>
       <Field {...bind("budgetMax")} label="Budget up to" options={BUDGET_OPTIONS} />
       <Field {...bind("message")} label="What are you looking for?" helper="Year, fuel, colour or anything else that matters." multiline maxLength={LIMITS.message} />
       <ContactFields bind={bind} />

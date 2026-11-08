@@ -8,7 +8,7 @@ const ITEMS = [
   { Icon: ShieldCheckIcon, ...WARRANTY, href: "/warranty" },
   { Icon: LayersIcon, title: "Extended Warranty", text: "Longer cover is available.", href: "/warranty" },
   { Icon: CalculatorIcon, title: "Flexible Finance", text: "Finance options to suit you.", href: "/finance" },
-  { Icon: SwapIcon, title: "Trade-In Welcome", text: "Get a fair, no-hassle valuation.", href: "/sell-your-car" },
+  { Icon: SwapIcon, title: "Trade-In Welcome", text: "Get a fair, no-hassle valuation.", href: "/trade-in" },
   { Icon: CarIcon, title: "Test Drives", text: "Available on all vehicles. Call or visit us today.", href: "/used-cars" },
 ];
 

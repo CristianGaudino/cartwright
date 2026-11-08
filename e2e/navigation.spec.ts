@@ -9,7 +9,7 @@ const live = cars.find((c) => !c.soldAt)!;
 // The header links from 1024px, then the phone menu (which adds Used cars and Find a car), then the footer.
 const HEADER = [
   ["Finance", "/finance"],
-  ["Sell / Trade-In", "/sell-your-car"],
+  ["Trade-In", "/trade-in"],
   ["Service", "/service"],
   ["About", "/about"],
   ["Contact", "/contact"],
@@ -18,7 +18,7 @@ const MENU = [["Used Cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a Car", 
 const FOOTER = [
   ["Used Cars", "/used-cars"],
   ["Finance", "/finance"],
-  ["Sell Your Car", "/sell-your-car"],
+  ["Trade-In Valuation", "/trade-in"],
   ["Find a Car", "/find-a-car"],
   ["Service", "/service"],
   ["Warranty", "/warranty"],
@@ -28,7 +28,7 @@ const FOOTER = [
   ["Terms of Use", "/terms"],
   ["Opening Hours and Directions", "/contact"],
 ] as const;
-const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
+const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
 test("from 1024px the header has Stock, five links and a red Enquire button", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });

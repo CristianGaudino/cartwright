@@ -69,8 +69,8 @@ export default async function ContactPage() {
             <Link href="/find-a-car" className={textLink}>
               Ask Us to Find a Car
             </Link>
-            <Link href="/sell-your-car" className={textLink}>
-              Sell Your Car
+            <Link href="/trade-in" className={textLink}>
+              Trade-In Valuation
             </Link>
           </div>
         </div>

@@ -95,7 +95,7 @@ test.describe("finance application", () => {
     await d.getByLabel("Phone").fill("087 123 4567");
     await d.getByRole("checkbox").check();
     await d.getByRole("button", { name: "Send Details" }).click();
-    await expect(d.getByRole("link", { name: "Choose an employment status." })).toBeVisible();
+    await expect(d.locator("p", { hasText: "Choose an employment status." })).toBeVisible();
 
     await choose(d.getByLabel("Employment status"), "Self-employed");
     await d.getByRole("button", { name: "Send Details" }).click();

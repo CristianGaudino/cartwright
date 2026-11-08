@@ -56,7 +56,7 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await expect(rows.nth(1)).toContainText("Saturday");
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveAttribute("href", "/find-a-car");
-  await expect(main(page).getByRole("link", { name: "Sell your car" })).toHaveAttribute("href", "/sell-your-car");
+  await expect(main(page).getByRole("link", { name: "Trade-In Valuation" })).toHaveAttribute("href", "/trade-in");
   const directions = main(page).getByRole("link", { name: /Get directions/ });
   await expect(directions).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
   expect(await directions.getAttribute("href")).toContain("V92%20NT93");
@@ -101,7 +101,7 @@ for (const path of ["/service", "/warranty", "/about", "/terms", "/privacy", "/c
 }
 
 // Every page can be shared and found: its own description, a canonical address and a share image (a car has its own photo).
-for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
+for (const path of ["/", "/used-cars", "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
   test(`${path}: a description of its own, a canonical link and a share image`, async ({ page }) => {
     await page.goto(path);
     const desc = await page.locator('meta[name="description"]').getAttribute("content");
@@ -114,7 +114,7 @@ for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-ca
 
 test("no two of the main pages share a description", async ({ page }) => {
   const seen = new Set<string>();
-  for (const path of ["/", "/used-cars", "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
+  for (const path of ["/", "/used-cars", "/finance", "/trade-in", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/privacy", "/terms"]) {
     await page.goto(path);
     const desc = (await page.locator('meta[name="description"]').getAttribute("content"))!;
     expect(seen.has(desc), `${path}: ${desc}`).toBe(false);
