@@ -8,11 +8,11 @@ import { SITE_NAME } from "@/lib/site";
 
 // The phone menu holds every page; the footer repeats them (#57). From 1024px the header shows the mockup's links.
 const MENU = [
-  { href: "/used-cars", label: "Used cars" },
+  { href: "/used-cars", label: "Used Cars" },
   { href: "/finance", label: "Finance" },
   { href: "/sell-your-car", label: "Sell / Trade-In" },
-  { href: "/find-a-car", label: "Find a car" },
-  { href: "/compare", label: "Compare cars" },
+  { href: "/find-a-car", label: "Find a Car" },
+  { href: "/compare", label: "Compare Cars" },
   { href: "/service", label: "Service" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

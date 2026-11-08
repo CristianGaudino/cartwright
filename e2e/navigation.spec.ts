@@ -14,18 +14,18 @@ const HEADER = [
   ["About", "/about"],
   ["Contact", "/contact"],
 ] as const;
-const MENU = [["Used cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"], ...HEADER.slice(2)] as const;
+const MENU = [["Used Cars", "/used-cars"], HEADER[0], HEADER[1], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"], ...HEADER.slice(2)] as const;
 const FOOTER = [
-  ["Used cars", "/used-cars"],
+  ["Used Cars", "/used-cars"],
   ["Finance", "/finance"],
-  ["Sell your car", "/sell-your-car"],
-  ["Find a car", "/find-a-car"],
+  ["Sell Your Car", "/sell-your-car"],
+  ["Find a Car", "/find-a-car"],
   ["Service", "/service"],
-  ["About us", "/about"],
+  ["About Us", "/about"],
   ["Contact", "/contact"],
-  ["Privacy policy", "/privacy"],
-  ["Terms of use", "/terms"],
-  ["Opening hours and directions", "/contact"],
+  ["Privacy Policy", "/privacy"],
+  ["Terms of Use", "/terms"],
+  ["Opening Hours and Directions", "/contact"],
 ] as const;
 const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/terms", "/privacy"];
 
@@ -39,7 +39,7 @@ test("from 1024px the header has Stock, five links and a red Enquire button", as
   await expect(stock).toHaveAttribute("aria-expanded", "false");
   await stock.click();
   await expect(stock).toHaveAttribute("aria-expanded", "true");
-  for (const [name, href] of [["All used cars", "/used-cars"], ["Find a car", "/find-a-car"], ["Compare cars", "/compare"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  for (const [name, href] of [["All Used Cars", "/used-cars"], ["Find a Car", "/find-a-car"], ["Compare Cars", "/compare"]]) await expect(banner.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await page.keyboard.press("Escape");
   await expect(stock).toHaveAttribute("aria-expanded", "false");
 });
@@ -59,14 +59,14 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const footer = page.getByRole("contentinfo");
   for (const [name, href] of FOOTER) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
-  await expect(footer.getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(footer.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
   await expect(footer.getByText("© Carright")).toBeVisible();
 });
 
 test("from 360px the header also shows Used cars, and it still fits", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
-  await expect(page.getByRole("banner").getByRole("link", { name: "Used cars" })).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Used Cars" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 
@@ -85,7 +85,7 @@ test.describe("the mobile menu", () => {
       await expect(link).toHaveAttribute("href", href);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
-    await expect(menu.getByRole("link", { name: "Call now" })).toHaveAttribute("href", "tel:+353831333154");
+    await expect(menu.getByRole("link", { name: "Call Us" })).toHaveAttribute("href", "tel:+353831333154");
   });
 
   test("a link takes you there and closes the menu; Escape and Close menu close it and return focus", async ({ page }) => {

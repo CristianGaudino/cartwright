@@ -7,10 +7,10 @@ import { DEALER_FACTS_CONFIRMED, WARRANTY } from "@/lib/site";
 // pill until DEALER_FACTS_CONFIRMED flips; the other three describe pages that exist.
 const ITEMS = [
   { Icon: ShieldCheckIcon, ...WARRANTY },
-  { Icon: LayersIcon, title: "Extended warranty", text: "Longer cover is available." },
-  { Icon: CalculatorIcon, title: "Flexible finance", text: "Work out a monthly payment online.", href: "/finance" },
-  { Icon: SwapIcon, title: "Trade-in welcome", text: "Get a fair valuation for your car.", href: "/sell-your-car" },
-  { Icon: CarIcon, title: "Test drives", text: "Book one on any car in stock.", href: "/used-cars" },
+  { Icon: LayersIcon, title: "Extended Warranty", text: "Longer cover is available." },
+  { Icon: CalculatorIcon, title: "Flexible Finance", text: "Finance options to suit you.", href: "/finance" },
+  { Icon: SwapIcon, title: "Trade-In Welcome", text: "Get a fair, no-hassle valuation.", href: "/sell-your-car" },
+  { Icon: CarIcon, title: "Test Drives", text: "Available on all vehicles. Call or visit us today.", href: "/used-cars" },
 ];
 
 export function TrustStrip() {

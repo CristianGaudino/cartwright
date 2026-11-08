@@ -13,7 +13,7 @@ export default function NotFound() {
         href="/used-cars"
         className={`mt-6 inline-flex items-center ${accentButton}`}
       >
-        See all used cars
+        See All Used Cars
       </Link>
     </main>
   );

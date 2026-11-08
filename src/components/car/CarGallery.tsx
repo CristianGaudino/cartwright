@@ -9,7 +9,6 @@ import type { Photo } from "@/lib/stock/types";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { useSlideIndex } from "./useSlideIndex";
 
-const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
 
 // Native scroll-snap, as the card carousel. Only photos and a name cross from the server, never the Car.
 export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) {
@@ -86,10 +85,10 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
             <span aria-hidden="true" className={`${counterPill} bottom-4 right-4`}>
               {index + 1} / {n}
             </span>
-            <button type="button" aria-label="Previous photo" aria-disabled={atStart} onClick={() => !atStart && show(index - 1)} className={`${arrow} left-2 ${atStart ? arrowEnd : arrowLive}`}>
+            <button type="button" aria-label="Previous photo" aria-disabled={atStart} onClick={() => !atStart && show(index - 1)} className={`${arrow} left-2 ${atStart ? arrowEnd : ""}`}>
               <ChevronLeftIcon />
             </button>
-            <button type="button" aria-label="Next photo" aria-disabled={atEnd} onClick={() => !atEnd && show(index + 1)} className={`${arrow} right-2 ${atEnd ? arrowEnd : arrowLive}`}>
+            <button type="button" aria-label="Next photo" aria-disabled={atEnd} onClick={() => !atEnd && show(index + 1)} className={`${arrow} right-2 ${atEnd ? arrowEnd : ""}`}>
               <ChevronRightIcon />
             </button>
           </>
@@ -104,7 +103,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
               aria-label={`Show photo ${i + 1}`}
               aria-current={i === index ? "true" : undefined}
               onClick={() => show(i)}
-              className={`h-15 w-20 flex-none snap-start overflow-hidden rounded-control bg-photo-bg ${i === index ? "ring-2 ring-text ring-offset-2 ring-offset-surface" : ""}`}
+              className={`h-15 w-20 flex-none snap-start overflow-hidden rounded-control bg-photo-bg ${i === index ? "ring-2 ring-accent ring-offset-2 ring-offset-surface" : ""}`}
             >
               <Image src={photo.src} width={80} height={60} alt="" loading="lazy" decoding="async" draggable={false} className="size-full object-cover" />
             </button>

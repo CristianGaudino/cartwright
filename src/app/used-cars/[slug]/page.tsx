@@ -57,7 +57,7 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <JsonLd data={carJsonLd(car)} />
       <Breadcrumb car={car} />
-      <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-x-8">
+      <div className="mt-6 grid grid-cols-1 gap-y-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:gap-x-10">
         <div className="relative lg:col-start-1">
           <CarGallery photos={car.photos} name={carName(car)} />
           {isSold(car) && <SoldBadge hidden className="pointer-events-none absolute left-4 top-4 z-20" />}
@@ -77,9 +77,10 @@ export default async function CarPage({ params }: PageProps<"/used-cars/[slug]">
             </section>
           )}
         </div>
-        <div className="mt-6 lg:col-span-2">
-          <SimilarCars car={car} cars={similar} />
-        </div>
+      </div>
+      {/* Outside the grid on purpose: a sticky panel is held inside its grid container, so Similar cars in the same grid slid under it. */}
+      <div className="mt-12">
+        <SimilarCars car={car} cars={similar} />
       </div>
     </main>
   );

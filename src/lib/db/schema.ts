@@ -24,7 +24,7 @@ export const leads = sqliteTable(
     phone: text(),
     email: text(),
     message: text(),
-    details: text({ mode: "json" }).$type<Record<string, string | number>>().notNull().default({}), // type fields: test drive, trade-in, finance
+    details: text({ mode: "json" }).$type<Record<string, string | number>>().notNull().default({}), // type fields: trade-in, sourcing, finance
     photoKeys: text("photo_keys", { mode: "json" }).$type<string[]>().notNull().default([]), // R2 keys, never URLs
     consentAt: integer("consent_at", { mode: "timestamp_ms" }).notNull(),
     consentVersion: text("consent_version").notNull(),

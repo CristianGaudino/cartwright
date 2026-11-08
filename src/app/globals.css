@@ -26,6 +26,7 @@
   --font-weight-*: initial;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   --color-surface: #0a0f13;
   --color-card: #141a20;

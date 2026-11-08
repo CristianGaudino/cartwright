@@ -17,7 +17,7 @@ function Empty() {
       <h2 className="text-heading font-semibold">No saved cars yet</h2>
       <p className="mt-2 text-body text-text-2">Tap the heart on any car to save it here.</p>
       <Link href="/used-cars" className={stateButton}>
-        See used cars
+        See Used Cars
       </Link>
     </div>
   );

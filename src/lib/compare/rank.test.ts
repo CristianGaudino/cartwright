@@ -7,8 +7,8 @@ describe("rank", () => {
     expect(rank([21950, 13950])).toEqual(["high", "low"]);
   });
 
-  it("marks only the extremes of three, and leaves the middle alone", () => {
-    expect(rank([2018, 2023, 2019])).toEqual(["low", "high", undefined]);
+  it("marks the extremes of three, and the one between as mid", () => {
+    expect(rank([2018, 2023, 2019])).toEqual(["low", "high", "mid"]);
   });
 
   it("marks nothing when all are the same, or when fewer than two cars have the number", () => {

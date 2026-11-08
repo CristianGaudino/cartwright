@@ -2,7 +2,7 @@ import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable } from "@/lib/finance/payment";
 import { BUDGETS } from "@/lib/stock/types";
-import { CONTACT_ERROR, EMPLOYMENT, LIMITS, TIMES, tomorrow } from "./constants";
+import { CONTACT_ERROR, EMPLOYMENT, LIMITS } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -35,12 +35,6 @@ const general = {
 };
 
 const carId = z.string().regex(/^\d{1,12}$/);
-
-// Type fields (D-10, D-11). Only these keys reach a row's details.
-const testDrive = {
-  preferredDay: given(z.iso.date({ error: "Choose a day from the calendar." }).refine((d) => d >= tomorrow(), "Choose a day from tomorrow on.").optional()),
-  preferredTime: given(z.enum(Object.keys(TIMES) as [keyof typeof TIMES], { error: "Choose a time from the list." }).default("any")),
-};
 
 const carText = {
   make: given(z.string().trim().max(60, tooLong(60)).optional()),
@@ -111,8 +105,6 @@ const finance = {
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
-    z.object({ type: z.literal("test_drive"), carId, ...contact, ...testDrive }),
-    z.object({ type: z.literal("reserve"), carId, ...contact }),
     z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
     z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
@@ -131,8 +123,6 @@ export type LeadType = LeadInput["type"];
 // Email subject words (D-02).
 export const TYPE_LABELS: Record<LeadType, string> = {
   enquiry: "Enquiry",
-  test_drive: "Test drive request",
-  reserve: "Reservation request",
   sourcing: "Find a car request",
   trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
   finance: "Finance application",
@@ -140,8 +130,6 @@ export const TYPE_LABELS: Record<LeadType, string> = {
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
-  preferredDay: "Preferred day",
-  preferredTime: "Preferred time",
   reg: "Registration",
   mileage: "Mileage",
   make: "Make",

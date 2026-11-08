@@ -23,7 +23,7 @@ export default async function GonePage({ params }: PageProps<"/gone/[make]">) {
           See more {make.label}
         </Link>
         <Link href="/used-cars" className="inline-flex min-h-11 items-center text-body font-semibold underline">
-          See all used cars
+          See All Used Cars
         </Link>
       </div>
     </main>

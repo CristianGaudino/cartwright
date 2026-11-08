@@ -17,7 +17,7 @@ async function firstCarHref(page: Page) {
 }
 
 test.describe("a car for sale", () => {
-  test("shows the title, price, key facts and Call now at once on a phone", async ({ page }) => {
+  test("shows the title, price, key facts and Call Us at once on a phone", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const box = buyBox(page);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -25,9 +25,12 @@ test.describe("a car for sale", () => {
     const price = box.getByText(/^€[\d,]+$/).filter({ visible: true });
     await expect(price).toBeVisible();
 
-    const call = box.getByRole("link", { name: "Call now" });
+    const call = box.getByRole("link", { name: /^Call Us/ });
     await expect(call).toHaveAttribute("href", "tel:+353831333154");
-    await expect(page.getByTestId("action-area")).toHaveCSS("min-height", "104px");
+    await expect(box.getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", /^https:\/\/wa\.me\/353831333154\?text=/);
+    await expect(box.getByRole("button", { name: "Enquire About This Car", exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: "Book a Test Drive", exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
 
     const tiles = box.locator("dl > div");
     const n = await tiles.count();
@@ -40,7 +43,7 @@ test.describe("a car for sale", () => {
     expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport);
   });
 
-  test("holds four 48px buttons in the 104px action area at 320px, and nothing below moves on hydration", async ({ page, browser }) => {
+  test("holds its four buttons at 320px without sideways scroll, and nothing below moves on hydration", async ({ page, browser }) => {
     const viewport = { width: 320, height: 640 };
     await page.setViewportSize(viewport);
     const href = await firstCarHref(page);
@@ -55,11 +58,10 @@ test.describe("a car for sale", () => {
     await page.goto(href);
     await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
     const area = page.getByTestId("action-area");
-    await expect(area).toHaveCSS("min-height", "104px");
-    expect((await area.boundingBox())!.height).toBeLessThanOrEqual(104);
     const buttons = area.locator("a, button").filter({ visible: true });
     await expect(buttons).toHaveCount(4);
-    for (const b of await buttons.all()) expect((await b.boundingBox())!.height).toBe(48);
+    for (const b of await buttons.all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
     expect(await below(page)).toBe(serverTop);
   });
 
@@ -92,22 +94,27 @@ test.describe("a car for sale", () => {
 test.describe("on a desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
 
-  test("the buy box is a 360px card to the right of the photo, with the phone number under Call now", async ({ page }) => {
+  test("the buy box is the right-hand column, flat, beside the photo and at its height", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const box = (await buyBox(page).boundingBox())!;
     const photo = (await page.locator("main img").first().boundingBox())!;
-    expect(box.width).toBe(360);
+    expect(box.width).toBeGreaterThan(420);
     expect(box.x).toBeGreaterThan(photo.x + photo.width);
     expect(box.y).toBeLessThan(photo.y + photo.height);
-    await expect(buyBox(page).getByText("083 133 3154")).toBeVisible();
-    await expect(page.getByTestId("action-area")).toHaveCSS("min-height", "0px");
+    await expect(buyBox(page)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)"); // no card behind it
+    // The three main buttons share one row, Enquire widest.
+    const row = ["Enquire About This Car", "Call Us", "WhatsApp"];
+    const boxes = [];
+    for (const name of row) boxes.push((await buyBox(page).getByRole(name === "Enquire About This Car" ? "button" : "link", { name: new RegExp(`^${name}`) }).boundingBox())!);
+    expect(new Set(boxes.map((b) => Math.round(b.y))).size).toBe(1);
+    expect(boxes[0].width).toBeGreaterThan(boxes[1].width);
   });
 });
 
 test.describe("a sold car", () => {
   test.skip(!soldInPeriod, SKIP);
 
-  test("reads Sold with no price, no Call now and a way on to the make", async ({ page, request }) => {
+  test("reads Sold with no price, no Call Us and a way on to the make", async ({ page, request }) => {
     const { slug, make, makeSlug, soldAt } = soldInPeriod!;
     await page.goto(`/used-cars/${slug}`);
     const box = buyBox(page);
@@ -160,12 +167,12 @@ test.describe("the sections below the buy box", () => {
 
   test("About this car keeps the dealer's line breaks", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
-    expect(await section(page, "About this car").locator("p").innerText()).toContain("\n");
+    expect(await section(page, "About This Car").locator("p").innerText()).toContain("\n");
   });
 
   test("Similar cars shows 1 to 3 other cars, and the page has one h1 and h2 sections", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
-    const cards = section(page, "Similar cars").locator("article");
+    const cards = section(page, "Similar Cars").locator("article");
     const n = await cards.count();
     expect(n).toBeGreaterThanOrEqual(1);
     expect(n).toBeLessThanOrEqual(3);

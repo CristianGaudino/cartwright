@@ -1,22 +1,20 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { CloseIcon, PhoneIcon } from "@/components/stock/icons";
+import { PhoneLink } from "@/components/PhoneLink";
+import { CalendarIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
 import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
-import { CarFields, TypePicker } from "./CarFields";
-import type { CarLeadType } from "./CarFields";
 import { ContactFields, Field } from "./Field";
 import { LeadForm } from "./LeadForm";
-import { press } from "@/components/ui";
+import { press, secondaryButton } from "@/components/ui";
 
 // What the client needs to show a car. Never the Car object: the server reads the car again by id (LED-02).
 export type CarSummary = { id: string; name: string; title: string; price: string; photo?: string };
 
-const action = `flex h-12 w-full items-center justify-center gap-2 rounded-control font-semibold ${press}`;
-
 // A native modal dialog on the Phase 1 sheet rules (D-09). It stays in the DOM while closed, so the form inside keeps its
 // text (research Pattern 2). The Close button is the first focusable element, so showModal() focuses it, not a field.
+// The dealer's number is always under the title, with the country code, as a link that dials.
 export function LeadDialog({ title, open, onClose, children }: { title: string; open: boolean; onClose(): void; children: React.ReactNode }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -29,7 +27,7 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
 
   return (
     <dialog ref={dialog} className="sheet lead" aria-labelledby={titleId} onClose={onClose} onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}>
-      <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
+      <div className="flex shrink-0 items-center justify-between px-4 pb-1 pt-3">
         <h2 id={titleId} className="text-heading font-semibold">
           {title}
         </h2>
@@ -37,66 +35,69 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
           <CloseIcon className="h-6 w-6" />
         </button>
       </div>
+      <p className="shrink-0 px-4 pb-2 text-meta text-text-2">
+        Or call us on <PhoneLink className="font-semibold text-text underline" />
+      </p>
       {children}
     </dialog>
   );
 }
 
-// Title, submit label and thanks per type (UI-SPEC Copywriting Contract).
-const COPY: Record<CarLeadType, { title: string; submit: string; heading: string; body(car: CarSummary): string }> = {
-  enquiry: { title: "Enquire", submit: "Send enquiry", heading: "Thanks, we have your enquiry.", body: (car) => `We will get back to you about the ${car.name}.` },
-  test_drive: { title: "Book a test drive", submit: "Request test drive", heading: "Thanks, we have your request.", body: () => "We will call you to confirm a time for a test drive." },
-  reserve: { title: "Request to reserve", submit: "Request to reserve", heading: "Thanks, we have your request.", body: () => "This is not a booking yet. We will call you to confirm." },
-};
+const TEST_DRIVE_NOTE = "I would like to book a test drive.";
 
-// The car page action area (UI-SPEC): two rows of two 48px buttons inside the reserved 104px. Enquire takes the accent;
-// Call now, Test drive and Reserve are secondary. The three form buttons open the one dialog with their type selected.
-export function LeadActions({ car }: { car: CarSummary }) {
+// The car page action area (mockup): Enquire About This Car in the accent, Call Us and WhatsApp beside it, and Book a Test Drive as a
+// quiet link underneath. A test drive is an enquiry with the note filled in, so there is one form and one kind of lead.
+export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: string }) {
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState<CarLeadType>("enquiry");
+  const [prefill, setPrefill] = useState<Record<string, string>>();
   const opener = useRef<HTMLButtonElement>(null);
-  const copy = COPY[type];
-  const secondary = `${action} border border-control bg-card text-text`;
+  const secondary = `flex h-12 items-center justify-center gap-2 px-3 text-text ${secondaryButton}`;
 
-  const show = (t: CarLeadType, el: HTMLButtonElement) => {
+  const show = (el: HTMLButtonElement, message?: string) => {
     opener.current = el;
-    setType(t);
+    setPrefill(message ? { message } : {}); // a new object each time: a typed message is kept unless a note is being filled in
     setOpen(true);
   };
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 whitespace-nowrap">
-        <button type="button" onClick={(e) => show("enquiry", e.currentTarget)} className={`${action} bg-accent text-white`}>
-          Enquire
+      <div className="grid grid-cols-2 gap-2 whitespace-nowrap sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,1.15fr)]">
+        <button type="button" onClick={(e) => show(e.currentTarget)} className={`col-span-2 flex h-12 w-full items-center justify-center gap-2 rounded-control bg-accent px-3 font-semibold text-white sm:col-span-1 ${press}`}>
+          Enquire About This Car
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
-          <PhoneIcon />
-          Call now
+          <PhoneIcon className="size-5 text-accent" />
+          Call Us
         </a>
-        <button type="button" onClick={(e) => show("test_drive", e.currentTarget)} className={secondary}>
-          Test drive
-        </button>
-        <button type="button" onClick={(e) => show("reserve", e.currentTarget)} className={secondary}>
-          Reserve
-        </button>
+        <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={secondary}>
+          <WhatsAppIcon className="size-5" />
+          WhatsApp<span className="sr-only"> (opens in a new tab)</span>
+        </a>
       </div>
+      <button type="button" onClick={(e) => show(e.currentTarget, TEST_DRIVE_NOTE)} className="inline-flex min-h-11 items-center gap-2 self-start text-body font-semibold hover:text-text-2">
+        <CalendarIcon className="size-5" />
+        Book a Test Drive
+      </button>
       <LeadDialog
-        title={copy.title}
+        title="Enquire"
         open={open}
         onClose={() => {
           setOpen(false);
           opener.current?.focus();
         }}
       >
-        <LeadForm type={type} car={car} variant="dialog" submitLabel={copy.submit} success={{ heading: copy.heading, body: copy.body(car) }}>
+        <LeadForm
+          type="enquiry"
+          car={car}
+          variant="dialog"
+          prefill={prefill}
+          submitLabel="Send Enquiry"
+          success={{ heading: "Thanks, we have your enquiry.", body: `We will get back to you about the ${car.name}.` }}
+        >
           {({ bind }) => (
             <>
-              <TypePicker value={type} onChange={setType} />
-              {type === "reserve" && <p className="text-meta text-text-2">This is a request, not a hold. We will call you to confirm. No payment is taken.</p>}
               <ContactFields bind={bind} />
-              <CarFields type={type} bind={bind} />
-              <Field {...bind("message")} label={type === "reserve" ? "Note" : "Message"} optional multiline maxLength={LIMITS.message} />
+              <Field {...bind("message")} label="Message" optional multiline maxLength={LIMITS.message} />
             </>
           )}
         </LeadForm>

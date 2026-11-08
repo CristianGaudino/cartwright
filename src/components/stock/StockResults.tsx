@@ -20,7 +20,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
         <nav aria-label="Pagination" className="mt-8 flex items-center justify-between gap-4 text-meta">
           {page > 1 ? (
             <Link replace href={stockHref({ ...query, page: page - 1 })} className={pageLink}>
-              Previous page
+              Previous Page
             </Link>
           ) : (
             <span />
@@ -30,7 +30,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
           </p>
           {page < pageCount ? (
             <Link replace href={stockHref({ ...query, page: page + 1 })} className={pageLink}>
-              Next page
+              Next Page
             </Link>
           ) : (
             <span />

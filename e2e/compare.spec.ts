@@ -44,7 +44,9 @@ test("pick two cars on their pages: the compare page has a card each, and a plac
   await expect(page.getByRole("heading", { level: 1, name: "Compare cars" })).toBeVisible();
   await expect(cards(page)).toHaveCount(2);
   await expect(page.getByTestId("compare-placeholder")).toHaveCount(1);
-  await expect(page.getByTestId("compare-placeholder").getByRole("link", { name: "Add a car" })).toHaveAttribute("href", "/used-cars");
+  await expect(page.getByTestId("compare-placeholder")).toHaveAttribute("href", "/used-cars"); // the whole card is the link
+  await expect(page.getByTestId("compare-placeholder")).toHaveText("Add a Car");
+  await expect(page.getByRole("button", { name: "Add a car" })).toHaveCount(0); // no separate button
   for (const row of ["Price", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: "Compare cars" })).toHaveCount(0); // the bar is for the other pages
 });
@@ -111,4 +113,30 @@ test("the compare page is empty to start with and not indexed", async ({ page })
   await ready(page);
   await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+});
+
+test("three cars: up, down and a dash for the one between, and symbols only on screen", async ({ page }) => {
+  await openCompare(page, 3);
+  await expect(cards(page)).toHaveCount(3);
+  await expect(page.getByTestId("compare-placeholder")).toHaveCount(0); // full: no empty place
+  const price = (i: number) => cards(page).nth(i).locator("dl > div").filter({ hasText: /^Price/ });
+  const texts = [await price(0).textContent(), await price(1).textContent(), await price(2).textContent()];
+  expect(texts.filter((t) => t!.includes("▲")).length).toBe(1); // highest
+  expect(texts.filter((t) => t!.includes("▼")).length).toBe(1); // lowest
+  expect(texts.filter((t) => t!.includes("Middle")).length).toBe(1); // the one between: a dash, and Middle for a screen reader
+  // The marks are symbols: no Higher, Lower, Highest or Lowest is drawn. (Screen readers still get the word.)
+  for (const word of ["Highest", "Lowest", "Middle"]) await expect(page.getByText(word, { exact: true }).first()).toHaveCSS("position", "absolute");
+});
+
+test("on a car page, Compare in the pill opens the list with that car in it", async ({ page }) => {
+  const [a, b] = await carPaths(page, 2);
+  await compare(page, a); // one car picked
+  await page.goto(b); // looking at a different car
+  await ready(page);
+  const bar = page.getByRole("region", { name: "Compare cars" });
+  await expect(bar).toContainText("1 of 3 to compare");
+  await bar.getByRole("link", { name: "Compare" }).click();
+  await expect(page).toHaveURL(/\/compare$/);
+  await expect(cards(page)).toHaveCount(2); // the one picked, and the one that was open
+  await expect(cards(page).nth(0).getByRole("link")).toHaveAttribute("href", b); // newest first
 });

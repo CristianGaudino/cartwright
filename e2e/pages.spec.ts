@@ -27,23 +27,23 @@ test("/service lists the services and offers Call to book", async ({ page }) => 
 
 test("/about links to the contact page", async ({ page }) => {
   await page.goto("/about");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About us");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Us");
   expect(await pillBeforeH1(page)).toBe(true);
-  await expect(main(page).getByRole("link", { name: "Opening hours and directions" })).toHaveAttribute("href", "/contact");
+  await expect(main(page).getByRole("link", { name: "Opening Hours and Directions" })).toHaveAttribute("href", "/contact");
 });
 
 test("/terms is a labelled draft with five sections and the dealer's phone", async ({ page }) => {
   await page.goto("/terms");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of use");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
   expect(await pillBeforeH1(page)).toBe(true);
   await expect(page.getByText("This is a draft. The dealer's own terms replace it.")).toBeVisible();
   await expect(main(page).getByRole("heading", { level: 2 })).toHaveText(["Using this site", "Cars and prices", "Finance figures", "Reviews", "Contact"]);
-  await expect(main(page).getByRole("link", { name: "083 133 3154" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", TEL);
 });
 
 test("/privacy keeps its copy on the shared frame, with no pill", async ({ page }) => {
   await page.goto("/privacy");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy Policy");
   await expect(page.getByText("We keep each request for 12 months")).toBeVisible();
   await expect(page.getByText("Placeholder details")).toHaveCount(0);
 });
@@ -57,7 +57,7 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
   expect(await pillBeforeH1(page)).toBe(true);
-  await expect(main(page).getByRole("link", { name: "Call 083 133 3154" })).toHaveAttribute("href", TEL);
+  await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
   await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
   await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");
   const rows = main(page).locator("dl > div");

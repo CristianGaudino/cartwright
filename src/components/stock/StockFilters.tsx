@@ -64,12 +64,12 @@ function CheckGroup({ title, group, options, defaultOpen }: { title: string; gro
       </div>
       {open && rows.length > COLLAPSED ? (
         <button type="button" aria-controls={listId} aria-expanded onClick={() => setOpen(false)} className={link}>
-          Show fewer
+          Show Fewer
         </button>
       ) : (
         shown.length < rows.length && (
           <button type="button" aria-controls={listId} aria-expanded={false} onClick={() => setOpen(true)} className={link}>
-            Show all {rows.length}
+            Show All {rows.length}
           </button>
         )
       )}
@@ -237,7 +237,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
         <SelectField label="Min" value={query.priceMin} options={withSelected(BUDGETS, query.priceMin).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMin) => set({ priceMin })} />
         <SelectField label="Max" value={query.priceMax} options={withSelected(BUDGETS, query.priceMax).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMax) => set({ priceMax })} />
       </Row>
-      <ChipGroup title="Body type" group="body" options={facets?.body ?? []} />
+      <ChipGroup title="Body Type" group="body" options={facets?.body ?? []} />
       <ChipGroup title="Fuel" group="fuel" options={facets?.fuel ?? []} />
       <Transmission />
       <Row title="Mileage" active={query.kmMax !== undefined}>

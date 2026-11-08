@@ -32,7 +32,7 @@ async function rows(page: Page, name = "Make") {
   );
 }
 
-const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/ });
+const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/i });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
 const metas = (page: Page) => page.locator("article > div:last-child > p:last-child").allTextContents();
 const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
@@ -116,7 +116,7 @@ test.describe("filters on a desktop", () => {
     await open(page);
     const checkboxes = makeGroup(page).getByRole("checkbox");
     if (!(await showAll(page).count())) {
-      await expect(page.getByRole("button", { name: /^Show all/ })).toHaveCount(0);
+      await expect(page.getByRole("button", { name: /^Show all/i })).toHaveCount(0);
       return;
     }
     const n = digits(await showAll(page).textContent());

@@ -10,9 +10,9 @@ const item = "relative inline-flex min-h-11 items-center gap-1 text-meta font-se
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
 const STOCK = [
-  { href: "/used-cars", label: "All used cars" },
-  { href: "/find-a-car", label: "Find a car" },
-  { href: "/compare", label: "Compare cars" },
+  { href: "/used-cars", label: "All Used Cars" },
+  { href: "/find-a-car", label: "Find a Car" },
+  { href: "/compare", label: "Compare Cars" },
 ];
 const LINKS = [
   { href: "/finance", label: "Finance" },
@@ -48,7 +48,7 @@ export function HeaderLinks() {
     <>
       {/* Phones: one link; the menu button holds the rest. */}
       <Link href="/used-cars" className={`${item} text-body max-[359px]:hidden lg:hidden`}>
-        Used cars
+        Used Cars
       </Link>
       <div className="hidden items-center gap-6 lg:flex">
         <div ref={root} className="relative">
