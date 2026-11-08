@@ -12,8 +12,7 @@ import { accentButton, press, slash, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
-import { stock } from "@/lib/stock";
-import { DEFAULT_QUERY } from "@/lib/stock/query";
+import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
 
 export const metadata: Metadata = {
@@ -27,10 +26,8 @@ export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
   await connection();
   // The home page must never error: a stock failure shows a line in place of the row, and the search still renders (UI-SPEC state table).
-  const log = (e: unknown) => console.error("stock.query failed", e instanceof Error ? e.name : typeof e); // as /used-cars: the name only
-  // shortcut: one query covers the stock while it is under 1000 cars (as the sitemap); the first six are the featured row and all of
-  // them feed the search drop-downs, so every choice there has a car behind it.
-  const [all, reviews] = await Promise.all([stock.query({ ...DEFAULT_QUERY, pageSize: 1000 }).catch((e) => (log(e), null)), getReviews()]);
+  // The first six are the featured row and all of them feed the search drop-downs, so every choice there has a car behind it.
+  const [all, reviews] = await Promise.all([queryAllOrNull(), getReviews()]);
   const result = all && { ...all, cars: all.cars.slice(0, 6) };
   const search = searchOptions(all?.cars ?? []);
   return (
@@ -48,7 +45,7 @@ export default async function Home() {
               <ArrowRightIcon className="size-5" />
             </Link>
             <Link href="/finance" className={outline}>
-              Get a Finance Quote
+              Estimate Your Finance
             </Link>
           </div>
           <div className="mt-8 lg:mt-12">
@@ -97,7 +94,7 @@ export default async function Home() {
 
         <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
           <h2 className="text-display font-bold">Finance Made Simple</h2>
-          <p className="max-w-[40ch] text-body">Apply for finance online with a quick, straightforward application.</p>
+          <p className="max-w-[40ch] text-body">Estimate your monthly payment online, then send us your details to start the process.</p>
           <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
             Check Finance Options
             <ArrowRightIcon className="size-5" />

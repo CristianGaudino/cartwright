@@ -103,7 +103,7 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
     [/^Trade-In Welcome/, "/sell-your-car"],
     [/^Test Drives/, "/used-cars"],
     ["Check finance options", "/finance"],
-    ["Get a finance quote", "/finance"],
+    ["Estimate your finance", "/finance"],
   ] as const) {
     await expect(main.getByRole("link", { name })).toHaveAttribute("href", href);
   }

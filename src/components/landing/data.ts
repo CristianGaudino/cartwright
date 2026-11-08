@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { stock } from "@/lib/stock";
+import { queryAll, stock } from "@/lib/stock";
 import { landingFacts, landingFilter } from "@/lib/stock/landing";
 import type { Facts, Landing } from "@/lib/stock/landing";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
@@ -27,10 +27,9 @@ export const resolveLanding = cache(async (slug: string, modelSlug?: string): Pr
   else if (body) landing = { kind: "body", body: body.label, bodySlug: body.slug };
   else return null;
 
-  // shortcut: one query covers a make or body type while stock is under 1000 cars; with a live provider ask for the count and price range instead.
-  const query = { ...DEFAULT_QUERY, ...landingFilter(landing), pageSize: 1000 };
-  const { cars, facets } = await stock.query(query);
+  const query = landingFilter(landing);
+  const { cars, facets } = await queryAll(query);
   if (cars.length) return { landing, cars, facts: landingFacts(cars), facets, sold: [] };
-  const [sold, all] = await Promise.all([stock.query({ ...query, sold: "only", pageSize: 3 }), stock.query({ ...DEFAULT_QUERY, pageSize: 1 })]);
+  const [sold, all] = await Promise.all([stock.query({ ...DEFAULT_QUERY, ...query, sold: "only", pageSize: 3 }), stock.query({ ...DEFAULT_QUERY, pageSize: 1 })]);
   return { landing, cars: [], facts: null, facets: all.facets, sold: sold.cars };
 });
