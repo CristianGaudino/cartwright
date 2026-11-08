@@ -48,7 +48,7 @@ export default async function Home() {
               <ArrowRightIcon className="size-5" />
             </Link>
             <Link href="/finance" className={outline}>
-              Get a Finance Quote
+              Estimate Your Finance
             </Link>
           </div>
           <div className="mt-8 lg:mt-12">
@@ -97,7 +97,7 @@ export default async function Home() {
 
         <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
           <h2 className="text-display font-bold">Finance Made Simple</h2>
-          <p className="max-w-[40ch] text-body">Apply for finance online with a quick, straightforward application.</p>
+          <p className="max-w-[40ch] text-body">Estimate your monthly payment online, then send us your details to start the process.</p>
           <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
             Check Finance Options
             <ArrowRightIcon className="size-5" />
