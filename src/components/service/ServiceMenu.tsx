@@ -44,7 +44,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
           );
         })}
       </ul>
-      <div id="service-detail" aria-live="polite">
+      <div id="service-detail">
         {current && (
           <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-5 sm:p-6">
             <h3 className={subTitle}>{current.name}: what we can do</h3>

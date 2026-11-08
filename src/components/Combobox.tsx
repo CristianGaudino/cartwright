@@ -138,6 +138,8 @@ export function Combobox({
         <ul
           id={listId}
           role="listbox"
+          // mousedown anywhere on the list (an option, the gaps, the scrollbar) would take focus from the input and close the list
+          onMouseDown={(e) => e.preventDefault()}
           className={`absolute left-0 z-50 max-h-64 w-full min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 shadow-lift ${up ? "bottom-full mb-1" : "top-full mt-1"}`}
         >
           {shown.length === 0 && (
@@ -151,8 +153,6 @@ export function Combobox({
               id={`${uid}-opt-${i}`}
               role="option"
               aria-selected={o.value === current}
-              // mousedown would take focus from the input and close the list before the click lands
-              onMouseDown={(e) => e.preventDefault()}
               onClick={() => choose(o)}
               onMouseMove={() => setActive(i)}
               className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""}`}
