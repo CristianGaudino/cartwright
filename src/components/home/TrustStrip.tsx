@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { CalculatorIcon, CarIcon, LayersIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
-import { DEALER_FACTS_CONFIRMED, WARRANTY } from "@/lib/site";
+import { WARRANTY } from "@/lib/site";
 
-// The mockup's five reasons to buy, each a link to the page that says more. The two warranty lines are the dealer's to confirm, so
-// the strip carries the Placeholder pill until DEALER_FACTS_CONFIRMED flips.
+// The mockup's five reasons to buy, each a link to the page that says more. The two warranty lines are the dealer's to confirm
+// (DEALER_FACTS_CONFIRMED, which still fails a production deploy).
 const ITEMS = [
   { Icon: ShieldCheckIcon, ...WARRANTY, href: "/warranty" },
   { Icon: LayersIcon, title: "Extended Warranty", text: "Longer cover is available.", href: "/warranty" },
@@ -16,7 +15,6 @@ const ITEMS = [
 export function TrustStrip() {
   return (
     <section aria-label="Why buy from us" className="flex flex-col gap-4">
-      {!DEALER_FACTS_CONFIRMED && <PlaceholderPill>Placeholder details</PlaceholderPill>}
       <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 lg:gap-6">
         {ITEMS.map(({ Icon, title, text, href }) => (
           <li key={title}>

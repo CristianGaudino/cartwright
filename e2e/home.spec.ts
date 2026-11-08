@@ -109,8 +109,6 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   ] as const) {
     await expect(main.getByRole("link", { name })).toHaveAttribute("href", href);
   }
-  // The two warranty lines are unconfirmed, so the strip says so.
-  await expect(page.getByRole("region", { name: "Why buy from us" }).getByText("Placeholder details")).toBeVisible();
   const scripts = page.locator('script[type="application/ld+json"]');
   await expect(scripts).toHaveCount(1);
   const data = JSON.parse((await scripts.textContent())!);

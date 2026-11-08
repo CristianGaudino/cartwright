@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Service", description: `Servicing an
 // Booking is by phone, or a message the dealer answers.
 export default function ServicePage() {
   return (
-    <InfoPage placeholder title="Service" intro="Tell us what your car needs and we will tell you what we can do.">
+    <InfoPage title="Service" intro="Tell us what your car needs and we will tell you what we can do.">
       <InfoSection title="What We Do">
         <ul className="flex flex-col gap-2">
           {SERVICES.map((s) => (

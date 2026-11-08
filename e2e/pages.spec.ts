@@ -8,19 +8,11 @@ const fits320 = async (page: Page, path: string) => {
   await page.goto(path);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 };
-// The pill is read before the h1.
-const pillBeforeH1 = (page: Page) =>
-  page.evaluate(() => {
-    const pill = [...document.querySelectorAll("main span")].find((e) => e.textContent === "Placeholder details");
-    const h1 = document.querySelector("main h1");
-    return !!pill && !!h1 && !!(pill.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING);
-  });
 
 test("/service lists the services and offers Call to book", async ({ page }) => {
   await page.goto("/service");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Service");
-  await expect(page.getByText("Placeholder details")).toBeVisible();
-  expect(await pillBeforeH1(page)).toBe(true);
+  await expect(page.getByText("Placeholder details")).toHaveCount(0);
   for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("listitem").filter({ hasText: s })).toBeVisible();
   await expect(main(page).getByRole("link", { name: "Call to book" })).toHaveAttribute("href", TEL);
 });
@@ -28,14 +20,12 @@ test("/service lists the services and offers Call to book", async ({ page }) => 
 test("/about links to the contact page", async ({ page }) => {
   await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About Us");
-  expect(await pillBeforeH1(page)).toBe(true);
   await expect(main(page).getByRole("link", { name: "Opening Hours and Directions" })).toHaveAttribute("href", "/contact");
 });
 
 test("/terms is a labelled draft with five sections and the dealer's phone", async ({ page }) => {
   await page.goto("/terms");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
-  expect(await pillBeforeH1(page)).toBe(true);
   await expect(page.getByText("This is a draft. The dealer's own terms replace it.")).toBeVisible();
   await expect(main(page).getByRole("heading", { level: 2 })).toHaveText(["Using this site", "Cars and prices", "Finance figures", "Reviews", "Contact"]);
   await expect(main(page).getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", TEL);
@@ -56,7 +46,6 @@ test("/contact gives the phone, address, hours and links, and loads nothing from
   await page.goto("/contact");
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact");
-  expect(await pillBeforeH1(page)).toBe(true);
   await expect(main(page).getByRole("link", { name: "Call +353 83 133 3154" })).toHaveAttribute("href", TEL);
   await expect(main(page).getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
   await expect(main(page).locator("address")).toContainText("Ballymac, Maglass");

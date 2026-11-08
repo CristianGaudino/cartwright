@@ -5,7 +5,7 @@ const strip = (page: import("@playwright/test").Page) => page.getByRole("region"
 test("the home page shows five labelled demo reviews with Google Maps attribution", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
-  await expect(page.getByText("Demo reviews")).toBeVisible();
+  await expect(page.getByText("Demo reviews")).toHaveCount(0);
   await expect(page.getByText("Showing the most relevant reviews from Google Maps.")).toBeVisible();
   await expect(strip(page)).toHaveAttribute("tabindex", "0");
   const cards = strip(page).locator("article");

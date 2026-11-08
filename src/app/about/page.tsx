@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "About us", description: `${SITE_NAME
 // The dealer's own story replaces Who we are (D-09): no history, awards, years trading or staff names are invented.
 export default function AboutPage() {
   return (
-    <InfoPage placeholder title="About Us">
+    <InfoPage title="About Us">
       {/* Decorative: a detail of one of our cars, so it has no text of its own. */}
       <Image src="/brand/about.webp" width={1200} height={900} alt="" className="aspect-[16/9] w-full rounded-card object-cover" />
       <InfoSection title="Who we are">

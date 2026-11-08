@@ -24,7 +24,6 @@ const result = (page: Page) => calc(page).getByRole("status");
 test("/finance estimates a monthly payment at the dealer's fixed rate as the buyer types", async ({ page }) => {
   await open(page, "/finance");
   await expect(page.getByRole("heading", { level: 1, name: "Finance" })).toBeVisible();
-  await expect(page.getByText("Placeholder figures")).toBeVisible();
   await expect(page.getByText("This is an estimate only, not an approval or an offer of credit.")).toBeVisible();
   await expect(calc(page).getByText(/This is an estimate, not an approval/)).toBeVisible();
   await expect(result(page)).toContainText(/About €[\d,]+ a month/);

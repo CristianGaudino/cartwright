@@ -5,7 +5,6 @@ import { CallButton, InfoSection } from "@/components/InfoPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { JsonLd } from "@/components/JsonLd";
 import { MapBox } from "@/components/MapBox";
-import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { dealerJsonLd, directionsUrl, groupHours, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, DEALER_WHATSAPP, SITE_NAME } from "@/lib/site";
@@ -24,11 +23,6 @@ export default async function ContactPage() {
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
       <JsonLd data={dealerJsonLd(await getReviews())} />
-      {!DEALER_FACTS_CONFIRMED && (
-        <div className="mb-4 flex">
-          <PlaceholderPill>Placeholder details</PlaceholderPill>
-        </div>
-      )}
       <h1 className={pageTitle}>Contact</h1>
       <p className="mt-2 max-w-[65ch] text-body">Call or message us, or come and see us.</p>
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">

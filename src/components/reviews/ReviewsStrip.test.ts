@@ -16,11 +16,6 @@ describe("ReviewsStrip", () => {
     expect(render(data({ reviews: [] }))).toBe("");
   });
 
-  it("shows the Demo reviews pill only for demo data", () => {
-    expect(render(data({ source: "demo" }))).toContain("Demo reviews");
-    expect(render(data())).not.toContain("Demo reviews");
-  });
-
   it("shows the aggregate row with a hidden sentence, a clipped star row and a new-tab link to the place", () => {
     const html = render(data());
     expect(html).toContain("Rated 4.8 out of 5 from 5 Google reviews");

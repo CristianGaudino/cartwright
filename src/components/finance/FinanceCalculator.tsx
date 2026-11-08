@@ -2,7 +2,6 @@
 
 import { useId, useRef, useState } from "react";
 import { Field } from "@/components/leads/Field";
-import { PlaceholderPill } from "@/components/PlaceholderPill";
 import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
@@ -59,8 +58,6 @@ export function FinanceCalculator({ car: fixed, cars }: { car?: FinanceCar; cars
       {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. */}
       <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
-          {/* Removed in one place: set placeholder to false in finance.config.ts. Never hidden with CSS (D-16). */}
-          {FINANCE.placeholder && <PlaceholderPill>Placeholder figures</PlaceholderPill>}
           <div className="grid grid-cols-1 gap-4">
             {cars && cars.length > 0 && <Field {...field("car", carId, pickCar)} label="Car" options={carOptions} />}
             {car ? (
