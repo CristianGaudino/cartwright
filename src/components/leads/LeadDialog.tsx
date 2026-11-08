@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { PhoneLink } from "@/components/PhoneLink";
-import { CalendarIcon, CloseIcon, PhoneIcon, WhatsAppIcon } from "@/components/stock/icons";
+import { CalendarIcon, CloseIcon, PhoneIcon } from "@/components/stock/icons";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
 import { ContactFields, Field } from "./Field";
@@ -77,10 +78,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           <PhoneIcon className="size-5 text-accent" />
           Call Us
         </a>
-        <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={secondary}>
-          <WhatsAppIcon className="size-5 text-whatsapp" />
-          WhatsApp<span className="sr-only"> (opens in a new tab)</span>
-        </a>
+        <WhatsAppButton href={whatsapp} sizing="px-3" />
       </div>
       <LeadDialog
         title={testDrive ? "Book a Test Drive" : "Enquire About This Car"}

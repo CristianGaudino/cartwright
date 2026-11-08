@@ -65,12 +65,14 @@ export function Combobox({
     const below = window.innerHeight - r.bottom - LIST_GAP_PX;
     const above = r.top - LIST_GAP_PX;
     const up = below < LIST_ROOM_PX && above > below; // little room below and more above, as for a field at the foot of a sheet
-    setPlace({
+    const next: Place = {
       left: r.left,
       width: r.width,
       ...(up ? { bottom: window.innerHeight - r.top + LIST_GAP_PX } : { top: r.bottom + LIST_GAP_PX }),
       maxHeight: Math.min(LIST_MAX_PX, Math.max(LIST_MIN_PX, up ? above : below)),
-    });
+    };
+    // The same place again (a scroll that did not move the field) keeps the old object, so nothing is redrawn.
+    setPlace((prev) => (prev && prev.left === next.left && prev.width === next.width && prev.top === next.top && prev.bottom === next.bottom && prev.maxHeight === next.maxHeight ? prev : next));
   }, []);
   const show = () => {
     measure();

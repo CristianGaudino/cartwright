@@ -59,8 +59,8 @@
 
 @layer base {
   /* Thin scrollbars with no track, so a scrollbar never draws a square edge over a rounded corner (drop-down lists, dialogs, the filter
-     panel). */
-  * {
+     panel). Not the page's own, which stays the browser's: it is the one scrollbar everyone needs to grab. */
+  :not(html) {
     scrollbar-width: thin;
     scrollbar-color: var(--color-control) transparent;
   }
