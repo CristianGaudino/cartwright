@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
-import { slash } from "@/components/ui";
+import { pageTitle } from "@/components/ui";
 import { financeable } from "@/lib/finance/payment";
 import { queryAllOrNull } from "@/lib/stock";
 import { carSummary } from "@/lib/stock/format";
@@ -15,7 +15,7 @@ export default async function FinancePage() {
   const cars = all?.cars.filter((c) => financeable(c.priceEur)).map((c) => ({ ...carSummary(c), priceEur: c.priceEur }));
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-      <h1 className={`text-display font-bold lg:text-hero ${slash}`}>Finance Estimator</h1>
+      <h1 className={pageTitle}>Finance Estimator</h1>
       <p className="mt-2 max-w-[65ch] text-body">Pick a car, or type a price, for an estimate of the monthly payment. It is the start of the process, not an approval.</p>
       <div className="mt-6 flex flex-col gap-4">
         <FinanceCalculator cars={cars} />

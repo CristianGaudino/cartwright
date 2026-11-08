@@ -81,7 +81,9 @@ export function FinanceCalculator({ car: fixed, cars }: { car?: FinanceCar; cars
             {q ? (
               <>
                 <p className="text-meta text-text-2">Estimated monthly payment</p>
-                <p className="text-display font-semibold tabular-nums">About {formatPrice(q.monthlyEur)} a month</p>
+                <p className="text-display font-semibold tabular-nums">
+                  About {formatPrice(q.monthlyEur)}<span className="text-body font-normal text-text-2"> a month</span>
+                </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
                     [

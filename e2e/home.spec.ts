@@ -99,6 +99,8 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   const main = page.getByRole("main");
   for (const [name, href] of [
+    [/^3 Month Warranty/, "/warranty"],
+    [/^Extended Warranty/, "/warranty"],
     [/^Flexible Finance/, "/finance"],
     [/^Trade-In Welcome/, "/sell-your-car"],
     [/^Test Drives/, "/used-cars"],
@@ -114,6 +116,16 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
   const data = JSON.parse((await scripts.textContent())!);
   expect(data["@type"]).toBe("AutoDealer");
   expect(data).not.toHaveProperty("aggregateRating");
+});
+
+test("every item in the trust strip is a link with the same padding, so the row lines up", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const links = page.getByRole("region", { name: "Why buy from us" }).getByRole("link");
+  await expect(links).toHaveCount(5);
+  const boxes = await Promise.all((await links.all()).map((l) => l.boundingBox()));
+  expect(new Set(boxes.map((b) => Math.round(b!.y))).size).toBe(1);
+  expect(new Set(boxes.map((b) => Math.round(b!.height))).size).toBe(1);
 });
 
 test("at 320px nothing scrolls sideways and the search selects sit two to a row", async ({ page }) => {

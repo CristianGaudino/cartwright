@@ -7,3 +7,6 @@ export const accentButton = `h-12 rounded-control bg-accent px-6 font-semibold t
 export const textLink = "inline-flex min-h-11 items-center underline";
 // The mockup's small red slash before a heading or eyebrow.
 export const slash = "before:mr-3 before:inline-block before:h-[0.9em] before:w-[0.3em] before:-skew-x-[14deg] before:bg-accent before:align-[-0.05em]";
+// One look for every page title and every section heading, so no page reads as a different site.
+export const pageTitle = `text-display font-bold lg:text-hero ${slash}`;
+export const sectionTitle = `text-heading font-bold sm:text-display ${slash}`;

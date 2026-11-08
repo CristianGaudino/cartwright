@@ -8,7 +8,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press, slash, textLink } from "@/components/ui";
+import { accentButton, press, sectionTitle, slash, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
@@ -75,7 +75,7 @@ export default async function Home() {
           ) : (
             <>
               <div className="flex items-center justify-between gap-4">
-                <h2 className={`text-heading font-bold sm:text-display ${slash}`}>Featured Stock</h2>
+                <h2 className={sectionTitle}>Featured Stock</h2>
                 <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
                   View All Stock
                   <ArrowRightIcon className="size-5" />
@@ -93,7 +93,7 @@ export default async function Home() {
         </section>
 
         <section className="hero-bg flex flex-col items-start gap-3 rounded-card border border-hairline p-6 lg:p-10">
-          <h2 className="text-display font-bold">Finance Made Simple</h2>
+          <h2 className={sectionTitle}>Finance Made Simple</h2>
           <p className="max-w-[40ch] text-body">Estimate your monthly payment online, then send us your details to start the process.</p>
           <Link href="/finance" className={`mt-2 inline-flex items-center gap-2 ${accentButton}`}>
             Check Finance Options

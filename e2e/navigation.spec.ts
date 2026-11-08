@@ -21,13 +21,14 @@ const FOOTER = [
   ["Sell Your Car", "/sell-your-car"],
   ["Find a Car", "/find-a-car"],
   ["Service", "/service"],
+  ["Warranty", "/warranty"],
   ["About Us", "/about"],
   ["Contact", "/contact"],
   ["Privacy Policy", "/privacy"],
   ["Terms of Use", "/terms"],
   ["Opening Hours and Directions", "/contact"],
 ] as const;
-const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/sell-your-car", "/find-a-car", "/service", "/contact", "/about", "/terms", "/privacy"];
+const PAGES = ["/", "/used-cars", `/used-cars/${live.slug}`, "/finance", "/sell-your-car", "/find-a-car", "/service", "/warranty", "/contact", "/about", "/terms", "/privacy"];
 
 test("from 1024px the header has Stock, five links and a red Enquire button", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
