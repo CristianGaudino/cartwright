@@ -46,7 +46,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
             <Link href="/" className={link}>
-              <Image src="/brand/logo.png" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
+              <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
             </Link>
             <address className="text-body not-italic">
               {DEALER_ADDRESS_LINES.map((line) => (
