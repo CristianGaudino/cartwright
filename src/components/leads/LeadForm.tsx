@@ -148,6 +148,8 @@ export function LeadForm({
       } else {
         setErrors({});
         setFailure(r.kind);
+        // A server failure may be an email that did not go out: a retry must be stored and sent again, not answered as a duplicate.
+        if (r.kind === "server") clientRef.current = undefined;
       }
     });
   }
