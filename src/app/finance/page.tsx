@@ -6,13 +6,13 @@ import { pageMain, pageTitle } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Car finance estimator",
-  description: "Estimate a monthly payment on a used car. It is the start of the process: choose a car and send an enquiry and we will contact you with the real amounts. Carright, Tralee, Co. Kerry.",
+  description: "Estimate a monthly payment on a used car. It's the start of the process: choose a car and send an enquiry and we'll contact you with the real amounts. Carright, Tralee, Co. Kerry.",
 };
 
 const POINTS = [
   { title: "An estimate, not an approval", text: "The figure is worked out at an example rate. It shows roughly what a payment could be." },
-  { title: "Your circumstances matter", text: "What you are offered depends on things such as your age, income and credit history, and is decided by the lender." },
-  { title: "We come back with real amounts", text: "Choose a car, send an enquiry, and we will contact you with the actual figures and the next steps." },
+  { title: "Your circumstances matter", text: "What you're offered depends on things such as your age, income and credit history, and is decided by the lender." },
+  { title: "We come back with real amounts", text: "Choose a car, send an enquiry, and we'll contact you with the actual figures and the next steps." },
 ];
 
 export default function FinancePage() {

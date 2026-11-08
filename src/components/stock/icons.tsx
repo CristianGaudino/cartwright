@@ -187,3 +187,21 @@ export const PinIcon = (p: Props) => (
     <circle cx="12" cy="10" r="2.4" />
   </Icon>
 );
+
+export const PauseIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M9 5.5v13M15 5.5v13" />
+  </Icon>
+);
+export const PlayIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M8 5.5v13l10.5-6.5Z" />
+  </Icon>
+);
+
+export const CameraIcon = (p: Props) => (
+  <Icon {...p}>
+    <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.2-1.8A1 1 0 0 1 9.5 5h5a1 1 0 0 1 .8.4L16.5 7h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z" />
+    <circle cx="12" cy="13" r="3.2" />
+  </Icon>
+);

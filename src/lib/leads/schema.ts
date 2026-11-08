@@ -48,7 +48,7 @@ const sourcing = {
       .transform(Number)
       .optional(),
   ),
-  message: given(z.string({ error: "Tell us what you are looking for." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
+  message: given(z.string({ error: "Tell us what you're looking for." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
 };
 
 // D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.

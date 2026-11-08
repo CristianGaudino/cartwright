@@ -2,15 +2,18 @@ import { SaveButton } from "@/components/saved/SaveButton";
 import { PhotoCarousel } from "@/components/stock/PhotoCarousel";
 import { SoldBadge } from "@/components/stock/SoldBadge";
 import Link from "next/link";
-import { carMeta, carName, formatPrice } from "@/lib/stock/format";
+import { ArrowRightIcon } from "@/components/stock/icons";
+import { carMeta, carName, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { card } from "@/components/ui";
 
-export function ListingCard({ car, priority }: { car: Car; priority: boolean }) {
+// `oneLine`: the name on one line, cut with an ellipsis (the full name shows on hover and a tap opens the car). For rows of cards, such as
+// the featured cars, where a two line name would make the cards uneven.
+export function ListingCard({ car, priority, oneLine = false }: { car: Car; priority: boolean; oneLine?: boolean }) {
   const href = `/used-cars/${car.slug}`;
   return (
-    <article data-card className={`group relative overflow-hidden ${card} [transition:box-shadow_200ms_ease-out,background-color_100ms_ease-out] has-[h2_a:active]:bg-hairline [@media(hover:hover)]:hover:shadow-lift`}>
+    <article data-card className={`group relative overflow-hidden ${card} [transition:box-shadow_200ms_ease-out,background-color_100ms_ease-out,translate_200ms_ease-out] has-[h2_a:active]:bg-hairline [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:shadow-lift`}>
       <div data-card-photo className="relative aspect-[4/3] bg-photo-bg">
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
@@ -22,14 +25,28 @@ export function ListingCard({ car, priority }: { car: Car; priority: boolean }) 
         <div className="flex items-start justify-between gap-3">
           {/* The make above the model, as in the mockup; both are inside the one link, so its name is still "Make Model Variant". */}
           <h2 className="min-w-0 text-body font-semibold">
-            <Link href={href} className="after:absolute after:inset-0">
+            <Link href={href} title={oneLine ? carName(car) : undefined} className="after:absolute after:inset-0">
               <span className="block text-meta font-normal text-text-2">{car.make}</span>
-              <span className="line-clamp-2 block">{[car.model, car.variant].filter(Boolean).join(" ")}</span>
+              <span data-title className={`${oneLine ? "truncate" : "line-clamp-2"} block`}>{[car.model, car.variant].filter(Boolean).join(" ")}</span>
             </Link>
           </h2>
           <p data-price className={`shrink-0 text-heading font-semibold tabular-nums ${isSold(car) ? "text-text-2" : ""}`}>{isSold(car) ? "Sold" : formatPrice(car.priceEur)}</p>
         </div>
-        <p className="line-clamp-2 text-meta text-text-2">{carMeta(car)}</p>
+        <p data-meta className="line-clamp-2 text-meta text-text-2">{carMeta(car)}</p>
+        {/* Only in the list view (see globals.css): the key facts as chips, and the way on. */}
+        <div data-list-only className="hidden flex-col gap-4">
+          <ul className="flex flex-wrap gap-2">
+            {keyFacts(car).map((f) => (
+              <li key={f.label} className="rounded-full border border-hairline bg-surface px-3 py-1 text-meta">
+                {f.value}
+              </li>
+            ))}
+          </ul>
+          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent">
+            View Car
+            <ArrowRightIcon className="size-4" />
+          </span>
+        </div>
       </div>
     </article>
   );

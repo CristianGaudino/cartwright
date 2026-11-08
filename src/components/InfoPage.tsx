@@ -22,12 +22,12 @@ export function InfoSection({ title, children }: { title: string; children: Reac
   );
 }
 
-// The page's one accent button: dial the dealer. Full width on phones, at least 240px from 640px.
-export function CallButton({ children }: { children: React.ReactNode }) {
+// The page's one accent button: dial the dealer. Full width on phones, at least 240px from 640px, unless `sizing` says otherwise.
+export function CallButton({ children, sizing = "w-full sm:w-auto sm:min-w-60 sm:self-start" }: { children: React.ReactNode; sizing?: string }) {
   return (
     <a
       href={`tel:${DEALER_TEL}`}
-      className={`flex w-full items-center justify-center gap-2 sm:w-auto sm:min-w-60 sm:self-start ${accentButton}`}
+      className={`flex items-center justify-center gap-2 ${sizing} ${accentButton}`}
     >
       <PhoneIcon className="size-5" />
       {children}

@@ -57,7 +57,7 @@ describe("leadSchema error copy (UI-SPEC)", () => {
 describe("sourcing and general messages", () => {
   it("needs a sourcing message, and takes only a budget from the list", () => {
     const find = { ...base, type: "sourcing", message: "A small automatic" };
-    expect(errors({ ...find, message: " " }).message).toEqual(["Tell us what you are looking for."]);
+    expect(errors({ ...find, message: " " }).message).toEqual(["Tell us what you're looking for."]);
     expect(leadSchema.parse({ ...find, budgetMax: "", make: "" })).not.toHaveProperty("carId");
     expect(leadSchema.parse({ ...find, budgetMax: "20000" })).toMatchObject({ budgetMax: 20000 });
     expect(errors({ ...find, budgetMax: "12345" }).budgetMax).toBeDefined();

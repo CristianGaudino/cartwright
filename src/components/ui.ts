@@ -23,4 +23,4 @@ export const glass =
   "rounded-full bg-ink/60 text-white backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none contrast-more:border contrast-more:border-white";
 // A filter chip: filled and checked when on, dimmed when `muted` (nothing matches).
 export const chip = (on: boolean, muted = false) =>
-  `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold ${press} ${on ? "border-accent bg-accent text-white" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;
+  `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold transition-colors duration-150 ${press} ${on ? "border-accent bg-accent text-white" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;

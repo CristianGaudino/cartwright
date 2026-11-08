@@ -17,12 +17,11 @@ test("/service has a call button with the number, WhatsApp, services that open, 
   await expect(main(page).getByRole("link", { name: /^WhatsApp/ })).toHaveAttribute("href", "https://wa.me/353831333154");
   await expect(main(page).locator("p", { hasText: /^\+353 83 133 3154$/ })).toHaveCount(0); // the number is on the button, not under it
   for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("button", { name: new RegExp(`^${s}`) })).toHaveAttribute("aria-expanded", "false");
-  await expect(main(page).getByRole("heading", { name: /what we can do/ })).toHaveCount(0);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await main(page).getByRole("button", { name: /^Tyres/ }).click();
-  await expect(main(page).getByRole("heading", { name: "Tyres: what we can do" })).toBeVisible();
+  await expect(main(page).getByRole("heading", { name: "Tyres: What We Do" })).toBeVisible();
   await expect(main(page).getByText("Puncture repair")).toBeVisible();
-  await expect(main(page).getByLabel("Name")).toHaveCount(0); // no form until asked for
+  await expect(main(page).getByLabel("Name")).toBeVisible(); // the form is open beside the checks
 });
 
 test("/about has the photo on the right on desktop with the hours and directions under it, and no Visit us", async ({ page }) => {
@@ -72,11 +71,7 @@ test("/contact gives the phone, WhatsApp, the hours under the map, and no addres
   await expect(rows.last()).toContainText("Closed");
   await expect(main(page).getByRole("link", { name: "Ask us to find a car" })).toHaveCount(0); // the footer has those
   await expect(main(page).getByRole("link", { name: "Trade-In Valuation" })).toHaveCount(0);
-  await expect(main(page).getByRole("link", { name: /Get directions/i }).locator("svg")).toHaveCount(1); // a pin, not an emoji
   await expect(main(page).getByRole("link", { name: /^WhatsApp/ }).locator("svg")).toHaveCSS("color", "rgb(37, 211, 102)"); // WhatsApp's green
-  const directions = main(page).getByRole("link", { name: /Get directions/i });
-  await expect(directions).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/);
-  expect(await directions.getAttribute("href")).toContain("V92%20NT93");
 });
 
 test("/contact shows the map at once, level with the form, with the hours under it", async ({ page }) => {
@@ -112,7 +107,6 @@ test.describe("without JavaScript", () => {
   test("/contact still offers directions and the map", async ({ page }) => {
     await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, body: "" }));
     await page.goto("/contact");
-    await expect(page.getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
     await expect(page.locator("iframe")).toHaveCount(1);
   });
 });

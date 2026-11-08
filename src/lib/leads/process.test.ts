@@ -4,7 +4,7 @@ import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
 import type { Deps, LeadRow } from "./process";
-import { CONSENT } from "./constants";
+import { CONSENT, PHOTO_MIN_COUNT } from "./constants";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
@@ -217,7 +217,8 @@ describe("processLead bot checks (D-05)", () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);
     deps.getCar = getCar;
-    const fd = enquiryForm({ type: "trade_in", sourcePath: "/sell-your-car", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
+    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
     expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
     expect(rows[0].details).toEqual({ reg: "191-KY-1234", mileage: 120500 });

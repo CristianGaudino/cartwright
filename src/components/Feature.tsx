@@ -10,7 +10,7 @@ export function IconBadge({ children, size = "md" }: { children: React.ReactNode
 // One reason or fact in a list: a badge, a short title and a line of text, in a bordered card. Renders an <li>, so it goes in a <ul>.
 export function FeatureCard({ badge, title, text }: { badge: React.ReactNode; title: string; text: string }) {
   return (
-    <li className={`flex items-start gap-4 ${card} p-5`}>
+    <li className={`reveal flex items-start gap-4 ${card} p-5`}>
       <IconBadge>{badge}</IconBadge>
       <TitleText title={title} text={text} />
     </li>

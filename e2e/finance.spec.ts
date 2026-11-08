@@ -97,7 +97,7 @@ test.describe("finance application", () => {
     await expect(d).toBeVisible();
     await expect(d.getByLabel("Deposit")).toHaveValue("4000");
     await expect(d.getByLabel("Term")).toHaveValue("36 months");
-    await expect(d.getByText("We do not ask for income, date of birth or bank details.")).toBeVisible();
+    await expect(d.getByText("We don't ask for income, date of birth or bank details.")).toBeVisible();
     await expect(d.getByLabel(/income|date of birth|bank/i)).toHaveCount(0);
 
     await d.getByLabel("Name").fill("Test Buyer");

@@ -11,7 +11,7 @@ export default function SegmentError({ retry }: { error: unknown; retry: () => v
   return (
     <main className={pageMain}>
       <div className="py-16 text-center">
-        <h1 className="text-heading font-semibold">{isCar ? "We could not load this car" : "We could not load the cars"}</h1>
+        <h1 className="text-heading font-semibold">{isCar ? "We couldn't load this car" : "We couldn't load the cars"}</h1>
         <p className="mt-2 text-body text-text-2">Check your connection and try again.</p>
         <button
           type="button"

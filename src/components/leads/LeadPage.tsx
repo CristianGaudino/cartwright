@@ -13,7 +13,7 @@ export function LeadPage({ title, intro, how, aside, children }: { title: string
       {how && (
         <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {how.map((s, i) => (
-            <li key={s.title} className={`flex gap-4 ${card} p-4`}>
+            <li key={s.title} className={`reveal flex gap-4 ${card} p-4`}>
               <IconBadge size="sm">{i + 1}</IconBadge>
               <TitleText title={s.title} text={s.text} />
             </li>
@@ -21,10 +21,12 @@ export function LeadPage({ title, intro, how, aside, children }: { title: string
         </ol>
       )}
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <div data-wells className={`w-full max-w-[640px] ${card} p-5 sm:p-6`}>
+        {/* The form takes the width the tips leave. On a phone and a tablet the tips sit under it across the full width, two across when there
+            is room, so no part of the page is empty. */}
+        <div data-wells className={`w-full ${card} p-5 sm:p-6 lg:flex-1`}>
           {children}
         </div>
-        {aside && <aside className="flex w-full max-w-[640px] flex-col gap-4 lg:w-96 lg:shrink-0">{aside}</aside>}
+        {aside && <aside className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:flex lg:w-96 lg:shrink-0 lg:flex-col">{aside}</aside>}
       </div>
     </main>
   );

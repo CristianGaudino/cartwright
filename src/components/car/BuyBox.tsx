@@ -18,12 +18,14 @@ const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage
 export function BuyBox({ car }: { car: Car }) {
   const sold = isSold(car);
   const url = `${SITE_URL}/used-cars/${car.slug}`;
-  const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I am interested in the ${carName(car)}: ${url}`)}`;
+  const whatsapp = `${DEALER_WHATSAPP}?text=${encodeURIComponent(`Hi, I'm interested in the ${carName(car)}: ${url}`)}`;
   return (
     <div data-testid="buy-box" className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3">
         <h1 className="min-w-0 break-words text-display font-bold">{carTitle(car)}</h1>
-        <div className="shrink-0">
+        {/* Share beside the heart, where a buyer looks for them. */}
+        <div className="flex shrink-0 items-center">
+          <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />
           <SaveButton id={car.id} label="Save this car" variant="page" />
         </div>
       </div>
@@ -56,6 +58,8 @@ export function BuyBox({ car }: { car: Car }) {
           );
         })}
       </dl>
+      {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
+      {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
       {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
@@ -65,10 +69,6 @@ export function BuyBox({ car }: { car: Car }) {
           </div>
         </div>
       )}
-      <div className="flex flex-wrap items-center gap-2">
-        {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} />}
-        <ShareButton title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />
-      </div>
     </div>
   );
 }

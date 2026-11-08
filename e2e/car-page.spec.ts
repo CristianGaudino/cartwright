@@ -40,7 +40,9 @@ test.describe("a car for sale", () => {
 
     const viewport = page.viewportSize()!.height;
     expect((await price.boundingBox())!.y).toBeLessThan(viewport);
-    expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport);
+    expect((await call.boundingBox())!.y).toBeLessThan(viewport);
+    // Share and the heart sit beside a long title, which can take a third line: the facts start within a short scroll.
+    expect((await tiles.first().boundingBox())!.y).toBeLessThan(viewport + 60);
   });
 
   test("holds its four buttons at 320px without sideways scroll, and nothing below moves on hydration", async ({ page, browser }) => {
@@ -170,12 +172,12 @@ test.describe("the sections below the buy box", () => {
     expect(await section(page, "About This Car").locator("p").innerText()).toContain("\n");
   });
 
-  test("Similar cars shows 1 to 3 other cars, and the page has one h1 and h2 sections", async ({ page }) => {
+  test("Similar cars shows other cars in a carousel, and the page has one h1 and h2 sections", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
     const cards = section(page, "Similar Cars").locator("article");
     const n = await cards.count();
     expect(n).toBeGreaterThanOrEqual(1);
-    expect(n).toBeLessThanOrEqual(3);
+    expect(n).toBeLessThanOrEqual(8);
     for (const href of await cards.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href")))) expect(href).not.toBe(`/used-cars/${rich!.slug}`);
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 2, name: "Specifications" })).toBeVisible();

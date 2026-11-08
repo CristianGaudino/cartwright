@@ -1,3 +1,4 @@
+import { AutoCarousel } from "@/components/AutoCarousel";
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, slash } from "@/components/ui";
@@ -74,16 +75,28 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
   if (!cars.length) return null;
   return (
     <section>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
         <h2 className={h2}>Similar Cars</h2>
-        <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
-          See all {car.make}
-        </Link>
+        {/* More of the same kind of car, and more of the same make. */}
+        <div className="flex flex-wrap gap-x-6">
+          {car.bodySlug && car.bodyType && (
+            <Link href={`/used-cars/${car.bodySlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
+              See All {car.bodyType}s
+            </Link>
+          )}
+          <Link href={`/used-cars/${car.makeSlug}`} className="inline-flex min-h-11 items-center font-semibold underline">
+            See All {car.make}
+          </Link>
+        </div>
       </div>
-      <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {cars.map((c) => (
-          <ListingCard key={c.id} car={c} priority={false} />
-        ))}
+      <div className="mt-4">
+        <AutoCarousel label="Similar cars">
+          {cars.map((c) => (
+            <li key={c.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
+              <ListingCard car={c} priority={false} oneLine />
+            </li>
+          ))}
+        </AutoCarousel>
       </div>
     </section>
   );

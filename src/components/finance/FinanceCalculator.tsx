@@ -48,7 +48,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   return (
     <>
       {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. */}
-      <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+      <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div className="grid grid-cols-1 gap-4">
             {car ? (
@@ -92,7 +92,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             )}
           </div>
           <p className="rounded-control bg-surface p-3 text-meta">
-            This is an estimate, not an approval. What you are offered depends on your circumstances, such as your age, income and credit history. Send your details and we will contact you with the real amounts.
+            This is an estimate, not an approval. What you&apos;re offered depends on your circumstances, such as your age, income and credit history. Send your details and we&apos;ll contact you with the real amounts.
           </p>
           {car ? (
             <button
@@ -102,13 +102,13 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
                 setPrefill({ deposit, term }); // a new object on each open refreshes just these fields in the form
                 setOpen(true);
               }}
-              className={`flex h-12 w-full items-center justify-center gap-2 rounded-control border border-control bg-card px-6 font-semibold ${press}`}
+              className={`mt-auto flex h-12 w-full items-center justify-center gap-2 rounded-control border border-control bg-card px-6 font-semibold ${press}`}
             >
               Start Your Application
               <ArrowRightIcon className="size-5" />
             </button>
           ) : (
-            <Link href="/used-cars" className={`flex h-12 w-full items-center justify-center gap-2 text-center ${accentButton}`}>
+            <Link href="/used-cars" className={`mt-auto flex h-12 w-full items-center justify-center gap-2 text-center ${accentButton}`}>
               Select a Car to Estimate and Enquire
               <ArrowRightIcon className="size-5" />
             </Link>
@@ -131,7 +131,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             variant="dialog"
             prefill={prefill}
             submitLabel="Send Details"
-            success={{ heading: "Thanks, we have your details.", body: "This is not an approval. We will contact you with the real amounts and the next steps." }}
+            success={{ heading: "Thanks, we have your details.", body: "This isn't an approval. We'll contact you with the real amounts and the next steps." }}
           >
             {({ bind }) => <FinanceFields bind={bind} />}
           </LeadForm>

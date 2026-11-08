@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { IconBadge, TitleText } from "@/components/Feature";
-import { FeaturedRow } from "@/components/home/FeaturedRow";
+import { AutoCarousel } from "@/components/AutoCarousel";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { JsonLd } from "@/components/JsonLd";
@@ -64,7 +64,7 @@ export default async function Home() {
         <section className="flex flex-col gap-4">
           {!result ? (
             <>
-              <p className="text-body">We could not load the cars.</p>
+              <p className="text-body">We couldn&apos;t load the cars.</p>
               <Link href="/used-cars" className={textLink}>
                 See Used Cars
               </Link>
@@ -73,7 +73,7 @@ export default async function Home() {
             <>
               <h2 className={subTitle}>No cars listed right now</h2>
               <Link href="/find-a-car" className={textLink}>
-                Cannot find it? Ask us to find it for you.
+                Can&apos;t find it? Ask us to find it for you.
               </Link>
             </>
           ) : (
@@ -85,13 +85,13 @@ export default async function Home() {
                   <ArrowRightIcon className="size-5" />
                 </Link>
               </div>
-              <FeaturedRow label="Featured Stock">
+              <AutoCarousel label="Featured Stock">
                 {result.cars.map((car) => (
                   <li key={car.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
-                    <ListingCard car={car} priority={false} />
+                    <ListingCard car={car} priority={false} oneLine />
                   </li>
                 ))}
-              </FeaturedRow>
+              </AutoCarousel>
             </>
           )}
         </section>

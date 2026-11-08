@@ -36,7 +36,7 @@ async function rows(page: Page, name = "Make") {
 
 const showAll = (page: Page) => makeGroup(page).getByRole("button", { name: /^Show all \d+$/i });
 const titles = (page: Page) => page.locator("article h2").allTextContents();
-const metas = (page: Page) => page.locator("article > div:last-child > p:last-child").allTextContents();
+const metas = (page: Page) => page.locator("article [data-meta]").allTextContents();
 const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
@@ -67,7 +67,9 @@ test.describe("filters on a desktop", () => {
   test("a drop-down list is never cut off by the filter panel, and the panel's scrollbar is thin", async ({ page }) => {
     await open(page);
     await openGroups(page);
-    await expect(page.locator("aside")).toHaveCSS("scrollbar-width", "thin");
+    // A thin scrollbar with room at both ends (Chrome and Safari), or the standard thin one (Firefox).
+    const thin = await page.locator("aside").evaluate((el) => getComputedStyle(el, "::-webkit-scrollbar").width === "12px" || getComputedStyle(el).scrollbarWidth === "thin");
+    expect(thin).toBe(true);
     const upTo = select(page, "Up to"); // the field nearest the foot of the panel
     await upTo.scrollIntoViewIfNeeded();
     await upTo.click();
@@ -406,7 +408,7 @@ test.describe("filters on a desktop", () => {
     const fuel = (await chips(page, "Fuel")).map((c) => c.label);
 
     await search(page).fill("e2e-forced-failure");
-    await expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible();
 
     expect((await rows(page)).map((r) => r.label)).toEqual(makes);
     expect((await rows(page)).every((r) => Number.isNaN(r.count))).toBe(true);
@@ -555,7 +557,7 @@ test.describe("filters on a phone", () => {
     test.skip(!!process.env.E2E_BASE_URL, "needs the failure switch, which only the local server has");
     await open(page);
     await search(page).fill("e2e-forced-failure");
-    await expect(page.getByRole("heading", { name: "We could not load the cars" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible();
     await filtersButton(page).click();
     await expect(primary(page)).toHaveText("Show cars");
     await expect(primary(page)).toBeEnabled();

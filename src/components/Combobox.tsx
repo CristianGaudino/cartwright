@@ -186,7 +186,7 @@ export function Combobox({
           onMouseDown={(e) => e.preventDefault()}
           // `inset: auto` first: a popover's own style pins it to every edge
           style={{ inset: "auto", margin: 0, ...place }}
-          className="fixed z-50 min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 text-text shadow-lift"
+          className="fixed z-50 min-w-40 overflow-y-auto overscroll-contain rounded-control border border-control bg-card p-1 text-text shadow-lift transition-[opacity,translate] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:transition-none"
         >
           {shown.length === 0 && (
             <li role="presentation" className="px-3 py-2.5 text-body text-text-2">

@@ -5,7 +5,7 @@ import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
-import { CONSENT, PHOTO_COUNT_ERROR, PHOTO_MAX_COUNT, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoError } from "./constants";
+import { CONSENT, PHOTO_COUNT_ERROR, PHOTO_MAX_COUNT, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoError } from "./constants";
 import { signPhotoPath, sniffImage } from "./photos";
 import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
@@ -76,6 +76,7 @@ type Photo = { file: Blob; ext: string; contentType: string };
 // Trade-in photos, checked by their bytes and the caps before anything is stored (T-03-30, T-03-31). The phone already
 // shrank them (03-14), so a refusal here means a forged or broken request.
 async function checkPhotos(files: Blob[]): Promise<{ photos: Photo[] } | { error: string }> {
+  if (files.length < PHOTO_MIN_COUNT) return { error: PHOTO_MIN_ERROR };
   if (files.length > PHOTO_MAX_COUNT) return { error: PHOTO_COUNT_ERROR };
   if (files.reduce((n, f) => n + f.size, 0) > PHOTO_TOTAL_MAX_BYTES) return { error: PHOTO_TOTAL_ERROR };
   const photos: Photo[] = [];

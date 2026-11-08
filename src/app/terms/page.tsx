@@ -12,13 +12,13 @@ export default function TermsPage() {
     <InfoPage title="Terms of Use">
       {!DEALER_FACTS_CONFIRMED && <p className={`${card} p-4`}>This is a draft. The dealer&apos;s own terms replace it.</p>}
       <InfoSection title="Using this site">
-        <p>You can browse this site freely. Do not use it to send us anything that is not true or not yours.</p>
+        <p>You can browse this site freely. Don&apos;t use it to send us anything that isn&apos;t true or isn&apos;t yours.</p>
       </InfoSection>
       <InfoSection title="Cars and prices">
         <p>Cars and prices are shown as supplied by us and can change. Call to check a car is still available before you travel.</p>
       </InfoSection>
       <InfoSection title="Finance figures">
-        <p>Finance figures are estimates only. They are not an approval or an offer of credit. Finance is provided through a lender, subject to status. The rate and amount you are offered depend on your circumstances and are confirmed by the lender.</p>
+        <p>Finance figures are estimates only. They aren&apos;t an approval or an offer of credit. Finance is provided through a lender, subject to status. The rate and amount you&apos;re offered depend on your circumstances and are confirmed by the lender.</p>
       </InfoSection>
       <InfoSection title="Reviews">
         <p>Reviews come from Google and are shown as written.</p>

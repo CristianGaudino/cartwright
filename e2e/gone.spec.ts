@@ -30,7 +30,7 @@ test("a live car still answers 200", async ({ request }) => {
 
 test("the 404 page says so and links to the list", async ({ page }) => {
   await page.goto("/used-cars/not-a-car");
-  await expect(page.getByRole("heading", { name: "We could not find that page" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveAttribute("href", "/used-cars");
 });
 

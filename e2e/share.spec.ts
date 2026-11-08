@@ -69,7 +69,7 @@ test.describe("share a car", () => {
     await open(page, await firstCarHref(page));
     await shareButton(page).click();
     await page.getByRole("button", { name: "Copy link" }).click();
-    await expect(page.getByRole("button", { name: "Could not copy the link" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Couldn't copy the link" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Share on WhatsApp" })).toBeVisible();
   });
 

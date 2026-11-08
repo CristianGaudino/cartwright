@@ -116,9 +116,24 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   return (
     <StockContext value={{ query: optimisticQuery, summary, facets: summary ? summary.facets : held, pending, navigate }}>
       <main className={pageMain}>
-        <p className={`text-body ${slash}`}>Our Stock</p>
-        <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
-        <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+        {/* From 1024px the title is on the left and the count, sort and layout toggle on the right, level with it, so the filters and the cars
+            start higher. Below that the count sits under the intro (sort is in the sticky bar). */}
+        <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
+          <div>
+            <p className={`text-body ${slash}`}>Our Stock</p>
+            <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
+            <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
+            <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
+              {summary && countLabel(summary.total)}
+            </p>
+            <div className="hidden items-center gap-3 lg:flex">
+              <SortControl className="flex" />
+              <ViewToggle />
+            </div>
+          </div>
+        </div>
         <div className="mt-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
           <aside className="hidden lg:block lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:self-start lg:overflow-y-auto lg:rounded-card lg:border lg:border-hairline lg:bg-card lg:p-4">
             <div className="mb-4 flex items-center justify-between gap-2 border-b border-hairline pb-4">
@@ -131,16 +146,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           </aside>
           {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
           <div ref={results} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
-            <div className="flex items-center justify-between gap-4">
-              <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-                {summary && countLabel(summary.total)}
-              </p>
-              <div className="hidden items-center gap-3 lg:flex">
-                <SortControl className="flex" />
-                <ViewToggle />
-              </div>
-            </div>
-            <div className="mt-4 lg:hidden">
+            <div className="lg:hidden">
               <SearchBox />
             </div>
             <div
@@ -166,7 +172,7 @@ export function EmptyState() {
   return (
     <StateBlock title="No cars match these filters" text="Try removing a filter.">
       <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
-        Cannot find it? Ask us to find it for you.
+        Can&apos;t find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear All Filters
