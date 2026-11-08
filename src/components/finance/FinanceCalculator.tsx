@@ -44,6 +44,12 @@ export function FinanceCalculator({ car: fixed, cars }: { car?: FinanceCar; cars
   const priceError = !car && !(price !== "" && financeable(priceEur)) ? "Enter a price between €1,000 and €250,000." : undefined;
   const depositError = !priceError && depositEur >= priceEur ? "Deposit must be less than the price." : undefined;
   const q = quote(priceEur, depositEur, Number(term), d.aprPct);
+  // A car cheaper than the deposit in the box would open on an error, so it starts at no deposit (as a car page does).
+  const pickCar = (id: string) => {
+    setCarId(id);
+    const picked = cars?.find((c) => c.id === id);
+    if (picked && picked.priceEur <= depositEur) setDeposit("0");
+  };
 
   const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange, error });
   const carOptions = [{ value: "", label: "No car, just estimate a price" }, ...(cars ?? []).map((c) => ({ value: c.id, label: `${c.title}, ${c.price}` }))];
@@ -56,7 +62,7 @@ export function FinanceCalculator({ car: fixed, cars }: { car?: FinanceCar; cars
           {/* Removed in one place: set placeholder to false in finance.config.ts. Never hidden with CSS (D-16). */}
           {FINANCE.placeholder && <PlaceholderPill>Placeholder figures</PlaceholderPill>}
           <div className="grid grid-cols-1 gap-4">
-            {cars && cars.length > 0 && <Field {...field("car", carId, setCarId)} label="Car" options={carOptions} />}
+            {cars && cars.length > 0 && <Field {...field("car", carId, pickCar)} label="Car" options={carOptions} />}
             {car ? (
               <div className="flex flex-col gap-1">
                 <p className="text-meta font-semibold">Price</p>

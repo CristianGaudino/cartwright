@@ -116,6 +116,17 @@ test.describe("finance application", () => {
     await expect(calc(page).getByLabel("Price")).toBeVisible(); // back to typing a price
   });
 
+  test("picking a car cheaper than the deposit in the box resets the deposit to nothing, not an error", async ({ page }) => {
+    const cheapest = cars.filter((c) => !c.soldAt).sort((x, y) => x.priceEur - y.priceEur)[0];
+    await open(page, "/finance");
+    await calc(page).getByLabel("Deposit").fill("99999");
+    const value = await calc(page).getByLabel("Car").locator("option", { hasText: price(cheapest.priceEur) }).first().getAttribute("value");
+    await calc(page).getByLabel("Car").selectOption(value!);
+    await expect(calc(page).getByLabel("Deposit")).toHaveValue("0");
+    await expect(page.getByText("Deposit must be less than the price.")).toHaveCount(0);
+    await expect(result(page)).toContainText(/About €[\d,]+ a month/);
+  });
+
   test("a car page works out finance on that car's price and applies for that car", async ({ page }) => {
     await open(page, `/used-cars/${live.slug}`);
     await expect(page.getByRole("heading", { name: "Finance", exact: true })).toBeVisible();

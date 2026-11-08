@@ -1,6 +1,7 @@
 import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
-import type { Car, StockProvider } from "./types";
+import { DEFAULT_QUERY } from "./query";
+import type { Car, StockProvider, StockQuery } from "./types";
 
 const files = createFileProvider(demoCars as Car[]);
 
@@ -16,3 +17,11 @@ export const stock: StockProvider = {
     return fail && fail === q.q ? Promise.reject(new Error("forced failure")) : files.query(q);
   },
 };
+
+// Every car at once, for the pages that need the whole stock (home, finance, sitemap, landing pages). shortcut: one query covers the
+// stock while it is under 1000 cars; with a live provider page through it or ask for counts.
+export const queryAll = (extra: Partial<StockQuery> = {}) => stock.query({ ...DEFAULT_QUERY, ...extra, pageSize: 1000 });
+
+// The same, for a page that must still render when stock fails: null, and one log line with the error name only.
+export const queryAllOrNull = (extra?: Partial<StockQuery>) =>
+  queryAll(extra).catch((e) => (console.error("stock.query failed", e instanceof Error ? e.name : typeof e), null));
