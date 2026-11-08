@@ -210,7 +210,7 @@ async function fetchPhotos(id) {
 // ---------- build ----------
 
 const slugify = (s) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-", mdash: "-" };
+const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "-", mdash: "-", eacute: "é", egrave: "è", aacute: "á", oacute: "ó", uacute: "ú", iacute: "í", ouml: "ö", uuml: "ü", euro: "€" };
 // Scraped text becomes plain text: no tags, no entities, no en or em dashes (CLAUDE.md bans them on the site).
 const decode = (v) =>
   String(v ?? "")

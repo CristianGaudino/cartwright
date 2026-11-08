@@ -185,15 +185,16 @@ function Transmission() {
   const options: { value: Gearbox | undefined; label: string }[] = [{ value: undefined, label: "Any" }, ...GEARBOXES.map((g) => ({ value: g, label: GEARBOX_LABELS[g] }))];
   return (
     <Group title="Transmission" active={query.gearbox !== undefined} role="radiogroup">
-      <div className="grid grid-cols-3 overflow-hidden rounded-control border border-control">
+      {/* The same chips as Body Type and Fuel, which wrap: three joined segments did not fit the panel's width. */}
+      <div className="flex flex-wrap gap-2 py-1">
         {options.map((o) => {
           const on = query.gearbox === o.value;
           return (
             <label key={o.label} className="relative flex">
               <input type="radio" name={name} value={o.value ?? ""} checked={on} onChange={() => navigate({ ...query, gearbox: o.value, page: 1 })} className="peer sr-only" />
               <span
-                className={`flex min-h-11 w-full items-center justify-center gap-1 px-2 text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:-outline-offset-2 ${press} ${
-                  on ? "bg-accent text-white" : "bg-card"
+                className={`inline-flex min-h-11 items-center gap-1 rounded-full border px-4 text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text ${press} ${
+                  on ? "border-accent bg-accent text-white" : "border-control bg-card"
                 }`}
               >
                 {on && <CheckIcon className="h-4 w-4 shrink-0" />}

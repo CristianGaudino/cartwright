@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { FeatureCard } from "@/components/Feature";
-import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
+import { CheckIcon, PinIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
 import { OpeningHours } from "@/components/OpeningHours";
 import { accentButton, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
@@ -32,7 +32,8 @@ export default function AboutPage() {
         <div className="flex flex-col gap-6 lg:order-2">
           <Image src="/brand/about.webp" width={1200} height={900} alt="" className="aspect-[4/3] w-full rounded-card object-cover" />
           <OpeningHours />
-          <a href={dealerDirectionsUrl()} target="_blank" rel="noopener noreferrer" className={`inline-flex h-12 items-center justify-center px-6 ${secondaryButton}`}>
+          <a href={dealerDirectionsUrl()} target="_blank" rel="noopener noreferrer" className={`inline-flex h-12 items-center justify-center gap-2 px-6 ${secondaryButton}`}>
+            <PinIcon className="size-5 text-accent" />
             Get Directions<span className="sr-only"> (opens in a new tab)</span>
           </a>
         </div>

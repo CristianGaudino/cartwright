@@ -78,7 +78,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Call Us
         </a>
         <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={secondary}>
-          <WhatsAppIcon className="size-5" />
+          <WhatsAppIcon className="size-5 text-whatsapp" />
           WhatsApp<span className="sr-only"> (opens in a new tab)</span>
         </a>
       </div>

@@ -26,6 +26,11 @@ function files(dir: string): string[] {
 }
 
 describe("generated demo cars", () => {
+  it("has plain text, with no raw HTML entity such as &eacute; left in any field", () => {
+    const entity = /&(?:[a-z]+|#\d+|#x[0-9a-f]+);/i;
+    expect(strings(cars).filter((t) => entity.test(t))).toEqual([]);
+  });
+
   it("has cars with unique digit ids and slugs", () => {
     expect(cars.length).toBeGreaterThanOrEqual(1);
     expect(cars.every((c) => /^\d+$/.test(c.id))).toBe(true);

@@ -63,7 +63,7 @@ function Placeholder() {
     <Link
       href="/used-cars"
       data-testid="compare-placeholder"
-      className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-hairline p-6 text-center transition-colors hover:border-text hover:bg-card"
+      className="flex min-h-80 flex-col items-center justify-center gap-3 rounded-card border-2 border-dashed border-hairline p-6 text-center transition-colors hover:border-text hover:bg-card md:row-span-3"
     >
       <span className="flex size-12 items-center justify-center rounded-full bg-card">
         <PlusIcon className="size-6" />
@@ -115,9 +115,10 @@ export function CompareCards() {
         </button>
       </div>
       {loaded.gone > 0 && <p className="mb-4 text-meta text-text-2">A car you picked is no longer for sale, so it was removed.</p>}
+      {/* From md each card is three rows (photo, title, figures) of a shared grid, so a title that wraps pushes the figures of every card down. */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {cars.map((car, ci) => (
-          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="group flex flex-col overflow-hidden rounded-card border border-hairline bg-card">
+          <article key={car.id} data-testid="compare-card" aria-label={carTitle(car)} className="group flex flex-col overflow-hidden rounded-card border border-hairline bg-card md:row-span-3 md:grid md:grid-rows-subgrid">
             <div className="relative aspect-[4/3] bg-photo-bg">
               {/* The same swipeable photos as a stock card, so cars compare by look as well as by figures. */}
               <PhotoCarousel photos={car.photos} href={`/used-cars/${car.slug}`} label={carTitle(car)} priority={false} />

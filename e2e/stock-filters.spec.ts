@@ -64,6 +64,62 @@ const chips = (page: Page, name: string) =>
 test.describe("filters on a desktop", () => {
   test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
 
+  test("a drop-down list is never cut off by the filter panel, and the panel's scrollbar is thin", async ({ page }) => {
+    await open(page);
+    await openGroups(page);
+    await expect(page.locator("aside")).toHaveCSS("scrollbar-width", "thin");
+    const upTo = select(page, "Up to"); // the field nearest the foot of the panel
+    await upTo.scrollIntoViewIfNeeded();
+    await upTo.click();
+    const list = page.getByRole("listbox");
+    await expect(list).toBeVisible();
+    const box = (await list.boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(900);
+    // What is under the middle of the list is the list: nothing (the panel's scroll area) is hiding part of it.
+    const covered = await list.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !el.contains(hit);
+    });
+    expect(covered).toBe(false);
+  });
+
+  test("Transmission chips sit inside the panel and never overlap", async ({ page }) => {
+    await open(page);
+    await openGroups(page);
+    const group = page.getByRole("radiogroup", { name: "Transmission" });
+    await group.getByText("Automatic", { exact: true }).click(); // the selected chip is the widest: it has a check
+    const boxes = await group.locator("label").evaluateAll((ls) => ls.map((l) => l.getBoundingClientRect().toJSON()));
+    const panel = (await page.locator("aside").boundingBox())!;
+    for (const b of boxes) expect(b.right).toBeLessThanOrEqual(panel.x + panel.width);
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const [p, q] = [boxes[i], boxes[j]];
+        const apart = p.right <= q.left + 0.5 || q.right <= p.left + 0.5 || p.bottom <= q.top + 0.5 || q.bottom <= p.top + 0.5;
+        expect(apart, `chips ${i} and ${j}`).toBe(true);
+      }
+  });
+
+  test("filtering keeps the Make list in one order and the page tall enough that the panel does not move", async ({ page }) => {
+    await open(page);
+    await openGroups(page);
+    const order = async () => (await rows(page)).map((r) => r.value);
+    const before = await order();
+    await page.evaluate(() => window.scrollTo(0, 500)); // scrolled down the list, as a buyer is when they filter
+    const panelTop = (await page.locator("aside").boundingBox())!.y;
+    await page.getByRole("group", { name: "Fuel" }).getByRole("button").nth(1).click(); // a fuel chip: the make counts change
+    await expect(page).toHaveURL(/fuel=/);
+    await expect(page.getByTestId("count")).not.toHaveText(/^$/);
+    expect(await order()).toEqual(before); // same order, only the counts moved
+    // However few cars are left, the results column is a screen tall, so the page does not shrink under the panel.
+    const results = (await page.locator('main div[class*="min-h-[100dvh]"]').boundingBox())!;
+    expect(results.height).toBeGreaterThanOrEqual(900);
+    // The page went back to the top of the results, so the panel stays where it was instead of being pushed up by a shorter page.
+    await expect.poll(async () => Math.round((await page.locator("aside").boundingBox())!.y)).toBe(Math.round(panelTop));
+    expect((await page.locator('main div[class*="min-h-[100dvh]"]').boundingBox())!.y).toBeGreaterThanOrEqual(-1);
+  });
+
   test("ticking makes filters the cars through the URL, with honest counts", async ({ page }) => {
     await open(page);
     await expect(makeGroup(page)).toHaveCount(1);

@@ -39,6 +39,7 @@
   --color-photo-bg: #1c242b;
   --color-destructive: #f97066;
   --color-better: #4ade80;
+  --color-whatsapp: #25d366; /* WhatsApp's own green, for its icon only */
 
   --radius-card: 1rem;
   --radius-control: 0.75rem;
@@ -48,9 +49,21 @@
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* No scrollbar at all, for the swipe rows and strips (photos, featured cars). The thin scrollbar set for everything else (see base) would
+   otherwise come back on them, because setting scrollbar-width makes the browser ignore ::-webkit-scrollbar. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+}
+
 @custom-variant reduce-transparency (@media (prefers-reduced-transparency: reduce));
 
 @layer base {
+  /* Thin scrollbars with no track, so a scrollbar never draws a square edge over a rounded corner (drop-down lists, dialogs, the filter
+     panel). */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-control) transparent;
+  }
   html {
     color-scheme: dark;
     background-color: var(--color-surface);
