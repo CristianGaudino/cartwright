@@ -14,7 +14,8 @@ type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; sl
 const tab = "relative inline-flex min-h-11 items-center px-4 text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 
-// A plain GET form, so it works without JavaScript: /used-cars reads make, model, body and priceMax from the URL (BRW-03).
+// A plain GET form: /used-cars reads make, model, body and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
+// without them it still goes to the stock, with nothing chosen.
 // The mockup's "Find me a car" tab sits beside it.
 export function HomeSearch({ makes, bodies, models }: Props) {
   const [tabName, setTab] = useState<"search" | "find">("search");

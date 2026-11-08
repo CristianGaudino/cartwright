@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LeadPage, Tips } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
+import { PHOTO_GUIDE } from "@/lib/leads/constants";
 
 export const metadata: Metadata = {
   title: "Trade-in valuation",
@@ -28,7 +29,7 @@ export default function TradeInPage() {
               "The value goes towards the car you buy from us.",
             ]}
           />
-          <Tips title="Photos that help" items={["Front, back and both sides", "The inside and the dashboard showing the mileage", "Each wheel and tyre", "Every dent, scratch or mark, close up"]} />
+          <Tips title="Photos that help" items={PHOTO_GUIDE} />
         </>
       }
     >

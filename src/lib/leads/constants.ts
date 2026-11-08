@@ -29,3 +29,6 @@ export const BAD_REG = "Enter the registration as shown on the car.";
 export const BAD_KM = "Enter the mileage in km, numbers only.";
 export const REG_PATTERN = /^[A-Z0-9 -]{1,12}$/;
 export const KM_PATTERN = /^\d{1,6}$/;
+
+// What to photograph for a trade-in valuation: shown on the photo step and beside the form, from here so the two never differ.
+export const PHOTO_GUIDE = ["The front and the back", "Both sides", "The inside, and the dashboard showing the mileage", "Each wheel and tyre", "Every dent, scratch or mark, close up"];

@@ -12,9 +12,10 @@ export function useSteps(steps: FormStep[] | undefined, values: Record<string, s
   const wizard = steps !== undefined && steps.length > 1;
   const last = !wizard || step === steps.length - 1;
 
-  // A new step takes focus on its heading, so a screen reader hears where it is and the page is not left scrolled past it.
+  // A new step takes focus on its heading, so a screen reader hears where it is and the page is not left scrolled past it. Not if the
+  // buyer has already started typing in a field of the new step: focus is never taken from a field.
   useEffect(() => {
-    if (moves) heading.current?.focus();
+    if (moves && !(document.activeElement instanceof HTMLElement && document.activeElement.matches("input, textarea, select"))) heading.current?.focus();
   }, [moves]);
 
   const go = (to: number) => {

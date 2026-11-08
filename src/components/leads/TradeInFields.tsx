@@ -1,7 +1,7 @@
 "use client";
 
 import { SearchIcon } from "@/components/stock/icons";
-import { BAD_KM, BAD_REG, KM_PATTERN, LIMITS, REG_PATTERN } from "@/lib/leads/constants";
+import { BAD_KM, BAD_REG, KM_PATTERN, LIMITS, PHOTO_GUIDE, REG_PATTERN } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
 import { PhotoPicker } from "./PhotoPicker";
@@ -24,7 +24,6 @@ export const TRADE_IN_STEPS: FormStep[] = [
   { title: "Your details", fields: ["name", "phone", "email", "consent"] },
 ];
 
-const GUIDE_PHOTOS = ["The front and the back", "Both sides", "The inside, and the dashboard showing the mileage", "Each wheel and tyre", "Every dent, scratch or mark, close up"];
 const GUIDE_NOTES = ["Warning lights or faults", "Accident or body damage", "Service history and NCT", "Number of owners"];
 
 // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
@@ -66,7 +65,7 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
       <div hidden={step !== 2} className="flex flex-col gap-4">
         <p className="text-body text-text-2">Good photos give the best valuation. Include all damage, even small marks.</p>
         <ul className="flex flex-col gap-1 text-meta">
-          {GUIDE_PHOTOS.map((n) => (
+          {PHOTO_GUIDE.map((n) => (
             <li key={n} className="flex items-center gap-2">
               <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-accent" />
               {n}

@@ -281,12 +281,14 @@ export function LeadForm({
               Back
             </button>
           )}
+          {/* Keyed, so React never turns the Next button into the submit one while the click that moved on is still being handled: that sent
+              the form on arriving at the last step. */}
           {last ? (
-            <button type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${wizard ? "flex-1 sm:flex-none sm:min-w-60" : submitWidth} disabled:opacity-60`}>
+            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${wizard ? "flex-1 sm:flex-none sm:min-w-60" : submitWidth} disabled:opacity-60`}>
               {pending ? "Sending" : submitLabel}
             </button>
           ) : (
-            <button type="button" onClick={next} className={`${accentButton} flex-1 sm:flex-none sm:min-w-60`}>
+            <button key="next" type="button" onClick={next} className={`${accentButton} flex-1 sm:flex-none sm:min-w-60`}>
               Next
             </button>
           )}

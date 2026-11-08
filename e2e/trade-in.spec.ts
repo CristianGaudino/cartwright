@@ -22,7 +22,8 @@ async function car(page: Page, reg = "191-KY-1234", km = "120500") {
 async function toStep(page: Page, n: 2 | 3 | 4, reg?: string, km?: string) {
   await car(page, reg, km);
   for (let i = 1; i < n; i++) await next(page).click();
-  await expect(page.getByRole("heading", { name: new RegExp(`^Step ${n} of 4`) })).toBeVisible();
+  // The new step takes focus on its heading; wait for that, so nothing typed next is overtaken by it.
+  await expect(page.getByRole("heading", { name: new RegExp(`^Step ${n} of 4`) })).toBeFocused();
 }
 async function contact(page: Page) {
   await page.getByLabel("Name").fill("Test Seller");
@@ -196,6 +197,17 @@ test("an empty reg stops the first step with a short note, and the typed mileage
   await expect(page.locator("p", { hasText: "Enter the registration as shown on the car." })).toBeVisible();
   await expect(page.getByLabel("Registration")).toBeFocused();
   await expect(page.getByLabel("Mileage")).toHaveValue("120,500");
+});
+
+test("arriving at the last step sends nothing and shows no errors", async ({ page }) => {
+  const posts: string[] = [];
+  page.on("request", (r) => r.method() === "POST" && posts.push(r.url()));
+  await open(page);
+  await toStep(page, 4);
+  await page.waitForTimeout(500); // long enough for a send, and the errors it would bring, to have shown
+  expect(posts).toEqual([]);
+  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toHaveCount(0);
+  await expect(page.getByLabel("Name")).not.toBeFocused();
 });
 
 test("Enter in a field moves to the next step and never sends half the form", async ({ page }) => {

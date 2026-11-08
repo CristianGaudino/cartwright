@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { financeable } from "@/lib/finance/payment";
 import { BUDGETS } from "@/lib/stock/types";
 import { BAD_KM, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN } from "./constants";
 
@@ -74,20 +73,10 @@ const tradeIn = {
   ),
 };
 
-// D-17: deposit, term and employment, plus the price the buyer worked out on /finance (a car page has the car's own price).
-// The car is optional: none from /finance, the car's id from a car page.
+// D-17: deposit, term and employment. An application is made from a car page, which sends the car's id; the price comes from the car.
 const BAD_DEPOSIT = "Enter the deposit in euros, numbers only.";
 const finance = {
   carId: given(carId.optional()),
-  price: given(
-    z
-      .string()
-      .transform((v) => v.replaceAll(",", "").trim())
-      .pipe(z.string().regex(/^\d{1,6}$/))
-      .transform(Number)
-      .refine(financeable, "Enter a price between €1,000 and €250,000.")
-      .optional(),
-  ),
   deposit: given(
     z
       .string({ error: BAD_DEPOSIT })
@@ -134,7 +123,6 @@ export const DETAIL_LABELS: Record<string, string> = {
   model: "Model",
   year: "Year",
   budgetMax: "Budget up to",
-  price: "Price entered",
   deposit: "Deposit",
   term: "Term (months)",
   employment: "Employment status",

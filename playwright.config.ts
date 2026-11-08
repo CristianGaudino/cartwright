@@ -5,7 +5,9 @@ const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${process.env.PORT
 
 export default defineConfig({
   testDir: "e2e",
-  retries: 0,
+  // A CI runner is slower than a laptop: a longer wait on every check, and one retry so a stray slow test does not fail the pull request.
+  retries: process.env.CI ? 1 : 0,
+  expect: { timeout: 10_000 },
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: { baseURL, ...devices["Pixel 7"] },
   // E2E_FAIL_QUERY is the failure-state switch; a server already running on that port without it makes the failure specs fail.

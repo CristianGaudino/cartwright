@@ -119,14 +119,6 @@ describe("finance application (FIN-03, D-17)", () => {
     expect(errors({ ...apply, carId: "../1" }).carId).toBeDefined();
   });
 
-  it("takes the price worked out on /finance, whole euros, and leaves it out when blank", () => {
-    expect(leadSchema.parse({ ...apply, price: "20,000" })).toMatchObject({ price: 20000 });
-    expect(leadSchema.parse({ ...apply, price: "" })).toMatchObject({ price: undefined });
-    expect(errors({ ...apply, price: "abc" }).price).toBeDefined();
-    for (const price of ["0", "999", "250001", "999999"]) expect(errors({ ...apply, price }).price).toBeDefined();
-    for (const price of ["1000", "250000"]) expect(errors({ ...apply, price }).price).toBeUndefined();
-  });
-
   it("needs an employment status from the list", () => {
     expect(errors({ ...apply, employment: undefined }).employment).toEqual(["Choose an employment status."]);
     expect(errors({ ...apply, employment: "" }).employment).toEqual(["Choose an employment status."]);
