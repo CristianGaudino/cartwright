@@ -185,13 +185,15 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     try {
       const photoPaths = await Promise.all(keys.map(async (k) => signPhotoPath(k, deps.photoLinkSecret())));
       await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo, photoPaths }), replyTo: row.email ?? undefined });
-      await deps.store.markNotified(row.id);
     } catch {
-      // The row is the record, so the buyer still gets ok. notified_at stays empty for the owner to find (03-06 runbook).
-      // A markNotified failure lands here too, which errs on the safe side: the row reads as not notified.
+      // The dealer was not told, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
+      // stay in the form. The row stays (notified_at empty, for the owner to find, 03-06 runbook); the form sends a fresh
+      // clientRef on the retry, so it is stored and emailed again rather than answered as a duplicate.
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
-      return OK;
+      return SERVER;
     }
+    // The email went. If only this bookkeeping fails the buyer still gets ok, and the row reads as not notified.
+    await deps.store.markNotified(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "notify_failed" }));
     logLead({ leadId, type: input.type, outcome: "stored" });
     return OK;
   } catch {

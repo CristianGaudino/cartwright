@@ -129,18 +129,28 @@ describe("processLead rules", () => {
     expect(mail).toHaveLength(1);
   });
 
-  it("answers ok when the email fails, skips markNotified and logs one notify_failed line with three keys", async () => {
+  it("tells the buyer it failed when the email fails, skips markNotified and logs one notify_failed line with three keys", async () => {
     const { deps, rows, notified } = fakeDeps();
     deps.mailer.send = async () => {
       throw Object.assign(new Error("daily limit"), { code: "E_DAILY_LIMIT_EXCEEDED" });
     };
-    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "failed", kind: "server" });
     expect(rows).toHaveLength(1);
     expect(notified).toHaveLength(0);
     expect(error).toHaveBeenCalledTimes(1);
     const line = JSON.parse(String(error.mock.calls[0][0]));
     expect(line).toEqual({ leadId: rows[0].id, type: "enquiry", outcome: "notify_failed" });
     expect(Object.keys(line).sort()).toEqual(["leadId", "outcome", "type"]);
+  });
+
+  it("answers ok when the email went but marking it sent failed", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    deps.store.markNotified = async () => {
+      throw new Error("db down");
+    };
+    expect(await processLead(enquiryForm(), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows).toHaveLength(1);
+    expect(mail).toHaveLength(1);
   });
 });
 

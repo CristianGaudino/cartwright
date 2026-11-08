@@ -120,11 +120,11 @@ describe("processLead on SQLite", () => {
     expect(mail).toHaveBeenCalledTimes(1);
   });
 
-  it("answers ok and leaves notified_at empty when the email fails", async () => {
+  it("tells the buyer it failed and leaves notified_at empty when the email fails", async () => {
     const { deps: d } = deps(async () => {
       throw Object.assign(new Error("daily limit"), { code: "E_DAILY_LIMIT_EXCEEDED" });
     });
-    expect(await processLead(enquiryForm(), ctx, d)).toEqual(OK);
+    expect(await processLead(enquiryForm(), ctx, d)).toEqual({ status: "failed", kind: "server" });
     const stored = await rows();
     expect(stored).toHaveLength(1);
     expect(stored[0].notifiedAt).toBeNull();

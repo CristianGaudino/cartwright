@@ -8,7 +8,7 @@ Leads are kept for **12 months** from when they were sent, then deleted. The per
 
 ## Monthly purge
 
-Once a month, run:
+Put a repeating monthly reminder in the owner's calendar for this: the privacy page promises the deletion, and nothing else does it until the admin area (#20) automates it. Once a month, run:
 
 ```sql
 DELETE FROM leads WHERE created_at < unixepoch('now', '-12 months') * 1000;
