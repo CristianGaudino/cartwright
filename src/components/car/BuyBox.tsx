@@ -8,7 +8,7 @@ import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
 import { carMeta, carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
-import { accentButton } from "@/components/ui";
+import { accentButton, card } from "@/components/ui";
 
 const button = `flex w-full items-center justify-center gap-2 ${accentButton}`;
 const FACT_ICONS: Record<string, typeof CarIcon> = { Year: CalendarIcon, Mileage: GaugeIcon, Fuel: FuelIcon, Transmission: GearIcon };
@@ -32,7 +32,7 @@ export function BuyBox({ car }: { car: Car }) {
       {/* Reserved in Phase 2 for the lead buttons: so adding rows moves nothing below. */}
       <div data-testid="action-area" className="flex flex-col gap-3">
         {sold ? (
-          <div className="flex flex-col gap-2 rounded-card border border-hairline bg-card p-4">
+          <div className={`flex flex-col gap-2 ${card} p-4`}>
             <p className="text-heading font-semibold">Sold</p>
             <p className="text-meta text-text-2">This car is no longer for sale.</p>
             <Link href={`/used-cars/${car.makeSlug}`} className={button}>
@@ -57,7 +57,7 @@ export function BuyBox({ car }: { car: Car }) {
         })}
       </dl>
       {!sold && (
-        <div className="flex items-start gap-3 rounded-card border border-hairline bg-card p-4">
+        <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-body font-semibold">3 Month Warranty Included</p>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
+import { card } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Terms of use", description: `The terms for using the ${SITE_NAME} website.` };
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = { title: "Terms of use", description: `The ter
 export default function TermsPage() {
   return (
     <InfoPage title="Terms of Use">
-      {!DEALER_FACTS_CONFIRMED && <p className="rounded-card border border-hairline bg-card p-4">This is a draft. The dealer&apos;s own terms replace it.</p>}
+      {!DEALER_FACTS_CONFIRMED && <p className={`${card} p-4`}>This is a draft. The dealer&apos;s own terms replace it.</p>}
       <InfoSection title="Using this site">
         <p>You can browse this site freely. Do not use it to send us anything that is not true or not yours.</p>
       </InfoSection>

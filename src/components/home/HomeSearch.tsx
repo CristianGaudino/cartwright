@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { Combobox } from "@/components/Combobox";
 import { SearchIcon } from "@/components/stock/icons";
-import { accentButton } from "@/components/ui";
+import { accentButton, card } from "@/components/ui";
 import { formatPrice } from "@/lib/stock/format";
 import { BUDGETS } from "@/lib/stock/types";
 
@@ -24,7 +24,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   const shownModels = make ? models.filter((m) => m.makeSlug === make) : models;
 
   return (
-    <div className="rounded-card border border-hairline bg-card/80">
+    <div className={`${card}/80`}>
       <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline px-2">
         {(["search", "find"] as const).map((t) => (
           <button

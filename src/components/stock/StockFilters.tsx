@@ -8,7 +8,7 @@ import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { Combobox } from "@/components/Combobox";
 import { CheckIcon, ChevronDownIcon } from "./icons";
 import { useStock } from "./StockShell";
-import { press } from "@/components/ui";
+import { chip, press } from "@/components/ui";
 
 const COLLAPSED = 8;
 // One accordion row, as in the mockup: the title and a chevron, the options under it. It starts open when something in it is chosen,
@@ -95,9 +95,7 @@ function ChipGroup({ title, group, options }: { title: string; group: "body" | "
               aria-pressed={on}
               aria-disabled={row.disabled || undefined}
               onClick={() => !row.disabled && navigate(toggle(query, group, row.value, facets))}
-              className={`inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold ${press} ${
-                on ? "border-accent bg-accent text-white" : `border-control bg-card ${row.disabled ? "text-text-2" : ""}`
-              }`}
+              className={chip(on, row.disabled)}
             >
               {on && <CheckIcon className="h-4 w-4 shrink-0" />}
               <span className="min-w-0 truncate">{row.label}</span>
@@ -193,9 +191,7 @@ function Transmission() {
             <label key={o.label} className="relative flex">
               <input type="radio" name={name} value={o.value ?? ""} checked={on} onChange={() => navigate({ ...query, gearbox: o.value, page: 1 })} className="peer sr-only" />
               <span
-                className={`inline-flex min-h-11 items-center gap-1 rounded-full border px-4 text-meta font-semibold peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text ${press} ${
-                  on ? "border-accent bg-accent text-white" : "border-control bg-card"
-                }`}
+                className={`${chip(on)} peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-text`}
               >
                 {on && <CheckIcon className="h-4 w-4 shrink-0" />}
                 {o.label}

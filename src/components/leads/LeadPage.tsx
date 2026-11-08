@@ -1,5 +1,5 @@
-import { IconBadge } from "@/components/Feature";
-import { pageMain, pageTitle, subTitle } from "@/components/ui";
+import { IconBadge, TitleText } from "@/components/Feature";
+import { card, pageMain, pageTitle, subTitle } from "@/components/ui";
 
 export type HowStep = { title: string; text: string };
 
@@ -13,18 +13,15 @@ export function LeadPage({ title, intro, how, aside, children }: { title: string
       {how && (
         <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {how.map((s, i) => (
-            <li key={s.title} className="flex gap-4 rounded-card border border-hairline bg-card p-4">
+            <li key={s.title} className={`flex gap-4 ${card} p-4`}>
               <IconBadge size="sm">{i + 1}</IconBadge>
-              <span className="flex flex-col gap-1">
-                <span className="text-body font-semibold">{s.title}</span>
-                <span className="text-meta text-text-2">{s.text}</span>
-              </span>
+              <TitleText title={s.title} text={s.text} />
             </li>
           ))}
         </ol>
       )}
       <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <div data-wells className="w-full max-w-[640px] rounded-card border border-hairline bg-card p-5 sm:p-6">
+        <div data-wells className={`w-full max-w-[640px] ${card} p-5 sm:p-6`}>
           {children}
         </div>
         {aside && <aside className="flex w-full max-w-[640px] flex-col gap-4 lg:w-96 lg:shrink-0">{aside}</aside>}

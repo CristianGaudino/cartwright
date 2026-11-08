@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
-import { IconBadge } from "@/components/Feature";
+import { IconBadge, TitleText } from "@/components/Feature";
 import { FeaturedRow } from "@/components/home/FeaturedRow";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { TrustStrip } from "@/components/home/TrustStrip";
@@ -113,10 +113,7 @@ export default async function Home() {
             ].map(([n, title, text]) => (
               <li key={n} className="flex gap-4 rounded-card border border-hairline bg-surface/60 p-4 sm:flex-col">
                 <IconBadge size="sm">{n}</IconBadge>
-                <span className="flex flex-col gap-1">
-                  <span className="text-body font-semibold">{title}</span>
-                  <span className="text-meta text-text-2">{text}</span>
-                </span>
+                <TitleText title={title} text={text} />
               </li>
             ))}
           </ol>

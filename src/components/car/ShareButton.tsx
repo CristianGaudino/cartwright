@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { ShareIcon } from "@/components/stock/icons";
-import { secondaryButton } from "@/components/ui";
+import { card, secondaryButton } from "@/components/ui";
 
 type Mode = "link" | "native" | "menu";
 type Copy = "idle" | "copied" | "failed";
@@ -99,7 +99,7 @@ export function ShareButton({ title, text, url }: { title: string; text: string;
       {open && (
         <div
           id={panelId}
-          className="absolute right-0 top-full z-10 mt-2 flex w-max min-w-52 flex-col rounded-card border border-hairline bg-card p-2 shadow-lift transition duration-150 ease-out starting:translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
+          className={`absolute right-0 top-full z-10 mt-2 flex w-max min-w-52 flex-col ${card} p-2 shadow-lift transition duration-150 ease-out starting:translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0`}
         >
           <a href={whatsapp} target="_blank" rel="noopener noreferrer" onClick={() => close()} className={item}>
             Share on WhatsApp

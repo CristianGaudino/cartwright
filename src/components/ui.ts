@@ -15,3 +15,12 @@ export const pageWidth = "mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8";
 export const pageMain = `${pageWidth} pb-16 pt-12`;
 // A plain heading for a section inside a page (the slashed one is `sectionTitle`).
 export const subTitle = "text-heading font-semibold";
+// The bordered panel every card on the site is: rounded, a hairline border, the card colour. Callers add padding and layout.
+export const card = "rounded-card border border-hairline bg-card";
+// A round, frosted control over a photo (heart, remove, counter): solid ink when the buyer asks for less transparency, with a border
+// when they ask for more contrast.
+export const glass =
+  "rounded-full bg-ink/60 text-white backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none contrast-more:border contrast-more:border-white";
+// A filter chip: filled and checked when on, dimmed when `muted` (nothing matches).
+export const chip = (on: boolean, muted = false) =>
+  `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold ${press} ${on ? "border-accent bg-accent text-white" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;

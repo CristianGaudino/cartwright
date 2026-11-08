@@ -80,13 +80,17 @@ export function Combobox({
   // The list follows its field while the page or a panel scrolls or the window changes size.
   useEffect(() => {
     if (!open) return;
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, true);
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, true);
+    measure(); // opened by typing into a focused field: no click or arrow key measured it yet
+    const follow = (e: Event) => {
+      if (!(e.target instanceof Node && document.getElementById(listId)?.contains(e.target))) measure(); // not the list's own scrolling
     };
-  }, [open, measure]);
+    window.addEventListener("resize", follow);
+    window.addEventListener("scroll", follow, true);
+    return () => {
+      window.removeEventListener("resize", follow);
+      window.removeEventListener("scroll", follow, true);
+    };
+  }, [open, measure, listId]);
   // Shown in the top layer as soon as it is in the page. Without popover support it stays where it is, fixed in place.
   const toTopLayer = useCallback((el: HTMLUListElement | null) => {
     if (el && !el.matches(":popover-open")) {

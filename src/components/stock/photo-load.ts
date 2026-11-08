@@ -1,3 +1,5 @@
+import { glass } from "@/components/ui";
+
 // Not onLoad/onError props: next/image re-sets src (and re-requests every photo) after hydration when onError is passed.
 // A stable ref callback also catches photos that finished or failed before React hydrated (RESEARCH Pitfall 3).
 const loaded = (e: Event) => ((e.currentTarget as HTMLImageElement).dataset.loaded = "");
@@ -19,4 +21,4 @@ export const arrow =
 export const arrowEnd = "pointer-events-none opacity-0 focus-visible:opacity-40";
 // The "{i} / {n}" pill; the caller adds its position.
 export const counterPill =
-  "pointer-events-none absolute flex h-7 items-center rounded-full bg-[rgb(14_14_16/0.6)] px-3 text-meta font-semibold text-white backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none contrast-more:border contrast-more:border-white";
+  `pointer-events-none absolute flex h-7 items-center px-3 text-meta font-semibold ${glass}`;

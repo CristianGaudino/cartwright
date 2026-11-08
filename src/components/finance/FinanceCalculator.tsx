@@ -11,7 +11,7 @@ import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press } from "@/components/ui";
+import { accentButton, card, press } from "@/components/ui";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits.
 const WHOLE = /^\d{0,6}$/;
@@ -49,7 +49,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
     <>
       {/* The inputs on the left and the result on the right from 1024px (the mockup); stacked below that. */}
       <div data-wells className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
-        <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
+        <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div className="grid grid-cols-1 gap-4">
             {car ? (
               <div className="flex flex-col gap-1">
@@ -64,7 +64,7 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
             <p className="text-meta text-text-2">Worked out at an example rate of {d.aprPct}% APR. Your real rate is set by the lender.</p>
           </div>
         </div>
-        <div className="flex flex-col gap-4 rounded-card border border-hairline bg-card p-4 sm:p-6">
+        <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div role="status" aria-live="polite" className="flex flex-col gap-2">
             {q ? (
               <>

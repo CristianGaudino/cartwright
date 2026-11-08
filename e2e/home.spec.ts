@@ -87,6 +87,20 @@ test("the drop-downs work from the keyboard: arrows move, Home and End jump, Ent
   await expect(make).toHaveValue(third);
 });
 
+test("typing into a drop-down reached by keyboard opens its list right under the field", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const make = page.getByLabel("Make", { exact: true });
+  await make.focus(); // as Tab would: no click, no arrow key
+  await page.keyboard.type(newest.make.slice(0, 2));
+  const list = page.getByRole("listbox");
+  await expect(list).toBeVisible();
+  const [field, box] = [(await make.boundingBox())!, (await list.boundingBox())!];
+  expect(Math.abs(box.x - field.x)).toBeLessThan(2);
+  expect(box.y > field.y + field.height - 2 || box.y + box.height < field.y + 2).toBe(true); // just below it, or just above
+  expect(Math.min(Math.abs(box.y - (field.y + field.height)), Math.abs(field.y - (box.y + box.height)))).toBeLessThan(12);
+});
+
 test("every model the search offers has a car in stock", async ({ page }) => {
   await page.goto("/");
   const offered = (await optionLabels(page.getByLabel("Model", { exact: true }))).filter((l) => l !== "Any model");

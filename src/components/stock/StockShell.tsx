@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { StateBlock } from "@/components/StateBlock";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
@@ -163,15 +164,13 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
 export function EmptyState() {
   const { query, navigate } = useStock();
   return (
-    <div className="py-16 text-center">
-      <h2 className={subTitle}>No cars match these filters</h2>
-      <p className="mt-2 text-body text-text-2">Try removing a filter.</p>
+    <StateBlock title="No cars match these filters" text="Try removing a filter.">
       <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Cannot find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
         Clear All Filters
       </button>
-    </div>
+    </StateBlock>
   );
 }

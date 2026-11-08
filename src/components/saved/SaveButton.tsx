@@ -4,10 +4,11 @@ import { useState } from "react";
 import { HeartIcon } from "@/components/stock/icons";
 import { showToast } from "@/components/toast";
 import { restoreSaved, toggleSaved, useSavedIds } from "@/lib/saved/store";
+import { glass } from "@/components/ui";
 
 const looks = {
   // Over a photo: a frosted scrim circle, solid ink when the buyer asks for less transparency.
-  card: "absolute right-2 top-2 z-20 rounded-full bg-ink/60 backdrop-blur-[20px] reduce-transparency:bg-ink reduce-transparency:backdrop-blur-none",
+  card: `absolute right-2 top-2 z-20 ${glass}`,
   page: "rounded-full hover:bg-card",
 };
 

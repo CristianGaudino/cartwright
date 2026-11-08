@@ -1,26 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { StateBlock } from "@/components/StateBlock";
 import { useState, useSyncExternalStore } from "react";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { SkeletonCards } from "@/components/stock/SkeletonCards";
 import { StockError, stateButton } from "@/components/stock/StockError";
 import { useCarsByIds } from "@/components/stock/useCarsByIds";
 import { removeSaved, useSavedIds } from "@/lib/saved/store";
-import { subTitle } from "@/components/ui";
+import { card } from "@/components/ui";
 
 const never = () => () => {};
 const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
 
 function Empty() {
   return (
-    <div className="py-16 text-center">
-      <h2 className={subTitle}>No saved cars yet</h2>
-      <p className="mt-2 text-body text-text-2">Tap the heart on any car to save it here.</p>
+    <StateBlock title="No saved cars yet" text="Tap the heart on any car to save it here.">
       <Link href="/used-cars" className={stateButton}>
         See Used Cars
       </Link>
-    </div>
+    </StateBlock>
   );
 }
 
@@ -41,10 +40,11 @@ export function SavedCars() {
     );
   }
   if (!loaded) {
-    // Never an empty flash: 3 placeholders until storage is read, then one per saved car, up to 6.
+    // Never an empty flash, and never a tall one that collapses: one placeholder until storage is read (an empty list is the common case),
+    // then one per saved car, up to 6.
     return (
       <div aria-hidden className={grid}>
-        <SkeletonCards count={ids ? Math.min(ids.length, 6) : 3} />
+        <SkeletonCards count={ids ? Math.min(ids.length, 6) : 1} />
       </div>
     );
   }
@@ -52,7 +52,7 @@ export function SavedCars() {
   return (
     <>
       {gone > 0 && (
-        <p role="status" className="mb-6 rounded-card border border-hairline bg-card p-4 text-body">
+        <p role="status" className={`mb-6 ${card} p-4 text-body`}>
           {gone === 1
             ? "1 saved car is no longer available. We removed it from your list."
             : `${gone} saved cars are no longer available. We removed them from your list.`}

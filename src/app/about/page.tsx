@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { FeatureCard } from "@/components/Feature";
-import { CheckIcon, PinIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
+import { FeatureCard, TitleText } from "@/components/Feature";
+import { CheckIcon, ShieldCheckIcon, SwapIcon } from "@/components/stock/icons";
+import { DirectionsButton } from "@/components/DirectionsButton";
 import { OpeningHours } from "@/components/OpeningHours";
 import { accentButton, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
@@ -32,10 +33,7 @@ export default function AboutPage() {
         <div className="flex flex-col gap-6 lg:order-2">
           <Image src="/brand/about.webp" width={1200} height={900} alt="" className="aspect-[4/3] w-full rounded-card object-cover" />
           <OpeningHours />
-          <a href={dealerDirectionsUrl()} target="_blank" rel="noopener noreferrer" className={`inline-flex h-12 items-center justify-center gap-2 px-6 ${secondaryButton}`}>
-            <PinIcon className="size-5 text-accent" />
-            Get Directions<span className="sr-only"> (opens in a new tab)</span>
-          </a>
+          <DirectionsButton href={dealerDirectionsUrl()} />
         </div>
         <div className="flex flex-col gap-10 lg:order-1">
           <section className="flex flex-col gap-4">
@@ -52,10 +50,7 @@ export default function AboutPage() {
               {EXPECT.map((s, i) => (
                 <li key={s.title} className="flex gap-4 sm:flex-col">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-text font-semibold text-ink">{i + 1}</span>
-                  <span className="flex flex-col gap-1">
-                    <span className="text-body font-semibold">{s.title}</span>
-                    <span className="text-meta text-text-2">{s.text}</span>
-                  </span>
+                  <TitleText title={s.title} text={s.text} />
                 </li>
               ))}
             </ol>
