@@ -39,12 +39,25 @@ test("/about has the photo on the right on desktop with the hours and directions
   await expect(main(page).getByRole("link", { name: /Get directions/i })).toHaveAttribute("href", /^https:\/\/www\.google\.com\/maps\//);
 });
 
-test("/terms is a labelled draft with five sections and the dealer's phone", async ({ page }) => {
+test("/terms is the dealer's full terms: no draft banner, the sections, and an email to ask about them", async ({ page }) => {
   await page.goto("/terms");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
-  await expect(page.getByText("This is a draft. The dealer's own terms replace it.")).toBeVisible();
-  await expect(main(page).getByRole("heading", { level: 2 })).toHaveText(["Using This Site", "Cars and Prices", "Finance Figures", "Reviews", "Contact"]);
-  await expect(main(page).getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", TEL);
+  await expect(page.getByText(/draft|placeholder/i)).toHaveCount(0);
+  await expect(main(page).getByRole("heading", { level: 2 })).toHaveText([
+    "Who We Are",
+    "Using the Site",
+    "Cars and Prices",
+    "Finance Figures",
+    "Trade-In Valuations and Requests",
+    "Reviews and Other Websites",
+    "Our Content",
+    "Our Responsibility",
+    "Changes",
+    "Law",
+    "Contact",
+  ]);
+  await expect(main(page).getByRole("link", { name: /@/ })).toHaveAttribute("href", /^mailto:/);
+  await expect(main(page).getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
 });
 
 test("/privacy keeps its copy on the shared frame, with no pill", async ({ page }) => {

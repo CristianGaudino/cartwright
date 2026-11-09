@@ -3,16 +3,15 @@
 import Link from "next/link";
 import { useId, useState } from "react";
 import { Combobox } from "@/components/Combobox";
+import { PriceRange } from "@/components/PriceRange";
 import { IconBadge } from "@/components/Feature";
 import { ArrowRightIcon, SearchIcon } from "@/components/stock/icons";
 import { accentButton, card } from "@/components/ui";
-import { formatPrice } from "@/lib/stock/format";
-import { BUDGETS } from "@/lib/stock/types";
 
 type Option = { slug: string; label: string };
 type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; slug: string; label: string }[] };
 
-const tab = "relative inline-flex min-h-11 items-center px-4 text-body font-semibold transition-colors";
+const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 const FIND_STEPS = ["Tell Us What You Want", "We Look for It", "We Get in Touch"];
 
@@ -25,13 +24,13 @@ export function HomeSearch({ makes, bodies, models }: Props) {
   const [make, setMake] = useState("");
   const id = useId();
   const shownModels = make ? models.filter((m) => m.makeSlug === make) : models;
-  const budgets = BUDGETS.map((b): [string, string] => [String(b), formatPrice(b)]);
+  const [price, setPrice] = useState<{ min?: number; max?: number }>({});
   // `invisible`, not `hidden`: the search form stays in the flow (so it still sets the height), but is not seen, read or focusable.
   const panel = (t: "search" | "find") => `transition-[opacity,visibility] duration-200 motion-reduce:transition-none ${tabName === t ? "" : "invisible opacity-0"}`;
 
   return (
     <div className={`${card} shadow-lift`}>
-      <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline px-2">
+      <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline sm:px-2">
         {(["search", "find"] as const).map((t) => (
           <button
             key={t}
@@ -53,9 +52,13 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
             <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
             <Select name="body" label="Body Type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
-            <Select name="priceMin" label="Min Price" any="No min" options={budgets} />
-            <Select name="priceMax" label="Max Price" any="No max" options={budgets} />
-            <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 sm:col-span-1 ${accentButton}`}>
+            <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-3 lg:col-span-2">
+              <span className="text-meta font-semibold">Price</span>
+              <PriceRange min={price.min} max={price.max} onCommit={(min, max) => setPrice({ min, max })} />
+              {price.min !== undefined && <input type="hidden" name="priceMin" value={price.min} />}
+              {price.max !== undefined && <input type="hidden" name="priceMax" value={price.max} />}
+            </div>
+            <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 sm:col-span-3 lg:col-span-1 ${accentButton}`}>
               <SearchIcon className="size-5" />
               Search Cars
             </button>

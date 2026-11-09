@@ -21,7 +21,7 @@ export function TrustStrip() {
     <section aria-label="Why buy from us" className={`overflow-hidden ${card}`}>
       <ul className="grid grid-cols-1 divide-y divide-hairline sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
         {ITEMS.map(({ Icon, title, text, href }) => (
-          <li key={title} className="sm:border-b sm:border-hairline sm:odd:border-r lg:border-b-0 lg:odd:border-r-0 sm:[&:nth-last-child(-n+1)]:border-b-0">
+          <li key={title} className="sm:max-lg:border-b sm:max-lg:border-hairline sm:max-lg:odd:border-r sm:max-lg:last:border-b-0">
             <Link href={href} className="flex h-full min-h-11 items-start gap-4 p-5 transition-colors hover:bg-hairline/50 lg:flex-col lg:gap-3">
               <IconBadge>
                 <Icon className="size-6" />

@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ key:
   const exp = req.nextUrl.searchParams.get("exp");
   const sig = req.nextUrl.searchParams.get("sig");
   // Every check runs before the bucket is touched.
-  if (!key.startsWith("trade-in/") || key.includes("..") || !exp || !sig) return refuse(403);
+  if (!/^(trade-in|sourcing)\//.test(key) || key.includes("..") || !exp || !sig) return refuse(403);
   if (!(await verifyPhotoSig(key, exp, sig, requireEnv("PHOTO_LINK_SECRET")))) return refuse(403);
 
   const bucket = getBindings().LEAD_PHOTOS;

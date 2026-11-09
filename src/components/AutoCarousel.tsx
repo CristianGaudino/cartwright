@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
-// A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a touch stops it for good (a phone
-// has no hover to hand it back). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for the featured cars,
-// the reviews and the similar cars. The arrows and dots sit under the row, not over the cards.
+// A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a finger holds it while it is down and for a
+// few seconds after, then it drifts on (a phone has no hover to hand it back, and a carousel that never restarts looks broken). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for the featured cars,
+// the reviews and the similar cars. The arrows and dots sit under the row from 768px, not over the cards; on a phone the row is just swiped.
 const SPEED = 36; // px a second: slow enough to read a card as it goes by
+const RESUME = 4000; // ms of quiet after a finger lifts before the drift starts again
 const control = "flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
@@ -42,7 +43,7 @@ export function AutoCarousel({
   const scroller = useRef<HTMLUListElement>(null);
   const [state, setState] = useState({ page: 0, pages: 1 });
   const reduced = useSyncExternalStore(watchReducedMotion, () => window.matchMedia(REDUCED).matches, () => true); // true until read: no moving
-  const using = useRef({ over: false, within: false, touched: false });
+  const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
   // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
   const measure = useCallback(() => {
@@ -76,7 +77,7 @@ export function AutoCarousel({
       last = now;
       const u = using.current;
       if (Math.abs(el.scrollLeft - pos) > 2) pos = el.scrollLeft; // the buyer, an arrow or a dot moved it
-      if (!(u.over || u.within || document.hidden || u.touched)) {
+      if (!(u.over || u.within || document.hidden || now - u.touchedAt < RESUME)) {
         const max = el.scrollWidth - el.clientWidth;
         pos = Math.max(0, Math.min(max, pos + dir * SPEED * dt));
         if (pos >= max) dir = -1;
@@ -112,7 +113,9 @@ export function AutoCarousel({
       className="relative"
       onPointerEnter={(e) => (using.current.over = e.pointerType === "mouse")}
       onPointerLeave={() => (using.current.over = false)}
-      onPointerDown={(e) => { if (e.pointerType !== "mouse") using.current.touched = true; }}
+      onPointerDown={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = Infinity; }}
+      onPointerUp={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
+      onPointerCancel={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
       onFocus={() => (using.current.within = true)}
       onBlur={() => (using.current.within = false)}
     >
@@ -124,7 +127,7 @@ export function AutoCarousel({
         {children}
       </ul>
       {state.pages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-3">
+        <div className="mt-4 flex items-center justify-center gap-3 max-md:hidden">
           <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronLeftIcon className="size-5" />
           </button>

@@ -60,7 +60,8 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   for (const [name] of HEADER) await expect(banner.getByRole("link", { name, exact: true })).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   const footer = page.getByRole("contentinfo");
-  for (const [name, href] of FOOTER) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+  // The hours link is for wider screens; Contact is in the footer on a phone.
+  for (const [name, href] of FOOTER.filter(([n]) => n !== "Opening Hours and Directions")) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await expect(footer.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
   await expect(footer.getByText(`© ${SITE_NAME}`)).toBeVisible();
 });
@@ -79,10 +80,18 @@ test("the footer has social icons and a Powered by Checkwork link that opens che
   await expect(credit.getByRole("img", { name: "Checkwork" })).toBeVisible();
 });
 
-test("from 360px the header also shows Used cars, and it still fits", async ({ page }) => {
+test("on a phone the header is the menu button, the logo centred and the heart, level with each other; Used Cars is in the menu", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/");
-  await expect(page.getByRole("banner").getByRole("link", { name: "Used Cars" })).toBeVisible();
+  const banner = page.getByRole("banner");
+  await expect(banner.getByRole("link", { name: "Used Cars" })).toBeHidden();
+  const [menu, logo, heart] = await Promise.all([banner.getByRole("button", { name: "Menu" }), banner.getByRole("link", { name: SITE_NAME }), banner.getByRole("link", { name: /^Saved cars/ })].map((l) => l.boundingBox()));
+  const mid = (b: { y: number; height: number } | null) => b!.y + b!.height / 2;
+  expect(mid(menu)).toBeCloseTo(mid(heart), 0);
+  expect(mid(logo)).toBeCloseTo(mid(menu), 0);
+  expect(menu!.x).toBeLessThan(logo!.x);
+  expect(heart!.x).toBeGreaterThan(logo!.x + logo!.width);
+  expect(logo!.x + logo!.width / 2).toBeCloseTo(180, 0); // dead centre of 360
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 
@@ -102,6 +111,16 @@ test.describe("the mobile menu", () => {
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(menu.getByRole("link", { name: "Call Us" })).toHaveAttribute("href", "tel:+353831333154");
+  });
+
+  test("Home is in the menu on every page except Home", async ({ page }) => {
+    let menu = await open(page);
+    await expect(menu.getByRole("link", { name: "Home", exact: true })).toHaveCount(0);
+    await page.goto("/finance");
+    await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
+    menu = page.getByRole("dialog", { name: "Menu" });
+    await menu.getByRole("link", { name: "Home", exact: true }).click();
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test("a link takes you there and closes the menu; Escape and Close menu close it and return focus", async ({ page }) => {

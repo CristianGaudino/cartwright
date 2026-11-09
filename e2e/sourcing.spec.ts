@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -17,18 +16,28 @@ test.beforeEach(async ({ page }) => stubTurnstile(page));
 test("a find-a-car request needs a message, then ends on the thanks", async ({ page }) => {
   await open(page, "/find-a-car");
   await expect(page.getByRole("heading", { level: 1, name: "Find a car" })).toBeVisible();
+  const next = page.getByRole("button", { name: "Next", exact: true });
+  await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
+  await page.getByLabel("Make").fill("Toyota");
+  const budget = page.getByRole("slider", { name: "Budget" });
+  await budget.fill("20000");
+  await budget.blur();
+  await next.click();
+
+  // The message is the one thing needed: Next refuses without it and keeps what was typed.
+  await expect(page.getByRole("heading", { name: /^Step 2 of 4/ })).toBeVisible();
+  await next.click();
+  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toContainText("One field needs a look.");
+  await expect(page.locator("p", { hasText: "Tell us what you're looking for." })).toBeVisible();
+  await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
+  await next.click();
+
+  // Photos of cars you like are optional.
+  await expect(page.getByRole("heading", { name: /^Step 3 of 4/ })).toBeVisible();
+  await next.click();
   await page.getByLabel("Name").fill("Test Buyer");
   await page.getByLabel("Phone").fill("087 123 4567");
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Ask us to find it" }).click();
-
-  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toContainText("One field needs a look.");
-  await expect(page.locator("p", { hasText: "Tell us what you're looking for." })).toBeVisible();
-  await expect(page.getByLabel("Name")).toHaveValue("Test Buyer");
-
-  await page.getByLabel("Make").fill("Toyota");
-  await choose(page.getByLabel("Budget up to"), "€20,000");
-  await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
   await page.getByRole("button", { name: "Ask us to find it" }).click();
 
   const thanks = page.getByRole("heading", { name: "Thanks, we'll look for it." });

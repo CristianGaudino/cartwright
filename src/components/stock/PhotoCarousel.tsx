@@ -1,6 +1,6 @@
 "use client";
 
-import { doneBadge, swipeRow } from "@/components/ui";
+import { swipeRow } from "@/components/ui";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +13,7 @@ import { arrow, arrowEnd, settle } from "./photo-load";
 // Shown with the card's hover or any focus inside it.
 const arrowLive = "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100";
 
-// A card loads at most this many photos; the "See all n photos" slide after them opens the car page with the rest. A car with 12 photos
+// A card loads at most this many photos; the card links to the car page for the rest. A car with 12 photos
 // would otherwise cost 12 images on a card, and a page of 12 cards over 70 (3.5 MB), which starved the first photo on a phone.
 const CARD_PHOTOS = 4;
 
@@ -54,13 +54,11 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
     return <p className="flex h-full items-center justify-center text-meta text-text-2">No photo yet</p>;
   }
   const n = allPhotos.length;
-  // Until the others are allowed there is one photo and the tile, so no slide is ever an empty box (and none is, without JavaScript).
+  // Until the others are allowed there is one photo, so no slide is ever an empty box (and none is, without JavaScript).
   const visible = more ? photos : photos.slice(0, 1);
   const shown = visible.length;
-  const tile = n >= 2; // the "See all n photos" slide sits at index `shown`, after the photos
-
   const atStart = index <= 0;
-  const atEnd = index >= (tile ? shown : shown - 1);
+  const atEnd = index >= shown - 1;
   const go = (dir: 1 | -1) => {
     setMore(true); // an arrow press is a request for the next photo: no waiting for the timer
     scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth });
@@ -99,16 +97,6 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
             <Brandmark />
           </div>
         ))}
-        {tile && (
-          <div role="group" aria-roledescription="slide" aria-label={`See all ${n} photos`} className="h-full w-full flex-none snap-start bg-photo-bg">
-            <Link href={href} className="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center text-meta font-semibold focus-visible:-outline-offset-2">
-              <span className={doneBadge}>
-                <ChevronRightIcon />
-              </span>
-              <span className="line-clamp-2">See all {n} photos</span>
-            </Link>
-          </div>
-        )}
       </div>
       {shown > 1 && (
         <>

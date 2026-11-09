@@ -47,10 +47,6 @@ export function HeaderLinks() {
 
   return (
     <>
-      {/* Phones: one link; the menu button holds the rest. */}
-      <Link href="/used-cars" className={`${item} text-body max-[359px]:hidden lg:hidden`}>
-        Used Cars
-      </Link>
       <div className="hidden items-center gap-6 lg:flex">
         <div ref={root} className="relative">
           <button type="button" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)} className={`${item} ${stockActive ? bar : ""}`}>

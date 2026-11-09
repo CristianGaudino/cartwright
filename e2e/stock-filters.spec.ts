@@ -40,6 +40,12 @@ const metas = (page: Page) => page.locator("article [data-meta]").allTextContent
 const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
+// A thumb of the price range: set the value, then let go (the filter is applied when a thumb is released).
+const slide = async (page: Page, name: "Minimum price" | "Maximum price", value: number) => {
+  const thumb = page.getByRole("slider", { name });
+  await thumb.fill(String(value));
+  await thumb.blur();
+};
 
 const filtersButton = (page: Page) => page.getByRole("button", { name: /^Filters/ });
 const sheet = (page: Page) => page.getByRole("dialog", { name: "Filters" });
@@ -258,10 +264,10 @@ test.describe("filters on a desktop", () => {
     await expect.poll(async () => (await metas(page)).length > 0 && (await metas(page)).every((m) => m.startsWith(String(newest)))).toBe(true);
     await clear();
 
-    await choose(select(page, "Max"), formatPrice(25000));
+    await slide(page, "Maximum price", 25000);
     await expect(page).toHaveURL(/priceMax=25000$/);
     await expect.poll(async () => (await prices(page)).length > 0 && (await prices(page)).every((p) => p <= 25000)).toBe(true);
-    await choose(select(page, "Min"), formatPrice(10000));
+    await slide(page, "Minimum price", 10000);
     await expect(page).toHaveURL(/priceMin=10000&priceMax=25000$/);
     await expect.poll(async () => (await prices(page)).every((p) => p >= 10000 && p <= 25000)).toBe(true);
     await clear();
@@ -312,10 +318,11 @@ test.describe("filters on a desktop", () => {
     await expect(page).toHaveURL(new RegExp(`yearFrom=${oldest}&yearTo=${oldest}$`));
     await expect(select(page, "From")).toHaveValue(String(oldest));
 
-    await choose(select(page, "Min"), formatPrice(25000));
-    await choose(select(page, "Max"), formatPrice(10000));
-    await expect(page).toHaveURL(/priceMin=10000&priceMax=10000$/);
-    await expect(select(page, "Min")).toHaveValue(formatPrice(10000));
+    // The price thumbs cannot cross: the top one stops a step above the bottom one.
+    await slide(page, "Minimum price", 25000);
+    await slide(page, "Maximum price", 10000);
+    await expect(page).toHaveURL(/priceMin=25000&priceMax=27500$/);
+    await expect(page.getByRole("slider", { name: "Maximum price" })).toHaveValue("27500");
   });
 
   test("Back to used cars on a car page returns to the filtered list the buyer came from", async ({ page }) => {

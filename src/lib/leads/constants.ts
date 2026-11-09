@@ -51,7 +51,8 @@ export const PHOTO_STORED_MAX_BYTES = 4 * 1024 * 1024;
 export const PHOTO_TOTAL_MAX_BYTES = 16 * 1024 * 1024;
 export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const photoError = (filename: string) => `${filename} isn't a photo we can use. Use a JPEG, PNG or WebP under ${PHOTO_MAX_MB} MB.`;
-export const PHOTO_COUNT_ERROR = `You can add up to ${PHOTO_MAX_COUNT} photos.`;
+export const photoCountError = (max: number) => `You can add up to ${max} photos.`;
+export const PHOTO_COUNT_ERROR = photoCountError(PHOTO_MAX_COUNT);
 export const PHOTO_TOTAL_ERROR = "The photos are too big to send together. Remove one and try again.";
 
 // D-17: the only thing a finance application asks about the buyer's circumstances. No income, date of birth or bank details.
@@ -67,4 +68,7 @@ export const KM_PATTERN = /^\d{1,6}$/;
 // buyer is asked for them (the photo step shows one empty slot for each, and the page lists them). Shared so the two never differ.
 export const PHOTO_MIN_COUNT = 6;
 export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can value the car.`;
+// Which lead types take photos, and how many: a trade-in needs the car shown (at least 6, up to 12); a find-a-car request may show up to 6
+// cars the buyer likes, and none is fine. Read by the form and by the server, so they never differ.
+export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_COUNT }, sourcing: { min: 0, max: 6 } } as const;
 export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];

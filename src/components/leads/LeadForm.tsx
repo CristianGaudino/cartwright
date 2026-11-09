@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
-import { PHOTO_MIN_COUNT, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
@@ -64,7 +64,7 @@ export function LeadForm({
     setPrefilled(prefill);
     setValues((s) => ({ ...s, ...prefill }));
   }
-  const [photos, setPhotos] = useState<Blob[]>([]); // trade-in only; the shrunk JPEGs, never the originals
+  const [photos, setPhotos] = useState<Blob[]>([]); // trade-in and find-a-car only; the shrunk JPEGs, never the originals
   const [shrinking, setShrinking] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   // Which field to look at first: a new object on each failed send, so focus moves each time. How many is read from `errors`.
@@ -109,7 +109,7 @@ export function LeadForm({
   };
   // The photos error is not stored away: it shows only while the photos are still too few or too big, so adding photos clears it.
   const photosTotal = photos.reduce((n, p) => n + p.size, 0);
-  const shown = errors.photos && photos.length >= PHOTO_MIN_COUNT && photosTotal <= PHOTO_TOTAL_MAX_BYTES ? Object.fromEntries(Object.entries(errors).filter(([k]) => k !== "photos")) : errors;
+  const shown = errors.photos && photos.length >= (type in PHOTO_LIMITS ? PHOTO_LIMITS[type as keyof typeof PHOTO_LIMITS].min : 0) && photosTotal <= PHOTO_TOTAL_MAX_BYTES ? Object.fromEntries(Object.entries(errors).filter(([k]) => k !== "photos")) : errors;
 
   useEffect(() => {
     if (done) heading.current?.focus();
