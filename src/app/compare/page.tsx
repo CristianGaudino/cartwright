@@ -9,7 +9,7 @@ export default function ComparePage() {
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>Compare Cars</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Compare up to three cars side by side.</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">Compare up to three cars side by side.</p>
       <div className="mt-6 min-h-[28rem]">
         <CompareCards />
       </div>

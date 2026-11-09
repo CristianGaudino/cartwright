@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
-import { pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
+import { card, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
@@ -93,6 +93,14 @@ export function LandingPage({ data }: { data: LandingData }) {
             {shown.map((car, i) => (
               <ListingCard key={car.id} car={car} priority={i < 2} />
             ))}
+            {/* A short list would leave the grid mostly empty; this fills the space with the next step. */}
+            <div className={`${card} flex flex-col items-start justify-center gap-3 p-6`}>
+              <h2 className={subTitle}>Not Quite Right?</h2>
+              <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
+              <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
+                Find Me a Car
+              </Link>
+            </div>
           </div>
           {facts.n > SHOWN && (
             <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 inline-flex h-12 items-center px-6 ${secondaryButton}`}>
@@ -105,7 +113,7 @@ export function LandingPage({ data }: { data: LandingData }) {
       {!facts && (
         <>
           <h2 className="mt-4 text-heading font-semibold">No {name} in Stock Right Now</h2>
-          <p className="mt-2 max-w-[65ch] text-body">Have a look at these instead.</p>
+          <p className="mt-2 max-w-[65ch] text-pretty text-body">Have a look at these instead.</p>
           {landing.kind === "body" ? (
             <LinkChips heading="Body Types in Stock" options={facets.body} href={toPage} />
           ) : (
