@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 import { choose, optionLabels } from "./combo";
 import { formatKm, formatPrice } from "../src/lib/stock/format";
+import { PRICE_STOPS } from "../src/lib/stock/types";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -40,10 +41,10 @@ const metas = (page: Page) => page.locator("article [data-meta]").allTextContent
 const prices = (page: Page) => page.locator("article [data-price]").allTextContents().then((l) => l.map(digits));
 const search = (page: Page) => page.getByRole("searchbox", { name: "Search make or model" });
 const select = (page: Page, name: string) => page.getByRole("combobox", { name, exact: true });
-// A thumb of the price range: set the value, then let go (the filter is applied when a thumb is released).
-const slide = async (page: Page, name: "Minimum price" | "Maximum price", value: number) => {
+// A thumb of the price range: move it to a price (the track steps through PRICE_STOPS), then let go (the filter is applied when a thumb is released).
+const slide = async (page: Page, name: "Minimum price" | "Maximum price", price: number) => {
   const thumb = page.getByRole("slider", { name });
-  await thumb.fill(String(value));
+  await thumb.fill(String(PRICE_STOPS.indexOf(price)));
   await thumb.blur();
 };
 
@@ -318,11 +319,11 @@ test.describe("filters on a desktop", () => {
     await expect(page).toHaveURL(new RegExp(`yearFrom=${oldest}&yearTo=${oldest}$`));
     await expect(select(page, "From")).toHaveValue(String(oldest));
 
-    // The price thumbs cannot cross: the top one stops a step above the bottom one.
+    // The price thumbs cannot cross: the top one stops a stop above the bottom one.
     await slide(page, "Minimum price", 25000);
     await slide(page, "Maximum price", 10000);
-    await expect(page).toHaveURL(/priceMin=25000&priceMax=27500$/);
-    await expect(page.getByRole("slider", { name: "Maximum price" })).toHaveValue("27500");
+    await expect(page).toHaveURL(/priceMin=25000&priceMax=30000$/);
+    await expect(page.getByRole("slider", { name: "Maximum price" })).toHaveValue(String(PRICE_STOPS.indexOf(30000)));
   });
 
   test("Back to used cars on a car page returns to the filtered list the buyer came from", async ({ page }) => {

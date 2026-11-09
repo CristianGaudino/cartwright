@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
-import { PRICE_STEP, PRICE_TOP } from "@/lib/stock/types";
+import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
@@ -50,7 +50,7 @@ const sourcing = {
   budgetMax: given(
     z
       .string()
-      .refine((v) => /^\d{1,6}$/.test(v) && Number(v) >= PRICE_STEP && Number(v) <= PRICE_TOP && Number(v) % PRICE_STEP === 0, "Choose a budget on the slider.") // the slider's steps (PriceRange)
+      .refine((v) => PRICE_STOPS.slice(1).includes(Number(v)), "Choose a budget on the slider.") // the slider's steps (PriceRange)
       .transform(Number)
       .optional(),
   ),
