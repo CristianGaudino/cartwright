@@ -95,13 +95,13 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
 
-test("an empty send says how many fields need a look, focuses the first and marks each field", async ({ page }) => {
+test("an empty send says how many fields need attention, focuses the first and marks each field", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
   const d = dialog(page);
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("alert")).toContainText(/\d fields need a look/);
+  await expect(d.getByRole("alert")).toContainText(/\d fields need attention/);
   await expect(d.getByLabel("Name")).toBeFocused();
   for (const label of ["Name", "Phone", "Email"]) await expect(d.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
   await expect(d.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
@@ -117,7 +117,7 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("alert")).toContainText("One field needs a look.");
+  await expect(d.getByRole("alert")).toContainText("One field needs attention.");
   await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
   await expect(d.locator("p", { hasText: "Enter your name." })).toHaveCount(0);
   await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");

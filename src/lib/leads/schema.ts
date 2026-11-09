@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { PRICE_STEP, PRICE_TOP } from "@/lib/stock/types";
-import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN } from "./constants";
+import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -46,6 +46,7 @@ const carText = {
 // No carId key on the car-less types, so a forged one is dropped and snapshotCar stores no car (T-03-27).
 const sourcing = {
   ...carText,
+  bodyType: given(z.enum(SOURCING_BODIES, { error: "Choose a type from the list." }).optional()),
   budgetMax: given(
     z
       .string()
@@ -97,7 +98,10 @@ const finance = {
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
-    z.object({ type: z.literal("sourcing"), ...contact, ...sourcing }),
+    // At least one of make, model and type, so there is something to look for. `when` runs it even if another field failed.
+    z
+      .object({ type: z.literal("sourcing"), ...contact, ...sourcing })
+      .refine((d) => Boolean(d.make || d.model || d.bodyType), { path: ["make"], message: SOURCING_CAR_ERROR, when: (p) => typeof p.value === "object" && p.value !== null }),
     z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
@@ -126,6 +130,7 @@ export const DETAIL_LABELS: Record<string, string> = {
   mileage: "Mileage",
   make: "Make",
   model: "Model",
+  bodyType: "Type of car",
   year: "Year",
   budgetMax: "Budget up to",
   deposit: "Deposit",

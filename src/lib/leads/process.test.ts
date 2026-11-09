@@ -204,7 +204,7 @@ describe("processLead bot checks (D-05)", () => {
   it("takes up to 6 photos with a find-a-car request, under its own folder, and refuses a 7th", async () => {
     const jpg = () => new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], "car.jpg");
     const form = (n: number) => {
-      const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", message: "Something like this" });
+      const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", make: "Audi", message: "Something like this" });
       fd.delete("carId");
       for (let i = 0; i < n; i++) fd.append("photos", jpg());
       return fd;

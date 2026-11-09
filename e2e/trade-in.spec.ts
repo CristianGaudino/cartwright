@@ -79,8 +79,7 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   const how = page.getByRole("list").filter({ has: page.locator("details") });
   await expect(page.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeHidden();
   await how.getByText("Send Some Photos").click();
-  await expect(how.getByText(`At least ${PHOTO_MIN_COUNT}. More is better.`)).toBeVisible();
-  await expect(how.getByText("Include all damage, even small marks.")).toBeVisible();
+  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Any Damage.*Include all damage, even small marks`))).toBeVisible(); // one line, not a bullet each
   await how.getByText("We Come Back to You").click();
   await expect(how.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Required Photos" })).toHaveCount(0);
@@ -118,7 +117,7 @@ test("Next refuses until the photos are in, and the note goes by itself once the
   await expect(page.getByRole("heading", { name: /^Step 3 of 4/ })).toBeVisible();
   await expect(tiles(page)).toHaveCount(PHOTO_MIN_COUNT, { timeout: 20_000 });
   await expect(page.locator("p", { hasText: PHOTO_MIN_ERROR })).toHaveCount(0); // fixed, so gone, with no second click
-  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toHaveCount(0);
+  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toHaveCount(0);
   await next(page).click();
   await expect(page.getByRole("heading", { name: /^Step 4 of 4/ })).toBeVisible();
 });
@@ -126,11 +125,11 @@ test("Next refuses until the photos are in, and the note goes by itself once the
 test("an error goes as soon as the field is put right, and the count goes down", async ({ page }) => {
   await open(page);
   await next(page).click();
-  const alert = page.getByRole("alert").filter({ hasText: "a look" });
-  await expect(alert).toContainText("2 fields need a look.");
+  const alert = page.getByRole("alert").filter({ hasText: "attention" });
+  await expect(alert).toContainText("2 fields need attention.");
   await page.getByLabel("Registration", { exact: true }).fill("191-KY-1234");
   await expect(page.locator("p", { hasText: "Enter the registration as shown on the car." })).toHaveCount(0);
-  await expect(alert).toContainText("One field needs a look.");
+  await expect(alert).toContainText("One field needs attention.");
   await page.getByLabel("Mileage", { exact: true }).fill("120500");
   await expect(alert).toHaveCount(0);
   await next(page).click();
@@ -261,7 +260,7 @@ test("an empty reg stops the first step with a short note, and the typed mileage
   await page.getByLabel("Mileage", { exact: true }).fill("120,500");
   await next(page).click();
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible(); // did not move on
-  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toContainText("One field needs a look.");
+  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toContainText("One field needs attention.");
   await expect(page.locator("p", { hasText: "Enter the registration as shown on the car." })).toBeVisible();
   await expect(page.getByLabel("Registration", { exact: true })).toBeFocused();
   await expect(page.getByLabel("Mileage", { exact: true })).toHaveValue("120,500");
@@ -274,7 +273,7 @@ test("arriving at the last step sends nothing and shows no errors", async ({ pag
   await toStep(page, 4);
   await page.waitForTimeout(500); // long enough for a send, and the errors it would bring, to have shown
   expect(posts).toEqual([]);
-  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toHaveCount(0);
+  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toHaveCount(0);
   await expect(page.getByLabel("Name", { exact: true })).not.toBeFocused();
 });
 

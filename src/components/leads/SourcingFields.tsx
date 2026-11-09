@@ -1,6 +1,6 @@
 "use client";
 
-import { LIMITS, PHOTO_LIMITS } from "@/lib/leads/constants";
+import { LIMITS, PHOTO_LIMITS, SOURCING_BODIES } from "@/lib/leads/constants";
 import { PriceRange } from "@/components/PriceRange";
 import { ContactFields, Field } from "./Field";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
@@ -9,12 +9,13 @@ import { PhotoPicker } from "./PhotoPicker";
 // Find a car is four short steps, like the trade-in. What is typed is checked with the server's own rules (LeadForm runs validate.ts for the
 // step's fields); the photos are optional, so no step check.
 export const SOURCING_STEPS: FormStep[] = [
-  { title: "The Car", fields: ["make", "model", "budgetMax"] },
+  { title: "The Car", fields: ["make", "model", "bodyType", "budgetMax"] },
   { title: "What You Want", fields: ["message"] },
   { title: "Photos", fields: ["photos"] },
   { title: "Your Details", fields: ["name", "phone", "email", "consent"] },
 ];
 
+const BODY_OPTIONS = [{ value: "", label: "Any type" }, ...SOURCING_BODIES.map((b) => ({ value: b, label: b }))];
 const HELPS = ["Year, fuel and gearbox you prefer", "Colour, mileage or extras you must have", "Anything you want to avoid"];
 
 // Every step stays in the form (hidden, not removed) so the send reads all of it; only the current one shows.
@@ -23,14 +24,14 @@ export function SourcingFields({ bind, photos, step }: { bind(name: string): Fie
   return (
     <>
       <div hidden={step !== 0} className="flex flex-col gap-4">
-        <p className="text-body text-text-2">The make and model if you know them, or just the kind of car. Then your top budget.</p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
-          <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />
+        <p className="text-body text-text-2">Add at least one of make, model or type of car. Then your top budget.</p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Field {...bind("make")} label="Make" maxLength={60} enterKeyHint="next" />
+          <Field {...bind("model")} label="Model" maxLength={60} enterKeyHint="next" />
+          <Field {...bind("bodyType")} label="Type" options={BODY_OPTIONS} />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-meta font-semibold">Budget Up To</span>
-          <PriceRange maxOnly max={budget.value ? Number(budget.value) : undefined} onCommit={(_, max) => budget.onChange(max ? String(max) : "")} />
+          <PriceRange label="Budget" maxOnly max={budget.value ? Number(budget.value) : undefined} onCommit={(_, max) => budget.onChange(max ? String(max) : "")} />
           {budget.error && <p className="text-meta text-destructive">{budget.error}</p>}
         </div>
       </div>
@@ -49,7 +50,7 @@ export function SourcingFields({ bind, photos, step }: { bind(name: string): Fie
       </div>
 
       <div hidden={step !== 2} className="flex flex-col gap-4">
-        <p className="text-body text-text-2">Got a car in mind? Add photos of it, or of one like it. Up to {PHOTO_LIMITS.sourcing.max}, and you can skip this.</p>
+        <p className="text-body text-text-2">Got a car in mind? Add photos of it, or of one like it.</p>
         <PhotoPicker {...photos} max={PHOTO_LIMITS.sourcing.max} />
       </div>
 
