@@ -28,7 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const dev = process.env.NODE_ENV === "development" ? { Toggle: (await import("@/components/DevDataToggle")).DevDataToggle, mode: await (await import("@/lib/dev-data")).devMode() } : null;
   return (
     <html lang="en-IE" className={montserrat.variable}>
-      <body>
+      <body className="flex min-h-dvh flex-col">
         <SiteHeader />
         {children}
         <SiteFooter />

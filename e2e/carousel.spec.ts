@@ -99,13 +99,13 @@ test("touch: no arrows, dots follow the swipe, photos fade in", async ({ page })
   await expect(dots.nth(1)).toHaveAttribute("data-active", "");
 });
 
-test("a blocked photo leaves the grey 4:3 box and no broken image", async ({ page }) => {
+test("a blocked photo leaves the grey photo box (16:10 on a phone) and no broken image", async ({ page }) => {
   await page.route("**/stock/**", (r) => r.abort());
   await page.goto("/used-cars");
   const card = page.locator("article").first();
   await expect(card).toBeVisible(); // the first-load skeleton can still be up just after load
   const box = (await card.locator("> div").first().boundingBox())!;
-  expect(box.width / box.height).toBeCloseTo(4 / 3, 1);
+  expect(box.width / box.height).toBeCloseTo(16 / 10, 1);
   await expect(card.locator("img").first()).toHaveCSS("visibility", "hidden");
 });
 

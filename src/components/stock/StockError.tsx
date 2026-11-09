@@ -25,7 +25,7 @@ export function StockError({ retry }: { retry?: () => void }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <StateBlock title="We couldn't load the cars" text="Check your connection and try again.">
+    <StateBlock title="We Couldn't Load the Cars" text="Check your connection and try again.">
       <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
         Try Loading Cars Again
       </button>

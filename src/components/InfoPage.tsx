@@ -7,7 +7,7 @@ export function InfoPage({ title, intro, children }: { title: string; intro?: st
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>{title}</h1>
-      {intro && <p className="mt-2 max-w-[65ch] text-body">{intro}</p>}
+      {intro && <p className="mt-2 max-w-[65ch] text-pretty text-body">{intro}</p>}
       <div className="mt-6 flex max-w-[65ch] flex-col gap-8 text-body">{children}</div>
     </main>
   );

@@ -10,8 +10,8 @@ export const slash = "before:mr-3 before:inline-block before:h-[0.9em] before:w-
 // One look for every page title and every section heading, so no page reads as a different site.
 export const pageTitle = `text-display font-bold lg:text-hero ${slash}`;
 export const sectionTitle = `text-heading font-bold sm:text-display ${slash}`;
-// The page frame every page shares: centred, 1280px wide, the same side padding at each width. `pageMain` adds the vertical space.
-export const pageWidth = "mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8";
+// The page frame every page shares (w-full, because the body is a flex column that keeps the footer at the bottom): centred, 1280px wide, the same side padding at each width. `pageMain` adds the vertical space.
+export const pageWidth = "mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8";
 export const pageMain = `${pageWidth} pb-16 pt-12`;
 // A plain heading for a section inside a page (the slashed one is `sectionTitle`).
 export const subTitle = "text-heading font-semibold";
@@ -32,3 +32,5 @@ export const swipeRow = "flex h-full w-full snap-x snap-mandatory overflow-x-aut
 export const doneBadge = "flex size-11 items-center justify-center rounded-full bg-text text-ink";
 // A car card in an AutoCarousel: one and a bit on a phone, two, then three across.
 export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]";
+// A whole-page message (not found, something broke): centred in the space between header and footer.
+export const messagePage = `${pageMain} flex flex-1 flex-col items-center justify-center text-center`;

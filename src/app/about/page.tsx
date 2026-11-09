@@ -26,7 +26,7 @@ export default function AboutPage() {
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>About Us</h1>
-      <p className="mt-2 max-w-[65ch] text-body">{SITE_NAME} is a used car dealer in Tralee, Co. Kerry. Call in, look around and ask us anything.</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">{SITE_NAME} is a used car dealer in Tralee, Co. Kerry. Call in, look around and ask us anything.</p>
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
         {/* On a phone the photo comes first; from 1024px it sits on the right with the hours under it. */}
         <div className="flex flex-col gap-6 lg:order-2">

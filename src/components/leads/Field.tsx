@@ -106,10 +106,13 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   return (
     <div className="@container flex flex-col gap-4">
       <Field {...bind("name")} label="Name" autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
-      <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
-      <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
-        <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
-        <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
+      {/* The line sits with the pair it explains (tight below it, a larger gap above), not under Name. */}
+      <div className="mt-2 flex flex-col gap-2">
+        <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
+        <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
+          <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
+          <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
+        </div>
       </div>
     </div>
   );

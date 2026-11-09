@@ -25,6 +25,8 @@ async function toStep(page: Page, n: 2 | 3 | 4, reg?: string, km?: string) {
   for (let i = 1; i < n; i++) {
     if (i === 3) await addPhotos(page); // the photo step needs its minimum before it lets the buyer on
     await next(page).click();
+    // Wait for each step to arrive before the next click: on a busy machine a click that lands mid-change is lost.
+    await expect(page.getByRole("heading", { name: new RegExp(`^Step ${i + 1} of 4`) })).toBeVisible();
   }
   // The new step takes focus on its heading; wait for that, so nothing typed next is overtaken by it.
   await expect(page.getByRole("heading", { name: new RegExp(`^Step ${n} of 4`) })).toBeFocused();

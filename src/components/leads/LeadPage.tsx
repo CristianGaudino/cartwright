@@ -9,7 +9,7 @@ export function LeadPage({ title, intro, how, aside, children }: { title: string
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>{title}</h1>
-      <p className="mt-2 max-w-[65ch] text-body">{intro}</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">{intro}</p>
       {how && (
         <ol className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {how.map((s, i) => (

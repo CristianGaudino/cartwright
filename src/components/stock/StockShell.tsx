@@ -122,7 +122,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div>
             <p className={`text-body ${slash}`}>Our Stock</p>
             <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
-            <p className="mt-2 max-w-[65ch] text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+            <p className="mt-2 max-w-[65ch] text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">

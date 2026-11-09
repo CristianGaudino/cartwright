@@ -42,7 +42,7 @@ export default async function Home() {
           <p className={`text-meta font-semibold uppercase tracking-wider ${slash}`}>Quality Used Cars</p>
           <h1 className="mt-4 max-w-[10ch] text-hero font-bold lg:text-hero-lg">Find Your Next Car</h1>
           <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
-          <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ")}.</p>
+          <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ").replace(/ (\S+)$/, " $1")}.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
               Browse Our Stock

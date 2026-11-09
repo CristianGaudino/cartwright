@@ -150,3 +150,24 @@ test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the 
   await expect(phone).toHaveValue("87 123 4567"); // the number stays, only the code changes
   await expect(page.getByText("United Kingdom. For example")).toBeVisible();
 });
+
+// A short page keeps the footer at the bottom of a tall window, with no empty band under it; the 404 is the shortest page.
+test("the 404 page centres its message and the footer reaches the bottom of the window", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const res = await page.goto("/no-such-page");
+  expect(res!.status()).toBe(404);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("We Couldn't Find That Page");
+  const bottom = await page.locator("footer").evaluate((el) => el.getBoundingClientRect().bottom);
+  expect(Math.round(bottom)).toBe(1000);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(1000);
+});
+
+test("the contact line sits with phone and email, below the name", async ({ page }) => {
+  await page.goto("/contact");
+  const y = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().top);
+  const hint = main(page).getByText("Add a phone number or an email, so we can reply.");
+  const bottom = (loc: ReturnType<Page["locator"]>) => loc.evaluate((el) => el.getBoundingClientRect().bottom);
+  const above = (await y(hint)) - (await bottom(main(page).getByLabel("Name")));
+  const below = (await y(main(page).getByText("Phone", { exact: true }))) - (await bottom(hint));
+  expect(below).toBeLessThan(above); // closer to the fields it explains than to the name
+});

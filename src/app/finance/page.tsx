@@ -19,7 +19,7 @@ export default function FinancePage() {
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>Finance Estimator</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Type a price and choose a deposit and a term to see roughly what a monthly payment could be.</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">Type a price and choose a deposit and a term to see roughly what a monthly payment could be.</p>
       <div className="mt-6 flex flex-col gap-4">
         <FinanceCalculator />
       </div>

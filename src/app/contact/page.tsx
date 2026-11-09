@@ -22,7 +22,7 @@ export default async function ContactPage() {
     <main className={pageMain}>
       <JsonLd data={dealerJsonLd(await getReviews())} />
       <h1 className={pageTitle}>Contact</h1>
-      <p className="mt-2 max-w-[65ch] text-body">Call or message us, or come and see us.</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">Call or message us, or come and see us.</p>
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

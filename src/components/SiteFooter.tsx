@@ -42,7 +42,7 @@ const link = "inline-flex min-h-11 items-center transition-colors hover:text-tex
 // never goes stale.
 export function SiteFooter() {
   return (
-    <footer className="border-t border-hairline bg-ink">
+    <footer className="mt-auto border-t border-hairline bg-ink">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
