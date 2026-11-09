@@ -28,6 +28,14 @@ describe("getReviews", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("returns nothing, never the fixtures, in production without the place ID or key", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("GOOGLE_PLACE_ID", "");
+    vi.stubEnv("GOOGLE_PLACES_API_KEY", "");
+    const { getReviews } = await load();
+    expect(await getReviews()).toBeNull();
+  });
+
   it("returns Places data when both are set", async () => {
     vi.stubEnv("GOOGLE_PLACE_ID", "ChIJ1");
     vi.stubEnv("GOOGLE_PLACES_API_KEY", "key");

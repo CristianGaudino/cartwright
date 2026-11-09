@@ -1,20 +1,20 @@
 # Lead retention and erasure
 
-Leads are personal data. Until the admin area (#20) ships, the owner keeps the promises below by hand with `npx wrangler d1 execute DB --remote --command "<SQL>"` (or the Cloudflare dashboard, Storage & Databases, D1, the database, Console). Times are stored as epoch milliseconds and `photo_keys` as JSON text.
+Leads are personal data. Deleting old leads is automatic (see "Automatic purge"). Until the admin area (#20) ships, the owner does the rest by hand (erasure on request, leads that were not emailed) with `npx wrangler d1 execute DB --remote --command "<SQL>"` (or the Cloudflare dashboard, Storage & Databases, D1, the database, Console). Times are stored as epoch milliseconds and `photo_keys` as JSON text.
 
 ## How long leads are kept
 
-Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/constants.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the purge statement below and this page together.
+Leads are kept for **12 months** from when they were sent, then deleted. The period is the constant `LEAD_RETENTION_MONTHS` in `src/lib/leads/constants.ts`, and the `/privacy` page (added in 03-10) states it. The dealer must confirm the period. If it changes, change the constant, `/privacy`, the lifecycle rule's days and this page together.
 
-## Monthly purge
+## Automatic purge
 
-Put a repeating monthly reminder in the owner's calendar for this: the privacy page promises the deletion, and nothing else does it until the admin area (#20) automates it. Once a month, run:
+A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. Each run logs one line, `{"job":"purge-leads","deleted":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
+
+Check it once after the first deploy, then when Workers Logs show a failed run: Workers Logs should show one `purge-leads` line a day. To run it by hand, or if the cron ever stops, the same deletion as SQL (photos first, see "Erasing one person's photos"):
 
 ```sql
 DELETE FROM leads WHERE created_at < unixepoch('now', '-12 months') * 1000;
 ```
-
-The editor shows how many rows it deleted. An automatic deletion job is deferred to the admin phase (#20).
 
 ## Erasure on request
 
@@ -45,17 +45,7 @@ npx wrangler r2 bucket lifecycle list carright-lead-photos --jurisdiction eu
 node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64url'))" | npx wrangler secret put PHOTO_LINK_SECRET
 ```
 
-The lifecycle rule deletes every object under `trade-in/` 365 days after upload. The list command must show it. If the rule cannot be set on the EU bucket, use the monthly cleanup below instead.
-
-### Monthly cleanup (only if the lifecycle rule is missing)
-
-Until the rule is in place, once a month list the photo folders of leads older than 12 months with the SQL command above:
-
-```sql
-SELECT j.value AS key FROM leads, json_each(leads.photo_keys) AS j WHERE created_at < unixepoch('now', '-12 months') * 1000;
-```
-
-Run this before the monthly purge, which deletes those rows and their keys with them. Delete each key as in "Erasing one person's photos". Photos of rows already purged can be found in the Cloudflare dashboard (R2, the bucket, Objects, prefix `trade-in/`) by their upload date.
+The lifecycle rule deletes every object under `trade-in/` 365 days after upload. It is a backstop: the automatic purge already deletes the photos with their lead. The list command must show it. If the rule cannot be set on the EU bucket, the purge still covers every photo that has a lead row.
 
 ### Erasing one person's photos
 
@@ -89,9 +79,8 @@ The admin inbox (#20) replaces this with fresh links.
 
 ## What deletes what
 
-- Lead rows: the monthly purge SQL above, once a row is older than `LEAD_RETENTION_MONTHS` (12 months).
-- Trade-in photos: the R2 lifecycle rule on `trade-in/`, 365 days after upload, the same 12 months (or the monthly cleanup above if the rule is missing).
-- The purge never touches R2 and the lifecycle rule never touches D1. If the dealer changes `LEAD_RETENTION_MONTHS`, change the lifecycle rule's days in the same PR.
+- Lead rows and their photos: the daily purge (`worker.mjs`), once a lead is older than `LEAD_RETENTION_MONTHS` (12 months).
+- Trade-in photos with no lead row (an upload whose insert failed and whose cleanup also failed): the R2 lifecycle rule on `trade-in/`, 365 days after upload. If the dealer changes `LEAD_RETENTION_MONTHS`, change the lifecycle rule's days in the same PR.
 
 ## Leads that were not emailed
 

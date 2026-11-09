@@ -8,7 +8,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@/compon
 // under the row, not over the cards.
 const SPEED = 36; // px a second: slow enough to read a card as it goes by
 const RESUME_AFTER = 4000; // ms after a touch before it drifts again
-const control = "flex size-9 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
+const control = "flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
 // `unit` is how far one dot moves the row. Read from the row's own sizes, not copied (the gap is the row's gap-4).
@@ -130,13 +130,17 @@ export function AutoCarousel({
           <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronLeftIcon className="size-5" />
           </button>
-          <div className="flex items-center">
+          {/* A dot per page, while the row of controls has room: four on a phone, sixteen from md up. After that, a count. */}
+          <div className={`items-center ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
             {Array.from({ length: state.pages }, (_, i) => (
               <button key={i} type="button" aria-label={`Go to page ${i + 1} of ${state.pages}`} aria-current={i === state.page ? "true" : undefined} onClick={() => goTo(i)} className="group/dot flex size-6 items-center justify-center">
                 <span className={`rounded-full transition-all duration-200 ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
               </button>
             ))}
           </div>
+          <p aria-hidden="true" className={`text-meta tabular-nums text-text-2 ${state.pages <= 4 ? "hidden" : state.pages <= 16 ? "md:hidden" : ""}`}>
+            {state.page + 1} / {state.pages}
+          </p>
           <button type="button" aria-label={`Next ${noun}`} onClick={() => go(1)} className={`${control} ${state.page >= state.pages - 1 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronRightIcon className="size-5" />
           </button>

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const strip = (page: import("@playwright/test").Page) => page.getByRole("group", { name: "Google reviews" });
 
-test("the home page shows five labelled demo reviews with Google Maps attribution", async ({ page }) => {
+test("the home page shows five demo reviews, authored Sample customer and with no Demo label, with Google Maps attribution", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "What customers say" })).toBeVisible();
   await expect(page.getByText("Demo reviews")).toHaveCount(0);

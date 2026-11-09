@@ -2,13 +2,15 @@
 	// Demo domain on the cgaudino.com zone (already on Cloudflare). Swap for the client's domain at handover.
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "cartwright",
-	"main": ".open-next/worker.js",
+	"main": "worker.mjs", // wraps .open-next/worker.js and adds the daily lead purge
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
 	"services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "cartwright" }],
 	"routes": [{ "pattern": "carright.cgaudino.com", "custom_domain": true }],
 	"workers_dev": false,
+	// Deletes leads and their photos after LEAD_RETENTION_MONTHS (worker.mjs, src/lib/leads/purge.ts). Daily, 03:17 UTC.
+	"triggers": { "crons": ["17 3 * * *"] },
 	"observability": { "enabled": true },
 	// Lead emails to the dealer (D-01). No "remote": CI's wrangler dev has no Cloudflare credentials, so it uses the local simulator.
 	"send_email": [{ "name": "EMAIL" }],

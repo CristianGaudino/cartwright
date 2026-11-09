@@ -4,9 +4,10 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
 
-type Demo = { slug: string; make: string; makeSlug: string; year: number; soldAt?: string };
+type Demo = { slug: string; make: string; makeSlug: string; year: number; soldAt?: string; description?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const longText = cars.find((c) => !c.soldAt && (c.description?.length ?? 0) > 700); // over the 700 characters CarSections clamps at
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 
 const buyBox = (page: Page) => page.getByTestId("buy-box");
@@ -17,6 +18,16 @@ async function firstCarHref(page: Page) {
 }
 
 test.describe("a car for sale", () => {
+  test("a long description shows its first lines and opens with Read more", async ({ page }) => {
+    test.skip(!longText, "No in-stock demo car has a description over 700 characters");
+    await page.goto(`/used-cars/${longText!.slug}`);
+    const more = page.getByText("Read more");
+    await expect(more).toBeVisible();
+    await expect(page.getByText("Show less")).toBeHidden();
+    await more.click();
+    await expect(page.getByText("Show less")).toBeVisible();
+  });
+
   test("shows the title, price, key facts and Call Us at once on a phone", async ({ page }) => {
     await page.goto(await firstCarHref(page));
     const box = buyBox(page);

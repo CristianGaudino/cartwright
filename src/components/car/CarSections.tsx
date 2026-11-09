@@ -7,6 +7,9 @@ import { specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
+const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
+// wrap-anywhere: a bare web address in the dealer's text has no space to break at.
+const text = "mt-4 max-w-[65ch] whitespace-pre-line wrap-anywhere";
 const h2 = `text-heading font-semibold ${slash}`;
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
@@ -15,7 +18,21 @@ export function AboutCar({ car }: { car: Car }) {
   return (
     <section>
       <h2 className={h2}>About This Car</h2>
-      <p className="mt-4 max-w-[65ch] whitespace-pre-line">{car.description}</p>
+      {car.description.length > LONG_DESCRIPTION ? (
+        <>
+          {/* The first lines only, until "Read more" opens the whole text (native <details>, so it works without JavaScript). */}
+          <p className={`${text} line-clamp-8 [&:has(+details[open])]:hidden`}>{car.description}</p>
+          <details className="group">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center font-semibold [&::-webkit-details-marker]:hidden">
+              <span className="group-open:hidden">Read more</span>
+              <span className="hidden group-open:inline">Show less</span>
+            </summary>
+            <p className={text}>{car.description}</p>
+          </details>
+        </>
+      ) : (
+        <p className={text}>{car.description}</p>
+      )}
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import textLimits from "./text-limits.json";
 export const FUELS = ["petrol", "diesel", "hybrid", "plug-in-hybrid", "electric", "other"] as const;
 export type Fuel = (typeof FUELS)[number];
 export const FUEL_LABELS: Record<Fuel, string> = {
@@ -21,6 +22,11 @@ export interface Photo {
   width: number;
   height: number;
 }
+
+// The most a feed's free text may run to (the demo's longest: 978, 33 and 52). The numbers are in text-limits.json, which the feed script reads
+// too; the mapper cuts to them and demo-cars.test.ts holds the data to them. A guess to confirm with the real feed: the layout is checked
+// against these lengths, so raise them only after looking at the pages.
+export const TEXT_LIMITS: { description: number; variant: number; feature: number } = textLimits;
 
 export interface Car {
   id: string; // stable source listing id, digits only, e.g. "4508173"

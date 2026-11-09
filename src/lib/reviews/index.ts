@@ -1,4 +1,5 @@
 import "server-only";
+import { isProduction } from "../site";
 import { createPlacesProvider } from "./places-provider";
 
 // The one place that names a concrete reviews provider (D-01, as src/lib/stock/index.ts).
@@ -36,7 +37,7 @@ const demo = (n: number, rating: number, text: string, relativeTime: string): Re
   reviewUri: DEMO_PLACE,
 });
 
-// Clearly fictional: shown under a Demo reviews pill until the Places provider is configured.
+// Clearly fictional ("Sample customer A.") and shown without a label until the Places provider is configured, outside production only.
 export const DEMO_REVIEWS: Reviews = {
   source: "demo",
   rating: 4.8,
@@ -58,7 +59,8 @@ let places: ReviewsProvider | undefined;
 export async function getReviews(): Promise<Reviews | null> {
   const placeId = process.env.GOOGLE_PLACE_ID;
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!placeId || !apiKey) return DEMO_REVIEWS;
+  // The fixtures are for demos only: a live site with a missing key shows no reviews, never invented ones.
+  if (!placeId || !apiKey) return isProduction() ? null : DEMO_REVIEWS;
   places ??= createPlacesProvider({ placeId, apiKey }); // one provider so its day memo survives between requests
   return places.get();
 }

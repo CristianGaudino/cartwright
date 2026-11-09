@@ -70,11 +70,13 @@ test("a drifting row moves smoothly, not a page at a time, and stops under the p
   expect(Math.abs((await at()) - held)).toBeLessThan(2);
 });
 
-test("on a phone the featured row has one dot per card", async ({ page }) => {
+test("on a phone the featured row counts its cards, as a dot each only up to four", async ({ page }) => {
   await page.goto("/");
   const row = page.getByRole("group", { name: "Featured stock" });
   const cards = await row.locator("article").count();
-  await expect(row.getByRole("button", { name: /^Go to page \d+ of/ })).toHaveCount(cards);
+  expect(cards).toBeGreaterThan(4); // more dots than a phone has room for (the controls would shrink): a count instead
+  await expect(row.getByText(`1 / ${cards}`)).toBeVisible();
+  await expect(row.getByRole("button", { name: /^Go to page d+ of/ })).toHaveCount(0);
 });
 
 test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ page }) => {
