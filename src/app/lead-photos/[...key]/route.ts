@@ -5,7 +5,7 @@ import { verifyPhotoSig } from "@/lib/leads/photos";
 
 // The only way to read a trade-in photo: a signed, expiring link from the dealer email (D-13, T-03-32). The bucket has no
 // public address. Nothing about the key or the signature is logged.
-const HEADERS = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex", "X-Content-Type-Options": "nosniff" };
+const HEADERS = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "default-src 'none'; sandbox" };
 const refuse = (status: number) => new Response(null, { status, headers: HEADERS });
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ key: string[] }> }) {

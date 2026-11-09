@@ -34,6 +34,14 @@ describe("leadSchema error copy (UI-SPEC)", () => {
     expect(errors({ ...base, phone })).toEqual({});
   });
 
+  it.each(["Ann\nPhone: 999", "Ann\r\nConsent: forged", "Ann\u2028x"])("refuses a line break in the name %j", (name) => {
+    expect(errors({ ...base, name }).name).toEqual(["Keep this to one line."]);
+  });
+
+  it("refuses a line break in the make", () => {
+    expect(errors({ ...base, type: "sourcing", carId: undefined, message: "x", make: "Ford\nPhone: 1" }).make).toEqual(["Keep this to one line."]);
+  });
+
   it("refuses a bad email", () => {
     expect(errors({ ...base, email: "name@" }).email).toEqual(["Enter an email like name@example.com."]);
   });

@@ -5,6 +5,8 @@ import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIM
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
+// One line only: a line break in a name or car text could pass for a new field (a fake "Phone:" line) in the dealer's plain-text email.
+const oneLine = (s: z.ZodString) => s.regex(/^[^\r\n\u2028\u2029]*$/, "Keep this to one line.");
 const tooLong = (n: number) => `Use ${n} characters or fewer.`;
 // An empty or blank field counts as not given.
 const given = <T extends z.ZodType>(s: T) => z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? undefined : v), s);
@@ -12,7 +14,7 @@ const given = <T extends z.ZodType>(s: T) => z.preprocess((v) => (typeof v === "
 const contact = {
   clientRef: z.uuid(),
   sourcePath: z.string().regex(/^\/[A-Za-z0-9._~\-/]{0,200}$/),
-  name: given(z.string({ error: "Enter your name." }).trim().max(LIMITS.name, tooLong(LIMITS.name))),
+  name: given(oneLine(z.string({ error: "Enter your name." }).trim().max(LIMITS.name, tooLong(LIMITS.name)))),
   // Loose on purpose (digits, spaces, plus, hyphens and brackets), but a +353 number must be the right length for Ireland.
   phone: given(
     z
@@ -38,8 +40,8 @@ const general = {
 const carId = z.string().regex(/^\d{1,12}$/);
 
 const carText = {
-  make: given(z.string().trim().max(60, tooLong(60)).optional()),
-  model: given(z.string().trim().max(60, tooLong(60)).optional()),
+  make: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
+  model: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
 };
 // No carId key on the car-less types, so a forged one is dropped and snapshotCar stores no car (T-03-27).
 const sourcing = {
