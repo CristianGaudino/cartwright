@@ -3,12 +3,13 @@
 import { useMemo, useState } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CheckIcon } from "@/components/stock/icons";
+import { PhoneLink } from "@/components/PhoneLink";
 import { card, subTitle } from "@/components/ui";
 
 export type Service = { readonly name: string; readonly blurb: string; readonly types: readonly string[] };
 
 // What we do, as a row of cards. A card opens a panel under the row (it slides open): what that service covers on the left, as ruled rows
-// spread down the height of the form, and the message form, already open, on the right.
+// at their natural height with a call prompt under them, and the message form, already open, on the right.
 export function ServiceMenu({ services }: { services: readonly Service[] }) {
   const [open, setOpen] = useState<string>();
   const [last, setLast] = useState<string>(); // what the panel still shows while it slides shut
@@ -49,16 +50,21 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
         <div className="min-h-0 overflow-hidden">
           {current && (
             <div className={`grid grid-cols-1 gap-6 ${card} p-5 sm:p-6 lg:grid-cols-2 lg:gap-10`}>
-              <ul className="flex flex-col">
-                {current.types.map((t) => (
-                  <li key={t} className="flex flex-1 items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
-                      <CheckIcon className="size-5" />
-                    </span>
-                    {t}
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col gap-6">
+                <ul className="flex flex-col">
+                  {current.types.map((t) => (
+                    <li key={t} className="flex items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+                        <CheckIcon className="size-5" />
+                      </span>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-auto rounded-control bg-accent/10 p-4 text-body">
+                  Prefer to talk? Call <PhoneLink className="font-semibold underline" />.
+                </p>
+              </div>
               <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
                 <h4 className="text-body font-semibold">Tell us what your car needs</h4>
                 <LeadPageForm

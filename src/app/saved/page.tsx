@@ -3,7 +3,7 @@ import { SavedCars } from "@/components/saved/SavedCars";
 import { pageMain, pageTitle } from "@/components/ui";
 
 // Each visitor's own list: never indexed and not in the sitemap.
-export const metadata: Metadata = { title: "Saved cars", robots: { index: false } };
+export const metadata: Metadata = { title: "Saved Cars", robots: { index: false } };
 
 export default function SavedPage() {
   return (

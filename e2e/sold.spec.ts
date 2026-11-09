@@ -22,7 +22,7 @@ async function open(page: Page, url = "/used-cars") {
 }
 const prices = (page: Page) => page.locator("article [data-price]").allTextContents();
 const soldBox = (page: Page) => page.getByRole("checkbox", { name: "Include sold cars" });
-const chip = (page: Page) => page.getByRole("button", { name: "Remove Sold cars included" });
+const chip = (page: Page) => page.getByRole("button", { name: "Remove Sold Cars Included" });
 
 test("by default no card reads Sold", async ({ page }) => {
   await page.goto("/used-cars");

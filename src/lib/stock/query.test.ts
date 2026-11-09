@@ -148,7 +148,7 @@ describe("sold param", () => {
   it("is a chip after Mileage whose next drops it and goes to page 1; Clear all drops it too", () => {
     const q: StockQuery = { ...DEFAULT_QUERY, kmMax: 50000, sold: "include", page: 3 };
     const chips = appliedFilters(q, null);
-    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold cars included"]);
+    expect(chips.map((c) => c.label)).toEqual(["Up to 50,000 km", "Sold Cars Included"]);
     const sold = chips[1];
     expect(sold.next.sold).toBeUndefined();
     expect(sold.next.page).toBe(1);
@@ -245,7 +245,7 @@ describe("appliedFilters", () => {
 });
 
 describe("appliedFilters on an untouched query", () => {
-  // EmptyState reads this to tell an empty stock ("No cars listed right now") from an empty search ("No cars match these filters").
+  // EmptyState reads this to tell an empty stock ("No Cars Listed Right Now") from an empty search ("No cars match these filters").
   it("has no chips, and a search or any filter makes one", () => {
     expect(appliedFilters(DEFAULT_QUERY, null)).toEqual([]);
     expect(appliedFilters({ ...DEFAULT_QUERY, q: "golf" }, null)).toHaveLength(1);

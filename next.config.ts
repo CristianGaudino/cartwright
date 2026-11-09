@@ -1,5 +1,21 @@
 import type { NextConfig } from "next";
 
+const dev = process.env.NODE_ENV !== "production"; // dev needs eval (React debugging) and a websocket (hot reload)
+const TURNSTILE = "https://challenges.cloudflare.com";
+const CSP = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""} ${TURNSTILE}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://lh3.googleusercontent.com", // lh3: Google review photos
+  "font-src 'self' data:",
+  `connect-src 'self' ${TURNSTILE}${dev ? " ws: wss:" : ""}`,
+  `frame-src ${TURNSTILE} https://maps.google.com https://www.google.com`, // the bot check, and the Google map on /contact
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   // No cacheComponents: OpenNext on Cloudflare Workers can't run it yet (opennextjs-cloudflare#1450).
   // Revisit when that is fixed, and update .claude/CLAUDE.md.
@@ -22,8 +38,10 @@ const nextConfig: NextConfig = {
       { source: "/saved-cars", destination: "/saved", permanent: true },
     ];
   },
-  // Clickjacking and sniffing guards on every page. The CSP stays to directives that cannot break Next's inline scripts
-  // or Turnstile; add script-src with a nonce before go-live if the dealer's security scan asks for it.
+  // Clickjacking and sniffing guards, and a content policy on every page. Scripts, frames, images and connections may come only from this
+  // site and the few origins named in CSP below. No nonce: a nonce makes every page render per request (no static pages, no caching on
+  // Workers). Inline scripts stay allowed because Next writes them; the policy still blocks eval and any script, frame or request to
+  // another origin. e2e/csp.spec.ts fails on any violation. A new third-party origin must be added here.
   async headers() {
     return [
       {
@@ -31,8 +49,9 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'" },
+          { key: "Content-Security-Policy", value: CSP },
         ],
       },
     ];

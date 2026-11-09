@@ -3,7 +3,7 @@ import { CompareCards } from "@/components/compare/CompareCards";
 import { pageMain, pageTitle } from "@/components/ui";
 
 // Each visitor's own list: never indexed and not in the sitemap.
-export const metadata: Metadata = { title: "Compare cars", robots: { index: false } };
+export const metadata: Metadata = { title: "Compare Cars", robots: { index: false } };
 
 export default function ComparePage() {
   return (

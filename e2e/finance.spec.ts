@@ -44,9 +44,9 @@ test("/finance is the estimator only: no car picker, no application, a button to
   await expect(calc(page).getByLabel("Car")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start Your Application" })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Select a car to estimate and enquire" })).toHaveAttribute("href", "/used-cars");
+  await expect(page.getByRole("link", { name: "Select a car to enquire" })).toHaveAttribute("href", "/used-cars");
   await expect(page.getByRole("heading", { name: "Good to Know" })).toBeVisible();
-  await expect(page.getByText("An estimate, not an approval", { exact: true })).toBeVisible();
+  await expect(page.getByText("An Estimate, Not an Approval", { exact: true })).toBeVisible();
 });
 
 test("/finance shows what to fix, never NaN or a stale figure", async ({ page }) => {

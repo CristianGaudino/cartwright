@@ -27,7 +27,7 @@ export function AboutCar({ car }: { car: Car }) {
             htmlFor={`more-${car.id}`}
             className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
           >
-            <span>Read more</span>
+            <span>Read More</span>
             <span>Show less</span>
           </label>
         </>

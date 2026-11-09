@@ -172,7 +172,7 @@ export function EmptyState() {
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
-      <StateBlock title="No cars listed right now" text="New cars arrive often.">
+      <StateBlock title="No Cars Listed Right Now" text="New cars arrive often.">
         <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
           Can&apos;t find it? Ask us to find it for you.
         </Link>

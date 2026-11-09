@@ -65,7 +65,7 @@ test("the find-a-car page explains how it works and fits a 320px screen", async 
   await page.setViewportSize({ width: 320, height: 640 });
   await open(page, "/find-a-car");
   await expect(page.getByRole("heading", { name: "Find a Car", level: 1 })).toBeVisible();
-  await expect(page.getByText("We look for it")).toBeVisible();
+  await expect(page.getByText("We Look for It")).toBeVisible();
   await expect(page.getByText("Prefer to talk?")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });

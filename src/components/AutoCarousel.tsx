@@ -1,13 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@/components/stock/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 
-// A row of cards that drifts along by itself, smoothly, and stops while the buyer is using it. It is a plain scrolling row, so a finger swipes
-// it. At either end it turns round. Used for the featured cars, the reviews and the similar cars. The arrows, dots and a pause button sit
-// under the row, not over the cards.
+// A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a touch stops it for good (a phone
+// has no hover to hand it back). It is a plain scrolling row, so a finger swipes it. At either end it turns round. Used for the featured cars,
+// the reviews and the similar cars. The arrows and dots sit under the row, not over the cards.
 const SPEED = 36; // px a second: slow enough to read a card as it goes by
-const RESUME_AFTER = 4000; // ms after a touch before it drifts again
 const control = "flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
@@ -42,9 +41,8 @@ export function AutoCarousel({
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLUListElement>(null);
   const [state, setState] = useState({ page: 0, pages: 1 });
-  const [stopped, setStopped] = useState(false); // the buyer pressed Pause
   const reduced = useSyncExternalStore(watchReducedMotion, () => window.matchMedia(REDUCED).matches, () => true); // true until read: no moving
-  const using = useRef({ over: false, within: false, lastTouch: 0 });
+  const using = useRef({ over: false, within: false, touched: false });
 
   // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
   const measure = useCallback(() => {
@@ -62,12 +60,12 @@ export function AutoCarousel({
     return () => watch.disconnect();
   }, [measure]);
 
-  // The drift: a frame at a time, not while the pointer is over it, focus is in it, a finger touched it lately, the tab is hidden or the row is
+  // The drift: a frame at a time, not while the pointer is over it, focus is in it, a finger has touched it, the tab is hidden or the row is
   // off screen. `pos` is kept apart from scrollLeft, which a screen may round to whole pixels and so stall a slow move.
   useEffect(() => {
     const el = scroller.current;
     const box = root.current;
-    if (!el || !box || stopped || reduced) return;
+    if (!el || !box || reduced) return;
     let pos = el.scrollLeft;
     let dir = 1;
     let last = 0;
@@ -78,7 +76,7 @@ export function AutoCarousel({
       last = now;
       const u = using.current;
       if (Math.abs(el.scrollLeft - pos) > 2) pos = el.scrollLeft; // the buyer, an arrow or a dot moved it
-      if (!(u.over || u.within || document.hidden || Date.now() - u.lastTouch < RESUME_AFTER)) {
+      if (!(u.over || u.within || document.hidden || u.touched)) {
         const max = el.scrollWidth - el.clientWidth;
         pos = Math.max(0, Math.min(max, pos + dir * SPEED * dt));
         if (pos >= max) dir = -1;
@@ -97,7 +95,7 @@ export function AutoCarousel({
       cancelAnimationFrame(frame);
       seen.disconnect();
     };
-  }, [stopped, reduced]);
+  }, [reduced]);
 
   const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: "smooth" });
   const goTo = (i: number) => {
@@ -114,7 +112,7 @@ export function AutoCarousel({
       className="relative"
       onPointerEnter={(e) => (using.current.over = e.pointerType === "mouse")}
       onPointerLeave={() => (using.current.over = false)}
-      onPointerDown={() => (using.current.lastTouch = Date.now())}
+      onPointerDown={(e) => { if (e.pointerType !== "mouse") using.current.touched = true; }}
       onFocus={() => (using.current.within = true)}
       onBlur={() => (using.current.within = false)}
     >
@@ -144,11 +142,6 @@ export function AutoCarousel({
           <button type="button" aria-label={`Next ${noun}`} onClick={() => go(1)} className={`${control} ${state.page >= state.pages - 1 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronRightIcon className="size-5" />
           </button>
-          {!reduced && (
-            <button type="button" aria-label={stopped ? `Start moving the ${noun} along` : `Stop moving the ${noun} along`} aria-pressed={stopped} onClick={() => setStopped((s) => !s)} className={control}>
-              {stopped ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
-            </button>
-          )}
         </div>
       )}
     </div>

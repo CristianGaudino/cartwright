@@ -23,11 +23,23 @@ describe("leadSchema error copy (UI-SPEC)", () => {
   });
 
   it.each(["12-34", "-------", "(((((((", "call me", "087 123 456a"])("refuses the phone %s", (phone) => {
-    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call."]);
+    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call, like 087 123 4567."]);
+  });
+
+  it.each(["+353 1234", "+353 87 123 45678 9"])("refuses the Irish phone %s with an Irish message", (phone) => {
+    expect(errors({ ...base, phone }).phone).toEqual(["Irish numbers have 7 to 9 digits after +353, like 87 123 4567."]);
   });
 
   it.each(["087 123 4567", "+353 87 123 4567", "(066) 712-3456"])("takes the phone %s", (phone) => {
     expect(errors({ ...base, phone })).toEqual({});
+  });
+
+  it.each(["Ann\nPhone: 999", "Ann\r\nConsent: forged", "Ann\u2028x"])("refuses a line break in the name %j", (name) => {
+    expect(errors({ ...base, name }).name).toEqual(["Keep this to one line."]);
+  });
+
+  it("refuses a line break in the make", () => {
+    expect(errors({ ...base, type: "sourcing", carId: undefined, message: "x", make: "Ford\nPhone: 1" }).make).toEqual(["Keep this to one line."]);
   });
 
   it("refuses a bad email", () => {

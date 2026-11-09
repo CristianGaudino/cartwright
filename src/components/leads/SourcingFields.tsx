@@ -16,7 +16,7 @@ export function SourcingFields({ bind }: { bind(name: string): FieldBinding }) {
         <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
         <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />
       </div>
-      <Field {...bind("budgetMax")} label="Budget up to" options={BUDGET_OPTIONS} />
+      <Field {...bind("budgetMax")} label="Budget Up To" options={BUDGET_OPTIONS} />
       <Field {...bind("message")} label="What are you looking for?" helper="Year, fuel, colour or anything else that matters." multiline maxLength={LIMITS.message} />
       <ContactFields bind={bind} />
     </>

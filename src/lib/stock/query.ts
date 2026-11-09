@@ -125,7 +125,7 @@ export function appliedFilters(q: StockQuery, facets: Facets | null): { id: stri
   for (const v of q.fuel) out.push({ id: `fuel:${v}`, label: FUEL_LABELS[v], next: toggle(q, "fuel", v, facets) });
   if (q.gearbox) out.push({ id: "gearbox", label: GEARBOX_LABELS[q.gearbox], next: drop({ gearbox: undefined }) });
   if (q.kmMax !== undefined) out.push({ id: "kmMax", label: `Up to ${formatKm(q.kmMax)}`, next: drop({ kmMax: undefined }) });
-  if (q.sold === "include") out.push({ id: "sold", label: "Sold cars included", next: drop({ sold: undefined }) });
+  if (q.sold === "include") out.push({ id: "sold", label: "Sold Cars Included", next: drop({ sold: undefined }) });
   return out;
 }
 

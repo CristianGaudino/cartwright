@@ -149,7 +149,7 @@ test.describe("a sold car", () => {
 
 type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
 const rich = (cars as Rich[]).find((c) => !c.soldAt && c.features?.length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
-const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT expires", "Max speed", "0 to 62 mph"];
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max Speed", "0 to 62 mph"];
 const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
 
 test.describe("the sections below the buy box", () => {
@@ -165,7 +165,7 @@ test.describe("the sections below the buy box", () => {
     for (const l of labels) expect(ORDER).toContain(l);
     for (const v of values) expect(v.trim()).not.toMatch(/^$|undefined/);
     expect(labels.some((l) => /tax/i.test(l))).toBe(false);
-    expect(values[labels.indexOf("Max speed")]).toMatch(/ mph$/);
+    expect(values[labels.indexOf("Max Speed")]).toMatch(/ mph$/);
   });
 
   test("Equipment shows 12 items, then all of them behind Show all", async ({ page }) => {

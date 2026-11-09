@@ -63,14 +63,14 @@ describe("specRows", () => {
       { label: "Mileage", value: "84,000 km" },
       { label: "Fuel", value: "Diesel" },
       { label: "Transmission", value: "Manual" },
-      { label: "Body type", value: "Saloon" },
+      { label: "Body Type", value: "Saloon" },
       { label: "Engine", value: "2.0 L" },
       { label: "Colour", value: "Grey" },
       { label: "Doors", value: "4" },
       { label: "Seats", value: "5" },
       { label: "Owners", value: "2" },
-      { label: "NCT expires", value: "Jul 2027" },
-      { label: "Max speed", value: "126 mph" },
+      { label: "NCT Expires", value: "Jul 2027" },
+      { label: "Max Speed", value: "126 mph" },
       { label: "0 to 62 mph", value: "9.9 s" },
     ]);
     expect(specRows({ ...full, engineLitres: 1.5 }).find((r) => r.label === "Engine")?.value).toBe("1.5 L");
@@ -80,7 +80,7 @@ describe("specRows", () => {
     const bare: Car = { id: "1", slug: "a-b-2020-1", make: "A", makeSlug: "a", model: "B", modelSlug: "b", year: 2020, priceEur: 1, photos: [] };
     expect(specRows(bare)).toEqual([{ label: "Year", value: "2020" }]);
     for (const r of specRows({ ...full, nctExpiry: "soon" })) expect(r.value).not.toMatch(/undefined|^$/);
-    expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT expires")).toBe(false);
+    expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT Expires")).toBe(false);
   });
 
   it("never shows a road tax row", () => {
@@ -93,8 +93,8 @@ describe("keyFacts", () => {
     expect(keyFacts(full).map((f) => f.label)).toEqual(["Year", "Mileage", "Fuel", "Transmission"]);
   });
 
-  it("fills a missing slot from Body type, Engine and Colour, at most 4", () => {
-    expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body type", "Engine"]);
+  it("fills a missing slot from Body Type, Engine and Colour, at most 4", () => {
+    expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body Type", "Engine"]);
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined, gearbox: undefined, bodyType: undefined, engineLitres: undefined }).map((f) => f.label)).toEqual(["Year", "Colour"]);
   });
 });
