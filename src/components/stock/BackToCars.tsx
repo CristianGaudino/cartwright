@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import { SITE_SLUG } from "@/lib/site";
 import { parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { StockQuery } from "@/lib/stock/types";
 
-const KEY = "carright:last-list";
+const KEY = `${SITE_SLUG}:last-list`;
 const LIST = "/used-cars";
 const never = () => () => {};
 

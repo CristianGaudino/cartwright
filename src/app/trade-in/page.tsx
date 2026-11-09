@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage, Tips } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
 
 export const metadata: Metadata = {
   title: "Trade-In Valuation",
-  description: "Trading in your car? Tell us about it, send some photos and we'll come back with a valuation towards your next one. Carright, Tralee, Co. Kerry.",
+  description: `Trading in your car? Tell us about it, send some photos and we'll come back with a valuation towards your next one. ${SITE_NAME}, ${DEALER_LOCATION}.`,
 };
 
 export default function TradeInPage() {

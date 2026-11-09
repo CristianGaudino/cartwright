@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { SITE_URL } from "../src/lib/site";
 
 // The build under test and this runner get the same APP_ENV (CI's e2e job sets production).
 const production = process.env.APP_ENV === "production";
@@ -14,7 +15,7 @@ async function expectIndexing(page: Page, path: string, indexed: boolean) {
   expect(noindex, `${path} robots meta: ${robots.join(" | ")}`).toBe(!indexed);
 }
 
-const ORIGIN = "https://carright.cgaudino.com";
+const ORIGIN = SITE_URL;
 const cars: { slug: string; soldAt?: string }[] = JSON.parse(readFileSync("src/lib/stock/demo-cars.json", "utf8"));
 const loc = (path: string) => `<loc>${ORIGIN}${path}</loc>`;
 const canonical = (page: Page) => page.locator('link[rel="canonical"]').getAttribute("href");

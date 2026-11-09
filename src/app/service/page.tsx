@@ -5,9 +5,9 @@ import { ServiceMenu } from "@/components/service/ServiceMenu";
 import { ShieldCheckIcon, SwapIcon, CheckIcon } from "@/components/stock/icons";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { pageMain, pageTitle, subTitle } from "@/components/ui";
-import { DEALER_PHONE, SERVICES, SITE_NAME } from "@/lib/site";
+import { DEALER_LOCATION, DEALER_PHONE, SERVICES, SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Service", description: `Servicing, repairs and tyres at ${SITE_NAME} in Tralee, Co. Kerry. Call us to book your car in.` };
+export const metadata: Metadata = { title: "Service", description: `Servicing, repairs and tyres at ${SITE_NAME} in ${DEALER_LOCATION}. Call us to book your car in.` };
 
 // PLACEHOLDER copy: the dealer confirms what is offered (DEALER_FACTS_CONFIRMED). What is offered lives in SERVICES in site.ts.
 const WHY = [

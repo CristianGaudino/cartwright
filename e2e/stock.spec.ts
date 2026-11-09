@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { choose } from "./combo";
+import { SITE_NAME } from "../src/lib/site";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -49,7 +50,7 @@ test("unknown params and bad values are ignored", async ({ page, request }) => {
 test("header: logo, one link, scrolls away", async ({ page }) => {
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
-  await expect(header.getByRole("img", { name: "Carright" })).toBeVisible();
+  await expect(header.getByRole("img", { name: SITE_NAME })).toBeVisible();
   await expect(header.getByRole("link", { name: "Used cars" })).toHaveAttribute("href", "/used-cars");
   expect(await header.evaluate((el) => getComputedStyle(el).position)).toMatch(/^(static|relative)$/);
 });

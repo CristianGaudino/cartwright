@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { FeatureCard, FeatureSection } from "@/components/Feature";
 import { FinanceCalculator } from "@/components/finance/FinanceCalculator";
 import { CheckIcon } from "@/components/stock/icons";
@@ -6,7 +7,7 @@ import { pageMain, pageTitle } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Car Finance Estimator",
-  description: "Estimate a monthly payment on a used car. It's the start of the process: choose a car and send an enquiry and we'll contact you with the real amounts. Carright, Tralee, Co. Kerry.",
+  description: `Estimate a monthly payment on a used car. It's the start of the process: choose a car and send an enquiry and we'll contact you with the real amounts. ${SITE_NAME}, ${DEALER_LOCATION}.`,
 };
 
 const POINTS = [

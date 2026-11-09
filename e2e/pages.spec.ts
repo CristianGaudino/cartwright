@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { DEALER_ADDRESS, SITE_NAME } from "../src/lib/site";
 
 const TEL = "tel:+353831333154";
 const main = (page: Page) => page.getByRole("main");
@@ -77,7 +78,7 @@ test("/contact shows the map at once, level with the form, with the hours under 
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.route("https://maps.google.com/**", (route) => route.fulfill({ status: 200, body: "" }));
   await page.goto("/contact");
-  const map = page.locator('iframe[title="Map of Carright, Tralee"]');
+  const map = page.locator(`iframe[title="Map of ${SITE_NAME}, ${DEALER_ADDRESS.town}"]`);
   await expect(map).toBeVisible();
   await expect(page.getByRole("button", { name: "Show map" })).toHaveCount(0);
   const call = (await main(page).getByRole("link", { name: /^Call / }).boundingBox())!;
@@ -124,7 +125,7 @@ for (const path of ["/", "/used-cars", "/finance", "/trade-in", "/find-a-car", "
     expect(desc!.length).toBeGreaterThan(40);
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
     await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
-    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Carright");
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", SITE_NAME);
   });
 }
 

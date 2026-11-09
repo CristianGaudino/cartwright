@@ -12,13 +12,13 @@ import { ArrowRightIcon } from "@/components/stock/icons";
 import { accentButton, carSlide, press, sectionTitle, slash, subTitle, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_ADDRESS_LINES, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { queryAllOrNull } from "@/lib/stock";
 import { searchOptions } from "@/lib/stock/search-options";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE_NAME} | Used cars in Tralee` },
-  description: "Browse the used cars in stock at our dealership in Tralee, Co. Kerry.",
+  title: { absolute: `${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}` },
+  description: `Browse the used cars in stock at our dealership in ${DEALER_LOCATION}.`,
 };
 
 const outline = `inline-flex h-12 w-full items-center justify-center gap-2 sm:w-auto rounded-control border border-control px-6 font-semibold ${press}`;

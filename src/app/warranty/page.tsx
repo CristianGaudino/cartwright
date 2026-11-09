@@ -3,9 +3,9 @@ import { FeatureCard } from "@/components/Feature";
 import { CallButton } from "@/components/InfoPage";
 import { LayersIcon, ShieldCheckIcon } from "@/components/stock/icons";
 import { pageMain, pageTitle, subTitle } from "@/components/ui";
-import { DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
+import { DEALER_LOCATION, DEALER_PHONE, SITE_NAME, WARRANTY } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Warranty", description: `The warranty that comes with a used car from ${SITE_NAME} in Tralee, Co. Kerry, and the longer cover you can add.` };
+export const metadata: Metadata = { title: "Warranty", description: `The warranty that comes with a used car from ${SITE_NAME} in ${DEALER_LOCATION}, and the longer cover you can add.` };
 
 // PLACEHOLDER copy until the dealer confirms the warranty: what the warranties cover, for how long and what they cost.
 export default function WarrantyPage() {

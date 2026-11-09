@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { SITE_NAME } from "../src/lib/site";
 
 type Demo = { slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -61,7 +62,7 @@ test("at 320px the header holds the menu button, and the footer reaches every pa
   const footer = page.getByRole("contentinfo");
   for (const [name, href] of FOOTER) await expect(footer.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
   await expect(footer.getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
-  await expect(footer.getByText("© Carright")).toBeVisible();
+  await expect(footer.getByText(`© ${SITE_NAME}`)).toBeVisible();
 });
 
 test("the footer has social icons and a Powered by Checkwork link that opens checkwork.ie", async ({ page }) => {

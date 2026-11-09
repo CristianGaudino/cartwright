@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
 import { formatPrice } from "./format";
 import { carJsonLd } from "./seo";
 import type { Car, StockQuery } from "./types";
@@ -48,7 +48,7 @@ const priceText = (f: Facts) => (f.n === 1 || f.min === f.max ? `at ${formatPric
 export function landingIntro(l: Landing, f: Facts): string {
   // One body type car reads "1 used SUV car"; makes and models keep their name.
   const noun = l.kind === "body" ? `${l.body} car${f.n === 1 ? "" : "s"}` : landingName(l);
-  const first = `We have ${f.n} used ${noun} in stock in Tralee, ${priceText(f)}.`;
+  const first = `We have ${f.n} used ${noun} in stock in ${DEALER_ADDRESS.town}, ${priceText(f)}.`;
   if (l.kind === "model") return `${first} ${f.oldest === f.newest ? `Year: ${f.oldest}.` : `Years: ${f.oldest} to ${f.newest}.`}`;
   if (f.n === 1) return first;
   return l.kind === "make" ? `${first} Models in stock: ${f.models.join(", ")}.` : `${first} Makes in stock: ${f.makes.join(", ")}.`;
@@ -57,16 +57,16 @@ export function landingIntro(l: Landing, f: Facts): string {
 // No site suffix in the title: the root layout's template adds it. null facts = the empty state (noindex).
 export function landingMetadata(l: Landing, f: Facts | null, canonical: string): Metadata {
   const name = landingName(l);
-  const title = `Used ${name} for sale in Tralee`;
+  const title = `Used ${name} for sale in ${DEALER_ADDRESS.town}`;
   const description = f
     ? [
-        `${f.n} used ${l.kind === "body" ? `${l.body} car${f.n === 1 ? "" : "s"}` : name} in stock at ${SITE_NAME}, Tralee, ${priceText(f)}.`,
+        `${f.n} used ${l.kind === "body" ? `${l.body} car${f.n === 1 ? "" : "s"}` : name} in stock at ${SITE_NAME}, ${DEALER_ADDRESS.town}, ${priceText(f)}.`,
         l.kind === "make" && f.n > 1 && `Models: ${f.models.join(", ")}.`,
         l.kind === "body" && f.n > 1 && `Makes: ${f.makes.join(", ")}.`,
       ]
         .filter(Boolean)
         .join(" ")
-    : `No ${name} in stock at ${SITE_NAME} right now. See what we have in Tralee, Co. Kerry.`;
+    : `No ${name} in stock at ${SITE_NAME} right now. See what we have in ${DEALER_LOCATION}.`;
   return {
     title,
     description,
