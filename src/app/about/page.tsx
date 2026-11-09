@@ -6,9 +6,9 @@ import { DirectionsButton } from "@/components/DirectionsButton";
 import { OpeningHours } from "@/components/OpeningHours";
 import { pageMain, pageTitle, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
-import { SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = { title: "About Us", description: `${SITE_NAME} is a used car dealer in Tralee, Co. Kerry: a carefully selected range of used cars, finance help and trade-ins.` };
+export const metadata: Metadata = { title: "About Us", description: `${SITE_NAME} is a used car dealer in ${DEALER_LOCATION}: a carefully selected range of used cars, finance help and trade-ins.` };
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
 const WHY = [
@@ -19,14 +19,14 @@ const WHY = [
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
   { title: "Get in touch", text: "Enquire, book a test drive, or call us. We'll answer your questions." },
-  { title: "Come and See It", text: "Visit us in Tralee, see the car and take it for a drive." },
+  { title: "Come and See It", text: `Visit us in ${DEALER_ADDRESS.town}, see the car and take it for a drive.` },
 ];
 
 export default function AboutPage() {
   return (
     <main className={pageMain}>
       <h1 className={pageTitle}>About Us</h1>
-      <p className="mt-2 max-w-[65ch] text-pretty text-body">{SITE_NAME} is a used car dealer in Tralee, Co. Kerry. Call in, look around and ask us anything.</p>
+      <p className="mt-2 max-w-[65ch] text-pretty text-body">{SITE_NAME} is a used car dealer in {DEALER_LOCATION}. Call in, look around and ask us anything.</p>
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:gap-12">
         {/* On a phone the photo comes first; from 1024px it sits on the right with the hours under it. */}
         <div className="flex flex-col gap-6 lg:order-2">

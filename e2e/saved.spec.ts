@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { SITE_SLUG } from "../src/lib/site";
 
 type Demo = { id: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -10,7 +11,7 @@ const live = cars.find((c) => !c.soldAt)!;
 const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 const UNKNOWN = "999999999999";
-const KEY = "carright:saved-ids";
+const KEY = `${SITE_SLUG}:saved-ids`;
 
 // Seeds the saved list before the first load only, so a reload sees what the page left behind.
 const seed = (page: Page, ids: string[]) =>
@@ -35,7 +36,7 @@ test("a heart saves a car without leaving the page and the count survives a relo
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   expect(page.url()).toBe(url);
 
-  const stored = await page.evaluate(() => localStorage.getItem("carright:saved-ids"));
+  const stored = await page.evaluate((key) => localStorage.getItem(key), KEY);
   const ids = JSON.parse(stored!) as unknown[];
   expect(ids).toHaveLength(1);
   for (const id of ids) expect(id).toMatch(/^\d{1,12}$/);

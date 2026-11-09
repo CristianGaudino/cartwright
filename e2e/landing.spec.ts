@@ -2,11 +2,12 @@ import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { DEALER_ADDRESS, SITE_URL } from "../src/lib/site";
 
 type Demo = { slug: string; make: string; makeSlug: string; modelSlug: string; bodySlug?: string; bodyType?: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync("src/lib/stock/demo-cars.json", "utf8"));
 const inStock = cars.filter((c) => !c.soldAt);
-const ORIGIN = "https://carright.cgaudino.com";
+const ORIGIN = SITE_URL;
 
 // The most-stocked value of a field; the first one wins a tie.
 function top(key: "makeSlug" | "bodySlug") {
@@ -37,8 +38,8 @@ test("a make page has its own heading, title, intro and cars", async ({ page }) 
   const res = await page.goto(`/used-cars/${topSlug}`);
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Used ${topMake}`);
-  await expect(page.getByText(`We have ${n} used ${topMake} in stock in Tralee`)).toBeVisible();
-  await expect(page).toHaveTitle(new RegExp(`^Used ${topMake} for sale in Tralee`));
+  await expect(page.getByText(`We have ${n} used ${topMake} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
+  await expect(page).toHaveTitle(new RegExp(`^Used ${topMake} for sale in ${DEALER_ADDRESS.town}`));
   const links = page.locator("article h2 a");
   await expect(links).toHaveCount(Math.min(12, n));
   for (const href of await links.evaluateAll((els) => els.map((e) => e.getAttribute("href")))) expect(href).toMatch(new RegExp(`^/used-cars/${topSlug}-`));

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { DEALER_LOCATION, SITE_URL } from "../src/lib/site";
 
 type Demo = { slug: string; make: string; makeSlug: string; year: number; soldAt?: string; description?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -195,7 +196,7 @@ test.describe("the sections below the buy box", () => {
   });
 });
 
-const ORIGIN = "https://carright.cgaudino.com";
+const ORIGIN = SITE_URL;
 const jsonLd = async (page: Page) => {
   const scripts = page.locator('script[type="application/ld+json"]');
   await expect(scripts).toHaveCount(1);

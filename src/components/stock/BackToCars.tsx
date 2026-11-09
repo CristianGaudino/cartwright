@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import { SITE_SLUG } from "@/lib/site";
 import { parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { StockQuery } from "@/lib/stock/types";
 
-const KEY = "carright:last-list";
-const SCROLL = "carright:last-list-scroll"; // { href, y }: where the list was when a card was opened
-const RESTORE = "carright:restore-scroll"; // set by the Stock link, so only that way back restores the position
+const KEY = `${SITE_SLUG}:last-list`;
+const SCROLL = `${SITE_SLUG}:last-list-scroll`; // { href, y }: where the list was when a card was opened
+const RESTORE = `${SITE_SLUG}:restore-scroll`; // set by the Stock link, so only that way back restores the position
 const LIST = "/used-cars";
 const never = () => () => {};
 

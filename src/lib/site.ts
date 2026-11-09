@@ -1,5 +1,7 @@
 export const SITE_URL = "https://carright.cgaudino.com"; // demo domain (wrangler.jsonc routes); swap for the client's domain at handover
 export const SITE_NAME = "Carright";
+// Prefix for this site's keys in the visitor's browser storage (saved cars, compare, view). A clone sets its own, so two sites on one browser never share them.
+export const SITE_SLUG = "carright";
 // The share image for any page without its own (a car has its own photo): the logo on the site's dark red glow.
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 export const DEALER_PHONE = "+353 83 133 3154"; // as published on cartwright.ie (083-1333154), written with the country code; confirm with the dealer
@@ -31,6 +33,8 @@ export const DEALER_ADDRESS = { street: "Ballymac, Maglass", town: "Tralee", cou
 // PLACEHOLDER until the dealer confirms the warranty (owner decision, 2026-11-07): shown on the home page and every car for sale.
 export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cover on all cars." };
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
+// "Tralee, Co. Kerry": where the dealer is, as the page descriptions say it.
+export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
   { day: "Monday", opens: "09:30", closes: "18:00" },

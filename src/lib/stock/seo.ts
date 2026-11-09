@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { carName, carTitle, formatKm, formatPrice } from "./format";
 import { FUEL_LABELS, GEARBOX_LABELS, isSold } from "./types";
 import type { Car } from "./types";
@@ -7,7 +7,7 @@ import type { Car } from "./types";
 // The sale date never enters metadata or JSON-LD (owner instruction, 2026-11-06).
 export function carDescription(car: Car): string {
   const specs = [car.mileageKm !== undefined && formatKm(car.mileageKm), car.fuel && FUEL_LABELS[car.fuel], car.gearbox && GEARBOX_LABELS[car.gearbox]].filter(Boolean).join(", ");
-  return [`${car.year} ${carTitle(car)}.`, specs && `${specs}.`, isSold(car) ? "Sold." : `${formatPrice(car.priceEur)}.`, `${SITE_NAME}, Tralee, Co. Kerry.`].filter(Boolean).join(" ");
+  return [`${car.year} ${carTitle(car)}.`, specs && `${specs}.`, isSold(car) ? "Sold." : `${formatPrice(car.priceEur)}.`, `${SITE_NAME}, ${DEALER_LOCATION}.`].filter(Boolean).join(" ");
 }
 
 // No site suffix in the title: the root layout's template adds it. Image and url resolve to absolute against metadataBase.
@@ -56,7 +56,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
         "@type": "AutoDealer",
         name: SITE_NAME,
         telephone: DEALER_TEL,
-        address: { "@type": "PostalAddress", addressLocality: "Tralee", addressRegion: "Kerry", addressCountry: "IE" },
+        address: { "@type": "PostalAddress", addressLocality: DEALER_ADDRESS.town, addressRegion: DEALER_ADDRESS.county.replace(/^Co. /, ""), addressCountry: "IE" },
       },
     },
   };

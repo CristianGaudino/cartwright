@@ -8,10 +8,10 @@ import { OpeningHours } from "@/components/OpeningHours";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { dealerJsonLd, mapEmbedUrl } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
-import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_PHONE, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_EMAIL, DEALER_FACTS_CONFIRMED, DEALER_LOCATION, DEALER_PHONE, SITE_NAME } from "@/lib/site";
 import { card, pageMain, pageTitle, subTitle } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Contact", description: `Opening hours, map and phone for ${SITE_NAME} in Tralee, Co. Kerry.` };
+export const metadata: Metadata = { title: "Contact", description: `Opening hours, map and phone for ${SITE_NAME} in ${DEALER_LOCATION}.` };
 
 // Two columns from 1024px, level at the top: the ways to reach us and the message form on the left, the map with the opening hours
 // under it on the right. The address is in the footer, so it is not repeated here.
@@ -44,7 +44,7 @@ export default async function ContactPage() {
           </section>
         </div>
         <div className="flex flex-col gap-6">
-          <MapBox embedUrl={mapEmbedUrl()} title={`Map of ${SITE_NAME}, Tralee`} />
+          <MapBox embedUrl={mapEmbedUrl()} title={`Map of ${SITE_NAME}, ${DEALER_ADDRESS.town}`} />
           <OpeningHours />
         </div>
       </div>

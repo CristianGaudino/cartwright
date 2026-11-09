@@ -4,7 +4,7 @@ import { CompareBar } from "@/components/compare/CompareBar";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
+import { DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, indexable } from "@/lib/site";
 import "./globals.css";
 
 // Montserrat, from a file kept in the repo (src/app/fonts): no request to Google when a visitor loads the site, and none when the site is
@@ -14,7 +14,7 @@ const montserrat = localFont({ src: "./fonts/montserrat-latin.woff2", weight: "1
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
-  description: "Quality used cars in Tralee, Co. Kerry.",
+  description: `Quality used cars in ${DEALER_LOCATION}.`,
   // Each page names itself as canonical, so a link with tracking parameters still counts for the page. Pages with their own override this.
   alternates: { canonical: "./" },
   openGraph: { type: "website", siteName: SITE_NAME, locale: "en_IE", images: [DEFAULT_OG_IMAGE] },

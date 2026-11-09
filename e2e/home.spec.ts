@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { choose, optionLabels } from "./combo";
 import { expect, test } from "@playwright/test";
+import { DEALER_ADDRESS, SITE_NAME } from "../src/lib/site";
 
 type Demo = { id: string; slug: string; make: string; model: string; modelSlug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -10,7 +11,7 @@ const newest = inStock[0];
 
 test("title, one h1 and a search that lands on used cars", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Carright | Used cars in Tralee");
+  await expect(page).toHaveTitle(`${SITE_NAME} | Used cars in ${DEALER_ADDRESS.town}`);
   await expect(page.getByRole("heading", { level: 1, name: "Find your next car" })).toHaveCount(1);
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await choose(page.getByLabel("Make", { exact: true }), newest.make);
@@ -230,7 +231,7 @@ test("reviews, the trust strip and finance banner, and AutoDealer JSON-LD", asyn
 test("the hero uses the dealer's photo, and the header logo is the vector one", async ({ page, request }) => {
   await page.goto("/");
   await expect(page.locator("section.hero-photo")).toHaveCSS("background-image", /\/brand\/hero(-sm)?\.webp/);
-  await expect(page.getByRole("banner").getByRole("img", { name: "Carright" })).toHaveAttribute("src", "/brand/logo.svg");
+  await expect(page.getByRole("banner").getByRole("img", { name: SITE_NAME })).toHaveAttribute("src", "/brand/logo.svg");
   for (const path of ["/brand/hero.webp", "/brand/hero-sm.webp", "/brand/about.webp", "/brand/logo.svg"]) expect((await request.get(path)).status(), path).toBe(200);
 });
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage, Tips } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 
-export const metadata: Metadata = { title: "Find a Car", description: "Can't see the car you want? Tell us what you're looking for and we'll look for it. Carright, Tralee, Co. Kerry." };
+export const metadata: Metadata = { title: "Find a Car", description: `Can't see the car you want? Tell us what you're looking for and we'll look for it. ${SITE_NAME}, ${DEALER_LOCATION}.` };
 
 export default function FindACarPage() {
   return (
