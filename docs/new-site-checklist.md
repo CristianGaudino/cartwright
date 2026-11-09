@@ -14,7 +14,7 @@ For a new client site, or the generic Checkwork demo (issue #134). The site is b
 | Name, domain, slug, phone, email, address, hours, social links, warranty, services, "facts confirmed" flag | `src/lib/site.ts` |
 | Colours (accent, surface, text), radii | the `@theme` block in `src/app/globals.css` (the hero glow follows the accent) |
 | Font | `src/app/layout.tsx` and `src/app/fonts/` |
-| Logo, share image, hero and about photos | `public/brand/` (`logo.svg`, `logo.png`, `og-default.png`, `hero*.webp`, `about.webp`). The Checkwork footer credit stays. |
+| Logo, share image, hero and about photos | `public/brand/` (`logo.svg`, `logo.png`, `og-default.png`, `hero*.webp`, `about.webp`). `hero-sm.webp` is the right 1020px of `hero.webp`, full height (sharp `extract` left 900, width 1020): re-cut it whenever the hero photo changes. The Checkwork footer credit stays. |
 | Finance figures and wording | `src/lib/finance/finance.config.ts` (placeholder until the dealer supplies them) |
 | Consent wording | `CONSENT` in `src/lib/leads/constants.ts`. A new brand is new wording: set a new version and add it to the frozen list in `src/lib/leads/consent.test.ts`. |
 | Reviews | set `GOOGLE_PLACE_ID` and `GOOGLE_PLACES_API_KEY`, or keep the labelled demo reviews (`src/lib/reviews/`) |

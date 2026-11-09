@@ -126,7 +126,7 @@ test.describe("the lightbox", () => {
     await expect(counter(page)).toHaveText(`2 / ${n}`);
   });
 
-  test("zoom enlarges the photo, a tap toggles it and moving on ends it", async ({ page }) => {
+  test("zoom enlarges the photo, a tap toggles it, the arrows pan it and a close ends it", async ({ page }) => {
     await open(page, car!.slug);
     await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
     const box = page.getByRole("dialog", { name: /^Photos of/ });
@@ -136,9 +136,16 @@ test.describe("the lightbox", () => {
     await zoom.click();
     await expect(box.getByRole("button", { name: "Zoom out" })).toHaveAttribute("aria-pressed", "true");
     await expect.poll(async () => (await img.boundingBox())!.width).toBeGreaterThan(before * 1.5);
-    await page.keyboard.press("ArrowRight");
+    // Zoomed, the photo box takes focus for the arrows and the arrows do not change photo.
+    await expect(box.getByRole("group", { name: `Photo 1 of ${n}` })).toBeVisible();
+    await img.click();
     await expect(box.getByRole("button", { name: "Zoom in" })).toBeVisible();
-    await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
+    await zoom.click();
+    await page.keyboard.press("ArrowRight");
+    await expect(dialogCounter(page)).toHaveText(`1 / ${n}`);
+    await box.getByRole("button", { name: "Close photos" }).click();
+    await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
+    await expect(box.getByRole("button", { name: "Zoom in" })).toBeVisible();
   });
 
   test("Close photos closes it", async ({ page }) => {

@@ -49,7 +49,8 @@ export function PhotoLightbox({
         onClose();
       }}
       onKeyDown={(e) => {
-        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        // Zoomed, the arrows pan the photo (its box takes focus), so they do not change photo.
+        if (zoom || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
         e.preventDefault();
         go(index + (e.key === "ArrowRight" ? 1 : -1));
       }}
@@ -79,8 +80,8 @@ export function PhotoLightbox({
       </button>
       <div ref={scroller} data-lightbox-scroller onScroll={onScroll} className={`${swipeRow} ${zoom ? "overflow-x-hidden!" : ""}`}>
         {photos.map((photo, i) => (
-          <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className={`flex h-full w-full flex-none snap-start ${zoom && i === index ? "overflow-auto" : "items-center justify-center"}`}>
-            <Image src={photo.src} width={900} height={675} alt={`${name}, photo ${i + 1} of ${n}`} loading="lazy" decoding="async" draggable={false} sizes={zoom && i === index ? "250vw" : "100vw"} onClick={() => i === index && setZoom(!zoom)} className={zoom && i === index ? "m-auto h-auto w-[250%] max-w-none cursor-zoom-out" : "h-full w-full max-w-[1200px] cursor-zoom-in object-contain"} />
+          <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} tabIndex={zoom && i === index ? 0 : undefined} className={`flex h-full w-full flex-none snap-start ${zoom && i === index ? "overflow-auto" : "items-center justify-center"}`}>
+            <Image src={photo.src} width={900} height={675} alt={`${name}, photo ${i + 1} of ${n}`} loading="lazy" decoding="async" draggable={false} onClick={() => i === index && setZoom(!zoom)} className={zoom && i === index ? "m-auto h-auto w-[250%] max-w-none cursor-zoom-out" : "h-full w-full max-w-[1200px] cursor-zoom-in object-contain"} />
             <Brandmark />
           </div>
         ))}
