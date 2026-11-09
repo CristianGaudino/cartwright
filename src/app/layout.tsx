@@ -23,13 +23,16 @@ export const metadata: Metadata = {
   robots: { index: indexable() },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // break-ui: both imports sit inside the dev branch, so a production build leaves them out entirely.
+  const dev = process.env.NODE_ENV === "development" ? { Toggle: (await import("@/components/DevDataToggle")).DevDataToggle, mode: await (await import("@/lib/dev-data")).devMode() } : null;
   return (
     <html lang="en-IE" className={montserrat.variable}>
       <body>
         <SiteHeader />
         {children}
         <SiteFooter />
+        {dev && <dev.Toggle mode={dev.mode} />}
         {/* One stack at the bottom of the screen: the toast above the compare pill. Both take their own pointer events. */}
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
           <Toaster />

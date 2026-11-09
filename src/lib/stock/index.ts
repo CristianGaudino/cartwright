@@ -1,3 +1,4 @@
+import { withDevData } from "../dev-data";
 import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
 import { DEFAULT_QUERY } from "./query";
@@ -6,7 +7,7 @@ import type { Car, StockProvider, StockQuery } from "./types";
 const files = createFileProvider(demoCars as Car[]);
 
 // The one place that names a concrete provider (D-06).
-export const stock: StockProvider = {
+const prod: StockProvider = {
   ...files,
   // E2E only: set by playwright.config.ts for its local server, never in wrangler.jsonc, a workflow or a deploy.
   // shortcut: this branch is in every build, so if E2E_FAIL_QUERY is ever defined on the Worker (dashboard variable,
@@ -17,6 +18,7 @@ export const stock: StockProvider = {
     return fail && fail === q.q ? Promise.reject(new Error("forced failure")) : files.query(q);
   },
 };
+export const stock = withDevData(prod); // break-ui: the dev-only Demo / Worst case switch; returns `prod` itself outside `next dev`
 
 // Every car at once, for the pages that need the whole stock (home, finance, sitemap, landing pages). shortcut: one query covers the
 // stock while it is under 1000 cars; with a live provider page through it or ask for counts.

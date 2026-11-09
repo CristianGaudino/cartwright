@@ -1,5 +1,6 @@
 import "server-only";
 import { isProduction } from "../site";
+import { devMode } from "../dev-data";
 import { createPlacesProvider } from "./places-provider";
 
 // The one place that names a concrete reviews provider (D-01, as src/lib/stock/index.ts).
@@ -57,6 +58,14 @@ let places: ReviewsProvider | undefined;
 // Env is read per call: Worker secrets reach process.env on the first request (see env.ts). Missing config means demo,
 // never an error. Once Places is configured its null stands: never fall back to fixtures on a live site.
 export async function getReviews(): Promise<Reviews | null> {
+  if (process.env.NODE_ENV === "development") {
+    // break-ui: the dev-only Demo / Worst case switch.
+    const mode = await devMode();
+    if (mode !== "demo") {
+      const dev = (await import("../stock/worst-cars")).worstReviews(mode);
+      if (dev !== undefined) return dev;
+    }
+  }
   const placeId = process.env.GOOGLE_PLACE_ID;
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   // The fixtures are for demos only: a live site with a missing key shows no reviews, never invented ones.
