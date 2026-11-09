@@ -511,7 +511,8 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   height: 1.5rem;
   border-radius: 9999px;
   border: 2px solid var(--color-accent);
-  background: var(--color-card);
+  background: var(--color-text);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
   cursor: grab;
 }
 .price-range::-moz-range-thumb {
@@ -520,8 +521,13 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   height: 1.5rem;
   border-radius: 9999px;
   border: 2px solid var(--color-accent);
-  background: var(--color-card);
+  background: var(--color-text);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
   cursor: grab;
+}
+/* One thumb: the whole bar takes a press, so a tap on the line moves it. */
+.price-range[data-single] {
+  pointer-events: auto;
 }
 .price-range:focus-visible::-webkit-slider-thumb {
   outline: 2px solid var(--color-text);

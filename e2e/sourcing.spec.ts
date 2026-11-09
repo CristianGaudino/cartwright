@@ -18,6 +18,10 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await expect(page.getByRole("heading", { level: 1, name: "Find a car" })).toBeVisible();
   const next = page.getByRole("button", { name: "Next", exact: true });
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
+  // One of make, model or type is needed before Next.
+  await next.click();
+  await expect(page.getByText("Add a make, a model or a type of car.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
   await page.getByLabel("Make").fill("Toyota");
   const budget = page.getByRole("slider", { name: "Budget" });
   await budget.fill("20000");
@@ -27,7 +31,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   // The message is the one thing needed: Next refuses without it and keeps what was typed.
   await expect(page.getByRole("heading", { name: /^Step 2 of 4/ })).toBeVisible();
   await next.click();
-  await expect(page.getByRole("alert").filter({ hasText: "a look" })).toContainText("One field needs a look.");
+  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toContainText("One field needs attention.");
   await expect(page.locator("p", { hasText: "Tell us what you're looking for." })).toBeVisible();
   await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
   await next.click();

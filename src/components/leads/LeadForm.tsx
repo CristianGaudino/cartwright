@@ -280,7 +280,7 @@ export function LeadForm({
               <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive text-ink">
                 !
               </span>
-              {flaggedCount === 1 ? "One field needs a look." : `${flaggedCount} fields need a look.`}
+              {flaggedCount === 1 ? "One field needs attention." : `${flaggedCount} fields need attention.`}
             </p>
           )}
           <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>

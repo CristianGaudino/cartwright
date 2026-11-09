@@ -52,9 +52,8 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
             <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
             <Select name="body" label="Body Type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
-            <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-3 lg:col-span-2">
-              <span className="text-meta font-semibold">Price</span>
-              <PriceRange min={price.min} max={price.max} onCommit={(min, max) => setPrice({ min, max })} />
+            <div className="col-span-2 min-w-0 sm:col-span-3 lg:col-span-2">
+              <PriceRange label="Price" min={price.min} max={price.max} onCommit={(min, max) => setPrice({ min, max })} />
               {price.min !== undefined && <input type="hidden" name="priceMin" value={price.min} />}
               {price.max !== undefined && <input type="hidden" name="priceMax" value={price.max} />}
             </div>

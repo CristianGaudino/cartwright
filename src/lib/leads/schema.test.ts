@@ -68,12 +68,20 @@ describe("leadSchema error copy (UI-SPEC)", () => {
 
 describe("sourcing and general messages", () => {
   it("needs a sourcing message, and takes only a budget from the list", () => {
-    const find = { ...base, type: "sourcing", message: "A small automatic" };
+    const find = { ...base, type: "sourcing", make: "Toyota", message: "A small automatic" };
     expect(errors({ ...find, message: " " }).message).toEqual(["Tell us what you're looking for."]);
-    expect(leadSchema.parse({ ...find, budgetMax: "", make: "" })).not.toHaveProperty("carId");
+    expect(leadSchema.parse({ ...find, budgetMax: "", make: "", bodyType: "SUV" })).not.toHaveProperty("carId");
     expect(leadSchema.parse({ ...find, budgetMax: "20000" })).toMatchObject({ budgetMax: 20000 });
     expect(errors({ ...find, budgetMax: "12345" }).budgetMax).toBeDefined();
     expect(errors({ ...find, make: "a".repeat(61) }).make).toBeDefined();
+  });
+
+  it("needs at least one of make, model and type, and the type is from the list", () => {
+    const find = { ...base, type: "sourcing", message: "Something small" };
+    expect(errors(find).make).toEqual(["Add a make, a model or a type of car."]);
+    expect(errors({ ...find, make: " " }).make).toBeDefined();
+    for (const one of [{ make: "Ford" }, { model: "Focus" }, { bodyType: "SUV" }]) expect(errors({ ...find, ...one })).toEqual({});
+    expect(errors({ ...find, bodyType: "Tractor" }).bodyType).toBeDefined();
   });
 
   it("needs a general message and takes no car", () => {
