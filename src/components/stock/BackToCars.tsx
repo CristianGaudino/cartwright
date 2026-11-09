@@ -6,6 +6,8 @@ import { parseStockQuery, stockHref } from "@/lib/stock/query";
 import type { StockQuery } from "@/lib/stock/types";
 
 const KEY = "carright:last-list";
+const SCROLL = "carright:last-list-scroll"; // { href, y }: where the list was when a card was opened
+const RESTORE = "carright:restore-scroll"; // set by the Stock link, so only that way back restores the position
 const LIST = "/used-cars";
 const never = () => () => {};
 
@@ -15,6 +17,36 @@ export function rememberList(query: StockQuery) {
     sessionStorage.setItem(KEY, stockHref(query));
   } catch {
     // Storage blocked: the link falls back to the unfiltered list.
+  }
+}
+
+// A card was opened: remember how far down the list the buyer was.
+export function rememberScroll(query: StockQuery) {
+  try {
+    sessionStorage.setItem(SCROLL, JSON.stringify({ href: stockHref(query), y: Math.round(window.scrollY) }));
+  } catch {
+    // Storage blocked: the list opens at the top.
+  }
+}
+
+// The Stock link on a car page was clicked in this tab (not ctrl-clicked into a new one, which would leave this armed).
+function armRestore() {
+  try {
+    sessionStorage.setItem(RESTORE, "1");
+  } catch {
+    // Storage blocked: the list opens at the top.
+  }
+}
+
+// The list page, after the Stock link on a car page brought the buyer back: where they were, if it is the same list. Once only.
+export function takeScroll(query: StockQuery): number | null {
+  try {
+    const restore = sessionStorage.getItem(RESTORE);
+    sessionStorage.removeItem(RESTORE);
+    const saved = JSON.parse(sessionStorage.getItem(SCROLL) ?? "null") as { href?: string; y?: number } | null;
+    return restore && saved?.href === stockHref(query) && Number.isFinite(saved.y) ? Math.max(0, saved.y!) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -33,7 +65,7 @@ export function BackToCars() {
   const href = useSyncExternalStore(never, read, () => LIST);
   return (
     // 44px target; the negative margin keeps the page from moving.
-    <Link href={href} className="-my-2.5 inline-flex min-h-11 items-center text-meta hover:underline">
+    <Link href={href} onClick={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) && armRestore()} className="-my-2.5 inline-flex min-h-11 items-center text-meta hover:underline">
       Stock
     </Link>
   );

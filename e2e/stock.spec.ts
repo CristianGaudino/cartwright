@@ -252,3 +252,31 @@ test("pagination has previous and next, page numbers and the current page marked
   await page.getByRole("navigation", { name: "Pagination" }).getByRole("link", { name: "Previous page" }).click();
   await expect(page).toHaveURL(/used-cars$/);
 });
+
+test("the Stock link on a car page returns to the same place in the list", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const card = page.locator("article h2 a").nth(8);
+  await card.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => Math.round(scrollY));
+  expect(before).toBeGreaterThan(400);
+  await card.click();
+  await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
+  const back = page.getByRole("link", { name: "Stock", exact: true });
+  await expect(back).toHaveAttribute("href", "/used-cars");
+  await back.click();
+  await expect(page).toHaveURL(/\/used-cars$/);
+  await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeGreaterThan(before - 50);
+  expect(await page.evaluate(() => Math.round(scrollY))).toBeLessThan(before + 50);
+});
+
+test("opening the list from the footer starts at the top, even after a car was opened from it", async ({ page }) => {
+  await page.goto("/used-cars");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await page.locator("article h2 a").nth(8).scrollIntoViewIfNeeded();
+  await page.locator("article h2 a").nth(8).click();
+  await expect(page).toHaveURL(/\/used-cars\/[a-z0-9-]+$/);
+  await page.getByRole("contentinfo").getByRole("link", { name: "Used Cars" }).click(); // a client-side link, so the saved position is in play
+  await expect(page).toHaveURL(/\/used-cars$/);
+  await expect.poll(() => page.evaluate(() => Math.round(scrollY))).toBeLessThan(50);
+});
