@@ -12,9 +12,8 @@ export const FUEL_LABELS: Record<Fuel, string> = {
 export const GEARBOXES = ["manual", "automatic"] as const;
 export type Gearbox = (typeof GEARBOXES)[number];
 export const GEARBOX_LABELS: Record<Gearbox, string> = { manual: "Manual", automatic: "Automatic" };
-// The price slider (PriceRange): its steps and where its track ends, which means "no limit". Here, so the server schema can read them.
-export const PRICE_STEP = 2500;
-export const PRICE_TOP = 100_000;
+// The stops of the price slider (PriceRange). The first and last mean "no limit". Here, so the server schema can read them.
+export const PRICE_STOPS = [0, 2500, 5000, 7500, 10_000, 12_500, 15_000, 17_500, 20_000, 25_000, 30_000, 35_000, 40_000, 50_000, 60_000, 80_000, 100_000];
 export const SORT_KEYS = ["newest", "price-asc", "price-desc", "year-desc", "km-asc"] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 

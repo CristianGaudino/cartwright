@@ -23,7 +23,7 @@ export default function TradeInPage() {
         {
           title: "Send Some Photos",
           text: "A few clear photos, including any damage.",
-          more: [`At least ${PHOTO_MIN_COUNT} photos, and more is better: ${PHOTO_SLOTS.join(", ")}. Include all damage, even small marks.`],
+          more: [`At least ${PHOTO_MIN_COUNT} photos, and more is better: ${PHOTO_SLOTS.filter((s) => s !== "Any Damage").join(", ")}.`, "Include photos of all damage, even small marks."],
         },
         {
           title: "We Come Back to You",

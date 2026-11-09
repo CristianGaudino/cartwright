@@ -79,7 +79,8 @@ test("it is a trade-in valuation page that explains itself, in four steps, with 
   const how = page.getByRole("list").filter({ has: page.locator("details") });
   await expect(page.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeHidden();
   await how.getByText("Send Some Photos").click();
-  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Any Damage.*Include all damage, even small marks`))).toBeVisible(); // one line, not a bullet each
+  await expect(how.getByText(new RegExp(`At least ${PHOTO_MIN_COUNT} photos.*Front.*Dashboard and Mileage\.$`))).toBeVisible(); // the angles in one bullet, not one each
+  await expect(how.getByText("Include photos of all damage, even small marks.")).toBeVisible();
   await how.getByText("We Come Back to You").click();
   await expect(how.getByText("The valuation is an estimate. It can change when we inspect the car.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Required Photos" })).toHaveCount(0);
