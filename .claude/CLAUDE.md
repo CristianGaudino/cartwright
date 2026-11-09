@@ -12,7 +12,7 @@ A rebuild of https://www.cartwright.ie/ (used car dealer, Tralee, Co. Kerry) as 
 - Saved cars live in localStorage.
 - Design: modernised, not a copy of the current site. The logo is the only locked asset. Design with the skills in `.agents/skills`, primarily `apple-design`, and write the contract before building UI.
 - Scope: v1 is issues #1-16 (Todo). Alerts, newsletters, social embeds and the admin/analytics work (#17-25) are Backlog and not part of v1.
-- Planning lives in GitHub issues.
+- Planning lives in GitHub issues. The `.planning/` folder stays: code comments cite the decision ids it defines (D-08, T-03-27 and so on). Keep it, and put new planning in issues, not there.
 
 ## Standards
 The `vintage` repo (`~/Developer/vintage`, GitHub `CristianGaudino/vintage`) is the reference for code, design and process. When unsure of a standard, follow it. If still unsure, ask the owner and ask for context rather than guessing.

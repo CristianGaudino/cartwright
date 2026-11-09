@@ -14,20 +14,20 @@ type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; sl
 
 const tab = "relative inline-flex min-h-11 items-center px-4 text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
-const FIND_STEPS = ["Tell us the make, model and your budget", "We look for a car that fits", "We get in touch if we find one"];
+const FIND_STEPS = ["Tell us what you want", "We look for it", "We get in touch"];
 
 // A plain GET form: /used-cars reads make, model, body, priceMin and priceMax from the URL (BRW-03). The drop-downs need scripts to pick from;
 // without them it still goes to the stock, with nothing chosen.
-// The mockup's "Find me a car" tab sits beside it. Both panels sit in one grid cell, so the box is as tall as the taller of the two and
-// switching tabs never moves the page.
+// The mockup's "Find me a car" tab sits beside it. Search sets the height of the box; the Find panel lies over it, so switching tabs
+// never moves the page. On a phone body type is left out (the stock page has it) to keep the box short.
 export function HomeSearch({ makes, bodies, models }: Props) {
   const [tabName, setTab] = useState<"search" | "find">("search");
   const [make, setMake] = useState("");
   const id = useId();
   const shownModels = make ? models.filter((m) => m.makeSlug === make) : models;
   const budgets = BUDGETS.map((b): [string, string] => [String(b), formatPrice(b)]);
-  // `invisible`, not `hidden`: still in the grid cell (so it still counts toward the height), but not seen, read or focusable.
-  const panel = (t: "search" | "find") => `col-start-1 row-start-1 transition-[opacity,visibility] duration-200 motion-reduce:transition-none ${tabName === t ? "" : "invisible opacity-0"}`;
+  // `invisible`, not `hidden`: the search form stays in the flow (so it still sets the height), but is not seen, read or focusable.
+  const panel = (t: "search" | "find") => `transition-[opacity,visibility] duration-200 motion-reduce:transition-none ${tabName === t ? "" : "invisible opacity-0"}`;
 
   return (
     <div className={`${card} shadow-lift`}>
@@ -47,15 +47,15 @@ export function HomeSearch({ makes, bodies, models }: Props) {
           </button>
         ))}
       </div>
-      <div className="grid">
+      <div className="relative">
         <div role="tabpanel" id={`${id}-panel-search`} aria-labelledby={`${id}-tab-search`} className={panel("search")}>
-          <form action="/used-cars" method="get" className="grid grid-cols-2 gap-4 p-4 lg:grid-cols-[repeat(5,1fr)_auto] lg:items-end lg:p-6">
+          <form action="/used-cars" method="get" className="grid grid-cols-2 gap-x-3 gap-y-3 p-4 sm:grid-cols-3 sm:gap-4 lg:grid-cols-[repeat(5,1fr)_auto] lg:items-end lg:p-6">
             <Select name="make" label="Make" any="Any make" value={make} onChange={setMake} options={makes.map((m) => [m.slug, m.label])} />
             <Select key={make} name="model" label="Model" any="Any model" options={shownModels.map((m) => [m.slug, m.label])} />
-            <Select name="body" label="Body Type" any="Any type" options={bodies.map((b) => [b.slug, b.label])} />
+            <Select name="body" label="Body Type" any="Any type" className="hidden sm:flex" options={bodies.map((b) => [b.slug, b.label])} />
             <Select name="priceMin" label="Min Price" any="No min" options={budgets} />
             <Select name="priceMax" label="Max Price" any="No max" options={budgets} />
-            <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 lg:col-span-1 ${accentButton}`}>
+            <button type="submit" className={`col-span-2 flex items-center justify-center gap-2 sm:col-span-1 ${accentButton}`}>
               <SearchIcon className="size-5" />
               Search Cars
             </button>
@@ -65,24 +65,24 @@ export function HomeSearch({ makes, bodies, models }: Props) {
           role="tabpanel"
           id={`${id}-panel-find`}
           aria-labelledby={`${id}-tab-find`}
-          className={`${panel("find")} grid grid-cols-1 gap-6 p-4 lg:grid-cols-[1fr_1.4fr] lg:items-center lg:gap-10 lg:p-6`}
+          className={`${panel("find")} absolute inset-0 flex flex-col justify-center gap-3 p-4 lg:flex-row lg:items-center lg:gap-8 lg:p-6`}
         >
-          <div className="flex flex-col items-start gap-3">
+          <div className="flex min-w-0 flex-col gap-1 lg:flex-1">
             <p className="text-heading font-semibold">Can&apos;t see the car you want?</p>
-            <p className="max-w-[40ch] text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
-            <Link href="/find-a-car" className={`mt-1 inline-flex items-center gap-2 ${accentButton}`}>
-              Ask Us to Find It
-              <ArrowRightIcon className="size-5" />
-            </Link>
+            <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
           </div>
-          <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <ol className="hidden items-center gap-2 xl:flex">
             {FIND_STEPS.map((s, i) => (
-              <li key={s} className="flex items-center gap-3 rounded-control border border-hairline bg-surface/60 p-3 sm:flex-col sm:items-start">
+              <li key={s} className="flex max-w-[13rem] items-center gap-2 rounded-control border border-hairline bg-surface/60 p-2 pr-3">
                 <IconBadge size="sm">{i + 1}</IconBadge>
                 <span className="text-meta text-text-2">{s}</span>
               </li>
             ))}
           </ol>
+          <Link href="/find-a-car" className={`inline-flex items-center justify-center gap-2 lg:shrink-0 ${accentButton}`}>
+            Ask Us to Find It
+            <ArrowRightIcon className="size-5" />
+          </Link>
         </div>
       </div>
     </div>
@@ -97,6 +97,7 @@ function Select({
   options,
   value,
   onChange,
+  className = "flex",
 }: {
   name: string;
   label: string;
@@ -104,10 +105,11 @@ function Select({
   options: [string, string][];
   value?: string;
   onChange?(v: string): void;
+  className?: string;
 }) {
   const id = useId();
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className={`${className} min-w-0 flex-col gap-1`}>
       <label htmlFor={id} className="text-meta font-semibold">
         {label}
       </label>

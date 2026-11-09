@@ -234,6 +234,9 @@ const NUMERIC = new Set(["engineLitres", "doors", "seats", "owners", "maxSpeedMp
 const CONTACT = /^[A-Z]\d{2} ?[A-Z0-9]{4}$|@|www\.|https?:\/\/|^[\d ()+-]{7,}$|\b0\d{1,2}[ -]?\d{3}[ -]?\d{3,4}\b/;
 
 const MARKER = "www.cartwright.ie";
+// The most a free text field may run to, shared with src/lib/stock/types.ts (TEXT_LIMITS).
+const LIMITS = JSON.parse(readFileSync(new URL("../../src/lib/stock/text-limits.json", import.meta.url), "utf8"));
+
 // The blurb is the description, then (50 of 58) the dealer's site address, then a run of equipment items.
 function describe(blurb) {
   const text = cleanLines(blurb);
@@ -249,7 +252,8 @@ function describe(blurb) {
   const features = (at < 0 ? [] : text.slice(at + MARKER.length).split(/,(?![^(]*\))|\n/))
     .map((f) => f.trim())
     .filter((f) => f && !seen.has(f.toLowerCase()) && seen.add(f.toLowerCase()));
-  return { description: description || undefined, features: features.length ? features : undefined };
+  const cut = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
+  return { description: description ? cut(description, LIMITS.description) : undefined, features: features.length ? features.map((f) => cut(f, LIMITS.feature)) : undefined };
 }
 
 // The detail page's label/value list. Only Seats, Max Speed and 0-62 mph are read from it; the rest is on the listing.
@@ -306,7 +310,7 @@ async function buildCmd() {
     const fuel = fuelRaw ? mapFuel(fuelRaw) : undefined;
     if (fuel === "other") unmappedFuel.push(fuelRaw);
     const bodyType = clean(s.body) || undefined;
-    const variant = clean(l.highlights).replace(new RegExp(`^${(make + " " + model).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`, "i"), "") || undefined;
+    const variant = clean(l.highlights).slice(0, LIMITS.variant).replace(new RegExp(`^${(make + " " + model).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`, "i"), "") || undefined;
 
     const photoState = join(CACHE, "cars", l.id, "photos.json");
     const kept = (existsSync(photoState) ? JSON.parse(readFileSync(photoState, "utf8")) : []).filter((p) => p.n).sort((a, b) => a.n - b.n);

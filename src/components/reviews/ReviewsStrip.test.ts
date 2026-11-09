@@ -26,6 +26,13 @@ describe("ReviewsStrip", () => {
     expect(html).toContain("See All on Google Maps");
   });
 
+  it("writes the count as a person would: one review, and a thousand with its separator", () => {
+    const one = render(data({ count: 1 }));
+    expect(one).toContain("Based on 1 Google review</p>");
+    expect(one).toContain("from 1 Google review</p>");
+    expect(render(data({ count: 1284 }))).toContain("Based on 1,284 Google reviews");
+  });
+
   it("skips the aggregate row without a rating or a count and still shows the cards", () => {
     for (const d of [data({ rating: undefined }), data({ count: undefined })]) {
       const html = render(d);

@@ -1,12 +1,15 @@
 import { AutoCarousel } from "@/components/AutoCarousel";
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
-import { card, slash } from "@/components/ui";
+import { card, carSlide, slash } from "@/components/ui";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { specRows } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 
 const VISIBLE_FEATURES = 12;
+const LONG_DESCRIPTION = 700; // characters; the demo's longest is 978
+// wrap-anywhere: a bare web address in the dealer's text has no space to break at.
+const text = "mt-4 max-w-[65ch] whitespace-pre-line wrap-anywhere";
 const h2 = `text-heading font-semibold ${slash}`;
 
 // Server components. Dealer text is rendered as React text only, never as HTML (T-02-14). Each returns nothing when it has nothing to show.
@@ -15,7 +18,22 @@ export function AboutCar({ car }: { car: Car }) {
   return (
     <section>
       <h2 className={h2}>About This Car</h2>
-      <p className="mt-4 max-w-[65ch] whitespace-pre-line">{car.description}</p>
+      {car.description.length > LONG_DESCRIPTION ? (
+        <>
+          {/* One copy of the text: the checkbox, before it, lifts the clamp (peer), so it works without JavaScript and the page holds the text once. */}
+          <input type="checkbox" id={`more-${car.id}`} className="peer sr-only" />
+          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{car.description}</p>
+          <label
+            htmlFor={`more-${car.id}`}
+            className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
+          >
+            <span>Read more</span>
+            <span>Show less</span>
+          </label>
+        </>
+      ) : (
+        <p className={text}>{car.description}</p>
+      )}
     </section>
   );
 }
@@ -92,7 +110,7 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
       <div className="mt-4">
         <AutoCarousel label="Similar cars">
           {cars.map((c) => (
-            <li key={c.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
+            <li key={c.id} className={carSlide}>
               <ListingCard car={c} priority={false} oneLine />
             </li>
           ))}

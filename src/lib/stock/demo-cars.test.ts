@@ -6,7 +6,7 @@ import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
 import { stock } from "./index";
 import { DEFAULT_QUERY } from "./query";
-import { FUELS, GEARBOXES, SOLD_VISIBLE_DAYS } from "./types";
+import { FUELS, GEARBOXES, SOLD_VISIBLE_DAYS, TEXT_LIMITS } from "./types";
 import type { Car } from "./types";
 
 const cars = demoCars as Car[];
@@ -26,6 +26,13 @@ function files(dir: string): string[] {
 }
 
 describe("generated demo cars", () => {
+  it("keeps the dealer's free text inside TEXT_LIMITS, the lengths the layout is tested at", () => {
+    for (const c of cars) {
+      expect(c.description?.length ?? 0, c.slug).toBeLessThanOrEqual(TEXT_LIMITS.description);
+      expect(c.variant?.length ?? 0, c.slug).toBeLessThanOrEqual(TEXT_LIMITS.variant);
+      for (const f of c.features ?? []) expect(f.length, c.slug).toBeLessThanOrEqual(TEXT_LIMITS.feature);
+    }
+  });
   it("has plain text, with no raw HTML entity such as &eacute; left in any field", () => {
     const entity = /&(?:[a-z]+|#\d+|#x[0-9a-f]+);/i;
     expect(strings(cars).filter((t) => entity.test(t))).toEqual([]);

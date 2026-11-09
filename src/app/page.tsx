@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ReviewsStrip } from "@/components/reviews/ReviewsStrip";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { ArrowRightIcon } from "@/components/stock/icons";
-import { accentButton, press, sectionTitle, slash, subTitle, textLink } from "@/components/ui";
+import { accentButton, carSlide, press, sectionTitle, slash, subTitle, textLink } from "@/components/ui";
 import { dealerJsonLd } from "@/lib/dealer";
 import { getReviews } from "@/lib/reviews";
 import { DEALER_ADDRESS_LINES, SITE_NAME } from "@/lib/site";
@@ -78,7 +78,7 @@ export default async function Home() {
             </>
           ) : (
             <>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                 <h2 className={sectionTitle}>Featured Stock</h2>
                 <Link href="/used-cars" className={`${textLink} shrink-0 gap-2 whitespace-nowrap`}>
                   View All Stock
@@ -87,7 +87,7 @@ export default async function Home() {
               </div>
               <AutoCarousel label="Featured Stock">
                 {result.cars.map((car) => (
-                  <li key={car.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
+                  <li key={car.id} className={carSlide}>
                     <ListingCard car={car} priority={false} oneLine />
                   </li>
                 ))}

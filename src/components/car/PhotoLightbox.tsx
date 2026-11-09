@@ -1,5 +1,6 @@
 "use client";
 
+import { swipeRow } from "@/components/ui";
 import Image from "next/image";
 import { Brandmark } from "@/components/Brandmark";
 import type { RefObject } from "react";
@@ -52,7 +53,7 @@ export function PhotoLightbox({
       >
         <CloseIcon />
       </button>
-      <div ref={scroller} data-lightbox-scroller onScroll={onScroll} className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden">
+      <div ref={scroller} data-lightbox-scroller onScroll={onScroll} className={swipeRow}>
         {photos.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="flex h-full w-full flex-none snap-start items-center justify-center">
             <Image src={photo.src} width={900} height={675} alt={`${name}, photo ${i + 1} of ${n}`} loading="lazy" decoding="async" draggable={false} className="h-full w-full max-w-[1200px] object-contain" />

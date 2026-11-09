@@ -6,6 +6,7 @@ const km = new Intl.NumberFormat("en-IE");
 
 export const formatPrice = (n: number) => eur.format(n);
 export const formatKm = (n: number) => `${km.format(n)} km`;
+export const formatCount = (n: number) => km.format(n); // 1,163, as the rest of the site writes a number
 
 export const carTitle = (car: Pick<Car, "make" | "model" | "variant">) => [car.make, car.model, car.variant].filter(Boolean).join(" ");
 export const carName = (car: Pick<Car, "year" | "make" | "model">) => `${car.year} ${car.make} ${car.model}`;
@@ -53,4 +54,4 @@ export function specRows(car: Car): { label: string; value: string }[] {
 const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
-export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${n} cars`);
+export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${formatCount(n)} cars`);

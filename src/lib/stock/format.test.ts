@@ -39,6 +39,7 @@ describe("formatters", () => {
     expect(countLabel(0)).toBe("No cars");
     expect(countLabel(1)).toBe("1 car");
     expect(countLabel(24)).toBe("24 cars");
+    expect(countLabel(1163)).toBe("1,163 cars");
   });
 });
 

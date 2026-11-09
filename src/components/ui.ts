@@ -24,3 +24,11 @@ export const glass =
 // A filter chip: filled and checked when on, dimmed when `muted` (nothing matches).
 export const chip = (on: boolean, muted = false) =>
   `inline-flex min-h-11 max-w-full items-center gap-1 rounded-full border px-4 text-meta font-semibold transition-colors duration-150 ${press} ${on ? "border-accent bg-accent text-white" : `border-control bg-card ${muted ? "text-text-2" : ""}`}`;
+// The round close button at the right of a sheet's header (44px, nudged out so the icon lines up with the edge).
+export const closeButton = `-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full ${press}`;
+// A row that swipes sideways one slide at a time (photo gallery, lightbox, card photos).
+export const swipeRow = "flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden";
+// The solid round badge that holds a tick or an arrow.
+export const doneBadge = "flex size-11 items-center justify-center rounded-full bg-text text-ink";
+// A car card in an AutoCarousel: one and a bit on a phone, two, then three across.
+export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]";

@@ -3,7 +3,7 @@
 
 // Change the version whenever the text changes: every lead stores the version it was sent under (D-06).
 export const CONSENT = { version: "2026-11-06", text: "I agree to Carright using these details to reply to my request." } as const;
-// D-04: leads are kept this long, then deleted (by hand per docs/lead-retention.md until #20). The dealer must confirm
+// D-04: leads are kept this long, then deleted by the daily purge (worker.mjs, docs/lead-retention.md). The dealer must confirm
 // the period; /privacy and docs/lead-retention.md state it, so change all three together.
 export const LEAD_RETENTION_MONTHS = 12;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;

@@ -31,11 +31,52 @@ test("picking a make narrows the model list, and the Find me a car tab links to 
   await expect(page.getByLabel("Make", { exact: true })).toBeHidden();
 });
 
-test("on a phone the featured row has one dot per card", async ({ page }) => {
+test("the Find me a car tab fits inside the Search Stock box and the page does not move between them", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const box = page.getByRole("tablist").locator("xpath=..");
+  const before = (await box.boundingBox())!;
+  await page.getByRole("tab", { name: "Find me a car" }).click();
+  const panel = page.getByRole("tabpanel", { name: "Find Me a Car" });
+  await expect(panel).toBeVisible();
+  const after = (await box.boundingBox())!;
+  expect(after.height).toBe(before.height);
+  const p = (await panel.boundingBox())!;
+  for (const part of [panel.getByRole("link", { name: "Ask us to find it" }), panel.getByText("Can't see the car you want?")]) {
+    const b = (await part.boundingBox())!;
+    expect(b.y).toBeGreaterThanOrEqual(p.y);
+    expect(b.y + b.height).toBeLessThanOrEqual(p.y + p.height);
+  }
+});
+
+test("a drifting row moves smoothly, not a page at a time, and stops under the pointer", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  const first = await at();
+  await page.waitForTimeout(700);
+  const second = await at();
+  await page.waitForTimeout(700);
+  const third = await at();
+  expect(second).toBeGreaterThan(first);
+  expect(third).toBeGreaterThan(second);
+  expect(third - first).toBeLessThan(120); // a drift, nowhere near a page (about 400px)
+  await row.hover();
+  const held = await at();
+  await page.waitForTimeout(600);
+  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+});
+
+test("on a phone the featured row counts its cards, as a dot each only up to four", async ({ page }) => {
   await page.goto("/");
   const row = page.getByRole("group", { name: "Featured stock" });
   const cards = await row.locator("article").count();
-  await expect(row.getByRole("button", { name: /^Go to page \d+ of/ })).toHaveCount(cards);
+  expect(cards).toBeGreaterThan(4); // more dots than a phone has room for (the controls would shrink): a count instead
+  await expect(row.getByText(`1 / ${cards}`)).toBeVisible();
+  await expect(row.getByRole("button", { name: /^Go to page d+ of/ })).toHaveCount(0);
 });
 
 test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ page }) => {

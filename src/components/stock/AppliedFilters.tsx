@@ -15,6 +15,7 @@ export function AppliedFilters() {
           key={chip.id}
           type="button"
           aria-label={`Remove ${chip.label}`}
+          title={chip.label}
           onClick={() => navigate(chip.next)}
           className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-hairline bg-card px-4 text-meta font-semibold active:scale-[0.97] motion-reduce:active:scale-100"
         >

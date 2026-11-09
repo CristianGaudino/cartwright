@@ -1,11 +1,12 @@
 "use client";
 
+import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import { useEffect, useId, useRef, useState } from "react";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon, SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
 import { useStock } from "./StockShell";
-import { accentButton, press } from "@/components/ui";
+import { accentButton, closeButton, press } from "@/components/ui";
 
 
 // Below 1024px the filter groups live only in this sheet; from 1024px the sidebar shows them and the sticky bar (and this button) is hidden.
@@ -22,22 +23,11 @@ export function FilterSheet() {
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
   const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
 
-  // The sheet lives in the bar that is display:none from 1024px. An open modal dialog would stay open there, invisible,
-  // keeping the page inert and scroll locked, so close it when the desktop layout takes over (resize, iPad rotation).
-  useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)");
-    const onChange = () => {
-      if (desktop.matches) {
-        dialog.current?.close();
-        setMounted(false); // the bar is display:none now, so there is no slide-out to wait for
-      }
-    };
-    desktop.addEventListener("change", onChange);
-    return () => {
-      desktop.removeEventListener("change", onChange);
-      clearTimeout(unmountTimer.current);
-    };
-  }, []);
+  useCloseAtDesktop(() => {
+    dialog.current?.close();
+    setMounted(false); // the bar is display:none now, so there is no slide-out to wait for
+  });
+  useEffect(() => () => clearTimeout(unmountTimer.current), []);
 
   return (
     <>
@@ -74,7 +64,7 @@ export function FilterSheet() {
           <h2 id={titleId} className="text-heading font-semibold">
             Filters
           </h2>
-          <button type="button" aria-label="Close filters" onClick={() => dialog.current?.close()} className={`-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full ${press}`}>
+          <button type="button" aria-label="Close filters" onClick={() => dialog.current?.close()} className={closeButton}>
             <CloseIcon className="h-6 w-6" />
           </button>
         </div>

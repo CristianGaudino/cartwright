@@ -1,6 +1,8 @@
 import { AutoCarousel } from "@/components/AutoCarousel";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
+import { formatCount } from "@/lib/stock/format";
+import { ReviewAvatar } from "./ReviewAvatar";
 import { card, sectionTitle, textLink } from "@/components/ui";
 
 const POLICY_URI = "https://support.google.com/contributionpolicy/answer/7422880";
@@ -45,10 +47,7 @@ function ReviewCard({ review }: { review: Review }) {
         </p>
       )}
       <div className="mt-auto flex items-start gap-3">
-        {review.photoUri && (
-          // eslint-disable-next-line @next/next/no-img-element -- Google-hosted avatar; images are unoptimized on this Worker
-          <img src={review.photoUri} alt="" width={40} height={40} loading="lazy" referrerPolicy="no-referrer" className="size-10 shrink-0 rounded-full bg-photo-bg" />
-        )}
+        {review.photoUri && <ReviewAvatar src={review.photoUri} />}
         <div className="min-w-0">
           <p className="break-words text-body font-semibold">
             {review.authorUri ? (
@@ -80,6 +79,7 @@ function ReviewCard({ review }: { review: Review }) {
 export function ReviewsStrip({ data }: { data: Reviews | null }) {
   if (!data?.reviews.length) return null;
   const { rating, count } = data;
+  const reviewCount = count === undefined ? "" : `${formatCount(count)} Google ${count === 1 ? "review" : "reviews"}`;
   return (
     <section aria-labelledby="reviews-heading" className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
@@ -91,7 +91,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
       {rating !== undefined && count !== undefined && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <p className="sr-only">
-            Rated {rating.toFixed(1)} out of 5 from {count} Google reviews
+            Rated {rating.toFixed(1)} out of 5 from {reviewCount}
           </p>
           <div className="flex items-center gap-2">
             <span aria-hidden="true" className="text-display font-semibold tabular-nums">
@@ -100,7 +100,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
             <StarRating value={rating} size={20} />
           </div>
           <div className="flex flex-wrap items-center gap-x-4">
-            <p className="text-meta text-text-2">Based on {count} Google reviews</p>
+            <p className="text-meta text-text-2">Based on {reviewCount}</p>
             <a href={data.placeUri} {...NEW_TAB} className={`${textLink} text-meta`}>
               See All on Google Maps
               <NewTab />
@@ -109,9 +109,9 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
         </div>
       )}
       {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
-      <AutoCarousel label="Google reviews" noun="reviews" interval={6000}>
+      <AutoCarousel label="Google reviews" noun="reviews">
         {data.reviews.map((r) => (
-          <li key={r.id} className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
+          <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
             <ReviewCard review={r} />
           </li>
         ))}

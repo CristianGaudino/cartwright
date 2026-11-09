@@ -8,7 +8,7 @@ import { LIMITS } from "@/lib/leads/constants";
 import { DEALER_TEL } from "@/lib/site";
 import { ContactFields, Field } from "./Field";
 import { LeadForm } from "./LeadForm";
-import { press, secondaryButton } from "@/components/ui";
+import { closeButton, press, secondaryButton } from "@/components/ui";
 
 // What the client needs to show a car. Never the Car object: the server reads the car again by id (LED-02).
 export type CarSummary = { id: string; name: string; title: string; price: string; photo?: string };
@@ -32,7 +32,7 @@ export function LeadDialog({ title, open, onClose, children }: { title: string; 
         <h2 id={titleId} className="text-heading font-semibold">
           {title}
         </h2>
-        <button type="button" aria-label="Close" onClick={() => dialog.current?.close()} className={`-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-full ${press}`}>
+        <button type="button" aria-label="Close" onClick={() => dialog.current?.close()} className={closeButton}>
           <CloseIcon className="h-6 w-6" />
         </button>
       </div>

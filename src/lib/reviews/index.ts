@@ -1,4 +1,6 @@
 import "server-only";
+import { isProduction } from "../site";
+import { devMode } from "../dev-data";
 import { createPlacesProvider } from "./places-provider";
 
 // The one place that names a concrete reviews provider (D-01, as src/lib/stock/index.ts).
@@ -36,7 +38,7 @@ const demo = (n: number, rating: number, text: string, relativeTime: string): Re
   reviewUri: DEMO_PLACE,
 });
 
-// Clearly fictional: shown under a Demo reviews pill until the Places provider is configured.
+// Clearly fictional ("Sample customer A.") and shown without a label until the Places provider is configured, outside production only.
 export const DEMO_REVIEWS: Reviews = {
   source: "demo",
   rating: 4.8,
@@ -56,9 +58,19 @@ let places: ReviewsProvider | undefined;
 // Env is read per call: Worker secrets reach process.env on the first request (see env.ts). Missing config means demo,
 // never an error. Once Places is configured its null stands: never fall back to fixtures on a live site.
 export async function getReviews(): Promise<Reviews | null> {
+  if (process.env.NODE_ENV === "development") {
+    // break-ui: the dev-only Demo / Worst case switch.
+    const mode = await devMode();
+    if (mode !== "demo") {
+      const dev = (await import("../stock/worst-cars")).worstReviews(mode);
+      if (dev !== undefined) return dev;
+    }
+  }
   const placeId = process.env.GOOGLE_PLACE_ID;
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!placeId || !apiKey) return DEMO_REVIEWS;
+  // The fixtures are for demos only: a live site with a missing key shows no reviews, never invented ones. The E2E server is built as
+  // production and needs them, so E2E_FAKE_BACKENDS (set only by playwright.config.ts; ci.yml fails a Worker that sets it) lets them through.
+  if (!placeId || !apiKey) return isProduction() && process.env.E2E_FAKE_BACKENDS !== "1" ? null : DEMO_REVIEWS;
   places ??= createPlacesProvider({ placeId, apiKey }); // one provider so its day memo survives between requests
   return places.get();
 }

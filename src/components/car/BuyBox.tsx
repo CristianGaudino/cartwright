@@ -5,7 +5,7 @@ import { LeadActions } from "@/components/leads/LeadDialog";
 import { SaveButton } from "@/components/saved/SaveButton";
 import { CalendarIcon, CarIcon, FuelIcon, GaugeIcon, GearIcon, ShieldCheckIcon } from "@/components/stock/icons";
 import { DEALER_WHATSAPP, SITE_URL, WARRANTY } from "@/lib/site";
-import { carMeta, carName, carSummary, carTitle, formatPrice, keyFacts } from "@/lib/stock/format";
+import { carMeta, carName, carSummary, formatPrice, keyFacts } from "@/lib/stock/format";
 import { isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 import { accentButton, card } from "@/components/ui";
@@ -22,7 +22,16 @@ export function BuyBox({ car }: { car: Car }) {
   return (
     <div data-testid="buy-box" className="flex flex-col gap-5">
       <div className="flex items-start justify-between gap-3">
-        <h1 className="min-w-0 break-words text-display font-bold">{carTitle(car)}</h1>
+        {/* Make and model large, the variant under it: a 60 character variant would otherwise fill a phone screen. The text reads as carTitle. */}
+        <h1 className="min-w-0 break-words text-display font-bold">
+          {car.make} {car.model}
+          {car.variant && (
+            <>
+              {" "}
+              <span className="mt-1 block text-heading font-semibold text-text-2">{car.variant}</span>
+            </>
+          )}
+        </h1>
         {/* Share beside the heart, where a buyer looks for them. */}
         <div className="flex shrink-0 items-center">
           <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />

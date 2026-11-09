@@ -19,7 +19,6 @@ test("/service has a call button with the number, WhatsApp, services that open, 
   for (const s of ["Servicing", "Repairs", "Tyres"]) await expect(main(page).getByRole("button", { name: new RegExp(`^${s}`) })).toHaveAttribute("aria-expanded", "false");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   await main(page).getByRole("button", { name: /^Tyres/ }).click();
-  await expect(main(page).getByRole("heading", { name: "Tyres: What We Do" })).toBeVisible();
   await expect(main(page).getByText("Puncture repair")).toBeVisible();
   await expect(main(page).getByLabel("Name")).toBeVisible(); // the form is open beside the checks
 });

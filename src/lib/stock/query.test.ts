@@ -244,6 +244,15 @@ describe("appliedFilters", () => {
   });
 });
 
+describe("appliedFilters on an untouched query", () => {
+  // EmptyState reads this to tell an empty stock ("No cars listed right now") from an empty search ("No cars match these filters").
+  it("has no chips, and a search or any filter makes one", () => {
+    expect(appliedFilters(DEFAULT_QUERY, null)).toEqual([]);
+    expect(appliedFilters({ ...DEFAULT_QUERY, q: "golf" }, null)).toHaveLength(1);
+    expect(appliedFilters({ ...DEFAULT_QUERY, fuel: ["diesel"] }, null)).toHaveLength(1);
+  });
+});
+
 describe("facetRows", () => {
   it("counted: shows counts, disables an unselected zero-count option, keeps a selected one enabled", () => {
     expect(facetRows(facets.make, [], true)).toEqual([
