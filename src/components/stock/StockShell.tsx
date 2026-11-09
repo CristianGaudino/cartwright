@@ -9,7 +9,7 @@ import { appliedFilters, clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
 import { AppliedFilters } from "./AppliedFilters";
-import { rememberList } from "./BackToCars";
+import { rememberList, rememberScroll, takeScroll } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
 import { Combobox } from "@/components/Combobox";
 import { GridIcon, ListIcon } from "./icons";
@@ -96,6 +96,13 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
   useEffect(() => rememberList(query), [query]); // so the car page can link back to this list
 
+  // Back from a car with the Stock link: return to the place in the list the buyer left (the browser's own Back button restores it itself).
+  useEffect(() => {
+    const y = takeScroll(query);
+    if (y !== null) requestAnimationFrame(() => window.scrollTo(0, y));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
+  }, []);
+
   // A new filter or sort starts the list again, so the page returns to the top of the results if the buyer had scrolled past it. Without
   // this, results that are fewer than the buyer had scrolled through shorten the page and push the sticky filter panel up with them.
   const results = useRef<HTMLDivElement>(null);
@@ -145,7 +152,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <StockFilters />
           </aside>
           {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
-          <div ref={results} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
+          <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div className="lg:hidden">
               <SearchBox />
             </div>
