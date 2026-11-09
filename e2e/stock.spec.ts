@@ -47,11 +47,12 @@ test("unknown params and bad values are ignored", async ({ page, request }) => {
   expect(await total(page)).toBe(n);
 });
 
-test("header: logo, one link, scrolls away", async ({ page }) => {
+test("header: logo, menu and saved, scrolls away", async ({ page }) => {
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
   await expect(header.getByRole("img", { name: SITE_NAME })).toBeVisible();
-  await expect(header.getByRole("link", { name: "Used cars" })).toHaveAttribute("href", "/used-cars");
+  await expect(header.getByRole("button", { name: "Menu" })).toBeVisible();
+  await expect(header.getByRole("link", { name: /^Saved cars/ })).toHaveAttribute("href", "/saved");
   expect(await header.evaluate((el) => getComputedStyle(el).position)).toMatch(/^(static|relative)$/);
 });
 

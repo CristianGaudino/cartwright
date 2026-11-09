@@ -12,11 +12,11 @@ import { AppliedFilters } from "./AppliedFilters";
 import { rememberList, rememberScroll, takeScroll } from "./BackToCars";
 import { FilterSheet } from "./FilterSheet";
 import { Combobox } from "@/components/Combobox";
-import { GridIcon, ListIcon } from "./icons";
+import { ChevronDownIcon, GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
 import { setView, useView } from "./view";
-import { pageMain, slash, subTitle } from "@/components/ui";
+import { pageMain, secondaryButton, slash, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
 type Stock = {
@@ -130,6 +130,10 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <p className={`text-body ${slash}`}>Our Stock</p>
             <h1 className="mt-1 text-display font-bold lg:text-hero">Quality Used Cars</h1>
             <p className="mt-2 max-w-[65ch] text-pretty text-body text-text-2">Browse our current stock of used cars, all carefully selected.</p>
+            {/* Under the intro and above the count on a phone; from 1024px the search is in the filter panel. */}
+            <div className="mt-4 lg:hidden">
+              <SearchBox />
+            </div>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
             <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
@@ -153,12 +157,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           </aside>
           {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
-            <div className="lg:hidden">
-              <SearchBox />
-            </div>
             <div
               data-testid="sticky-bar"
-              className="sticky top-0 z-20 -mx-4 mt-2 flex h-14 items-center justify-between border-t border-hairline bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100 contrast-more:border-text"
+              className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <FilterSheet />
               <SortControl className="flex" />
@@ -166,6 +167,12 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <AppliedFilters />
             <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
               {children}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })} className={`inline-flex h-12 items-center gap-2 px-6 ${secondaryButton}`}>
+                Back to Top
+                <ChevronDownIcon className="size-5 rotate-180" />
+              </button>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
 
 export type ComboOption = { value: string; label: string };
@@ -9,6 +9,13 @@ export type ComboOption = { value: string; label: string };
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
 // A short list is a plain picker (no keyboard on a phone); a longer one can be typed into and narrows as the buyer types.
 const TYPEABLE_FROM = 6;
+// Typing is for a mouse and keyboard. A touch screen only picks, so no keyboard rises over the list. False until read, so the server and first paint match.
+const FINE = "(hover: hover) and (pointer: fine)";
+const watchFine = (cb: () => void) => {
+  const q = window.matchMedia(FINE);
+  q.addEventListener("change", cb);
+  return () => q.removeEventListener("change", cb);
+};
 // A list is at most this tall (18rem: six options without a scrollbar). With less than LIST_ROOM_PX below the field it opens upward if there is more room above.
 const LIST_MAX_PX = 288;
 const LIST_MIN_PX = 120;
@@ -56,7 +63,8 @@ export function Combobox({
   const [active, setActive] = useState(0);
   const [place, setPlace] = useState<Place>();
   const root = useRef<HTMLDivElement>(null);
-  const typeable = options.length >= TYPEABLE_FROM;
+  const fine = useSyncExternalStore(watchFine, () => window.matchMedia(FINE).matches, () => false);
+  const typeable = fine && options.length >= TYPEABLE_FROM;
   const shown = useMemo(() => (typed ? options.filter((o) => fold(o.label).includes(fold(typed))) : options), [options, typed]);
 
   const measure = useCallback(() => {

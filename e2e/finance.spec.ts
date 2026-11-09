@@ -26,7 +26,6 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
   await open(page, "/finance");
   await expect(page.getByRole("heading", { level: 1, name: "Finance" })).toBeVisible();
   await expect(page.getByText("This is an estimate only, not an approval or an offer of credit.")).toBeVisible();
-  await expect(calc(page).getByText(/This is an estimate, not an approval/)).toBeVisible();
   await expect(result(page)).toContainText(/About €[\d,]+ a month/);
   await expect(calc(page).getByLabel("APR")).toHaveCount(0); // the rate is the dealer's, never typed
   await expect(calc(page).getByText(`${FINANCE.defaults.aprPct}% APR`)).toBeVisible();
@@ -45,8 +44,10 @@ test("/finance is the estimator only: no car picker, no application, a button to
   await expect(page.getByRole("button", { name: "Start Your Application" })).toHaveCount(0);
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Select a car to enquire" })).toHaveAttribute("href", "/used-cars");
-  await expect(page.getByRole("heading", { name: "Good to Know" })).toBeVisible();
-  await expect(page.getByText("An Estimate, Not an Approval", { exact: true })).toBeVisible();
+  // The estimate wording is said once, in the dealer's notice under the calculator.
+  await expect(page.getByText("This is an estimate only, not an approval or an offer of credit.")).toHaveCount(1);
+  await expect(page.getByText(/not an approval/i)).toHaveCount(1);
+  await expect(page.getByText(/Send your details/)).toHaveCount(0);
 });
 
 test("/finance shows what to fix, never NaN or a stale figure", async ({ page }) => {

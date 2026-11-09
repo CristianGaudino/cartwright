@@ -38,7 +38,7 @@ export default async function Home() {
       <link rel="preload" as="image" href="/brand/hero.webp" media="(min-width: 768px)" fetchPriority="high" />
       <JsonLd data={dealerJsonLd(reviews)} />
       <section className="hero-photo relative border-b border-hairline">
-        <div className="relative mx-auto max-w-[1280px] px-4 pb-8 pt-12 sm:px-6 lg:px-8 lg:pb-12 lg:pt-20">
+        <div className="relative mx-auto max-w-[1280px] px-4 pb-8 pt-[56vw] sm:px-6 md:pt-12 lg:px-8 lg:pb-12 lg:pt-20">
           <p className={`text-meta font-semibold uppercase tracking-wider ${slash}`}>Quality Used Cars</p>
           <h1 className="mt-4 max-w-[10ch] text-hero font-bold lg:text-hero-lg">Find Your Next Car</h1>
           <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>

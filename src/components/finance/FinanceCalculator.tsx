@@ -91,9 +91,6 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <p className="font-semibold">Check the figures you entered.</p>
             )}
           </div>
-          <p className="rounded-control bg-surface p-3 text-meta">
-            This is an estimate, not an approval. What you&apos;re offered depends on your circumstances, such as your age, income and credit history. Send your details and we&apos;ll contact you with the real amounts.
-          </p>
           {car ? (
             <button
               ref={opener}

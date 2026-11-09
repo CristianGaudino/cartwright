@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { InfoPage, InfoSection } from "@/components/InfoPage";
 import { LEAD_RETENTION_MONTHS } from "@/lib/leads/constants";
-import { DEALER_EMAIL, DEALER_FACTS_CONFIRMED, SITE_NAME } from "@/lib/site";
-import { PhoneLink } from "@/components/PhoneLink";
+import { DEALER_EMAIL, SITE_NAME } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Privacy Policy", description: `How ${SITE_NAME} uses the details you send us, how long we keep them, and how to ask for them to be deleted.` };
 
 // Phase 3 copy on the shared frame (Phase 4); only the dealer's final wording is outstanding.
-// The email is a placeholder until the dealer's domain forwards to the dealer (issue #54), so it is shown only once confirmed.
+// The email is a placeholder until the dealer's domain forwards to the dealer (issue #54).
 export default function PrivacyPage() {
   return (
     <InfoPage title="Privacy Policy">
@@ -18,7 +17,7 @@ export default function PrivacyPage() {
           policy. Nothing about your device is stored.
         </p>
         <p>
-          If you add photos of your car, your phone shrinks them before they are sent, which also removes the location and camera details. We keep
+          If you add photos, of your car or of a car you are looking for, your phone shrinks them before they are sent, which also removes the location and camera details. We keep
           them for the same {LEAD_RETENTION_MONTHS} months as the rest of your request.
         </p>
       </InfoSection>
@@ -34,18 +33,12 @@ export default function PrivacyPage() {
       </InfoSection>
       <InfoSection title="How to Ask Us to Delete It">
         <p>
-          Call us on{" "}
-          <PhoneLink />
-          {DEALER_FACTS_CONFIRMED && (
-            <>
-              {" "}
-              or email{" "}
-              <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
-                {DEALER_EMAIL}
-              </a>
-            </>
-          )}{" "}
+          Email us at{" "}
+          <a href={`mailto:${DEALER_EMAIL}`} className="font-semibold underline">
+            {DEALER_EMAIL}
+          </a>{" "}
           and we&apos;ll delete your details.
+          Please write from the address you used on the form, so we can find your request.
         </p>
       </InfoSection>
     </InfoPage>

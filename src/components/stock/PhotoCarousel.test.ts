@@ -15,7 +15,7 @@ describe("PhotoCarousel", () => {
     expect(html).not.toContain('aria-roledescription="carousel"');
   });
 
-  it("one photo: one slide, no dots, no arrows, no tile", () => {
+  it("one photo: one slide, no dots, no arrows", () => {
     const html = render(1);
     expect(count(html, 'aria-roledescription="slide"')).toBe(1);
     expect(html).not.toContain("See all");
@@ -23,10 +23,10 @@ describe("PhotoCarousel", () => {
     expect(html).not.toContain("Next photo");
   });
 
-  it("three photos, as the server sends them: the first photo and the tile, and no dots or arrows yet", () => {
+  it("three photos, as the server sends them: only the first photo, and no dots or arrows yet", () => {
     // The others follow in the browser, a second after the card comes near the screen, so no slide is ever an empty box.
     const html = render(3);
-    expect(count(html, 'aria-roledescription="slide"')).toBe(2);
+    expect(count(html, 'aria-roledescription="slide"')).toBe(1);
     expect(count(html, 'aria-label="Photo ')).toBe(1);
     expect(html).toContain('aria-label="Photo 1 of 3"');
     expect(html).not.toContain("data-dot");
@@ -40,19 +40,8 @@ describe("PhotoCarousel", () => {
     expect(html).not.toMatch(/<a[^>]*aria-hidden/);
   });
 
-  it("the tile is a link to the car in the tab order, named for the real photo count, and is not a photo", () => {
-    for (const n of [2, 3]) {
-      const html = render(n);
-      const slide = html.match(/<div[^>]*aria-label="See all \d+ photos"[^>]*>.*?<\/a>/)![0];
-      expect(slide).toContain(`aria-label="See all ${n} photos"`);
-      expect(slide).toContain('role="group"');
-      expect(slide).toContain('aria-roledescription="slide"');
-      const link = slide.match(/<a[^>]*>/)![0];
-      expect(link).toContain('href="/used-cars/x"');
-      expect(link).not.toContain("tabindex");
-      expect(slide).toContain(`See all ${n} photos</span>`);
-      expect(html).not.toContain(`of ${n + 1}`);
-    }
+  it("has no See all photos slide", () => {
+    for (const n of [2, 3]) expect(render(n)).not.toContain("See all");
   });
 
   it("priority makes the first image high priority, otherwise every image is lazy", () => {

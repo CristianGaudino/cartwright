@@ -2,6 +2,7 @@
 
 import { useCloseAtDesktop } from "@/components/useCloseAtDesktop";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useId, useRef } from "react";
 import { PhoneLink } from "@/components/PhoneLink";
 import { CloseIcon, MenuIcon, PhoneIcon } from "@/components/stock/icons";
@@ -12,6 +13,7 @@ import { accentButton, closeButton, press } from "@/components/ui";
 export function MobileMenu({ links }: { links: { href: string; label: string }[] }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const path = usePathname();
 
   useCloseAtDesktop(() => dialog.current?.close());
 
@@ -22,7 +24,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
         aria-label="Menu"
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
-        className={`-mr-2 flex h-11 w-11 items-center justify-center rounded-control focus-visible:outline-white lg:hidden ${press}`}
+        className={`-ml-2 flex h-11 w-11 items-center justify-center rounded-control focus-visible:outline-white lg:hidden ${press}`}
       >
         <MenuIcon />
       </button>
@@ -38,7 +40,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
         <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-6">
           <nav aria-label="Menu">
             <ul>
-              {links.map((l) => (
+              {links.filter((l) => l.href !== "/" || path !== "/").map((l) => (
                 <li key={l.href} className="border-b border-hairline last:border-b-0">
                   {/* Closing here, not on a route change: the header stays mounted, so the dialog would otherwise stay open. */}
                   <Link href={l.href} onClick={() => dialog.current?.close()} className="flex min-h-12 items-center text-heading font-semibold">

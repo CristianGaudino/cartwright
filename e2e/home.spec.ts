@@ -71,16 +71,27 @@ test("a drifting row moves smoothly, not a page at a time, and stops under the p
   expect(Math.abs((await at()) - held)).toBeLessThan(2);
 });
 
-test("on a phone the featured row counts its cards, as a dot each only up to four", async ({ page }) => {
+test("on a phone the featured row has no count, arrows or dots", async ({ page }) => {
   await page.goto("/");
   const row = page.getByRole("group", { name: "Featured stock" });
   const cards = await row.locator("article").count();
   expect(cards).toBeGreaterThan(4); // more dots than a phone has room for (the controls would shrink): a count instead
-  await expect(row.getByText(`1 / ${cards}`)).toBeVisible();
-  await expect(row.getByRole("button", { name: /^Go to page d+ of/ })).toHaveCount(0);
+  await expect(row.getByText(`1 / ${cards}`)).toBeHidden(); // no count, arrows or dots on a phone: the row is swiped
+  await expect(row.getByRole("button", { name: /^(Previous|Next) cars$/ })).toBeHidden();
 });
 
-test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ page }) => {
+// Typing into a drop-down is for a mouse and keyboard: a phone only picks (no keyboard rises over the list).
+const desktop = async (browser: import("@playwright/test").Browser, baseURL: string | undefined) =>
+  (await browser.newContext({ baseURL, viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false })).newPage();
+
+test("on a phone the drop-downs only pick: the field cannot be typed into", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await expect(page.getByLabel("Make", { exact: true })).toHaveAttribute("readonly", "");
+});
+
+test("the drop-downs are the site's own: typing narrows the list, Enter picks, Escape puts it back", async ({ browser, baseURL }) => {
+  const page = await desktop(browser, baseURL);
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   expect(await page.locator("select").count()).toBe(0); // no browser drop-downs left
@@ -129,7 +140,8 @@ test("the drop-downs work from the keyboard: arrows move, Home and End jump, Ent
   await expect(make).toHaveValue(third);
 });
 
-test("typing into a drop-down reached by keyboard opens its list right under the field", async ({ page }) => {
+test("typing into a drop-down reached by keyboard opens its list right under the field", async ({ browser, baseURL }) => {
+  const page = await desktop(browser, baseURL);
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
   const make = page.getByLabel("Make", { exact: true });

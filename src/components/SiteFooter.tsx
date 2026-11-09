@@ -37,30 +37,33 @@ const GROUPS = [
 const SOCIAL_ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon };
 
 const link = "inline-flex min-h-11 items-center transition-colors hover:text-text-2";
+// Footer links on a phone sit closer than the 44px rule: they are a list, and the footer was far too tall.
+const tight = "inline-flex min-h-9 items-center transition-colors hover:text-text-2 lg:min-h-11";
 
 // No top margin of its own: pages already end with 64px padding (03-10). No year in the copyright, so a cached page
 // never goes stale.
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-hairline bg-ink">
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-y-8">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
             <Link href="/" className={link}>
               <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
             </Link>
             <address className="text-body not-italic">
               {DEALER_ADDRESS_LINES.map((line) => (
-                <span key={line} className="block">
+                <span key={line} className="block max-lg:inline max-lg:after:content-[',_'] max-lg:last:after:content-none">
                   {line}
                 </span>
               ))}
             </address>
+            <div className="flex w-full items-center justify-between lg:flex-col lg:items-start lg:gap-2">
             <PhoneLink className={`${link} text-body font-semibold`} />
-            <Link href="/contact" className={`${link} underline`}>
+            <Link href="/contact" className={`${link} underline max-lg:hidden`}>
               Opening Hours and Directions
             </Link>
-            <ul aria-label="Social media" className="-ml-3 flex">
+            <ul aria-label="Social media" className="-mr-3 flex lg:-ml-3 lg:mr-0">
               {SOCIAL_LINKS.map(({ name, href }) => {
                 const Icon = SOCIAL_ICONS[name];
                 return (
@@ -72,16 +75,17 @@ export function SiteFooter() {
                 );
               })}
             </ul>
+            </div>
           </div>
           {/* Groups are divs, not sections, so section lookups on car pages stay unique. */}
           <nav aria-label="Footer" className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-8 lg:col-span-3 lg:grid-cols-3">
             {GROUPS.map((g) => (
-              <div key={g.title} className={g.title === "Legal" ? "col-span-2 lg:col-span-1" : undefined}>
+              <div key={g.title} className={g.title === "Legal" ? "max-lg:hidden" : undefined}>
                 <h2 className="text-meta font-semibold text-text-2">{g.title}</h2>
-                <ul className="mt-2 flex flex-col gap-1">
+                <ul className="mt-1 flex flex-col lg:mt-2 lg:gap-1">
                   {g.links.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} className={`${link} text-body`}>
+                      <Link href={l.href} className={`${tight} text-body`}>
                         {l.label}
                       </Link>
                     </li>
@@ -91,7 +95,17 @@ export function SiteFooter() {
             ))}
           </nav>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-x-6 border-t border-hairline pt-6 text-meta text-text-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 border-t border-hairline pt-4 text-meta text-text-2 lg:pt-6">
+          {/* The legal pair moves here on a phone, in a line, so the footer is not a third column tall. */}
+          <ul aria-label="Legal" className="flex w-full gap-x-6 lg:hidden">
+            {GROUPS.find((g) => g.title === "Legal")!.links.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className={`${tight} text-body text-text`}>
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
           <p>© {SITE_NAME}</p>
           <a href={CHECKWORK_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 transition-colors hover:text-text">
             Powered by

@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { CameraIcon, CloseIcon, PlusIcon } from "@/components/stock/icons";
 import {
-  PHOTO_COUNT_ERROR,
   PHOTO_MAX_COUNT,
   PHOTO_MAX_MB,
   PHOTO_STORED_MAX_BYTES,
   PHOTO_TOTAL_ERROR,
   PHOTO_TOTAL_MAX_BYTES,
   PHOTO_TYPES,
+  photoCountError,
   photoError,
 } from "@/lib/leads/constants";
 import { downscale } from "./downscale";
@@ -20,7 +20,7 @@ const size = (photos: Blob[]) => photos.reduce((n, p) => n + p.size, 0);
 
 // Trade-in photos (D-13, UI-SPEC Photos). Each pick is shrunk on the device before it is kept, so only the re-encoded JPEG is
 // ever held or sent. The photos live in LeadForm's state, which outlives a failed send; the file input is only a way to add more.
-export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0 }: PhotoBinding & { slots?: readonly string[]; min?: number }) {
+export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], min = 0, max = PHOTO_MAX_COUNT }: PhotoBinding & { slots?: readonly string[]; min?: number; max?: number }) {
   const [messages, setMessages] = useState<string[]>([]);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -35,8 +35,8 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     setBusy(true);
     onBusy(true);
     const refused = new Set<string>();
-    const room = PHOTO_MAX_COUNT - photos.length;
-    if (picked.length > room) refused.add(PHOTO_COUNT_ERROR);
+    const room = max - photos.length;
+    if (picked.length > room) refused.add(photoCountError(max));
     const added: Blob[] = [];
     let total = size(photos);
     for (const file of picked.slice(0, Math.max(room, 0))) {
@@ -57,7 +57,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
     // count and total checked above (and can leave the announced count one high, which is harmless).
     onChange((prev) => [...prev, ...added]);
     setMessages([...refused]);
-    if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${PHOTO_MAX_COUNT} photos.`);
+    if (added.length) setStatus(`${added.length} ${added.length === 1 ? "photo" : "photos"} added. ${photos.length + added.length} of ${max} photos.`);
     setBusy(false);
     onBusy(false);
   }
@@ -74,7 +74,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
         Photos<span className="font-normal text-text-2">{min ? ` (at least ${min})` : " (optional)"}</span>
       </legend>
       <p id={helperId} className="text-meta text-text-2">
-        {min ? `${photos.length} of ${min} needed. More is better. ` : ""}Up to {PHOTO_MAX_COUNT} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
+        {min ? `${photos.length} of ${min} needed. More is better. ` : ""}Up to {max} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
       </p>
       <ul className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:grid-cols-4">
         {photos.map((photo, i) => (
@@ -93,7 +93,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
           </li>
         ))}
         {/* An empty slot for each thing to photograph that has no photo yet: a tap opens the picker. The first `min` are the required ones. */}
-        {photos.length < PHOTO_MAX_COUNT &&
+        {photos.length < max &&
           slots.slice(photos.length).map((name, k) => (
             <li key={name}>
               {/* A button, not a label: the file input would otherwise take every slot's name as its own. */}
@@ -111,7 +111,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             </li>
           ))}
         {/* The input stays in the page at 12 so a summary link can still reach it; only the Add tile goes. */}
-        <li className={photos.length >= PHOTO_MAX_COUNT ? "sr-only" : photos.length < slots.length ? "sr-only" : "relative"}>
+        <li className={photos.length >= max ? "sr-only" : photos.length < slots.length ? "sr-only" : "relative"}>
           <input
             ref={picker}
             id={id}
@@ -125,7 +125,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
             onChange={(e) => add(e.currentTarget)}
             className="peer sr-only"
           />
-          {photos.length < PHOTO_MAX_COUNT && photos.length >= slots.length && (
+          {photos.length < max && photos.length >= slots.length && (
             <label
               htmlFor={id}
               aria-busy={busy}

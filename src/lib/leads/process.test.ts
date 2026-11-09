@@ -201,6 +201,25 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
+  it("takes up to 6 photos with a find-a-car request, under its own folder, and refuses a 7th", async () => {
+    const jpg = () => new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], "car.jpg");
+    const form = (n: number) => {
+      const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", message: "Something like this" });
+      fd.delete("carId");
+      for (let i = 0; i < n; i++) fd.append("photos", jpg());
+      return fd;
+    };
+    const { deps, rows } = fakeDeps();
+    expect(await processLead(form(0), ctx, deps)).toEqual({ status: "ok" }); // none is fine
+    expect(rows[0].photoKeys).toEqual([]);
+    expect(await processLead(form(6), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[1].photoKeys).toHaveLength(6);
+    expect(rows[1].photoKeys.every((k) => k.startsWith(`sourcing/${rows[1].id}/`))).toBe(true);
+    const r = await processLead(form(7), ctx, deps);
+    expect(r).toMatchObject({ status: "invalid", fieldErrors: { photos: ["You can add up to 6 photos."] } });
+    expect(rows).toHaveLength(2);
+  });
+
   it("stores a general message with no car and no details, and emails it", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);

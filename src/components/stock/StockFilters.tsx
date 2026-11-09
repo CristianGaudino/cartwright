@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { formatKm, formatPrice } from "@/lib/stock/format";
+import { formatKm } from "@/lib/stock/format";
 import { facetRows, toggle, withRange } from "@/lib/stock/query";
-import { BUDGETS, GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
+import { GEARBOX_LABELS, GEARBOXES } from "@/lib/stock/types";
 import type { FacetOption, Gearbox, StockQuery } from "@/lib/stock/types";
 import { Combobox } from "@/components/Combobox";
-import { CheckIcon, ChevronDownIcon } from "./icons";
+import { PriceRange } from "@/components/PriceRange";
+import { CheckIcon, ChevronDownIcon, SearchIcon } from "./icons";
 import { useStock } from "./StockShell";
 import { chip, press } from "@/components/ui";
 
@@ -154,6 +155,8 @@ export function SearchBox() {
   }
 
   return (
+    <div className="relative">
+    <SearchIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-text-2" />
     <input
       type="search"
       aria-label="Search make or model"
@@ -172,8 +175,9 @@ export function SearchBox() {
           navigate({ ...queryRef.current, q: q || undefined, page: 1 });
         }, 250);
       }}
-      className="h-12 w-full rounded-control border border-control bg-card px-3 text-body"
+      className="h-12 w-full rounded-control border border-control bg-card pl-10 pr-3 text-body"
     />
+    </div>
   );
 }
 
@@ -234,8 +238,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
         <SelectField label="To" value={query.yearTo} options={yearOptions} onChange={(yearTo) => set({ yearTo })} />
       </Row>
       <Row title="Budget" active={query.priceMin !== undefined || query.priceMax !== undefined}>
-        <SelectField label="Min" value={query.priceMin} options={withSelected(BUDGETS, query.priceMin).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMin) => set({ priceMin })} />
-        <SelectField label="Max" value={query.priceMax} options={withSelected(BUDGETS, query.priceMax).map((v) => ({ value: v, label: formatPrice(v) }))} onChange={(priceMax) => set({ priceMax })} />
+        <PriceRange min={query.priceMin} max={query.priceMax} onCommit={(priceMin, priceMax) => set({ priceMin, priceMax })} />
       </Row>
       <ChipGroup title="Body Type" group="body" options={facets?.body ?? []} />
       <ChipGroup title="Fuel" group="fuel" options={facets?.fuel ?? []} />
