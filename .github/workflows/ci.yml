@@ -58,7 +58,9 @@ jobs:
       - run: npx opennextjs-cloudflare build
       - name: Start the Worker and request it
         run: |
-          npx wrangler dev --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
+          # --test-scheduled opens /__scheduled, which fires the daily lead purge (worker.mjs); the local database needs the migrations first.
+          npx wrangler d1 migrations apply DB --local > /dev/null
+          npx wrangler dev --test-scheduled --port 8787 --ip 127.0.0.1 > wrangler.log 2>&1 &
           curl -s -o /dev/null --retry 60 --retry-connrefused --retry-delay 2 http://127.0.0.1:8787/robots.txt || true
           fail=0
           # The first car may be sold now, so the live car is the first without a sale date; the expired one has the oldest sale date.
@@ -96,6 +98,15 @@ jobs:
           # T-03-26: the lead fakes accept and drop every lead, so the switch must never reach the Worker (same idea as the
           # E2E_FAIL_QUERY check above). It is only ever set in playwright.config.ts.
           if grep -q E2E_FAKE_BACKENDS wrangler.jsonc .github/workflows/deploy.yml; then echo 'E2E_FAKE_BACKENDS is set for the Worker'; fail=1; fi
+          # The daily purge (audit): the handler must load, reach its bindings and finish, or old leads stay past the 12 months /privacy promises
+          # and nobody is told. It logs one {"job":"purge-leads"} line when it has run.
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 'http://127.0.0.1:8787/__scheduled?cron=17+3+*+*+*') || true
+          echo "scheduled purge: $code (want 200)"
+          [ "$code" = 200 ] || fail=1
+          for i in 1 2 3 4 5; do grep -q 'purge-leads' wrangler.log && break; sleep 1; done
+          grep -q 'purge-leads' wrangler.log || { echo 'the daily purge did not log a run'; fail=1; }
+          # The dev-only data switch (break-ui) must not be in the production build: it would show fake cars to anyone with the cookie.
+          if grep -rlE 'worst-cars|DevDataToggle|break-ui' .next --include='*.js' --include='*.html' --include='*.rsc' 2>/dev/null | grep -q .; then echo 'the dev-only data switch is in the production build'; fail=1; fi
           if grep -q 'ERROR' wrangler.log; then echo 'the Worker logged an error'; fail=1; fi
           if [ $fail = 1 ]; then grep -iE 'error|failed' wrangler.log | sort -u | head -20; tail -n 20 wrangler.log; exit 1; fi
 

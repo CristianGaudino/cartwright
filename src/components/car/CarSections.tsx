@@ -20,15 +20,16 @@ export function AboutCar({ car }: { car: Car }) {
       <h2 className={h2}>About This Car</h2>
       {car.description.length > LONG_DESCRIPTION ? (
         <>
-          {/* The first lines only, until "Read more" opens the whole text (native <details>, so it works without JavaScript). */}
-          <p className={`${text} line-clamp-8 [&:has(+details[open])]:hidden`}>{car.description}</p>
-          <details className="group">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center font-semibold [&::-webkit-details-marker]:hidden">
-              <span className="group-open:hidden">Read more</span>
-              <span className="hidden group-open:inline">Show less</span>
-            </summary>
-            <p className={text}>{car.description}</p>
-          </details>
+          {/* One copy of the text: the checkbox, before it, lifts the clamp (peer), so it works without JavaScript and the page holds the text once. */}
+          <input type="checkbox" id={`more-${car.id}`} className="peer sr-only" />
+          <p className={`${text} line-clamp-8 peer-checked:line-clamp-none`}>{car.description}</p>
+          <label
+            htmlFor={`more-${car.id}`}
+            className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
+          >
+            <span>Read more</span>
+            <span>Show less</span>
+          </label>
         </>
       ) : (
         <p className={text}>{car.description}</p>

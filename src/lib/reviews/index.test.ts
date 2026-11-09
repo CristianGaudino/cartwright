@@ -19,6 +19,7 @@ describe("getReviews", () => {
     ["only the place ID", "ChIJ1", ""],
     ["only the key", "", "key"],
   ])("returns the demo fixtures without fetching when %s is set", async (_, placeId, key) => {
+    vi.stubEnv("APP_ENV", "demo"); // not production, whatever the run's own APP_ENV is
     vi.stubEnv("GOOGLE_PLACE_ID", placeId);
     vi.stubEnv("GOOGLE_PLACES_API_KEY", key);
     const fetch = vi.fn();
@@ -34,6 +35,15 @@ describe("getReviews", () => {
     vi.stubEnv("GOOGLE_PLACES_API_KEY", "");
     const { getReviews } = await load();
     expect(await getReviews()).toBeNull();
+  });
+
+  it("keeps the fixtures for the E2E server, which is built as production", async () => {
+    vi.stubEnv("APP_ENV", "production");
+    vi.stubEnv("E2E_FAKE_BACKENDS", "1");
+    vi.stubEnv("GOOGLE_PLACE_ID", "");
+    vi.stubEnv("GOOGLE_PLACES_API_KEY", "");
+    const { getReviews, DEMO_REVIEWS } = await load();
+    expect(await getReviews()).toBe(DEMO_REVIEWS);
   });
 
   it("returns Places data when both are set", async () => {

@@ -1,3 +1,4 @@
+import { searchOptions } from "./search-options";
 import { FUEL_LABELS, GEARBOX_LABELS, SOLD_VISIBLE_DAYS, isSold } from "./types";
 import type { Car, FacetGroup, FacetOption, SortKey, StockProvider, StockQuery, StockResult } from "./types";
 
@@ -117,17 +118,9 @@ export function createFileProvider(input: Car[], { now = () => new Date() }: { n
       if (!c) return null;
       return visibleNow()(c) ? { state: "live", car: c } : { state: "gone", make: c.make, makeSlug: c.makeSlug };
     },
+    // Over every car, expired included: the same lists the home search builds from the cars in stock.
     async taxonomy() {
-      const uniq = <T extends { slug: string; label: string }>(items: T[]) =>
-        [...new Map(items.map((i) => [i.slug, i])).values()].sort((a, b) => a.label.localeCompare(b.label, "en-IE"));
-      return {
-        makes: uniq(cars.map((c) => ({ slug: c.makeSlug, label: c.make }))),
-        bodies: uniq(cars.flatMap((c) => (c.bodySlug && c.bodyType ? [{ slug: c.bodySlug, label: c.bodyType }] : []))),
-        // Model slugs repeat across makes, so the key is make plus model.
-        models: [...new Map(cars.map((c) => [`${c.makeSlug}/${c.modelSlug}`, { makeSlug: c.makeSlug, slug: c.modelSlug, label: c.model }])).values()].sort(
-          (a, b) => a.label.localeCompare(b.label, "en-IE"),
-        ),
-      };
+      return searchOptions(cars);
     },
   };
 }

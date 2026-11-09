@@ -68,8 +68,9 @@ export async function getReviews(): Promise<Reviews | null> {
   }
   const placeId = process.env.GOOGLE_PLACE_ID;
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  // The fixtures are for demos only: a live site with a missing key shows no reviews, never invented ones.
-  if (!placeId || !apiKey) return isProduction() ? null : DEMO_REVIEWS;
+  // The fixtures are for demos only: a live site with a missing key shows no reviews, never invented ones. The E2E server is built as
+  // production and needs them, so E2E_FAKE_BACKENDS (set only by playwright.config.ts; ci.yml fails a Worker that sets it) lets them through.
+  if (!placeId || !apiKey) return isProduction() && process.env.E2E_FAKE_BACKENDS !== "1" ? null : DEMO_REVIEWS;
   places ??= createPlacesProvider({ placeId, apiKey }); // one provider so its day memo survives between requests
   return places.get();
 }
