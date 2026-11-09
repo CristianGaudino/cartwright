@@ -14,7 +14,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
   const href = `/used-cars/${car.slug}`;
   return (
     <article data-card className={`@container group relative overflow-hidden ${card} [transition:box-shadow_200ms_ease-out,background-color_100ms_ease-out,translate_200ms_ease-out] has-[h2_a:active]:bg-hairline [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:shadow-lift`}>
-      <div data-card-photo className="relative aspect-[16/10] bg-photo-bg sm:aspect-[4/3]">
+      <div data-card-photo className="relative aspect-[4/3] bg-photo-bg">
         <PhotoCarousel photos={car.photos} href={href} label={carName(car)} priority={priority} />
         {/* The word in the price slot is what screen readers hear; this badge is the same word for the eye. */}
         {isSold(car) && <SoldBadge hidden className="absolute left-4 top-4 z-20" />}

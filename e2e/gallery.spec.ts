@@ -126,6 +126,21 @@ test.describe("the lightbox", () => {
     await expect(counter(page)).toHaveText(`2 / ${n}`);
   });
 
+  test("zoom enlarges the photo, a tap toggles it and moving on ends it", async ({ page }) => {
+    await open(page, car!.slug);
+    await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
+    const box = page.getByRole("dialog", { name: /^Photos of/ });
+    const img = box.getByRole("img").first();
+    const before = (await img.boundingBox())!.width;
+    const zoom = box.getByRole("button", { name: "Zoom in" });
+    await zoom.click();
+    await expect(box.getByRole("button", { name: "Zoom out" })).toHaveAttribute("aria-pressed", "true");
+    await expect.poll(async () => (await img.boundingBox())!.width).toBeGreaterThan(before * 1.5);
+    await page.keyboard.press("ArrowRight");
+    await expect(box.getByRole("button", { name: "Zoom in" })).toBeVisible();
+    await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
+  });
+
   test("Close photos closes it", async ({ page }) => {
     await open(page, car!.slug);
     await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
