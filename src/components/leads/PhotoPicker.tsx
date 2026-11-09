@@ -76,7 +76,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
       <p id={helperId} className="text-meta text-text-2">
         {min ? `${photos.length} of ${min} needed. More is better. ` : ""}Up to {PHOTO_MAX_COUNT} photos. JPEG, PNG or WebP, {PHOTO_MAX_MB} MB each.
       </p>
-      <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:grid-cols-4">
         {photos.map((photo, i) => (
           <li key={i} className="relative aspect-[4/3] overflow-hidden rounded-control bg-photo-bg">
             <Preview blob={photo} alt={`Photo ${i + 1}`} />
@@ -102,7 +102,7 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
                 disabled={busy}
                 onClick={() => picker.current?.click()}
                 aria-label={`Add photo: ${name}, ${photos.length + k < min ? "required" : "recommended"}`}
-                className="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-control border border-dashed border-control p-2 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
+                className="flex aspect-[4/3] w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-control border border-dashed border-control px-2 py-1 text-center text-meta text-text-2 transition-colors hover:border-text hover:text-text disabled:cursor-default disabled:opacity-60"
               >
                 <CameraIcon className="size-6" />
                 <span className="font-semibold">{name}</span>

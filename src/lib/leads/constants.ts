@@ -8,6 +8,37 @@ export const CONSENT = { version: "2026-11-06", text: "I agree to Carright using
 export const LEAD_RETENTION_MONTHS = 12;
 export const LIMITS = { name: 100, phone: 30, email: 200, message: 1000 } as const;
 // D-12: shown once, under Email; ContactFields marks both fields when it is set.
+// Country codes for the phone field. Ireland first and the default; the rest are the places most buyers ring from.
+export const COUNTRIES = [
+  { code: "IE", name: "Ireland", dial: "+353", example: "87 123 4567" },
+  { code: "GB", name: "United Kingdom", dial: "+44", example: "7400 123456" },
+  { code: "US", name: "United States", dial: "+1", example: "202 555 0123" },
+  { code: "PL", name: "Poland", dial: "+48", example: "512 345 678" },
+  { code: "LT", name: "Lithuania", dial: "+370", example: "612 34567" },
+  { code: "LV", name: "Latvia", dial: "+371", example: "2123 4567" },
+  { code: "RO", name: "Romania", dial: "+40", example: "712 345 678" },
+  { code: "DE", name: "Germany", dial: "+49", example: "1512 3456789" },
+  { code: "FR", name: "France", dial: "+33", example: "6 12 34 56 78" },
+  { code: "ES", name: "Spain", dial: "+34", example: "612 34 56 78" },
+  { code: "IT", name: "Italy", dial: "+39", example: "312 345 6789" },
+  { code: "NL", name: "Netherlands", dial: "+31", example: "6 12345678" },
+  { code: "PT", name: "Portugal", dial: "+351", example: "912 345 678" },
+  { code: "AU", name: "Australia", dial: "+61", example: "412 345 678" },
+] as const;
+export const BAD_PHONE = "Enter a phone number we can call, like 087 123 4567.";
+export const BAD_IRISH_PHONE = "Irish numbers have 7 to 9 digits after +353, like 87 123 4567.";
+
+/** Checks a phone number. Returns the message to show, or undefined if it is fine. Used by the server and, through it, the form. */
+export function phoneError(v: string): string | undefined {
+  if (!/^\+?[0-9 ()-]+$/.test(v)) return BAD_PHONE;
+  const digits = v.replace(/\D/g, "");
+  if (digits.length < 7 || digits.length > 15) return BAD_PHONE; // E.164 allows at most 15 digits
+  if (v.startsWith("+353")) {
+    const national = digits.slice(3).replace(/^0/, "");
+    if (national.length < 7 || national.length > 9) return BAD_IRISH_PHONE;
+  }
+}
+
 export const CONTACT_ERROR = "Add a phone number or an email.";
 
 // Trade-in photos (D-13, caps proven in the 03-01 spike). PHOTO_MAX_MB is checked on the picked original before the phone

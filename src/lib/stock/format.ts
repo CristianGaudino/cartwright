@@ -37,21 +37,21 @@ export function specRows(car: Car): { label: string; value: string }[] {
     ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
-    ["Body type", car.bodyType],
+    ["Body Type", car.bodyType],
     ["Engine", car.engineLitres === undefined ? undefined : `${car.engineLitres.toFixed(1)} L`],
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
     ["Owners", car.owners === undefined ? undefined : String(car.owners)],
-    ["NCT expires", car.nctExpiry && nctLabel(car.nctExpiry)],
-    ["Max speed", car.maxSpeedMph === undefined ? undefined : `${car.maxSpeedMph} mph`],
+    ["NCT Expires", car.nctExpiry && nctLabel(car.nctExpiry)],
+    ["Max Speed", car.maxSpeedMph === undefined ? undefined : `${car.maxSpeedMph} mph`],
     ["0 to 62 mph", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`],
   ];
   return rows.flatMap(([label, value]) => (value ? [{ label, value }] : []));
 }
 
 // The first four present of Year, Mileage, Fuel, Transmission, Body type, Engine, Colour: spec order is the priority order.
-const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body type", "Engine", "Colour"];
+const KEY_LABELS = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour"];
 export const keyFacts = (car: Car) => specRows(car).filter((r) => KEY_LABELS.includes(r.label)).slice(0, 4);
 
 export const countLabel = (n: number) => (n === 0 ? "No cars" : n === 1 ? "1 car" : `${formatCount(n)} cars`);

@@ -47,7 +47,7 @@ test("pick two cars on their pages: the compare page has a card each, and a plac
   await expect(page.getByTestId("compare-placeholder")).toHaveAttribute("href", "/used-cars"); // the whole card is the link
   await expect(page.getByTestId("compare-placeholder")).toHaveText("Add a Car");
   await expect(page.getByRole("button", { name: "Add a car" })).toHaveCount(0); // no separate button
-  for (const row of ["Price", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body type"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
+  for (const row of ["Price", "Year", "Mileage", "Fuel", "Transmission", "Engine", "Body Type"]) await expect(cards(page).first().getByText(row, { exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: "Compare cars" })).toHaveCount(0); // the bar is for the other pages
 });
 
@@ -86,7 +86,7 @@ test("remove a car with an Undo, and Clear all with an Undo, which puts the list
   await expect(cards(page)).toHaveCount(2);
 
   await page.getByRole("button", { name: "Clear all" }).click();
-  await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nothing to Compare Yet" })).toBeVisible();
   await expect(page.getByTestId("toast")).toContainText("Compare list cleared");
   await page.getByTestId("toast").getByRole("button", { name: "Undo" }).click();
   await expect(cards(page)).toHaveCount(2);
@@ -111,7 +111,7 @@ test("a fourth car is refused and said so, and the list stays at three", async (
 test("the compare page is empty to start with and not indexed", async ({ page }) => {
   await page.goto("/compare");
   await ready(page);
-  await expect(page.getByRole("heading", { name: "Nothing to compare yet" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nothing to Compare Yet" })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
 });
 

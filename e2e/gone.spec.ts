@@ -12,13 +12,13 @@ test("an expired car answers 410 with a body that links on", async ({ request })
   const res = await request.get(`/used-cars/${expired.slug}`);
   expect(res.status()).toBe(410);
   const body = await res.text();
-  expect(body).toContain("This car is no longer available");
+  expect(body).toContain("This Car Is No Longer Available");
   expect(body).toContain(`href="/used-cars/${expired.makeSlug}"`);
 });
 
 test("the 410 page shows the way on and is noindex", async ({ page }) => {
   await page.goto(`/used-cars/${expired.slug}`);
-  await expect(page.getByRole("heading", { name: "This car is no longer available" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "This Car Is No Longer Available" })).toBeVisible();
   await expect(page.getByRole("link", { name: `See more ${expired.make}` })).toHaveAttribute("href", `/used-cars/${expired.makeSlug}`);
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveAttribute("href", "/used-cars");
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);

@@ -42,7 +42,7 @@ test("/terms is a labelled draft with five sections and the dealer's phone", asy
   await page.goto("/terms");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
   await expect(page.getByText("This is a draft. The dealer's own terms replace it.")).toBeVisible();
-  await expect(main(page).getByRole("heading", { level: 2 })).toHaveText(["Using this site", "Cars and prices", "Finance figures", "Reviews", "Contact"]);
+  await expect(main(page).getByRole("heading", { level: 2 })).toHaveText(["Using This Site", "Cars and Prices", "Finance Figures", "Reviews", "Contact"]);
   await expect(main(page).getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", TEL);
 });
 
@@ -136,4 +136,17 @@ test("no two of the main pages share a description", async ({ page }) => {
     expect(seen.has(desc), `${path}: ${desc}`).toBe(false);
     seen.add(desc);
   }
+});
+
+test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the chosen country", async ({ page }) => {
+  await page.goto("/contact");
+  await page.waitForFunction(() => Object.keys(document.querySelector("form")!).some((k) => k.startsWith("__reactFiber")));
+  const code = page.getByLabel("Country code");
+  const phone = page.getByLabel("Phone", { exact: true });
+  await expect(code).toHaveValue("IE");
+  await phone.fill("087 123 4567");
+  await expect(phone).toHaveValue("87 123 4567");
+  await code.selectOption("GB");
+  await expect(phone).toHaveValue("87 123 4567"); // the number stays, only the code changes
+  await expect(page.getByText("United Kingdom. For example")).toBeVisible();
 });

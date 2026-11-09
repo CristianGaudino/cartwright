@@ -8,7 +8,7 @@ import { pageMain, pageTitle, subTitle } from "@/components/ui";
 import { dealerDirectionsUrl } from "@/lib/dealer";
 import { SITE_NAME } from "@/lib/site";
 
-export const metadata: Metadata = { title: "About us", description: `${SITE_NAME} is a used car dealer in Tralee, Co. Kerry: a carefully selected range of used cars, finance help and trade-ins.` };
+export const metadata: Metadata = { title: "About Us", description: `${SITE_NAME} is a used car dealer in Tralee, Co. Kerry: a carefully selected range of used cars, finance help and trade-ins.` };
 
 // The dealer's own story replaces this copy: no history, awards, years trading or staff names are invented here.
 const WHY = [
@@ -19,7 +19,7 @@ const WHY = [
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
   { title: "Get in touch", text: "Enquire, book a test drive, or call us. We'll answer your questions." },
-  { title: "Come and see it", text: "Visit us in Tralee, see the car and take it for a drive." },
+  { title: "Come and See It", text: "Visit us in Tralee, see the car and take it for a drive." },
 ];
 
 export default function AboutPage() {

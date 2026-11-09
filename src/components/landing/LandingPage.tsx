@@ -99,17 +99,17 @@ export function LandingPage({ data }: { data: LandingData }) {
               See all {facts.n} {name}
             </Link>
           )}
-          {landing.kind === "make" && <LinkChips heading="Body types" options={facets.body} href={toPage} />}
+          {landing.kind === "make" && <LinkChips heading="Body Types" options={facets.body} href={toPage} />}
         </>
       )}
       {!facts && (
         <>
-          <h2 className="mt-4 text-heading font-semibold">No {name} in stock right now</h2>
+          <h2 className="mt-4 text-heading font-semibold">No {name} in Stock Right Now</h2>
           <p className="mt-2 max-w-[65ch] text-body">Have a look at these instead.</p>
           {landing.kind === "body" ? (
-            <LinkChips heading="Body types in stock" options={facets.body} href={toPage} />
+            <LinkChips heading="Body Types in Stock" options={facets.body} href={toPage} />
           ) : (
-            <LinkChips heading="Makes in stock" options={facets.make} href={toPage} />
+            <LinkChips heading="Makes in Stock" options={facets.make} href={toPage} />
           )}
           {sold.length > 0 && (
             <section className="mt-8">

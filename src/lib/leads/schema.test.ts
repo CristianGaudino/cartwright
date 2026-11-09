@@ -23,7 +23,11 @@ describe("leadSchema error copy (UI-SPEC)", () => {
   });
 
   it.each(["12-34", "-------", "(((((((", "call me", "087 123 456a"])("refuses the phone %s", (phone) => {
-    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call."]);
+    expect(errors({ ...base, phone }).phone).toEqual(["Enter a phone number we can call, like 087 123 4567."]);
+  });
+
+  it.each(["+353 1234", "+353 87 123 45678 9"])("refuses the Irish phone %s with an Irish message", (phone) => {
+    expect(errors({ ...base, phone }).phone).toEqual(["Irish numbers have 7 to 9 digits after +353, like 87 123 4567."]);
   });
 
   it.each(["087 123 4567", "+353 87 123 4567", "(066) 712-3456"])("takes the phone %s", (phone) => {

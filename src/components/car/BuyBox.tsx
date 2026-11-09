@@ -35,7 +35,7 @@ export function BuyBox({ car }: { car: Car }) {
         {/* Share beside the heart, where a buyer looks for them. */}
         <div className="flex shrink-0 items-center">
           <ShareButton iconOnly title={carName(car)} text={sold ? carName(car) : `${carName(car)}, ${formatPrice(car.priceEur)}`} url={url} />
-          <SaveButton id={car.id} label="Save this car" variant="page" />
+          <SaveButton id={car.id} label="Save This Car" variant="page" />
         </div>
       </div>
       <p className="-mt-3 text-body text-text-2">{carMeta(car)}</p>

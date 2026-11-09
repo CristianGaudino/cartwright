@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { BUDGETS } from "@/lib/stock/types";
-import { BAD_KM, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN } from "./constants";
+import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
 const tooLong = (n: number) => `Use ${n} characters or fewer.`;
-const BAD_PHONE = "Enter a phone number we can call.";
 // An empty or blank field counts as not given.
 const given = <T extends z.ZodType>(s: T) => z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? undefined : v), s);
 
@@ -14,13 +13,16 @@ const contact = {
   clientRef: z.uuid(),
   sourcePath: z.string().regex(/^\/[A-Za-z0-9._~\-/]{0,200}$/),
   name: given(z.string({ error: "Enter your name." }).trim().max(LIMITS.name, tooLong(LIMITS.name))),
-  // Loose on purpose: digits, spaces, plus, hyphens and brackets, with at least 7 digits.
+  // Loose on purpose (digits, spaces, plus, hyphens and brackets), but a +353 number must be the right length for Ireland.
   phone: given(
     z
       .string()
       .trim()
       .max(LIMITS.phone, tooLong(LIMITS.phone))
-      .refine((v) => /^\+?[0-9 ()-]+$/.test(v) && v.replace(/\D/g, "").length >= 7, BAD_PHONE)
+      .superRefine((v, ctx) => {
+        const message = phoneError(v);
+        if (message) ctx.addIssue({ code: "custom", message });
+      })
       .optional(),
   ),
   email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email)).optional()),

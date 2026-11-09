@@ -262,3 +262,33 @@ test.describe("without JavaScript", () => {
     await expect(page).toHaveURL(/\/used-cars/); // the drop-downs need scripts to pick from; the search still goes to the stock
   });
 });
+
+test("a drifting row starts again when the pointer leaves", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  await row.hover();
+  const held = await at();
+  await page.mouse.move(5, 5);
+  await expect.poll(at).toBeGreaterThan(held + 5);
+});
+
+test("on a phone a touch stops the row for good, and there is no pause button", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  const group = page.getByRole("group", { name: "Featured stock" });
+  const row = group.locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  const at = () => row.evaluate((el) => el.scrollLeft);
+  await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
+  await expect(group.getByRole("button", { name: /moving the cars along/ })).toHaveCount(0);
+  await group.dispatchEvent("pointerdown", { pointerType: "touch" });
+  await page.waitForTimeout(100);
+  const held = await at();
+  await page.waitForTimeout(5000); // longer than the old 4 second resume
+  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+});

@@ -9,10 +9,10 @@ import { PhotoPicker } from "./PhotoPicker";
 // The trade-in is four short steps. What is typed is checked with the server's own rules (LeadForm runs validate.ts for the step's fields);
 // the photos are the one thing the rules cannot see in the typed values, so their count is checked here, with the server's number.
 export const TRADE_IN_STEPS: FormStep[] = [
-  { title: "Your car", fields: ["reg", "mileage", "make", "model", "year"] },
+  { title: "Your Car", fields: ["reg", "mileage", "make", "model", "year"] },
   { title: "Condition", fields: ["message"] },
   { title: "Photos", fields: ["photos"], check: ({ photos }) => (photos < PHOTO_MIN_COUNT ? { photos: [PHOTO_MIN_ERROR] } : undefined) },
-  { title: "Your details", fields: ["name", "phone", "email", "consent"] },
+  { title: "Your Details", fields: ["name", "phone", "email", "consent"] },
 ];
 
 const GUIDE_NOTES = ["Warning lights or faults", "Accident or body damage", "Service history and NCT", "Number of owners"];

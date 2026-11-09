@@ -276,10 +276,10 @@ test.describe("filters on a desktop", () => {
       .toBe(true);
     await clear();
 
-    const body = (await chips(page, "Body type")).find((c) => c.count > 0)!;
-    await chip(page, "Body type", body.label).click();
+    const body = (await chips(page, "Body Type")).find((c) => c.count > 0)!;
+    await chip(page, "Body Type", body.label).click();
     await expect(page).toHaveURL(/body=/);
-    await expect(page.getByRole("group", { name: "Body type" }).getByRole("button", { pressed: true })).toHaveCount(1);
+    await expect(page.getByRole("group", { name: "Body Type" }).getByRole("button", { pressed: true })).toHaveCount(1);
     await expect(page.getByTestId("count")).toHaveText(countText(body.count));
     await clear();
 
@@ -340,9 +340,9 @@ test.describe("filters on a desktop", () => {
     const smallest = (await rows(page)).filter((r) => r.count > 0).sort((x, y) => x.count - y.count)[0];
     await box(page, smallest.value).check();
     await expect(page.getByTestId("count")).toHaveText(countText(smallest.count));
-    await expect.poll(async () => (await chips(page, "Body type")).some((c) => c.count === 0)).toBe(true);
+    await expect.poll(async () => (await chips(page, "Body Type")).some((c) => c.count === 0)).toBe(true);
     let zero = 0;
-    for (const c of [...(await chips(page, "Body type")), ...(await chips(page, "Fuel"))]) {
+    for (const c of [...(await chips(page, "Body Type")), ...(await chips(page, "Fuel"))]) {
       expect(c.disabled, c.label).toBe(c.count === 0 && !c.pressed);
       if (c.count === 0) zero++;
     }
@@ -375,8 +375,8 @@ test.describe("filters on a desktop", () => {
     const a = (await rows(page)).find((r) => r.count > 0)!;
     await box(page, a.value).check();
     await expect(page.getByTestId("count")).toHaveText(countText(a.count));
-    const body = (await chips(page, "Body type")).find((c) => c.count > 0)!;
-    await chip(page, "Body type", body.label).click();
+    const body = (await chips(page, "Body Type")).find((c) => c.count > 0)!;
+    await chip(page, "Body Type", body.label).click();
     await expect(page).toHaveURL(/body=/);
     await choose(page.getByRole("combobox", { name: "Sort" }), "Price: high to low");
     await expect(page).toHaveURL(/sort=price-desc/);
@@ -404,7 +404,7 @@ test.describe("filters on a desktop", () => {
     await box(page, first.value).check();
     await expect(page.getByTestId("count")).toHaveText(countText(first.count));
     const makes = (await rows(page)).map((r) => r.label);
-    const body = (await chips(page, "Body type")).map((c) => c.label);
+    const body = (await chips(page, "Body Type")).map((c) => c.label);
     const fuel = (await chips(page, "Fuel")).map((c) => c.label);
 
     await search(page).fill("e2e-forced-failure");
@@ -415,7 +415,7 @@ test.describe("filters on a desktop", () => {
     expect(await makeGroup(page).locator("label").allTextContents()).toEqual(makes);
     await expect(makeGroup(page).locator('[aria-disabled="true"]')).toHaveCount(0);
     await expect(box(page, first.value)).toBeChecked();
-    for (const [name, labels] of [["Body type", body], ["Fuel", fuel]] as const) {
+    for (const [name, labels] of [["Body Type", body], ["Fuel", fuel]] as const) {
       const now = await chips(page, name);
       expect(now.map((c) => c.label)).toEqual(labels);
       for (const c of now) {

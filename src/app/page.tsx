@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "Browse the used cars in stock at our dealership in Tralee, Co. Kerry.",
 };
 
-const outline = `inline-flex h-12 items-center gap-2 rounded-control border border-control px-6 font-semibold ${press}`;
+const outline = `inline-flex h-12 w-full items-center justify-center gap-2 sm:w-auto rounded-control border border-control px-6 font-semibold ${press}`;
 
 export default async function Home() {
   // Env decides the reviews provider at request time. Not force-dynamic: that would turn off the fetch cache.
@@ -44,7 +44,7 @@ export default async function Home() {
           <p className="mt-4 max-w-[40ch] text-body">A carefully selected range of quality used cars, backed by trusted service and straightforward finance.</p>
           <p className="mt-2 max-w-[65ch] text-meta text-text-2">Find us at {DEALER_ADDRESS_LINES.join(", ")}.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/used-cars" className={`inline-flex items-center gap-2 ${accentButton}`}>
+            <Link href="/used-cars" className={`inline-flex w-full items-center justify-center gap-2 sm:w-auto ${accentButton}`}>
               Browse Our Stock
               <ArrowRightIcon className="size-5" />
             </Link>
@@ -71,7 +71,7 @@ export default async function Home() {
             </>
           ) : result.cars.length === 0 ? (
             <>
-              <h2 className={subTitle}>No cars listed right now</h2>
+              <h2 className={subTitle}>No Cars Listed Right Now</h2>
               <Link href="/find-a-car" className={textLink}>
                 Can&apos;t find it? Ask us to find it for you.
               </Link>

@@ -4,7 +4,7 @@ import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
 
 export const metadata: Metadata = {
-  title: "Trade-in valuation",
+  title: "Trade-In Valuation",
   description: "Trading in your car? Tell us about it, send some photos and we'll come back with a valuation towards your next one. Carright, Tralee, Co. Kerry.",
 };
 
@@ -14,14 +14,14 @@ export default function TradeInPage() {
       title="Trade-In Valuation"
       intro="Trading in your car? Tell us about it and we'll come back with a valuation towards your next one."
       how={[
-        { title: "Tell us about your car", text: "Its registration, mileage and condition." },
-        { title: "Send some photos", text: "A few clear photos, including any damage." },
-        { title: "We come back to you", text: "We contact you with a valuation, and arrange to see the car." },
+        { title: "Tell Us About Your Car", text: "Its registration, mileage and condition." },
+        { title: "Send Some Photos", text: "A few clear photos, including any damage." },
+        { title: "We Come Back to You", text: "We contact you with a valuation, and arrange to see the car." },
       ]}
       aside={
         <>
           <Tips
-            title="Good to know"
+            title="Good to Know"
             items={[
               "The valuation is an estimate. It can change when we inspect the car.",
               "Include all damage in your photos, even small marks.",
