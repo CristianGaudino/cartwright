@@ -87,6 +87,14 @@ test("on a phone each service opens its own form under its card, and only one fo
   await expect(servicing).toHaveAttribute("aria-expanded", "false");
 });
 
+test("on a phone the card that opened is brought to the top, so its form is on screen", async ({ page }) => {
+  await page.goto("/service");
+  const tyres = page.getByRole("button", { name: /^Tyres/ });
+  await tyres.click();
+  await expect.poll(async () => (await tyres.boundingBox())!.y, { timeout: 5000 }).toBeLessThan(120);
+  await expect(page.getByRole("heading", { name: "Tell us what your car needs" })).toBeInViewport();
+});
+
 test("Find a car: Make is a drop-down with the popular makes first, then A to Z", async ({ page }) => {
   await page.goto("/find-a-car");
   const labels = await optionLabels(page.getByLabel("Make"));

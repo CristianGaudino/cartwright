@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { CheckIcon } from "@/components/stock/icons";
 import { PhoneLink } from "@/components/PhoneLink";
@@ -63,6 +63,18 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
     if (open) setLast(open);
     setOpen(open === name ? undefined : name);
   };
+  // On a phone the card that opened is brought up under the sticky header, so its form is on screen. It waits for the card above to slide
+  // shut (which moves the page), and only moves the page when the card is low down or has gone under the header.
+  useEffect(() => {
+    if (wide || !open) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const t = setTimeout(() => {
+      const card = document.getElementById(`service-card-${services.findIndex((s) => s.name === open)}`);
+      const top = card?.getBoundingClientRect().top ?? 0;
+      if (card && (top < 56 || top > window.innerHeight * 0.4)) card.scrollIntoView({ block: "start", behavior: reduced ? "instant" : "smooth" });
+    }, reduced ? 0 : 320);
+    return () => clearTimeout(t);
+  }, [open, wide, services]);
   const current = services.find((s) => s.name === (open ?? last));
   return (
     <div className="flex flex-col gap-4">
@@ -73,6 +85,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
           return (
             <li key={s.name} className="flex flex-col gap-3">
               <button
+                id={`service-card-${i}`}
                 type="button"
                 aria-expanded={on}
                 aria-controls={id}
