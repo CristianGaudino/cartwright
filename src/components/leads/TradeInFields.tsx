@@ -58,7 +58,7 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
       </div>
 
       <div hidden={step !== 1} className="flex flex-col gap-4">
-        <p className="text-body text-text-2">Tell us how the car really is. A valuation can change when we see it, and being upfront means no surprises.</p>
+        <p className="text-body text-text-2">Tell us how the car really is. A valuation can change when we see it.</p>
         <ul className="flex flex-col gap-1 text-meta">
           {GUIDE_NOTES.map((n) => (
             <li key={n} className="flex items-center gap-2">

@@ -104,6 +104,8 @@ test("an empty send focuses the first field and marks each one, with no summary 
   await expect(d.getByRole("alert")).toHaveCount(0); // the errors sit by their fields; nothing above them pushes the form down
   await expect(d.locator("p", { hasText: "Enter your name." }).locator("svg")).toHaveCount(1); // each error leads with the alert icon
   await expect(d.getByLabel("Name")).toBeFocused();
+  await expect(d.getByLabel("Name")).toHaveAttribute("aria-required", "true"); // the asterisk is drawn by CSS; the field says it for screen readers
+  await expect(d.getByLabel("Phone", { exact: true })).not.toHaveAttribute("aria-required"); // phone or email, so neither is starred
   for (const label of ["Name", "Phone", "Email"]) await expect(d.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
   await expect(d.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
   // The contact error shows once, under Email.
