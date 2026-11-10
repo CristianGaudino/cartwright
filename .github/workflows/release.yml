@@ -1,7 +1,8 @@
 name: Release
 
 # Cut by hand: Actions, Release, Run workflow, pick major, minor or patch. Tags the tip of main, publishes a
-# GitHub release (notes are the merged pull requests). It does not deploy: merging to main does (deploy.yml).
+# GitHub release (notes are the merged pull requests) and deploys that tag to production (deploy.yml). The release is a
+# pre-release until the deploy has passed, so a failed deploy never leaves a release that says it shipped.
 on:
   workflow_dispatch:
     inputs:
@@ -17,8 +18,12 @@ permissions:
 
 jobs:
   release:
+    # Only from main: another branch picked in the Run workflow menu would deploy with that branch's copy of deploy.yml
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      version: ${{ steps.next.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -43,7 +48,26 @@ jobs:
         env:
           BUMP: ${{ inputs.bump }}
       - name: Publish the release
-        run: gh release create "$VERSION" --repo "$GITHUB_REPOSITORY" --target main --title "$VERSION" --generate-notes
+        run: gh release create "$VERSION" --repo "$GITHUB_REPOSITORY" --target main --title "$VERSION" --generate-notes --prerelease
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.next.outputs.version }}
+
+  deploy:
+    needs: release
+    uses: ./.github/workflows/deploy.yml
+    with:
+      ref: ${{ needs.release.outputs.version }}
+    secrets: inherit
+
+  # Only once the deploy has passed: now it is the latest release
+  publish:
+    needs: [release, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark the release as shipped
+        run: gh release edit "$VERSION" --repo "$GITHUB_REPOSITORY" --prerelease=false --latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
