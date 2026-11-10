@@ -87,6 +87,12 @@
     background-color: var(--color-surface);
     color: var(--color-text);
     font-optical-sizing: auto;
+    scroll-padding-top: 3.5rem; /* the sticky header on a phone, so a focused field or an anchor is not left under it */
+  }
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-top: 0;
+    }
   }
 
   :focus-visible {
@@ -108,6 +114,19 @@
       filter: brightness(1.12);
     }
   }
+}
+
+/* The asterisk after a required field's label. Drawn by CSS, so it is not part of the label's text; the field itself says aria-required.
+   The second declaration gives it an empty spoken alternative where that is supported. */
+.required-mark::after,
+.required-lead::before {
+  content: " *";
+  content: " *" / "";
+  color: var(--color-destructive);
+}
+.required-lead::before {
+  content: "* ";
+  content: "* " / "";
 }
 
 /* Filter sheet (01-08): a native modal dialog docked to the bottom edge. Header and footer stay put, the body scrolls. */
@@ -151,6 +170,12 @@ dialog.sheet[open] {
   dialog.sheet[open] {
     transform: translateY(100%);
   }
+}
+
+/* A link tapped in the phone menu closes it at once, so its slide-out never runs while the next page is drawn behind it. */
+dialog.sheet[data-instant],
+dialog.sheet[data-instant]::backdrop {
+  transition: none;
 }
 
 dialog.sheet::backdrop {

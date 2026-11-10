@@ -16,6 +16,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
   const path = usePathname();
 
   useCloseAtDesktop(() => dialog.current?.close());
+  const here = (href: string) => path === href || (href !== "/" && path.startsWith(`${href}/`)); // a car page marks Used Cars
 
   return (
     <>
@@ -28,7 +29,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
       >
         <MenuIcon />
       </button>
-      <dialog ref={dialog} className="sheet" aria-labelledby={titleId} onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}>
+      <dialog ref={dialog} className="sheet" aria-labelledby={titleId} onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()} onClose={(e) => e.currentTarget.removeAttribute("data-instant")}>
         <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-3">
           <h2 id={titleId} className="text-heading font-semibold">
             Menu
@@ -41,9 +42,19 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
           <nav aria-label="Menu">
             <ul>
               {links.filter((l) => l.href !== "/" || path !== "/").map((l) => (
-                <li key={l.href} className="border-b border-hairline last:border-b-0">
+                <li key={l.href} className="relative border-b border-hairline last:border-b-0">
+                  {/* The current page: a thin accent bar in the gutter and accent text. Nothing moves. */}
+                  {here(l.href) && <span aria-hidden="true" className="absolute inset-y-3 -left-3 w-[3px] rounded-full bg-accent" />}
                   {/* Closing here, not on a route change: the header stays mounted, so the dialog would otherwise stay open. */}
-                  <Link href={l.href} onClick={() => dialog.current?.close()} className="flex min-h-12 items-center text-heading font-semibold">
+                  <Link
+                    href={l.href}
+                    aria-current={here(l.href) ? "page" : undefined}
+                    onClick={() => {
+                      dialog.current?.setAttribute("data-instant", "");
+                      dialog.current?.close();
+                    }}
+                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent" : ""}`}
+                  >
                     {l.label}
                   </Link>
                 </li>

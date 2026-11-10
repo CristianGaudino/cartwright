@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/stock/icons";
 import { CHECKWORK_URL, DEALER_ADDRESS_LINES, SITE_NAME, SOCIAL_LINKS } from "@/lib/site";
 import { PhoneLink } from "@/components/PhoneLink";
+import { BackToTop } from "@/components/BackToTop";
 
 // Below 1024px the footer is the way to every page (UI-SPEC Mobile navigation).
 const GROUPS = [
@@ -48,9 +49,13 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:gap-y-8">
           <div className="col-span-2 flex flex-col items-start gap-2 lg:col-span-1">
-            <Link href="/" className={link}>
-              <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
-            </Link>
+            {/* On a phone Back to top sits level with the logo, on the right, so it is one tap away on every page. */}
+            <div className="flex w-full items-center justify-between">
+              <Link href="/" className={link}>
+                <Image src="/brand/logo.svg" width={480} height={109} alt={SITE_NAME} className="h-8 w-auto" />
+              </Link>
+              <BackToTop className={`${link} text-body underline lg:hidden`} />
+            </div>
             <address className="text-body not-italic">
               {DEALER_ADDRESS_LINES.map((line) => (
                 <span key={line} className="block max-lg:inline max-lg:after:content-[',_'] max-lg:last:after:content-none">

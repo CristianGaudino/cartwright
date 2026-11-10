@@ -26,6 +26,8 @@ test("/finance estimates a monthly payment at the dealer's fixed rate as the buy
   await open(page, "/finance");
   await expect(page.getByRole("heading", { level: 1, name: "Finance" })).toBeVisible();
   await expect(page.getByText("This is an estimate only, not an approval or an offer of credit.")).toBeVisible();
+  // The notice sits in the payment box with the figures, not under the boxes.
+  await expect(result(page).locator("xpath=..").getByText("This is an estimate only")).toBeVisible();
   await expect(result(page)).toContainText(/About €[\d,]+ a month/);
   await expect(calc(page).getByLabel("APR")).toHaveCount(0); // the rate is the dealer's, never typed
   await expect(calc(page).getByText(`${FINANCE.defaults.aprPct}% APR`)).toBeVisible();

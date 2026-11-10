@@ -10,7 +10,7 @@ import { LeadForm } from "@/components/leads/LeadForm";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
-import { ArrowRightIcon } from "@/components/stock/icons";
+import { ArrowRightIcon, InfoIcon } from "@/components/stock/icons";
 import { accentButton, card, press } from "@/components/ui";
 
 // Keystrokes that would not make a number are refused, so the fields only ever hold digits.
@@ -91,6 +91,10 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
               <p className="font-semibold">Check the figures you entered.</p>
             )}
           </div>
+          <p className="flex items-start gap-2 text-meta text-text-2">
+            <InfoIcon className="mt-0.5 size-4 shrink-0" />
+            {FINANCE.notice}
+          </p>
           {car ? (
             <button
               ref={opener}
@@ -112,7 +116,6 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
           )}
         </div>
       </div>
-      <p className="text-meta text-text-2">{FINANCE.notice}</p>
       {car && (
         <LeadDialog
           title="Start Your Application"

@@ -47,13 +47,13 @@ test("unknown params and bad values are ignored", async ({ page, request }) => {
   expect(await total(page)).toBe(n);
 });
 
-test("header: logo, menu and saved, scrolls away", async ({ page }) => {
+test("header: logo, menu and saved, sticks on a phone", async ({ page }) => {
   await page.goto("/used-cars");
   const header = page.getByRole("banner");
   await expect(header.getByRole("img", { name: SITE_NAME })).toBeVisible();
   await expect(header.getByRole("button", { name: "Menu" })).toBeVisible();
   await expect(header.getByRole("link", { name: /^Saved cars/ })).toHaveAttribute("href", "/saved");
-  expect(await header.evaluate((el) => getComputedStyle(el).position)).toMatch(/^(static|relative)$/);
+  expect(await header.evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
 });
 
 test("every card links to a real car page, unknown slugs 404", async ({ page, request }) => {
@@ -129,11 +129,14 @@ test("sort replaces the URL and dims the old results, never a skeleton", async (
   expect(await page.evaluate(() => window.__busySeen)).toBe(true);
 });
 
-test("the count is live, the filter bar sticks and the header does not", async ({ page }) => {
+test("the count is live, the filter bar sticks, and the header sticks on a phone only", async ({ page }) => {
   await page.goto("/used-cars");
   await expect(page.getByTestId("count")).toHaveAttribute("aria-live", "polite");
   expect(await page.getByTestId("sticky-bar").evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
-  expect(await page.getByRole("banner").evaluate((el) => getComputedStyle(el).position)).not.toBe("sticky");
+  const header = () => page.getByRole("banner").evaluate((el) => getComputedStyle(el).position);
+  expect(await header()).toBe("sticky");
+  await page.setViewportSize({ width: 1280, height: 800 });
+  expect(await header()).not.toBe("sticky");
 });
 
 test("a copied URL shows the same cars in a new context", async ({ page, browser }) => {

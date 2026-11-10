@@ -18,7 +18,7 @@ export default function TradeInPage() {
         {
           title: "Tell Us About Your Car",
           text: "Its registration, mileage and condition.",
-          more: ["Note any known issues. It avoids surprises when we see the car."],
+          more: ["Note any known issues."],
         },
         {
           title: "Send Some Photos",

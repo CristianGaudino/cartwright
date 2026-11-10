@@ -95,14 +95,17 @@ test("the bot check loads only once the dialog opens, and a failed check keeps w
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 });
 
-test("an empty send says how many fields need attention, focuses the first and marks each field", async ({ page }) => {
+test("an empty send focuses the first field and marks each one, with no summary bar", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
   const d = dialog(page);
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("alert")).toContainText(/\d fields need attention/);
+  await expect(d.getByRole("alert")).toHaveCount(0); // the errors sit by their fields; nothing above them pushes the form down
+  await expect(d.locator("p", { hasText: "Enter your name." }).locator("svg")).toHaveCount(1); // each error leads with the alert icon
   await expect(d.getByLabel("Name")).toBeFocused();
+  await expect(d.getByLabel("Name")).toHaveAttribute("aria-required", "true"); // the asterisk is drawn by CSS; the field says it for screen readers
+  await expect(d.getByLabel("Phone", { exact: true })).not.toHaveAttribute("aria-required"); // phone or email, so neither is starred
   for (const label of ["Name", "Phone", "Email"]) await expect(d.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
   await expect(d.getByRole("checkbox")).toHaveAttribute("aria-invalid", "true");
   // The contact error shows once, under Email.
@@ -117,7 +120,6 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await d.getByLabel("Email").fill("buyer@example.com");
   await d.getByRole("button", { name: "Send enquiry" }).click();
 
-  await expect(d.getByRole("alert")).toContainText("One field needs attention.");
   await expect(d.locator("p", { hasText: "Tick the box to send your request." })).toBeVisible();
   await expect(d.locator("p", { hasText: "Enter your name." })).toHaveCount(0);
   await expect(d.getByLabel("Email")).toHaveValue("buyer@example.com");

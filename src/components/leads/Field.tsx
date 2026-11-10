@@ -2,6 +2,7 @@
 
 import { Combobox } from "@/components/Combobox";
 import { useState } from "react";
+import { AlertIcon } from "@/components/stock/icons";
 import { CONTACT_ERROR, COUNTRIES, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
@@ -15,6 +16,7 @@ type InputProps = Pick<React.InputHTMLAttributes<HTMLInputElement>, "type" | "au
 export function Field({
   label,
   optional,
+  required,
   helper,
   multiline,
   options,
@@ -30,7 +32,7 @@ export function Field({
   error,
   ...input
 }: FieldBinding &
-  InputProps & { label: string; optional?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string; suffix?: string; prefix?: string; action?: React.ReactNode }) {
+  InputProps & { label: string; optional?: boolean; required?: boolean; helper?: string; multiline?: boolean; options?: { value: string; label: string }[]; invalid?: boolean; describedBy?: string; suffix?: string; prefix?: string; action?: React.ReactNode }) {
   const helperId = helper ? `${id}-helper` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   const suffixId = suffix ? `${id}-suffix` : undefined; // read with the field, so "km" is not lost to screen readers
@@ -40,11 +42,12 @@ export function Field({
     name,
     value,
     "aria-invalid": error || invalid ? true : undefined,
+    "aria-required": required ? true : undefined,
     "aria-describedby": [prefixId, suffixId, helperId, errorId, describedBy].filter(Boolean).join(" ") || undefined,
   };
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-meta font-semibold">
+      <label htmlFor={id} className={`text-meta font-semibold ${required ? "required-mark" : ""}`}>
         {label}
         {optional && <span className="font-normal text-text-2"> (optional)</span>}
       </label>
@@ -56,6 +59,7 @@ export function Field({
           onChange={onChange}
           options={options}
           invalid={Boolean(error || invalid)}
+          required={required}
           describedBy={common["aria-describedby"]}
           className="pl-4 in-[dialog]:bg-surface in-data-wells:bg-surface"
         />
@@ -89,12 +93,18 @@ export function Field({
           {helper}
         </p>
       )}
-      {error && (
-        <p id={errorId} className="text-meta text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
     </div>
+  );
+}
+
+// A field's error: the alert icon first, so it reads as a problem without relying on colour.
+export function FieldError({ id, children }: { id?: string; children: React.ReactNode }) {
+  return (
+    <p id={id} className="flex items-start gap-1.5 break-words text-meta text-destructive">
+      <AlertIcon className="mt-0.5 size-4 shrink-0" />
+      <span className="min-w-0">{children}</span>
+    </p>
   );
 }
 
@@ -105,7 +115,7 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
   // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
   return (
     <div className="@container flex flex-col gap-4">
-      <Field {...bind("name")} label="Name" autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
+      <Field {...bind("name")} label="Name" required autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
       {/* The line sits with the pair it explains (tight below it, a larger gap above), not under Name. */}
       <div className="mt-2 flex flex-col gap-2">
         <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
@@ -125,7 +135,6 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
   const [country, setCountry] = useState<(typeof COUNTRIES)[number]>(() => COUNTRIES.find((c) => value.startsWith(`${c.dial} `)) ?? COUNTRIES[0]);
   const number = value.startsWith(`${country.dial} `) ? value.slice(country.dial.length).trim() : value;
   const set = (c: (typeof COUNTRIES)[number], n: string) => onChange(n ? `${c.dial} ${n}` : "");
-  const helperId = `${id}-helper`;
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className="flex flex-col gap-1">
@@ -160,19 +169,12 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
           placeholder={country.example}
           value={number}
           aria-invalid={error || invalid ? true : undefined}
-          aria-describedby={[helperId, errorId, describedBy].filter(Boolean).join(" ")}
+          aria-describedby={[errorId, describedBy].filter(Boolean).join(" ") || undefined}
           onChange={(e) => set(country, tidy(e.target.value, country.dial))}
           className={`${control} h-12 min-w-0 flex-1 px-4`}
         />
       </div>
-      <p id={helperId} className="text-meta text-text-2">
-        {country.name}. For example {country.example}.
-      </p>
-      {error && (
-        <p id={errorId} className="text-meta text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
     </div>
   );
 }

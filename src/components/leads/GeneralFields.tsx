@@ -8,7 +8,7 @@ import type { FieldBinding } from "./LeadForm";
 export function GeneralFields({ bind }: { bind(name: string): FieldBinding }) {
   return (
     <>
-      <Field {...bind("message")} label="How can we help?" multiline maxLength={LIMITS.message} />
+      <Field {...bind("message")} label="How can we help?" required multiline maxLength={LIMITS.message} />
       <ContactFields bind={bind} />
     </>
   );
