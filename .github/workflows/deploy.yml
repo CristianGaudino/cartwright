@@ -1,17 +1,21 @@
 name: Deploy (Cloudflare Workers)
 
-# Every merge to main deploys to production. To roll back, run it from the Actions tab with an older
-# tag or commit. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
+# Production deploys a release, never a merge: release.yml calls this with its new tag, and merging to main deploys nothing.
+# The weekly run (and Run workflow with the ref left empty) redeploys the latest release, so the demo's sold cars keep their dates.
+# To roll back, run it from the Actions tab with an older tag, like v1.0.0. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
 on:
-  push:
-    branches: [main]
-    paths-ignore: ['**.md']
+  workflow_call:
+    inputs:
+      ref:
+        description: 'The release tag to deploy'
+        required: true
+        type: string
   schedule:
     - cron: '0 6 * * 1' # weekly, so the demo's sold cars keep their dates (npm run stock:redate)
   workflow_dispatch:
     inputs:
       ref:
-        description: 'A tag or commit to deploy (default: main)'
+        description: 'A release tag to deploy, like v1.0.0 (empty: the latest release)'
         required: false
         type: string
 
@@ -24,6 +28,8 @@ permissions:
 
 jobs:
   deploy:
+    # Not from another branch picked in the Run workflow menu: it would run that branch's copy of this file with the production secrets
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -39,8 +45,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.ref }}
+          # Every tag, to find the latest
           fetch-depth: 0
+      - name: Check out the release
+        run: |
+          ref="${REF:-$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)}"
+          if [ -z "$ref" ]; then echo "No release yet. Run the Release workflow first."; exit 1; fi
+          git checkout --detach "$ref"
+        env:
+          REF: ${{ inputs.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -53,4 +66,4 @@ jobs:
       - name: Migrate the database
         run: npm run db:migrate
       - run: npx opennextjs-cloudflare build
-      - run: npx wrangler deploy --var APP_COMMIT_SHA:${{ github.sha }} --var "APP_VERSION:$(git describe --tags --always)"
+      - run: npx wrangler deploy --var "APP_COMMIT_SHA:$(git rev-parse HEAD)" --var "APP_VERSION:$(git describe --tags --always)"

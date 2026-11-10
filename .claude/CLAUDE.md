@@ -37,7 +37,7 @@ Check by exit code, not by reading output for "error": `npm run lint; echo $?`, 
 This is not the Next.js in your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code, and heed deprecation notices. `next dev` writes an `AGENTS.md` block about this; commit it.
 
 ## Releases
-Every merge to `main` deploys to production (deploy.yml). For now there are no release-tag deploys; the Release workflow only tags and publishes notes. Roll back by running Deploy from the Actions tab with an older tag or commit. Move to release-tag deploys, as in vintage, once there is a live client site.
+Production deploys a release, not a merge. Merging to `main` deploys nothing. To ship: Actions, Release, Run workflow, pick major, minor or patch. That tags `main`, publishes the release as a pre-release, runs deploy.yml on the tag (lint, unit tests, migrations, build, deploy) and marks the release as shipped once the deploy passes. Roll back by running Deploy with an older tag. The weekly run redeploys the latest release. E2E runs on pull requests only, so it tests each PR, not the combined tip of `main` a release ships.
 
 ## Product rules
 - On-screen text is plain, short and human. No em dashes anywhere on the site. If a label already says it, drop the helper text.
