@@ -188,6 +188,19 @@ export const PinIcon = (p: Props) => (
   </Icon>
 );
 
+export const InfoIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
+  </Icon>
+);
+export const AlertIcon = (p: Props) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.5v5.5M12 16.5h.01" />
+  </Icon>
+);
+
 export const CameraIcon = (p: Props) => (
   <Icon {...p}>
     <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.2-1.8A1 1 0 0 1 9.5 5h5a1 1 0 0 1 .8.4L16.5 7h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5Z" />

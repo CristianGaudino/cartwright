@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { PRICE_STOPS } from "../src/lib/stock/types";
+import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
 // Runs only on the local server with fake backends: it must never send a lead to a deployed site.
@@ -23,7 +24,7 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await next.click();
   await expect(page.getByText("Add a make, a model or a type of car.", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
-  await page.getByLabel("Make").fill("Toyota");
+  await choose(page.getByLabel("Make"), "Toyota");
   const budget = page.getByRole("slider", { name: "Budget" });
   await budget.fill(String(PRICE_STOPS.indexOf(20000)));
   await budget.blur();
@@ -32,7 +33,6 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   // The message is the one thing needed: Next refuses without it and keeps what was typed.
   await expect(page.getByRole("heading", { name: /^Step 2 of 4/ })).toBeVisible();
   await next.click();
-  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toContainText("One field needs attention.");
   await expect(page.locator("p", { hasText: "Tell us what you're looking for." })).toBeVisible();
   await page.getByLabel("What are you looking for?").fill("A small automatic, any colour.");
   await next.click();

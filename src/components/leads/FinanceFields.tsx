@@ -13,10 +13,10 @@ export function FinanceFields({ bind }: { bind(name: string): FieldBinding }) {
   return (
     <>
       <ContactFields bind={bind} />
-      <Field {...bind("deposit")} label="Deposit" prefix="€" inputMode="numeric" autoComplete="off" enterKeyHint="next" />
-      <Field {...bind("term")} label="Term" options={TERM_OPTIONS} />
+      <Field {...bind("deposit")} label="Deposit" required prefix="€" inputMode="numeric" autoComplete="off" enterKeyHint="next" />
+      <Field {...bind("term")} label="Term" required options={TERM_OPTIONS} />
       <p className="text-meta text-text-2">We don&apos;t ask for income, date of birth or bank details.</p>
-      <Field {...bind("employment")} label="Employment Status" options={JOBS} />
+      <Field {...bind("employment")} label="Employment Status" required options={JOBS} />
       <Field {...bind("message")} label="Anything else we should know?" optional multiline maxLength={LIMITS.message} />
     </>
   );

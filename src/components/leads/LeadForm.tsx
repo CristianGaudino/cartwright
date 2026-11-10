@@ -115,7 +115,7 @@ export function LeadForm({
     if (done) heading.current?.focus();
   }, [done]);
 
-  // On a failed send the first field to fix takes focus (a screen reader reads its error with it), and the slim note above says how many.
+  // On a failed send the first field to fix takes focus (a screen reader reads its error with it).
   useEffect(() => {
     if (invalid) document.getElementById(invalid.first)?.focus();
   }, [invalid]);
@@ -202,7 +202,6 @@ export function LeadForm({
     });
   }
 
-  const flaggedCount = Object.values(shown).filter((e) => e[0]).length; // read live, so the note counts down as fields are put right
   const dialog = variant === "dialog";
   const pad = dialog ? "px-4" : "";
   // The buttons sit on the right (a row of them fills the width on a phone). One width for Back, Next and Send, so they never jump about.
@@ -274,14 +273,6 @@ export function LeadForm({
                 </>
               )}
             </div>
-          )}
-          {flaggedCount > 0 && (
-            <p role="alert" className="flex items-center gap-2 rounded-control bg-destructive/10 px-3 py-2.5 text-meta font-semibold text-destructive">
-              <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive text-ink">
-                !
-              </span>
-              {flaggedCount === 1 ? "One field needs attention." : `${flaggedCount} fields need attention.`}
-            </p>
           )}
           <div className="flex flex-col gap-4">{children({ bind, step, photos: { id: `${uid}-photos`, error: shown.photos?.[0], photos, onChange: setPhotos, onBusy: setShrinking } })}</div>
           <div hidden={!last}>

@@ -39,6 +39,7 @@ export function Combobox({
   tone = "card",
   className = "",
   invalid,
+  required,
   describedBy,
 }: {
   id?: string;
@@ -50,6 +51,7 @@ export function Combobox({
   tone?: "card" | "surface";
   className?: string;
   invalid?: boolean;
+  required?: boolean;
   describedBy?: string;
 }) {
   const auto = useId();
@@ -166,6 +168,7 @@ export function Combobox({
         aria-autocomplete={typeable ? "list" : "none"}
         aria-activedescendant={open && shown[active] ? `${uid}-opt-${active}` : undefined}
         aria-invalid={invalid ? true : undefined}
+        aria-required={required ? true : undefined}
         aria-describedby={describedBy}
         autoComplete="off"
         readOnly={!typeable}

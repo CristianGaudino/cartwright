@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 import { choose, optionLabels } from "./combo";
-import { formatKm, formatPrice } from "../src/lib/stock/format";
+import { formatKm } from "../src/lib/stock/format";
 import { PRICE_STOPS } from "../src/lib/stock/types";
 
 const PER_PAGE = 12;

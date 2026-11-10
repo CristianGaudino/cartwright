@@ -1,8 +1,9 @@
 "use client";
 
+import { MAKE_OPTIONS } from "@/lib/leads/makes";
 import { LIMITS, PHOTO_LIMITS, SOURCING_BODIES } from "@/lib/leads/constants";
 import { PriceRange } from "@/components/PriceRange";
-import { ContactFields, Field } from "./Field";
+import { ContactFields, Field, FieldError } from "./Field";
 import type { FieldBinding, FormStep, PhotoBinding } from "./LeadForm";
 import { PhotoPicker } from "./PhotoPicker";
 
@@ -26,19 +27,19 @@ export function SourcingFields({ bind, photos, step }: { bind(name: string): Fie
       <div hidden={step !== 0} className="flex flex-col gap-4">
         <p className="text-body text-text-2">Add at least one of make, model or type of car. Then your top budget.</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Field {...bind("make")} label="Make" maxLength={60} enterKeyHint="next" />
+          <Field {...bind("make")} label="Make" options={MAKE_OPTIONS} />
           <Field {...bind("model")} label="Model" maxLength={60} enterKeyHint="next" />
           <Field {...bind("bodyType")} label="Type" options={BODY_OPTIONS} />
         </div>
         <div className="flex flex-col gap-1">
           <PriceRange label="Budget" maxOnly max={budget.value ? Number(budget.value) : undefined} onCommit={(_, max) => budget.onChange(max ? String(max) : "")} />
-          {budget.error && <p className="text-meta text-destructive">{budget.error}</p>}
+          {budget.error && <FieldError>{budget.error}</FieldError>}
         </div>
       </div>
 
       <div hidden={step !== 1} className="flex flex-col gap-4">
         <p className="text-body text-text-2">The more we know, the better the match.</p>
-        <Field {...bind("message")} label="What are you looking for?" multiline maxLength={LIMITS.message} />
+        <Field {...bind("message")} label="What are you looking for?" required multiline maxLength={LIMITS.message} />
         <ul className="flex flex-col gap-1 text-meta text-text-2">
           {HELPS.map((h) => (
             <li key={h} className="flex items-center gap-2">

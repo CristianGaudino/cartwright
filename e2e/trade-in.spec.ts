@@ -123,16 +123,16 @@ test("Next refuses until the photos are in, and the note goes by itself once the
   await expect(page.getByRole("heading", { name: /^Step 4 of 4/ })).toBeVisible();
 });
 
-test("an error goes as soon as the field is put right, and the count goes down", async ({ page }) => {
+test("an error goes as soon as the field is put right", async ({ page }) => {
   await open(page);
   await next(page).click();
-  const alert = page.getByRole("alert").filter({ hasText: "attention" });
-  await expect(alert).toContainText("2 fields need attention.");
+  const errors = page.locator("p", { hasText: /^(Enter the registration|Enter the mileage)/ });
+  await expect(errors).toHaveCount(2);
   await page.getByLabel("Registration", { exact: true }).fill("191-KY-1234");
   await expect(page.locator("p", { hasText: "Enter the registration as shown on the car." })).toHaveCount(0);
-  await expect(alert).toContainText("One field needs attention.");
+  await expect(errors).toHaveCount(1);
   await page.getByLabel("Mileage", { exact: true }).fill("120500");
-  await expect(alert).toHaveCount(0);
+  await expect(errors).toHaveCount(0);
   await next(page).click();
   await expect(page.getByRole("heading", { name: /^Step 2 of 4/ })).toBeVisible();
 });
@@ -261,7 +261,6 @@ test("an empty reg stops the first step with a short note, and the typed mileage
   await page.getByLabel("Mileage", { exact: true }).fill("120,500");
   await next(page).click();
   await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible(); // did not move on
-  await expect(page.getByRole("alert").filter({ hasText: "attention" })).toContainText("One field needs attention.");
   await expect(page.locator("p", { hasText: "Enter the registration as shown on the car." })).toBeVisible();
   await expect(page.getByLabel("Registration", { exact: true })).toBeFocused();
   await expect(page.getByLabel("Mileage", { exact: true })).toHaveValue("120,500");

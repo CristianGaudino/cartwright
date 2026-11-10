@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { FieldError } from "./Field";
 import { CameraIcon, CloseIcon, PlusIcon } from "@/components/stock/icons";
 import {
   PHOTO_MAX_COUNT,
@@ -140,16 +141,10 @@ export function PhotoPicker({ id, error, photos, onChange, onBusy, slots = [], m
       <div aria-live="polite" className="flex flex-col gap-1">
         <p className="sr-only">{status}</p>
         {messages.map((m) => (
-          <p key={m} className="break-words text-meta text-destructive">
-            {m}
-          </p>
+          <FieldError key={m}>{m}</FieldError>
         ))}
       </div>
-      {error && (
-        <p id={errorId} className="break-words text-meta text-destructive">
-          {error}
-        </p>
-      )}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
     </fieldset>
   );
 }

@@ -162,7 +162,7 @@ test("the phone field defaults to Ireland +353, drops a leading 0 and keeps the 
   await expect(phone).toHaveValue("87 123 4567");
   await code.selectOption("GB");
   await expect(phone).toHaveValue("87 123 4567"); // the number stays, only the code changes
-  await expect(page.getByText("United Kingdom. For example")).toBeVisible();
+  await expect(page.getByText("United Kingdom. For example")).toHaveCount(0); // no helper line under the phone field
 });
 
 // A short page keeps the footer at the bottom of a tall window, with no empty band under it; the 404 is the shortest page.

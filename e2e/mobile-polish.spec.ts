@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import { SITE_NAME } from "../src/lib/site";
+import { optionLabels } from "./combo";
 
 // The phone layout fixes from the mobile polish pass (#139 to #146). The default device is a phone.
 
@@ -26,12 +28,71 @@ test("the footer is compact on a phone", async ({ page }) => {
   expect((await page.getByRole("contentinfo").boundingBox())!.height).toBeLessThan(620);
 });
 
-test("the used cars page ends with Back to Top, which scrolls to the top", async ({ page }) => {
+test("Back to top is a footer link on every page on a phone, level with the logo on the right, and there is no button", async ({ page }) => {
   await page.goto("/used-cars");
-  const button = page.getByRole("button", { name: "Back to Top" });
-  await button.scrollIntoViewIfNeeded();
-  await button.click();
+  await expect(page.getByRole("button", { name: "Back to Top", exact: true })).toHaveCount(0);
+  const footer = page.getByRole("contentinfo");
+  const link = footer.getByRole("button", { name: "Back to top" });
+  const [logo, to] = await Promise.all([footer.getByRole("link", { name: SITE_NAME }).boundingBox(), link.boundingBox()]);
+  expect(to!.x).toBeGreaterThan(logo!.x + logo!.width);
+  expect(to!.y + to!.height / 2).toBeCloseTo(logo!.y + logo!.height / 2, 0);
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+  await page.goto("/finance"); // it is in the footer, so every page has it
+  await expect(footer.getByRole("button", { name: "Back to top" })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(footer.getByRole("button", { name: "Back to top" })).toBeHidden();
+});
+
+test("the header stays at the top while a phone scrolls", async ({ page }) => {
+  await page.goto("/finance");
+  await page.evaluate(() => window.scrollTo(0, 400));
+  expect((await page.getByRole("banner").boundingBox())!.y).toBe(0);
+});
+
+test("the phone menu marks the current page and nothing moves", async ({ page }) => {
+  await page.goto("/finance");
+  await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await expect(menu.getByRole("link", { name: "Finance", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(menu.locator("[aria-current]")).toHaveCount(1);
+  const [a, b] = await Promise.all([menu.getByRole("link", { name: "Trade-In" }).boundingBox(), menu.getByRole("link", { name: "Finance", exact: true }).boundingBox()]);
+  expect(a!.x).toBe(b!.x); // same left edge: the mark is in the gutter
+});
+
+test("tapping a menu item closes the menu at once, with no slide-out, and opens the page", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("banner").getByRole("button", { name: "Menu" }).click();
+  const menu = page.getByRole("dialog", { name: "Menu" });
+  await menu.getByRole("link", { name: "Finance", exact: true }).click();
+  await expect(menu).toBeHidden({ timeout: 100 });
+  await expect(page).toHaveURL(/\/finance$/);
+});
+
+test("on a phone each service opens its own form under its card, and only one form shows", async ({ page }) => {
+  await page.goto("/service");
+  const forms = page.getByRole("heading", { name: "Tell us what your car needs" });
+  await expect(forms).toHaveCount(0);
+  const [servicing, repairs] = [page.getByRole("button", { name: /^Servicing/ }), page.getByRole("button", { name: /^Repairs/ })];
+  await servicing.click();
+  await expect(forms).toHaveCount(1);
+  await expect(page.getByLabel("How can we help?")).toHaveValue("I'd like to ask about servicing.");
+  const [card, form] = await Promise.all([servicing.boundingBox(), forms.boundingBox()]);
+  expect(form!.y).toBeGreaterThan(card!.y + card!.height); // right under the card that opened it
+  await repairs.click();
+  await expect(page.getByLabel("How can we help?")).toHaveCount(1); // the first form goes once it has slid shut
+  await expect(page.getByLabel("How can we help?")).toHaveValue("I'd like to ask about repairs.");
+  await expect(forms.filter({ visible: true })).toHaveCount(1);
+  await expect(servicing).toHaveAttribute("aria-expanded", "false");
+});
+
+test("Find a car: Make is a drop-down with the popular makes first, then A to Z", async ({ page }) => {
+  await page.goto("/find-a-car");
+  const labels = await optionLabels(page.getByLabel("Make"));
+  expect(labels.slice(0, 4)).toEqual(["Any make", "Toyota", "Volkswagen", "Ford"]);
+  const rest = labels.slice(13);
+  expect(rest).toEqual([...rest].sort((x, y) => x.localeCompare(y)));
 });
 
 test("the used cars page has the search above the car count on a phone", async ({ page }) => {

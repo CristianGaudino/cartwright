@@ -27,7 +27,7 @@ test("no page, the map or the bot check is blocked by the policy", async ({ page
   }
   // A form loads the bot check script and widget.
   await page.goto("/find-a-car", { waitUntil: "networkidle" });
-  await page.getByLabel(/^Make/).fill("Ford");
+  await page.getByLabel(/^Make/).focus(); // the bot check loads on the first focus in a form
   await page.waitForTimeout(800);
   expect(blocked).toEqual([]);
 });

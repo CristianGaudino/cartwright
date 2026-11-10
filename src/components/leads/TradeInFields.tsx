@@ -40,6 +40,7 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
         <Field
           {...bind("reg")}
           label="Registration"
+          required
           autoCapitalize="characters"
           spellCheck={false}
           maxLength={12}
@@ -48,7 +49,7 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
           helper="Looking up your car from its registration is coming soon."
           action={LookUp}
         />
-        <Field {...bind("mileage")} label="Mileage" inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
+        <Field {...bind("mileage")} label="Mileage" required inputMode="numeric" suffix="km" maxLength={9} enterKeyHint="next" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field {...bind("make")} label="Make" optional maxLength={60} enterKeyHint="next" />
           <Field {...bind("model")} label="Model" optional maxLength={60} enterKeyHint="next" />
