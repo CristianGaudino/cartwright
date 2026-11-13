@@ -24,7 +24,7 @@ export default function PrivacyPage() {
       <InfoSection title="Why We Use It">
         <p>Only to reply to your request. We don&apos;t use it for marketing, and we don&apos;t sell it.</p>
         <p>
-          Cloudflare hosts this site, runs the bot check on our forms and delivers your request to us by email. Cloudflare also keeps the
+          Cloudflare hosts this site, runs the bot check on our forms, counts page visits for us (without cookies) and delivers your request to us by email. Cloudflare also keeps the
           requests in a database, and trade-in photos, in the EU.
         </p>
       </InfoSection>
