@@ -2,13 +2,16 @@ import type { NextConfig } from "next";
 
 const dev = process.env.NODE_ENV !== "production"; // dev needs eval (React debugging) and a websocket (hot reload)
 const TURNSTILE = "https://challenges.cloudflare.com";
+// Cloudflare Web Analytics (cookieless): the beacon Cloudflare injects, and the address it reports visits to
+const ANALYTICS_SCRIPT = "https://static.cloudflareinsights.com";
+const ANALYTICS_REPORT = "https://cloudflareinsights.com";
 const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""} ${TURNSTILE}`,
+  `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""} ${TURNSTILE} ${ANALYTICS_SCRIPT}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://lh3.googleusercontent.com", // lh3: Google review photos
   "font-src 'self' data:",
-  `connect-src 'self' ${TURNSTILE}${dev ? " ws: wss:" : ""}`,
+  `connect-src 'self' ${TURNSTILE} ${ANALYTICS_REPORT}${dev ? " ws: wss:" : ""}`,
   `frame-src ${TURNSTILE} https://maps.google.com https://www.google.com`, // the bot check, and the Google map on /contact
   "frame-ancestors 'none'",
   "base-uri 'self'",
