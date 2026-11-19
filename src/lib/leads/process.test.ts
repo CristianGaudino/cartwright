@@ -232,6 +232,19 @@ describe("processLead bot checks (D-05)", () => {
     expect(rows).toHaveLength(2);
   });
 
+  it("logs cleanup_failed at error level when the photos of a lost double submit cannot be deleted", async () => {
+    const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", make: "Audi", message: "Something like this" });
+    fd.delete("carId");
+    fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], "car.jpg"));
+    const { deps } = fakeDeps({ insert: async () => false });
+    deps.bucket.delete = async () => {
+      throw new Error("R2 down");
+    };
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(error.mock.calls.map((c: unknown[]) => JSON.parse(String(c[0])).outcome)).toEqual(["cleanup_failed"]);
+    expect(log.mock.calls.map((c: unknown[]) => JSON.parse(String(c[0])).outcome)).toEqual(["duplicate"]);
+  });
+
   it("stores a general message with no car and no details, and emails it", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);

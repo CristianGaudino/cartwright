@@ -12,7 +12,7 @@ import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "release_failed" | "error";
+export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "release_failed" | "cleanup_failed" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
@@ -181,7 +181,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     // the insert deletes what this request put, so no orphan photo is left (T-03-35).
     const keys = row.photoKeys;
     const cleanup = async () => {
-      if (keys.length) await deps.bucket.delete(keys).catch(() => {});
+      if (keys.length) await deps.bucket.delete(keys).catch(() => logLead({ leadId, type: input.type, outcome: "cleanup_failed" })); // the retention backstop deletes them
     };
     let inserted: boolean;
     try {

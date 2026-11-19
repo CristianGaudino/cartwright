@@ -39,7 +39,7 @@ export function specRows(car: Car): { label: string; value: string }[] {
     ["Fuel", car.fuel && FUEL_LABELS[car.fuel]],
     ["Transmission", car.gearbox && GEARBOX_LABELS[car.gearbox]],
     ["Body Type", car.bodyType],
-    ["Engine", car.engineLitres === undefined ? undefined : `${car.engineLitres.toFixed(1)} L`],
+    ["Engine", car.engineLitres ? `${car.engineLitres.toFixed(1)} L` : undefined], // 0 is a missing value, as with owners
     ["Colour", car.colour],
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
@@ -65,11 +65,14 @@ export const plainText = (s: string) =>
     .replace(/<br\s*\/?>|<\/p>/gi, "\n")
     .replace(/<[^>]*>/g, "")
     .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/&#(?:(\d+)|x([0-9a-f]+));/gi, (m, d: string | undefined, x: string | undefined) => {
+      const n = d ? Number(d) : parseInt(x!, 16);
+      return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m;
+    })
+    .replace(/&amp;/g, "&") // last, so "&amp;lt;" stays the text "&lt;"
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 

@@ -26,7 +26,6 @@ export function buildLeadEmail(row: LeadRow, opts: { demo: boolean; photoPaths?:
     row.phone && `Phone: ${row.phone}`,
     row.email && `Email: ${row.email}`,
     ...Object.entries(DETAIL_LABELS).map(([k, label]) => row.details[k] !== undefined && `${label}: ${show(k, row.details[k])}`),
-    row.message && `Message:\n${row.message}`,
     row.carTitle && `Car: ${row.carTitle}`,
     row.carPriceEur !== null && `Price: ${formatPrice(row.carPriceEur)}`,
     row.carSlug && `Car page: ${SITE_URL}/used-cars/${row.carSlug}`,
@@ -34,6 +33,8 @@ export function buildLeadEmail(row: LeadRow, opts: { demo: boolean; photoPaths?:
     opts.slotPath && `Call to confirm. If the time can't go ahead, free it for others: ${SITE_URL}${opts.slotPath}`,
     `Sent from: ${SITE_URL}${row.sourcePath}`,
     `Consent: ${row.consentAt.toISOString()}, version ${row.consentVersion}`,
+    // Last: nothing the buyer types can pass for a line the server wrote after it (a fake car page or free-this-slot link).
+    row.message && `Message:\n${row.message}`,
   ];
   return { subject, text: lines.filter(Boolean).join("\n\n") };
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatPrice } from "./format";
-import { carJsonLd } from "./seo";
 import type { Car, StockQuery } from "./types";
 
 // Pure: no provider import. The labels and slugs come from the provider's taxonomy.
@@ -77,10 +76,11 @@ export function landingMetadata(l: Landing, f: Facts | null, canonical: string):
   };
 }
 
+// Each item is the car page's URL only: the full Product record lives on that page (Google's summary-page form).
 export function itemListJsonLd(cars: Car[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: cars.map((car, i) => ({ "@type": "ListItem", position: i + 1, item: carJsonLd(car) })),
+    itemListElement: cars.map((car, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE_URL}/used-cars/${car.slug}` })),
   };
 }

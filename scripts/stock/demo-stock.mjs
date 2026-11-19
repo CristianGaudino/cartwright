@@ -237,20 +237,28 @@ const MARKER = "www.cartwright.ie";
 // The most a free text field may run to, shared with src/lib/stock/types.ts (TEXT_LIMITS).
 const LIMITS = JSON.parse(readFileSync(new URL("../../src/lib/stock/text-limits.json", import.meta.url), "utf8"));
 
+// A line with this many commas is the equipment run, not prose (the longest prose line has 4).
+const FEATURE_RUN_COMMAS = 6;
+
 // The blurb is the description, then (50 of 58) the dealer's site address, then a run of equipment items.
+// Without the address (6 of 58) the run starts at the first line with FEATURE_RUN_COMMAS or more commas.
 function describe(blurb) {
   const text = cleanLines(blurb);
-  const at = text.indexOf(MARKER);
+  const marker = text.indexOf(MARKER);
+  const runLine = text.split("\n").find((l) => (l.match(/,/g) ?? []).length >= FEATURE_RUN_COMMAS);
+  const [at, skip] = marker >= 0 ? [marker, MARKER.length] : runLine !== undefined ? [text.indexOf(runLine), 0] : [-1, 0];
   const before = at < 0 ? text : text.slice(0, at);
   const description = before
     .split("\n")
     .filter((l) => !CONTACT.test(l.replace(/[\s,.;]+$/, "")))
+    // A lone "." or a two-letter scrap is not a description.
+    .filter((l) => l === "" || (l.length >= 3 && /[\p{L}\p{N}]/u.test(l)))
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\bCartwright\b/g, "Carright") // the dealer's sign-off ("Buy with Cartwright") in the pitch site's name
     .trim();
   const seen = new Set();
-  const features = (at < 0 ? [] : text.slice(at + MARKER.length).split(/,(?![^(]*\))|\n/))
+  const features = (at < 0 ? [] : text.slice(at + skip).split(/,(?![^(]*\))|\n/))
     .map((f) => f.trim())
     .filter((f) => f && !seen.has(f.toLowerCase()) && seen.add(f.toLowerCase()));
   const cut = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);

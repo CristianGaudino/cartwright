@@ -2,13 +2,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { SITE_SLUG } from "../src/lib/site";
 
 type Demo = { id: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
-const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const soldInPeriod = cars.find((c) => inSoldWindow(c, Date.now()));
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 const UNKNOWN = "999999999999";
 const KEY = `${SITE_SLUG}:saved-ids`;
@@ -187,6 +187,8 @@ test("unsaving on /saved keeps the card until the next visit and drops the count
   await firstHeart(page).click();
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   await firstHeart(page).click();
+  await expect(savedLink(page)).toHaveAccessibleName("Saved cars");
+  await expect.poll(() => stored(page)).toEqual([]);
   await page.reload();
   await expect(page.getByRole("heading", { name: "No saved cars yet" })).toBeVisible();
 });

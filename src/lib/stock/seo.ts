@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, DEALER_REGION, DEALER_TEL, SITE_NAME, SITE_URL } from "@/lib/site";
 import { carName, carTitle, formatKm, formatPrice } from "./format";
 import { FUEL_LABELS, GEARBOX_LABELS, isSold } from "./types";
 import type { Car } from "./types";
@@ -44,7 +44,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
     vehicleSeatingCapacity: car.seats,
     numberOfPreviousOwners: car.owners,
     color: car.colour,
-    vehicleEngine: car.engineLitres === undefined ? undefined : { "@type": "EngineSpecification", engineDisplacement: { "@type": "QuantitativeValue", value: car.engineLitres, unitCode: "LTR" } },
+    vehicleEngine: !car.engineLitres ? undefined : { "@type": "EngineSpecification", engineDisplacement: { "@type": "QuantitativeValue", value: car.engineLitres, unitCode: "LTR" } },
     offers: {
       "@type": "Offer",
       url,
@@ -56,7 +56,7 @@ export function carJsonLd(car: Car): Record<string, unknown> {
         "@type": "AutoDealer",
         name: SITE_NAME,
         telephone: DEALER_TEL,
-        address: { "@type": "PostalAddress", addressLocality: DEALER_ADDRESS.town, addressRegion: DEALER_ADDRESS.county.replace(/^Co. /, ""), addressCountry: "IE" },
+        address: { "@type": "PostalAddress", addressLocality: DEALER_ADDRESS.town, addressRegion: DEALER_REGION, addressCountry: "IE" },
       },
     },
   };

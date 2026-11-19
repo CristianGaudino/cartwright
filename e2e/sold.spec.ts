@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 
 type Demo = { makeSlug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const now = Date.now();
-const inPeriod = cars.filter((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > now);
+const inPeriod = cars.filter((c) => inSoldWindow(c, now));
 // A make that has both cars to buy and a sold car in the window, so the order check has something on each side.
 const mixedMake = inPeriod.find((s) => cars.some((c) => c.makeSlug === s.makeSlug && !c.soldAt))?.makeSlug;
 

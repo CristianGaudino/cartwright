@@ -1,5 +1,5 @@
 import type { Reviews } from "@/lib/reviews";
-import { DEALER_ADDRESS, DEALER_FACTS_CONFIRMED, DEALER_TEL, OPENING_HOURS, SITE_NAME, SITE_URL } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_FACTS_CONFIRMED, DEALER_TEL, DEALER_REGION, OPENING_HOURS, SITE_NAME, SITE_URL } from "@/lib/site";
 
 // "09:00" -> "9am", "17:30" -> "5:30pm", "12:00" -> "12pm".
 const time = (hhmm: string) => {
@@ -45,7 +45,7 @@ export function dealerJsonLd(reviews: Reviews | null, confirmed = DEALER_FACTS_C
       "@type": "PostalAddress",
       ...(confirmed && { streetAddress: DEALER_ADDRESS.street }),
       addressLocality: DEALER_ADDRESS.town,
-      addressRegion: DEALER_ADDRESS.county,
+      addressRegion: DEALER_REGION,
       ...(confirmed && { postalCode: DEALER_ADDRESS.eircode }),
       addressCountry: "IE",
     },

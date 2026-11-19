@@ -74,6 +74,7 @@ describe("specRows", () => {
       { label: "0 to 100 km/h", value: "9.9 s" },
     ]);
     expect(specRows({ ...full, engineLitres: 1.5 }).find((r) => r.label === "Engine")?.value).toBe("1.5 L");
+    expect(specRows({ ...full, engineLitres: 0 }).find((r) => r.label === "Engine")).toBeUndefined();
   });
 
   it("gives a car with only the required fields just Year, and never an empty value", () => {
@@ -106,6 +107,11 @@ describe("keyFacts", () => {
 describe("dealer text", () => {
   it("shows HTML as words", () => {
     expect(plainText("<p>One owner&nbsp;&amp; full history.</p><p>Fully serviced<br/>NCT 2027</p>")).toBe("One owner & full history.\nFully serviced\nNCT 2027");
+  });
+
+  it("decodes numeric entities, and &amp; last so an escaped entity stays text", () => {
+    expect(plainText("Coup&#233; &#x2713; &#39;Sport&#39;")).toBe("Coupé ✓ 'Sport'");
+    expect(plainText("&amp;lt;b&amp;gt; &amp;#233; &#99999999;")).toBe("&lt;b&gt; &#233; &#99999999;");
   });
 
   // The two demo descriptions as the feed sends them.

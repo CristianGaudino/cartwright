@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { DEALER_ADDRESS, SITE_URL } from "../src/lib/site";
 
 type Demo = { slug: string; make: string; makeSlug: string; modelSlug: string; bodySlug?: string; bodyType?: string; soldAt?: string };
@@ -92,7 +92,7 @@ test("a make page does not scroll sideways at 320px", async ({ page }) => {
 
 // Empty landing pages (D-08). Makes with no car in stock: the one whose last sale is oldest has expired out of the sold window.
 const production = process.env.APP_ENV === "production";
-const inWindow = (c: Demo) => Date.parse(c.soldAt!) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now();
+const inWindow = (c: Demo) => inSoldWindow(c, Date.now());
 const stockedMakes = new Set(inStock.map((c) => c.makeSlug));
 const unstocked = cars.filter((c) => c.soldAt && !stockedMakes.has(c.makeSlug));
 const expiredOnly = unstocked.filter((c) => !inWindow(c) && !unstocked.some((o) => o.makeSlug === c.makeSlug && inWindow(o)))[0];

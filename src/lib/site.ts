@@ -35,6 +35,8 @@ export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cov
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
 // "Tralee, Co. Kerry": where the dealer is, as the page descriptions say it.
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
+// schema.org addressRegion: the bare region name, as its own example ("California") has it.
+export const DEALER_REGION = DEALER_ADDRESS.county.replace(/^Co\. /, "");
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
   { day: "Monday", opens: "09:30", closes: "18:00" },

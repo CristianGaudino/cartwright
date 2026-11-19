@@ -8,7 +8,7 @@ Leads are kept for **12 months** from when they were sent, then deleted. The per
 
 ## Automatic purge
 
-A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. The same run deletes test drive holds (`drive_holds`, #166) whose time has passed; the lead itself stays. Each run logs one line, `{"job":"purge-leads","deleted":<count>,"holds":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
+A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in or find-a-car photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. The same run deletes test drive holds (`drive_holds`, #166) whose time has passed; the lead itself stays. Each run logs one line, `{"job":"purge-leads","deleted":<count>,"holds":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
 
 Check it once after the first deploy, then when Workers Logs show a failed run: Workers Logs should show one `purge-leads` line a day. To run it by hand, or if the cron ever stops, the same deletion as SQL (photos first, see "Erasing one person's photos"):
 
@@ -24,7 +24,7 @@ When someone asks for their data to be deleted, find their rows by the email or 
 SELECT id, type, datetime(created_at / 1000, 'unixepoch') AS created FROM leads WHERE email = 'their@email.example' OR phone = '083 000 0000';
 ```
 
-Check the rows are theirs. If any is a trade-in with photos, delete the photos first ("Erasing one person's photos" below). Then delete the rows by id:
+Check the rows are theirs. If any is a trade-in or find-a-car request with photos, delete the photos first ("Erasing one person's photos" below). Then delete the rows by id:
 
 ```sql
 DELETE FROM leads WHERE id IN ('<id>', '<id>');
@@ -32,20 +32,21 @@ DELETE FROM leads WHERE id IN ('<id>', '<id>');
 
 Phone numbers are stored as typed, so try the common spellings (with and without spaces, with `+353`). Delete the dealer's copies of the lead emails too, and reply to say it is done.
 
-## Trade-in photos
+## Trade-in and find-a-car photos
 
-Photos sent with a trade-in request are stored in the private R2 bucket `carright-lead-photos` (EU jurisdiction, no public access, no custom domain) under `trade-in/{lead id}/`. The lead row keeps their keys in `photo_keys`. Run the commands below from the repo with a logged-in wrangler (`npx wrangler login`). The flags are for wrangler 4.157; check `--help` if a newer wrangler refuses them.
+Photos sent with a trade-in or find-a-car request are stored in the private R2 bucket `carright-lead-photos` (EU jurisdiction, no public access, no custom domain) under `trade-in/{lead id}/` or `sourcing/{lead id}/`. The lead row keeps their keys in `photo_keys`. Run the commands below from the repo with a logged-in wrangler (`npx wrangler login`). The flags are for wrangler 4.157; check `--help` if a newer wrangler refuses them.
 
 ### Setting up the bucket (once)
 
 ```sh
 npx wrangler r2 bucket create carright-lead-photos --jurisdiction eu
 npx wrangler r2 bucket lifecycle add carright-lead-photos delete-trade-in-photos trade-in/ --expire-days 365 --jurisdiction eu
+npx wrangler r2 bucket lifecycle add carright-lead-photos delete-sourcing-photos sourcing/ --expire-days 365 --jurisdiction eu
 npx wrangler r2 bucket lifecycle list carright-lead-photos --jurisdiction eu
 node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64url'))" | npx wrangler secret put PHOTO_LINK_SECRET
 ```
 
-The lifecycle rule deletes every object under `trade-in/` 365 days after upload. It is a backstop: the automatic purge already deletes the photos with their lead. The list command must show it. If the rule cannot be set on the EU bucket, the purge still covers every photo that has a lead row.
+The lifecycle rules delete every object under `trade-in/` and `sourcing/` 365 days after upload. They are a backstop: the automatic purge already deletes the photos with their lead. The list command must show both. If a rule cannot be set on the EU bucket, the purge still covers every photo that has a lead row.
 
 ### Erasing one person's photos
 
@@ -81,7 +82,7 @@ The admin inbox (#20) replaces this with fresh links.
 
 - Test drive holds (car and time, no personal data): the dealer's signed "Free this slot" link in the request email, or the daily purge once the time has passed. A hold never deletes its lead.
 - Lead rows and their photos: the daily purge (`worker.mjs`), once a lead is older than `LEAD_RETENTION_MONTHS` (12 months).
-- Trade-in photos with no lead row (an upload whose insert failed and whose cleanup also failed): the R2 lifecycle rule on `trade-in/`, 365 days after upload. If the dealer changes `LEAD_RETENTION_MONTHS`, change the lifecycle rule's days in the same PR.
+- Trade-in or find-a-car photos with no lead row (an upload whose insert failed and whose cleanup also failed, logged as `cleanup_failed`): the R2 lifecycle rules on `trade-in/` and `sourcing/`, 365 days after upload. If the dealer changes `LEAD_RETENTION_MONTHS`, change both rules' days in the same PR.
 
 ## Leads that were not emailed
 

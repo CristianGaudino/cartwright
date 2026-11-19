@@ -97,9 +97,13 @@ export interface StockResult {
   pageCount: number;
   facets: Facets;
 }
+// A car's slug: make-model-year-id. Make and body slugs never end in digits, so this never matches a landing page.
+export const CAR_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*-\d+$/;
 // Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
 export const SOLD_VISIBLE_DAYS = 30;
 export const isSold = (car: Pick<Car, "soldAt">) => car.soldAt !== undefined;
+// Sold, with the sale date inside the period. now is epoch ms.
+export const inSoldWindow = (car: Pick<Car, "soldAt">, now: number) => car.soldAt !== undefined && Date.parse(car.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > now;
 
 // live: in stock or sold inside the period. gone: sold past the period (the URL answers 410). null: never known (404).
 export type Lookup = { state: "live"; car: Car } | { state: "gone"; make: string; makeSlug: string } | null;

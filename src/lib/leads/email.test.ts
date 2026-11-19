@@ -53,6 +53,11 @@ describe("buildLeadEmail", () => {
     expect(text).toContain("2026-11-06T10:00:00.000Z");
   });
 
+  it("puts the buyer's message last, so it cannot pass for a link the server wrote", () => {
+    const { text } = buildLeadEmail(row, { demo: false, photoPaths: ["/lead-photos/x"], slotPath: "/test-drive-slot/x" });
+    expect(text.endsWith("Message:\nSENTINEL_MESSAGE\nsecond line")).toBe(true);
+  });
+
   it("lists each trade-in photo as an absolute signed link, and no photo lines without photos", () => {
     const paths = ["/lead-photos/trade-in/x/1.jpg?exp=1&sig=a", "/lead-photos/trade-in/x/2.png?exp=1&sig=b"];
     const { text } = buildLeadEmail({ ...row, type: "trade_in" }, { demo: false, photoPaths: paths });

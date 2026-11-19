@@ -4,14 +4,14 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { FINANCE } from "../src/lib/finance/finance.config";
 import { quote } from "../src/lib/finance/payment";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { choose } from "./combo";
 import { stubTurnstile } from "./turnstile";
 
 type Demo = { slug: string; make: string; model: string; variant?: string; priceEur: number; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
-const sold = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const sold = cars.find((c) => inSoldWindow(c, Date.now()));
 const price = (n: number) => new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 
 // A keystroke before React attaches does nothing.

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
+import { ID } from "@/lib/saved/ids";
 import { PRICE_STOPS } from "@/lib/stock/types";
 import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, DRIVE_PHONE_ERROR, driveDays, driveTimes, dublinMs, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
@@ -37,7 +38,7 @@ const general = {
   message: given(z.string({ error: "Tell us how we can help." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
 };
 
-const carId = z.string().regex(/^\d{1,12}$/);
+const carId = z.string().regex(ID);
 
 const carText = {
   make: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),

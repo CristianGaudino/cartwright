@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { itemListJsonLd, landingFacts, landingFilter, landingIntro, landingMetadata, landingName, landingPath } from "./landing";
 import type { Landing } from "./landing";
-import { carJsonLd } from "./seo";
+import { SITE_URL } from "@/lib/site";
 import type { Car } from "./types";
 
 const car = (id: string, o: Partial<Car> = {}): Car => ({
@@ -98,12 +98,12 @@ describe("landingMetadata", () => {
 });
 
 describe("itemListJsonLd", () => {
-  it("is an ItemList of the cars' Product plus Car records, positioned from 1", () => {
+  it("is an ItemList of the cars' page URLs, positioned from 1", () => {
     const ld = itemListJsonLd(three.slice(0, 2));
     expect(ld["@type"]).toBe("ItemList");
     expect(ld.itemListElement).toEqual([
-      { "@type": "ListItem", position: 1, item: carJsonLd(three[0]) },
-      { "@type": "ListItem", position: 2, item: carJsonLd(three[1]) },
+      { "@type": "ListItem", position: 1, url: `${SITE_URL}/used-cars/${three[0].slug}` },
+      { "@type": "ListItem", position: 2, url: `${SITE_URL}/used-cars/${three[1].slug}` },
     ]);
   });
 });

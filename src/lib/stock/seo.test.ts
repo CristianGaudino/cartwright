@@ -89,6 +89,7 @@ describe("carJsonLd", () => {
   it("leaves out optional Vehicle fields the car does not have", () => {
     const j = ld({ ...car, mileageKm: undefined, fuel: undefined, gearbox: undefined, engineLitres: undefined });
     for (const k of ["mileageFromOdometer", "fuelType", "vehicleTransmission", "bodyType", "numberOfDoors", "vehicleSeatingCapacity", "numberOfPreviousOwners", "color", "vehicleEngine"]) expect(j).not.toHaveProperty(k);
+    expect(ld({ ...car, engineLitres: 0 })).not.toHaveProperty("vehicleEngine");
   });
 
   it("is SoldOut with no price for a sold car, and never carries the sale date", () => {
