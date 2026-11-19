@@ -244,6 +244,7 @@ export function LeadForm({
       onSubmit={onSubmit}
       // With no submit button on a step, Enter in a field would do nothing at all: it moves to the next step instead.
       onKeyDown={(e) => {
+        if (e.defaultPrevented) return; // a picker already took this Enter to choose an option
         if (!last && e.key === "Enter" && e.target instanceof HTMLInputElement && e.target.type !== "file" && e.target.type !== "checkbox") {
           e.preventDefault();
           next();

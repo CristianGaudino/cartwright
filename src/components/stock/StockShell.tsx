@@ -37,11 +37,11 @@ export function useStock(): Stock {
 }
 
 const SORT_LABELS: Record<SortKey, string> = {
-  newest: "Newest listed",
-  "price-asc": "Price: low to high",
-  "price-desc": "Price: high to low",
-  "year-desc": "Year: newest first",
-  "km-asc": "Mileage: lowest first",
+  newest: "Newest Listed",
+  "price-asc": "Price: Low to High",
+  "price-desc": "Price: High to Low",
+  "year-desc": "Year: Newest First",
+  "km-asc": "Mileage: Lowest First",
 };
 
 function SortControl({ className }: { className: string }) {
@@ -191,7 +191,7 @@ export function EmptyState() {
     );
   }
   return (
-    <StateBlock title="No cars match these filters" text="Try removing a filter.">
+    <StateBlock title="No Cars Match These Filters" text="Try removing a filter.">
       <Link href={find} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>

@@ -253,7 +253,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
           onChange={(e) => navigate({ ...query, sold: e.target.checked ? "include" : undefined, page: 1 })}
           className="h-5 w-5 shrink-0 accent-accent"
         />
-        <span className="min-w-0 flex-1">Include sold cars</span>
+        <span className="min-w-0 flex-1">Include Sold Cars</span>
       </label>
     </div>
   );

@@ -126,7 +126,7 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await expect(d.getByLabel("Name")).toHaveValue("Kept Name");
   await expect(d.getByRole("button", { name: "Send enquiry" })).toBeEnabled();
 
-  const privacy = d.getByRole("link", { name: /Privacy policy/ });
+  const privacy = d.getByRole("link", { name: /Privacy Policy/ });
   await expect(privacy).toHaveAttribute("href", "/privacy");
   await expect(privacy).toHaveAttribute("target", "_blank");
 });

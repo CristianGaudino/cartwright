@@ -25,7 +25,7 @@ export function ConsentRow({ id, name, value, onChange, error }: FieldBinding) {
         <label htmlFor={id} className="required-lead text-meta">
           {CONSENT.text}{" "}
           <a href="/privacy" target="_blank" rel="noopener" className="underline">
-            Privacy policy<span className="sr-only"> (opens in a new tab)</span>
+            Privacy Policy<span className="sr-only"> (opens in a new tab)</span>
           </a>
         </label>
       </div>

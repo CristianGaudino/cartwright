@@ -30,7 +30,19 @@ export function HomeSearch({ makes, bodies, models }: Props) {
 
   return (
     <div className={`${card} shadow-lift`}>
-      <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline sm:px-2">
+      {/* The ARIA tabs pattern: one tab in the Tab order, the arrow keys move between them and show their panel. */}
+      <div
+        role="tablist"
+        aria-label="How to find a car"
+        className="flex border-b border-hairline sm:px-2"
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+          e.preventDefault();
+          const t = tabName === "search" ? "find" : "search"; // two tabs: either arrow goes to the other
+          setTab(t);
+          document.getElementById(`${id}-tab-${t}`)?.focus();
+        }}
+      >
         {(["search", "find"] as const).map((t) => (
           <button
             key={t}
@@ -38,6 +50,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             role="tab"
             id={`${id}-tab-${t}`}
             aria-selected={tabName === t}
+            tabIndex={tabName === t ? 0 : -1}
             aria-controls={`${id}-panel-${t}`}
             onClick={() => setTab(t)}
             className={`${tab} ${tabName === t ? `text-text ${bar}` : "text-text-2 hover:text-text"}`}
