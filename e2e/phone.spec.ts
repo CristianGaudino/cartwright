@@ -43,6 +43,10 @@ test("a code typed one key at a time switches the country once it is whole", asy
   await expect(form.locator('input[type="hidden"][name$="phone"]')).toHaveValue("+44 7700900123");
 });
 
+test("a number pasted with 00 in front of its code is read as that code", async ({ page }) => {
+  expect(await sendPhone(page, "GB", "00353871234567")).toBe("+353 871234567");
+});
+
 test("a stray + before a local number is dropped, not sent as a number nobody can ring", async ({ page }) => {
   expect(await sendPhone(page, "IE", "+0871234567")).toBe("+353 871234567");
 });

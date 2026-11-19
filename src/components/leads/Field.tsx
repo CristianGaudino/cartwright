@@ -179,7 +179,7 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
           onChange={(e) => {
             // A number typed or pasted with its own code ("+353 87…" while PL is picked) switches the country. A code still being typed
             // ("+3") is kept as it is; any other "+" (a stray one before a local number) is dropped and the number read under the country picked.
-            const raw = e.target.value.trim();
+            const raw = e.target.value.trim().replace(/^00/, "+"); // "00353…" is how much of Europe writes +353
             const pasted = raw.startsWith("+") ? BY_DIAL.find((x) => raw.startsWith(x.dial)) : undefined;
             if (raw.startsWith("+") && !pasted && BY_DIAL.some((x) => x.dial.startsWith(raw))) return onChange(raw);
             const c = pasted ?? country;
