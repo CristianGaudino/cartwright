@@ -37,8 +37,8 @@ export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town,
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
 // schema.org addressRegion: the bare region name, as its own example ("California") has it.
 export const DEALER_REGION = DEALER_ADDRESS.county.replace(/^Co\. /, "");
-// Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed. The test drive slots run hourly from each opening time, so
-// changing one shifts that day's grid: clear the future drive_holds first, or an old hold can sit 30 minutes from a new slot.
+// Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed. The test drive slots run hourly from an hour after each opening
+// time, so changing one shifts that day's grid: clear the future drive_holds first, or an old hold can sit 30 minutes from a new slot.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
   { day: "Monday", opens: "09:30", closes: "18:00" },
   { day: "Tuesday", opens: "09:30", closes: "18:00" },

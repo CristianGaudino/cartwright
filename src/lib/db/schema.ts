@@ -37,14 +37,23 @@ export const leads = sqliteTable(
 );
 
 // A test drive request holds its car and start time (#166). The unique index is what stops two requests for one car and time, even at the
-// same moment. No personal data here: the lead id points at the person. Deleted by the dealer's "Free this slot" link, or by the daily
-// purge once the time has passed; the lead itself stays.
+// same moment. phone_key and email_key are the buyer's phone and email normalised (phoneKey and emailKey in leads/constants.ts), kept only to
+// cap requests per person: one pending per car (the phone and email unique indexes, so two at once can't both get in; SQLite lets NULLs
+// repeat, so a hold with no email blocks nothing) and a few across cars. They go with the hold. Deleted by the dealer's "Free this slot"
+// link, or by the daily purge once the time has passed; the lead itself stays. Both null on holds taken before they existed.
 export const driveHolds = sqliteTable(
   "drive_holds",
   {
     leadId: text("lead_id").primaryKey(),
     carId: text("car_id").notNull(),
     startsAt: integer("starts_at", { mode: "timestamp_ms" }).notNull(),
+    phoneKey: text("phone_key"),
+    emailKey: text("email_key"),
   },
-  (t) => [uniqueIndex("drive_holds_car_time_unique").on(t.carId, t.startsAt)],
+  // phone or email first, so the same indexes serve the per-person count
+  (t) => [
+    uniqueIndex("drive_holds_car_time_unique").on(t.carId, t.startsAt),
+    uniqueIndex("drive_holds_phone_car_unique").on(t.phoneKey, t.carId),
+    uniqueIndex("drive_holds_email_car_unique").on(t.emailKey, t.carId),
+  ],
 );

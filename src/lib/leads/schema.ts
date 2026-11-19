@@ -2,7 +2,7 @@ import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { ID } from "@/lib/saved/ids";
 import { PRICE_STOPS } from "@/lib/stock/types";
-import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, DRIVE_PHONE_ERROR, driveDays, driveTimes, dublinMs, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
+import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, DRIVE_NOTICE_ERROR, DRIVE_PHONE_ERROR, TEST_DRIVE, driveTimes, dublinMs, isDriveDay, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -98,16 +98,17 @@ const finance = {
   employment: given(z.enum(Object.keys(EMPLOYMENT) as [keyof typeof EMPLOYMENT], { error: "Choose an employment status." })),
 };
 
-// A test drive request (#166): the car, a day and a time on the slot grid, and a phone, since the dealer calls to confirm. The day is
-// checked against yesterday's list too, so a form opened before midnight still sends its "tomorrow"; the time must not have passed.
-const DAY_MS = 86_400_000;
+// A test drive request (#166): the car, a day and a time on the slot grid, and a phone, since the dealer calls to confirm. Any open day from
+// today on is checked, not the form's list, so a form opened before midnight still sends its day; the time must give an hour's notice.
 const testDrive = {
   carId,
   phone: given(phone(DRIVE_PHONE_ERROR)),
-  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays().includes(v) || driveDays(new Date(Date.now() - DAY_MS)).includes(v), BAD_DRIVE_DAY)),
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => isDriveDay(v), BAD_DRIVE_DAY)),
   driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
 };
-const onTheGrid = (d: { driveDate?: string; driveTime?: string }) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? "") && dublinMs(d.driveDate!, d.driveTime!) > Date.now();
+type Slot = { driveDate?: string; driveTime?: string };
+const onTheGrid = (d: Slot) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? "");
+const withNotice = (d: Slot) => !onTheGrid(d) || dublinMs(d.driveDate!, d.driveTime!) >= Date.now() + TEST_DRIVE.noticeMs; // one message at a time
 
 export const leadSchema = z
   .discriminatedUnion("type", [
@@ -121,7 +122,8 @@ export const leadSchema = z
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
     z
       .object({ type: z.literal("test_drive"), ...contact, ...testDrive })
-      .refine(onTheGrid, { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
+      .refine(onTheGrid, { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null })
+      .refine(withNotice, { path: ["driveTime"], message: DRIVE_NOTICE_ERROR, when: (p) => typeof p.value === "object" && p.value !== null }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {

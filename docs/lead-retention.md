@@ -32,6 +32,12 @@ DELETE FROM leads WHERE id IN ('<id>', '<id>');
 
 Phone numbers are stored as typed, so try the common spellings (with and without spaces, with `+353`). Delete the dealer's copies of the lead emails too, and reply to say it is done.
 
+A pending test drive also keeps their phone and email keys in `drive_holds` (see "Test drive holds" below). Delete their holds with the leads:
+
+```sql
+DELETE FROM drive_holds WHERE lead_id IN ('<id>', '<id>');
+```
+
 ## Trade-in and find-a-car photos
 
 Photos sent with a trade-in or find-a-car request are stored in the private R2 bucket `carright-lead-photos` (EU jurisdiction, no public access, no custom domain) under `trade-in/{lead id}/` or `sourcing/{lead id}/`. The lead row keeps their keys in `photo_keys`. Run the commands below from the repo with a logged-in wrangler (`npx wrangler login`). The flags are for wrangler 4.157; check `--help` if a newer wrangler refuses them.
@@ -78,9 +84,13 @@ npx wrangler r2 object get "carright-lead-photos/<key>" --jurisdiction eu --remo
 
 The admin inbox (#20) replaces this with fresh links.
 
+## Test drive holds
+
+A test drive request holds its car and time in `drive_holds` (#166) until the dealer frees it or the time passes. The hold also keeps a phone key and, when the buyer gave one, an email key: the phone number as digits with its country code (`phoneKey` in `src/lib/leads/constants.ts`, so `087 123 4567` and `+353 87 123 4567` are both `353871234567`) and the email trimmed and lowercased (`emailKey`). They are there only to limit requests per person, where the same phone or the same email counts as the same person: one pending request per car (unique indexes on phone key and car, and on email key and car) and at most 3 in all. They are never shown or logged, and they go with their hold. Holds taken before the keys existed have none.
+
 ## What deletes what
 
-- Test drive holds (car and time, no personal data): the dealer's signed "Free this slot" link in the request email, or the daily purge once the time has passed. A hold never deletes its lead.
+- Test drive holds (car, time, phone and email keys): the dealer's signed "Free this slot" link in the request email, or the daily purge once the time has passed. A hold never deletes its lead.
 - Lead rows and their photos: the daily purge (`worker.mjs`), once a lead is older than `LEAD_RETENTION_MONTHS` (12 months).
 - Trade-in or find-a-car photos with no lead row (an upload whose insert failed and whose cleanup also failed, logged as `cleanup_failed`): the R2 lifecycle rules on `trade-in/` and `sourcing/`, 365 days after upload. If the dealer changes `LEAD_RETENTION_MONTHS`, change both rules' days in the same PR.
 

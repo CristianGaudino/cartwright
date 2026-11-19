@@ -5,18 +5,18 @@ import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
-import { CONSENT, dublinMs, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
+import { CONSENT, dublinMs, emailKey, phoneKey, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, TEST_DRIVE, photoCountError, photoError } from "./constants";
 import { signPhotoPath, signSlotPath, sniffImage } from "./photos";
 import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "release_failed" | "cleanup_failed" | "error";
+export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "again" | "full" | "release_failed" | "cleanup_failed" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
-  | { status: "failed"; kind: "captcha" | "rate" | "gone" | "taken" | "server" };
+  | { status: "failed"; kind: "captcha" | "rate" | "gone" | "taken" | "again" | "full" | "server" };
 
 export interface LeadRow {
   id: string;
@@ -43,9 +43,13 @@ export interface LeadStore {
   insert(row: LeadRow): Promise<boolean>; // false when the clientRef is already stored
   markNotified(id: string): Promise<void>;
 }
-// Test drive holds (#166): one row per request, unique on car and start time (drive_holds).
+// Test drive holds (#166): one row per request, unique on car and start time, on phone key and car, and on email key and car (drive_holds).
+// A person is the same phone or, when both have one, the same email.
+export type Asker = { phoneKey: string; emailKey: string | null };
 export interface HoldStore {
-  take(leadId: string, carId: string, startsAt: Date): Promise<boolean>; // false when that car and time are already held
+  // "taken" when that car and time are already held, "again" when this person already has a pending hold on this car
+  take(leadId: string, carId: string, startsAt: Date, who: Asker): Promise<"ok" | "taken" | "again">;
+  pending(who: Asker, from: Date): Promise<string[]>; // the cars this person holds from `from` on
   free(leadId: string): Promise<void>;
   get(leadId: string): Promise<{ carId: string; startsAt: Date } | null>;
   times(carId: string, from: Date): Promise<Date[]>; // held start times from `from` on, for the picker
@@ -166,12 +170,20 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     };
     leadId = row.id;
 
-    // A test drive holds its car and time before the lead is stored, so no lead is ever left without its hold; the unique index refuses a
-    // second request for the same car and time, even one sent at the same moment. Every failure after this frees the hold again.
+    // A test drive holds its car and time before the lead is stored, so no lead is ever left without its hold; the unique indexes refuse a
+    // second request for the same car and time, or from the same phone or email for the same car, even one sent at the same moment. Every
+    // failure after this frees the hold again; the refusals here took nothing, so they free nothing.
     const startsAt = input.type === "test_drive" ? new Date(dublinMs(input.driveDate, input.driveTime)) : undefined;
-    if (startsAt && !(await deps.holds.take(row.id, row.carId!, startsAt))) { // a test drive always has its car (snapshotCar)
-      logLead({ leadId, type: input.type, outcome: "taken" });
-      return { status: "failed", kind: "taken" };
+    if (startsAt) {
+      const who = { phoneKey: phoneKey(input.phone!), emailKey: emailKey(input.email) }; // a test drive always has a phone (schema)
+      const cars = await deps.holds.pending(who, new Date());
+      // shortcut: counted before the insert, so two requests at the same moment could make a fourth; the 5/min/IP limit and Turnstile keep
+      // that rare. Upgrade to a conditional insert if the dealer ever sees more than maxPending from one person.
+      const refused = cars.includes(row.carId!) ? "again" : cars.length >= TEST_DRIVE.maxPending ? "full" : await deps.holds.take(row.id, row.carId!, startsAt, who); // a test drive always has its car (snapshotCar)
+      if (refused !== "ok") {
+        logLead({ leadId, type: input.type, outcome: refused });
+        return { status: "failed", kind: refused };
+      }
     }
     const release = async () => {
       if (startsAt) await deps.holds.free(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "release_failed" })); // the time stays held until it passes

@@ -256,17 +256,53 @@ describe("trade-in photos on SQLite (D-13)", () => {
 describe("test drive holds on SQLite (#166)", () => {
   beforeEach(() => vi.useFakeTimers({ now: new Date("2026-11-20T10:00:00Z"), toFake: ["Date"] }));
   afterEach(() => vi.useRealTimers());
-  const drive = () => enquiryForm({ type: "test_drive", phone: "087 123 4567", driveDate: "2026-11-24", driveTime: "10:30" });
+  const drive = (fields: Record<string, string> = {}) => enquiryForm({ type: "test_drive", phone: "087 123 4567", driveDate: "2026-11-24", driveTime: "10:30", ...fields });
 
   it("lets exactly one of two requests for the same car and time in, even at the same moment", async () => {
     const { deps: d, mail } = deps();
-    const results = await Promise.all([processLead(drive(), ctx, d), processLead(drive(), ctx, d)]);
+    const results = await Promise.all([processLead(drive(), ctx, d), processLead(drive({ phone: "+353 86 000 0000", email: "other@example.com" }), ctx, d)]);
     expect(results).toContainEqual(OK);
     expect(results).toContainEqual({ status: "failed", kind: "taken" });
     expect(await rows()).toHaveLength(1);
     expect(mail).toHaveBeenCalledTimes(1);
     const [lead] = await rows();
     expect(await createDrizzleHolds(getDb()).get(lead.id)).toEqual({ carId: live.id, startsAt: new Date("2026-11-24T10:30:00Z") });
+  });
+
+  it("lets exactly one of two requests from the same phone for the same car in, even at the same moment, and keeps nothing of the other", async () => {
+    const { deps: d, mail } = deps();
+    // Should both read pending() before either inserts, only the unique (phone, car) index stops the second: take() alone shows it does.
+    const results = await Promise.all([processLead(drive(), ctx, d), processLead(drive({ phone: "+353 87 123 4567", email: "other@example.com", driveTime: "14:30" }), ctx, d)]);
+    expect(results).toContainEqual(OK);
+    expect(results).toContainEqual({ status: "failed", kind: "again" });
+    expect(await rows()).toHaveLength(1);
+    expect(mail).toHaveBeenCalledTimes(1);
+    const holds = createDrizzleHolds(getDb());
+    const phone = { phoneKey: "353871234567", emailKey: null };
+    expect(await holds.pending(phone, new Date())).toEqual([live.id]);
+    expect(await holds.take(crypto.randomUUID(), live.id, new Date("2026-11-25T15:30:00Z"), phone)).toBe("again");
+    expect(await holds.take(crypto.randomUUID(), live.id, new Date("2026-11-25T15:30:00Z"), { phoneKey: "353860000000", emailKey: null })).toBe("ok");
+  });
+
+  it("lets exactly one of two requests from the same email for the same car in, even at the same moment", async () => {
+    const { deps: d } = deps();
+    const results = await Promise.all([processLead(drive(), ctx, d), processLead(drive({ phone: "+353 86 000 0000", email: "BUYER@example.com", driveTime: "14:30" }), ctx, d)]);
+    expect(results).toContainEqual(OK);
+    expect(results).toContainEqual({ status: "failed", kind: "again" });
+    expect(await rows()).toHaveLength(1);
+    // The email index alone refuses it (the phone differs), and holds with no email never block each other.
+    const holds = createDrizzleHolds(getDb());
+    expect(await holds.take(crypto.randomUUID(), live.id, new Date("2026-11-25T15:30:00Z"), { phoneKey: "353850000000", emailKey: "buyer@example.com" })).toBe("again");
+    expect(await holds.take(crypto.randomUUID(), live.id, new Date("2026-11-25T16:30:00Z"), { phoneKey: "353840000000", emailKey: null })).toBe("ok");
+    expect(await holds.take(crypto.randomUUID(), live.id, new Date("2026-11-26T10:30:00Z"), { phoneKey: "353830000000", emailKey: null })).toBe("ok");
+  });
+
+  it("lets a phone ask for the same car again once its time has passed, before the purge", async () => {
+    const { deps: d } = deps();
+    expect(await processLead(drive(), ctx, d)).toEqual(OK);
+    vi.setSystemTime(new Date("2026-11-24T12:00:00Z")); // the 10:30 drive is over, its hold not yet purged
+    expect(await processLead(drive({ driveTime: "14:30" }), ctx, d)).toEqual(OK);
+    expect(await createDrizzleHolds(getDb()).pending({ phoneKey: "353871234567", emailKey: null }, new Date("2026-11-01"))).toEqual([live.id]); // the past hold made way
   });
 
   it("offers the time again once the hold is freed, and keeps the lead", async () => {
