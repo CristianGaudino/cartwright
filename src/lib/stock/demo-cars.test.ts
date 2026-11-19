@@ -146,8 +146,7 @@ describe("generated demo cars", () => {
       it("gives a coupe two doors and a saloon never five", () => {
         expect(cars.filter((c) => c.bodySlug === "coupe" && c.doors !== 2).map((c) => c.slug)).toEqual([]);
         expect(cars.filter((c) => c.bodySlug === "saloon" && c.doors === 5).map((c) => c.slug)).toEqual([]);
-        // The CLA "Coupé" is a four-door saloon, so only the bare word COUPE means a two-door.
-        expect(cars.filter((c) => has(c, /\bcoupe\b/i) && c.bodySlug !== "coupe").map((c) => c.slug)).toEqual([]);
+        // Not "the word COUPE in a title means a coupe": the CLA "Coupé" and the E350 "COUPE" (photos: a W212 saloon) are four-door saloons.
       });
 
       it("corrects only built cars, and every correction is in the data", () => {

@@ -59,7 +59,7 @@ export const CORRECTIONS = {
   4551314: { doors: 4 }, // a saloon (feed and photos) listed with 5 doors
   4560180: { bodyType: "SUV" }, // 3008 listed as MPV
   4574696: { bodyType: "SUV", gearbox: "automatic" }, // Tucson listed as MPV, and Manual with "DCT" in its title
-  4578723: { bodyType: "Coupe", doors: 2 }, // title says "COUPE", feed says a 4-door Saloon
+  // Not 4578723: its title says "COUPE", but its photos are a 4-door W212 saloon, so the feed's Saloon stands.
 };
 
 const soldDate = (id, today) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
