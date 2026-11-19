@@ -28,6 +28,12 @@ describe("freeDriveSlot", () => {
     await freeDriveSlot(form({ lead, exp, sig: searchParams.get("sig")! }));
     expect(holds.free).toHaveBeenCalledExactlyOnceWith(lead);
   });
+
+  it("goes back to the page when the store fails, rather than throwing", async () => {
+    const { searchParams } = new URL(await signSlotPath(lead, new Date("2026-11-24T10:30:00Z"), "secret"), "https://example.test");
+    holds.free.mockRejectedValueOnce(new Error("D1 down"));
+    await expect(freeDriveSlot(form({ lead, exp: searchParams.get("exp")!, sig: searchParams.get("sig")! }))).resolves.toBeUndefined();
+  });
 });
 
 describe("takenDriveTimes", () => {

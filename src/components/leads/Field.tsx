@@ -176,7 +176,16 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
           aria-invalid={error || invalid ? true : undefined}
           aria-required={required || undefined}
           aria-describedby={[errorId, describedBy].filter(Boolean).join(" ") || undefined}
-          onChange={(e) => set(country, tidy(e.target.value, country.dial))}
+          onChange={(e) => {
+            // A number pasted with its own code ("+353 87…" while PL is picked) switches the country; an unknown code is kept as typed,
+            // so the server refuses it instead of the dealer getting it under the wrong country.
+            const raw = e.target.value.trim();
+            const pasted = raw.startsWith("+") ? BY_DIAL.find((x) => raw.startsWith(x.dial)) : undefined;
+            if (raw.startsWith("+") && !pasted) return onChange(raw);
+            const c = pasted ?? country;
+            if (c !== country) setCountry(c);
+            set(c, tidy(raw, c.dial));
+          }}
           className={`${control} h-12 min-w-0 flex-1 px-4`}
         />
       </div>
@@ -184,6 +193,9 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
     </div>
   );
 }
+
+// Longest code first, so +353 is never read as a shorter code that starts the same way.
+const BY_DIAL = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
 
 // What was typed or pasted, as the number alone: no code (a pasted +353 is dropped), only digits, spaces, brackets and hyphens, and no leading 0.
 function tidy(raw: string, dial: string) {

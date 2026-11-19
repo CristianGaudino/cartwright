@@ -22,6 +22,7 @@ export async function takenDriveTimes(carId: unknown): Promise<string[]> {
 export async function freeDriveSlot(fd: FormData): Promise<void> {
   const [lead, exp, sig] = ["lead", "exp", "sig"].map((k) => String(fd.get(k) ?? ""));
   const deps = getDeps();
-  if (await verifySlotLink(lead, exp, sig, deps.photoLinkSecret())) await deps.holds.free(lead);
+  // A database hiccup lands back on the page, which still offers the button, rather than an error page.
+  if (await verifySlotLink(lead, exp, sig, deps.photoLinkSecret())) await deps.holds.free(lead).catch(() => {});
   redirect(`/test-drive-slot/${encodeURIComponent(lead)}?${new URLSearchParams({ exp, sig })}`);
 }
