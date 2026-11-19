@@ -43,7 +43,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
               </li>
             ))}
           </ul>
-          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent">
+          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent-text">
             View Car
             <ArrowRightIcon className="size-4" />
           </span>

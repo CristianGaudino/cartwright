@@ -98,10 +98,10 @@ export function AutoCarousel({
     };
   }, [reduced]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: "smooth" });
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: reduced ? "instant" : "smooth" });
   const goTo = (i: number) => {
     const el = scroller.current;
-    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: "smooth" });
+    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: reduced ? "instant" : "smooth" });
   };
 
   return (
@@ -135,7 +135,7 @@ export function AutoCarousel({
           <div className={`items-center ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
             {Array.from({ length: state.pages }, (_, i) => (
               <button key={i} type="button" aria-label={`Go to page ${i + 1} of ${state.pages}`} aria-current={i === state.page ? "true" : undefined} onClick={() => goTo(i)} className="group/dot flex size-6 items-center justify-center">
-                <span className={`rounded-full transition-all duration-200 ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
+                <span className={`rounded-full transition-all duration-200 motion-reduce:transition-none ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-hairline group-hover/dot:bg-text-2"}`} />
               </button>
             ))}
           </div>

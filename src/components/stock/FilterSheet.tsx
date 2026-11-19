@@ -39,7 +39,7 @@ export function FilterSheet() {
           setMounted(true);
           dialog.current?.showModal();
         }}
-        className={`inline-flex h-11 items-center gap-2 rounded-control px-2 text-meta font-semibold ${press}`}
+        className={`inline-flex h-12 items-center gap-2 rounded-control border border-control bg-card px-3 text-body font-semibold ${press}`}
       >
         <SlidersIcon className="h-6 w-6" />
         Filters

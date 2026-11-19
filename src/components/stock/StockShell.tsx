@@ -160,7 +160,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 -mx-4 flex h-14 items-center justify-between gap-3 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <FilterSheet />
               <SortControl className="flex" />

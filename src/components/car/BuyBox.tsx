@@ -76,7 +76,7 @@ export function BuyBox({ car }: { car: Car }) {
       )}
       {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
-          <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
+          <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent-text" />
           <div className="flex min-w-0 flex-col gap-1">
             <p className="text-body font-semibold">3 Month Warranty Included</p>
             <p className="text-meta text-text-2">{WARRANTY.text}</p>
