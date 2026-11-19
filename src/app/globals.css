@@ -570,3 +570,14 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   outline: 2px solid var(--color-text);
   outline-offset: 2px;
 }
+
+/* A car page's call bar (LeadActions) below 1024px: room for it under the footer, and while it shows, the toast and compare pill rise
+   above it instead of covering its buttons. Outside any layer, so it beats the stack's own bottom utility. */
+@media (max-width: 1023.98px) {
+  body:has([data-sticky-actions]) {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  body:has([data-sticky-actions]:not(.invisible)) [data-bottom-stack] {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}

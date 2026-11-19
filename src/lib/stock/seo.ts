@@ -14,7 +14,7 @@ export function carDescription(car: Car): string {
 // shortcut: the images are pre-generated for the demo by `npm run stock:og`; a live provider adds cars without a script run,
 // so switch to the car's first photo or a request-time image when one lands (#16).
 export function carMetadata(car: Car): Metadata {
-  const title = `${car.year} ${carTitle(car)} for sale`;
+  const title = `${car.year} ${carTitle(car)}${isSold(car) ? "" : " for sale"}`;
   const description = carDescription(car);
   const path = `/used-cars/${car.slug}`;
   const images = [{ url: `/og/${car.id}.jpg`, width: 1200, height: 630, alt: carName(car) }];

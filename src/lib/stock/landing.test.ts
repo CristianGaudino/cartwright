@@ -49,13 +49,13 @@ describe("names, paths and filters", () => {
 describe("landingIntro", () => {
   it("make: live facts and the models in stock", () => {
     const withSix = [...three, car("4", { model: "Q5", priceEur: 30000 })];
-    expect(landingIntro(audi, landingFacts(three.slice(1)))).toBe("We have 2 used Audi in stock in Tralee, from €25,000 to €32,500. Models in stock: A4, A6.");
+    expect(landingIntro(audi, landingFacts(three.slice(1)))).toBe("We have 2 used Audi cars in stock in Tralee, from €25,000 to €32,500. Models in stock: A4, A6.");
     expect(landingIntro(audi, landingFacts(withSix))).toContain("Models in stock: A4, A6, Q5.");
   });
   it("one car, or equal prices, reads at the price", () => {
-    expect(landingIntro(audi, landingFacts([car("1")]))).toBe("We have 1 used Audi in stock in Tralee, at €18,950.");
+    expect(landingIntro(audi, landingFacts([car("1")]))).toBe("We have 1 used Audi car in stock in Tralee, at €18,950.");
     expect(landingIntro(audi, landingFacts([car("1"), car("2", { model: "A6" })]))).toBe(
-      "We have 2 used Audi in stock in Tralee, at €18,950. Models in stock: A4, A6.",
+      "We have 2 used Audi cars in stock in Tralee, at €18,950. Models in stock: A4, A6.",
     );
   });
   it("body: says car or cars and lists makes", () => {
@@ -65,9 +65,9 @@ describe("landingIntro", () => {
   });
   it("model: years, or one year", () => {
     expect(landingIntro(a4, landingFacts([car("1"), car("3", { year: 2021, priceEur: 20000 })]))).toBe(
-      "We have 2 used Audi A4 in stock in Tralee, from €18,950 to €20,000. Years: 2019 to 2021.",
+      "We have 2 used Audi A4 cars in stock in Tralee, from €18,950 to €20,000. Years: 2019 to 2021.",
     );
-    expect(landingIntro(a4, landingFacts([car("1")]))).toBe("We have 1 used Audi A4 in stock in Tralee, at €18,950. Year: 2019.");
+    expect(landingIntro(a4, landingFacts([car("1")]))).toBe("We have 1 used Audi A4 car in stock in Tralee, at €18,950. Year: 2019.");
   });
 });
 
@@ -82,7 +82,7 @@ describe("landingMetadata", () => {
   });
   it("with stock: description from the facts, canonical, indexable", () => {
     const m = landingMetadata(audi, landingFacts(three), "/used-cars/audi");
-    expect(m.description).toBe("3 used Audi in stock at Carright, Tralee, from €18,950 to €32,500. Models: A4, A6.");
+    expect(m.description).toBe("3 used Audi cars in stock at Carright, Tralee, from €18,950 to €32,500. Models: A4, A6.");
     expect(m.alternates?.canonical).toBe("/used-cars/audi");
     expect(m.robots).toBeUndefined();
   });

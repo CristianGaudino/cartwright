@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carMeta, carName, carTitle, countLabel, formatKm, formatPrice, keyFacts, specRows } from "./format";
+import { carMeta, carName, carTitle, cleanFeatures, countLabel, formatKm, formatPrice, keyFacts, plainText, specRows, withoutSelling } from "./format";
 import type { Car } from "./types";
 
 const audi: Car = {
@@ -70,8 +70,8 @@ describe("specRows", () => {
       { label: "Seats", value: "5" },
       { label: "Owners", value: "2" },
       { label: "NCT Expires", value: "Jul 2027" },
-      { label: "Max Speed", value: "126 mph" },
-      { label: "0 to 62 mph", value: "9.9 s" },
+      { label: "Max Speed", value: "203 km/h" },
+      { label: "0 to 100 km/h", value: "9.9 s" },
     ]);
     expect(specRows({ ...full, engineLitres: 1.5 }).find((r) => r.label === "Engine")?.value).toBe("1.5 L");
   });
@@ -81,6 +81,10 @@ describe("specRows", () => {
     expect(specRows(bare)).toEqual([{ label: "Year", value: "2020" }]);
     for (const r of specRows({ ...full, nctExpiry: "soon" })) expect(r.value).not.toMatch(/undefined|^$/);
     expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT Expires")).toBe(false);
+  });
+
+  it("has no Owners row for a car with no owners", () => {
+    expect(specRows({ ...full, owners: 0 }).some((r) => r.label === "Owners")).toBe(false);
   });
 
   it("never shows a road tax row", () => {
@@ -96,5 +100,62 @@ describe("keyFacts", () => {
   it("fills a missing slot from Body Type, Engine and Colour, at most 4", () => {
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined }).map((f) => f.label)).toEqual(["Year", "Transmission", "Body Type", "Engine"]);
     expect(keyFacts({ ...full, mileageKm: undefined, fuel: undefined, gearbox: undefined, bodyType: undefined, engineLitres: undefined }).map((f) => f.label)).toEqual(["Year", "Colour"]);
+  });
+});
+
+describe("dealer text", () => {
+  it("shows HTML as words", () => {
+    expect(plainText("<p>One owner&nbsp;&amp; full history.</p><p>Fully serviced<br/>NCT 2027</p>")).toBe("One owner & full history.\nFully serviced\nNCT 2027");
+  });
+
+  // The two demo descriptions as the feed sends them.
+  const common = `Finance Available - Trade-Ins Welcome - Nationwide Delivery
+
+All vehicles are fully serviced, come with a verified history check, and are prepared to the highest standard for your peace of mind. We offer tailored warranty packages, flexible finance options, and welcome part exchanges or trade-ins.
+
+Typical Features Include
+Bluetooth Connectivity - Automatic Lights & Wipers - ISOFIX Mounts
+
+Buy with confidence. Buy with Carright.`;
+  const lines = `Full Online Sales, Finance, Trade In Accepted- Buy & Deliver.
+
+1- 1 Live Video Walk through via Whatsapp etc.
+
+If you wish to purchase, we will do everything to facilitate!
+
+All or vehicles come with a full history check for peace of mind,
+
+Buy in confidence, buy with Carright,
+
+Bluetooth Phone Connectivity,
+Tailored Warranty,
+Fully Serviced,
+
+Part Exchange / Trade-In Accepted,
+
+Late viewings can be arranged,`;
+
+  it("takes the selling out of a sold car's text and keeps the facts", () => {
+    expect(withoutSelling(common)).toBe(`All vehicles are fully serviced, come with a verified history check, and are prepared to the highest standard for your peace of mind.
+
+Typical Features Include
+Bluetooth Connectivity - Automatic Lights & Wipers - ISOFIX Mounts`);
+    expect(withoutSelling(lines)).toBe(`All or vehicles come with a full history check for peace of mind,
+
+Bluetooth Phone Connectivity,
+Fully Serviced,`);
+    expect(withoutSelling("One owner from new.\nJust serviced.")).toBe("One owner from new.\nJust serviced.");
+  });
+});
+
+describe("cleanFeatures", () => {
+  it("drops dealer services and warranty lines", () => {
+    expect(cleanFeatures(["Bluetooth", "Finance Checked", "History Checked", "Trade in accepted", "3 to 12 Month Warranty", "12 Month Warranty", "Isofix"])).toEqual(["Bluetooth", "Isofix"]);
+  });
+
+  it("keeps one of each, the specific one where one names the other, in feed order", () => {
+    expect(
+      cleanFeatures(["Sunroof", "Electric handbrake", "Satellite Navigation", "Parking Sensors", "Panoramic Sunroof", "Electronic handbrake", "Navigation system", "Rear parking sensors", "Isofix", "isofix", "Cruise Control"]),
+    ).toEqual(["Electric handbrake", "Satellite Navigation", "Panoramic Sunroof", "Rear parking sensors", "Isofix", "Cruise Control"]);
   });
 });

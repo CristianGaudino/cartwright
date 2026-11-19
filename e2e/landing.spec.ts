@@ -38,7 +38,7 @@ test("a make page has its own heading, title, intro and cars", async ({ page }) 
   const res = await page.goto(`/used-cars/${topSlug}`);
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Used ${topMake}`);
-  await expect(page.getByText(`We have ${n} used ${topMake} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
+  await expect(page.getByText(`We have ${n} used ${topMake} car${n === 1 ? "" : "s"} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
   await expect(page).toHaveTitle(new RegExp(`^Used ${topMake} for sale in ${DEALER_ADDRESS.town}`));
   const links = page.locator("article h2 a");
   await expect(links).toHaveCount(Math.min(12, n));

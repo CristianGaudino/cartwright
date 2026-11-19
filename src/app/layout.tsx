@@ -34,7 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SiteFooter />
         {dev && <dev.Toggle mode={dev.mode} />}
         {/* One stack at the bottom of the screen: the toast above the compare pill. Both take their own pointer events. */}
-        <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
+        <div data-bottom-stack className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
           <Toaster />
           <CompareBar />
         </div>

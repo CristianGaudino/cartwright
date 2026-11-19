@@ -34,6 +34,10 @@ describe("carMetadata", () => {
     expect(m.openGraph).toMatchObject({ type: "website", url: "/used-cars/audi-a4-2019-101", title: m.title, description: m.description });
   });
 
+  it("drops for sale from a sold car's title", () => {
+    expect(carMetadata(sold).title).toBe("2019 Audi A4 2.0 TDI S line");
+  });
+
   it("points Open Graph at the car's generated image, sold or not, and asks for the large Twitter card", () => {
     for (const c of [car, sold]) {
       const m = carMetadata(c);
