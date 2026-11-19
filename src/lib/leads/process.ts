@@ -129,7 +129,9 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       return { status: "failed", kind: "captcha" };
     }
 
-    const car = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar);
+    const asked = await snapshotCar("carId" in input ? input.carId : undefined, deps.getCar);
+    // A valuation is a lead with or without a car of ours: one whose chosen car sold meanwhile is kept, with no car.
+    const car = asked ?? (input.type === "trade_in" ? await snapshotCar(undefined, deps.getCar) : null);
     if (!car) {
       logLead({ type: input.type, outcome: "invalid" });
       return { status: "failed", kind: "gone" }; // sold or removed since the buyer opened the form

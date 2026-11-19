@@ -249,11 +249,13 @@ describe("processLead bot checks (D-05)", () => {
     expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
   });
 
-  it("stores a trade-in from a car page against that car, and refuses a sold one", async () => {
+  it("stores a trade-in from a car page against that car, and keeps one whose car sold meanwhile, with no car", async () => {
     const { deps, rows } = fakeDeps();
     expect(await processLead(tradeIn(live.id), ctx, deps)).toEqual({ status: "ok" });
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: live.id, carSlug: live.slug });
-    expect(await processLead(tradeIn(sold.id), ctx, deps)).toEqual({ status: "failed", kind: "gone" });
+    expect(await processLead(tradeIn(sold.id), ctx, deps)).toEqual({ status: "ok" }); // six photos in, the valuation is never lost
+    expect(rows[1]).toMatchObject({ type: "trade_in" });
+    expect(rows[1].carId ?? null).toBeNull();
   });
 
   // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.
