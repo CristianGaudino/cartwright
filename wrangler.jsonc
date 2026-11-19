@@ -15,7 +15,8 @@
 	// Lead emails to the dealer (D-01). No "remote": CI's wrangler dev has no Cloudflare credentials, so it uses the local simulator.
 	"send_email": [{ "name": "EMAIL" }],
 	// Per-IP limit on lead submits (D-05), a second layer behind Turnstile: 5 per minute.
-	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
+	// Namespace 2001, not 1001: checkwork-demo uses 1001 in the same Cloudflare account, and a shared namespace shares the counters.
+	"ratelimits": [{ "name": "LEAD_LIMITER", "namespace_id": "2001", "simple": { "limit": 5, "period": 60 } }],
 	// Trade-in photos (D-13): private, EU jurisdiction, read only through the signed /lead-photos route. wrangler dev uses a local bucket.
 	"r2_buckets": [{ "binding": "LEAD_PHOTOS", "bucket_name": "carright-lead-photos", "jurisdiction": "eu" }],
 	// Leads (D-03): Cloudflare D1. Create it once with `npx wrangler d1 create carright --jurisdiction eu` and paste the id below

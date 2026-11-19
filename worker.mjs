@@ -12,8 +12,13 @@ const worker = {
   fetch: handler.fetch,
   // wrangler.jsonc "triggers". A failure throws, so Cloudflare marks the run failed and Workers Logs shows it.
   async scheduled(_controller, env) {
-    const deleted = await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS);
-    console.log(JSON.stringify({ job: "purge-leads", deleted })); // a count only, never a lead (D-08)
+    const job = "purge-leads";
+    try {
+      console.log(JSON.stringify({ job, deleted: await purgeOldLeads(drizzle(env.DB), env.LEAD_PHOTOS) })); // a count only, never a lead (D-08)
+    } catch {
+      console.error(JSON.stringify({ job, error: "failed" })); // never the error itself: a database error carries the values
+      throw new Error(`${job} failed`);
+    }
   },
 };
 export default worker;
