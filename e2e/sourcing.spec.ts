@@ -50,6 +50,34 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await expect(page.getByRole("link", { name: "Back to used cars" })).toHaveAttribute("href", "/used-cars");
 });
 
+test("a search with no cars fills in what Find a car accepts, and nothing else", async ({ page }) => {
+  await open(page, "/find-a-car?make=volkswagen&model=Golf&body=spaceship&budget=20000");
+  await expect(page.locator('input[name="make"]')).toHaveValue("Volkswagen");
+  await expect(page.getByLabel("Model")).toHaveValue("Golf");
+  await expect(page.locator('input[name="bodyType"]')).toHaveValue("");
+  await expect(page.getByRole("slider", { name: "Budget" })).toHaveValue(String(PRICE_STOPS.indexOf(20000)));
+});
+
+test("a reload keeps a half-filled form in this tab, never the contact details, and a send clears it", async ({ page }) => {
+  await open(page, "/contact");
+  await page.getByLabel("How can we help?").fill("Do you service Fords?");
+  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByLabel("Phone").fill("087 123 4567");
+  const kept = () => page.evaluate(() => Object.entries(sessionStorage).filter(([k]) => k.includes(":draft:")).map(([, v]) => v).join());
+  await expect.poll(kept).toContain("Do you service Fords?");
+  expect(await kept()).not.toContain("Test Buyer");
+  await page.reload();
+  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+  await expect(page.getByLabel("How can we help?")).toHaveValue("Do you service Fords?");
+  await expect(page.getByLabel("Name")).toHaveValue("");
+  await page.getByLabel("Name").fill("Test Buyer");
+  await page.getByLabel("Phone").fill("087 123 4567");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeFocused();
+  await expect.poll(kept).toBe("");
+});
+
 test("from 1024px the header links both form pages", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/used-cars");

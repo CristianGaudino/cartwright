@@ -63,7 +63,7 @@ const SERVER: LeadResult = { status: "failed", kind: "server" };
 const KEYS = ["type", "carId", "clientRef", "sourcePath", "name", "phone", "email", "message", "consent", ...Object.keys(DETAIL_LABELS)];
 
 // The one place car fields are set, for every lead type. The car always comes from the provider, never from the form (T-03-07).
-// No carId (sourcing, trade-in, finance from /finance): all four null. Unknown or sold car: null, so the lead is refused (Phase 2 D-05).
+// No carId (sourcing, general, trade-in or finance not from a car): all four null. Unknown or sold car: null, so the lead is refused (Phase 2 D-05).
 export async function snapshotCar(carId: string | undefined, getCar: Deps["getCar"]): Promise<CarSnapshot | null> {
   if (carId === undefined) return { carId: null, carSlug: null, carTitle: null, carPriceEur: null };
   const car = await getCar(carId);

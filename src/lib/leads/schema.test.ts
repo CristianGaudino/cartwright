@@ -92,7 +92,8 @@ describe("sourcing and general messages", () => {
 });
 
 describe("trade-in (LED-04, D-14)", () => {
-  const sell = { ...base, type: "trade_in", reg: "191-KY-1234", mileage: "120500" };
+  const { carId: id, ...noCar } = base;
+  const sell = { ...noCar, type: "trade_in", reg: "191-KY-1234", mileage: "120500" };
   const REG = ["Enter the registration as shown on the car."];
   const KM = ["Enter the mileage in km, numbers only."];
   const year = new Date().getUTCFullYear();
@@ -101,6 +102,12 @@ describe("trade-in (LED-04, D-14)", () => {
     const r = leadSchema.parse({ ...sell, reg: " 191-ky-1234 ", mileage: "120,500" });
     expect(r).toMatchObject({ reg: "191-KY-1234", mileage: 120500 });
     expect(r).not.toHaveProperty("carId");
+  });
+
+  it("takes the car it is against, from a car page, as finance does", () => {
+    expect(leadSchema.parse({ ...sell, carId: id })).toMatchObject({ carId: id });
+    expect(leadSchema.parse({ ...sell, carId: "" })).toMatchObject({ carId: undefined });
+    expect(errors({ ...sell, carId: "../1" }).carId).toBeDefined();
   });
 
   it.each(["", "  ", "191-KY-123456", "191/KY/1234", "<b>"])("refuses the registration %j", (reg) => {

@@ -6,7 +6,7 @@ export const SITE_SLUG = "carright";
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 export const DEALER_PHONE = "+353 83 133 3154"; // as published on cartwright.ie (083-1333154), written with the country code; confirm with the dealer
 // PLACEHOLDER until carright.ie forwards to the dealer (issue #54).
-export const DEALER_EMAIL = "hello@carright.ie";
+export const DEALER_EMAIL = "contact@carright.ie";
 export const DEALER_TEL = "+353831333154";
 // The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
 // The agency that built the site, credited in the footer.

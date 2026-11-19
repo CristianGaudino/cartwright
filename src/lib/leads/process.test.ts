@@ -232,17 +232,28 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
+  const tradeIn = (carId: string) => {
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId });
+    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
+    return fd;
+  };
+
   it("stores a trade-in with no car and its reg and mileage in details, and never looks a car up", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);
     deps.getCar = getCar;
-    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
-    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
-    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(tradeIn(""), ctx, deps)).toEqual({ status: "ok" });
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
     expect(rows[0].details).toEqual({ reg: "191-KY-1234", mileage: 120500 });
     expect(getCar).not.toHaveBeenCalled();
     expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
+  });
+
+  it("stores a trade-in from a car page against that car, and refuses a sold one", async () => {
+    const { deps, rows } = fakeDeps();
+    expect(await processLead(tradeIn(live.id), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "trade_in", carId: live.id, carSlug: live.slug });
+    expect(await processLead(tradeIn(sold.id), ctx, deps)).toEqual({ status: "failed", kind: "gone" });
   });
 
   // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.
