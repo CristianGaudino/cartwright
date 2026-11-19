@@ -48,7 +48,8 @@ export function HeaderLinks() {
   return (
     <>
       <div className="hidden items-center gap-6 lg:flex">
-        <div ref={root} className="relative">
+        {/* Tab past the last link closes it too: focus left the menu. */}
+        <div ref={root} className="relative" onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
           <button type="button" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)} className={`${item} ${stockActive ? bar : ""}`}>
             Stock
             <ChevronDownIcon className={`size-4 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />

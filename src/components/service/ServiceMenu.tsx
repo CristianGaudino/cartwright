@@ -39,7 +39,7 @@ function Panel({ service }: { service: Service }) {
         </p>
       </div>
       <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
-        <h3 className="text-body font-semibold">Tell us what your car needs</h3>
+        <h3 className="text-body font-semibold">Tell Us What Your Car Needs</h3>
         <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }} />
       </div>
     </div>

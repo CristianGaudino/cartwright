@@ -21,7 +21,7 @@ export function FilterSheet() {
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
-  const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
+  const label = total === undefined ? "Show Cars" : total === 0 ? "No Cars Match" : total === 1 ? "Show 1 Car" : `Show ${total} Cars`;
 
   useCloseAtDesktop(() => {
     dialog.current?.close();

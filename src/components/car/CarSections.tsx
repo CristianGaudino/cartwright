@@ -112,7 +112,7 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         </div>
       </div>
       <div className="mt-4">
-        <AutoCarousel label="Similar cars">
+        <AutoCarousel label="Similar Cars">
           {cars.map((c) => (
             <li key={c.id} className={carSlide}>
               <ListingCard car={c} priority={false} oneLine />

@@ -50,8 +50,8 @@ const slide = async (page: Page, name: "Minimum price" | "Maximum price", price:
 
 const filtersButton = (page: Page) => page.getByRole("button", { name: /^Filters/ });
 const sheet = (page: Page) => page.getByRole("dialog", { name: "Filters" });
-const primary = (page: Page) => sheet(page).getByRole("button", { name: /^(Show \d+ cars?|Show cars|No cars match)$/ });
-const showText = (n: number) => (n === 0 ? "No cars match" : n === 1 ? "Show 1 car" : `Show ${n} cars`);
+const primary = (page: Page) => sheet(page).getByRole("button", { name: /^(Show \d+ Cars?|Show Cars|No Cars Match)$/ });
+const showText = (n: number) => (n === 0 ? "No Cars Match" : n === 1 ? "Show 1 Car" : `Show ${n} Cars`);
 
 const chip = (page: Page, name: string, label: string) =>
   page.getByRole("group", { name }).getByRole("button").filter({ has: page.locator("span.truncate", { hasText: new RegExp(`^${label}$`) }) });
@@ -530,7 +530,7 @@ test.describe("filters on a phone", () => {
   test("no match: the button reads No cars match and is disabled", async ({ page }) => {
     await open(page, "/used-cars?make=zzzz");
     await filtersButton(page).click();
-    await expect(primary(page)).toHaveText("No cars match");
+    await expect(primary(page)).toHaveText("No Cars Match");
     await expect(primary(page)).toBeDisabled();
   });
 
@@ -558,7 +558,7 @@ test.describe("filters on a phone", () => {
     });
     expect(busy).toBe(true);
     expect(seen.length).toBeGreaterThan(1);
-    for (const text of seen) expect(text).toMatch(/^(Show \d+ cars|Show 1 car|No cars match)$/);
+    for (const text of seen) expect(text).toMatch(/^(Show \d+ Cars|Show 1 Car|No Cars Match)$/);
   });
 
   test("a failed load: the button reads Show cars and the options stay usable without counts", async ({ page }) => {
@@ -567,7 +567,7 @@ test.describe("filters on a phone", () => {
     await search(page).fill("e2e-forced-failure");
     await expect(page.getByRole("heading", { name: "We couldn't load the cars" })).toBeVisible();
     await filtersButton(page).click();
-    await expect(primary(page)).toHaveText("Show cars");
+    await expect(primary(page)).toHaveText("Show Cars");
     await expect(primary(page)).toBeEnabled();
     const makes = await rows(page);
     expect(makes.length).toBeGreaterThan(0);

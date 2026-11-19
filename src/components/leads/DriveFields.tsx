@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { takenDriveTimes } from "@/app/actions/drives";
 import { LIMITS, driveDayLabel, driveDays, driveTimes } from "@/lib/leads/constants";
 import { ContactFields, Field } from "./Field";
@@ -20,6 +20,14 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
   const free = (d: string) => driveTimes(d).filter((t) => !taken.has(`${d} ${t}`));
   const days = mounted ? driveDays().filter((d) => free(d).length > 0) : [];
   const times = driveTimes(day.value).map((t) => ({ value: t, label: t, disabled: taken.has(`${day.value} ${t}`) }));
+  // A day gone from the list or a time taken since it was chosen (the list refreshes on focus) is cleared, so the field shows the
+  // placeholder honestly and nothing stale is sent.
+  const staleDay = mounted && day.value !== "" && !days.includes(day.value);
+  const staleTime = time.value !== "" && (staleDay || !free(day.value).includes(time.value));
+  useEffect(() => {
+    if (staleDay) day.onChange("");
+    if (staleTime) time.onChange("");
+  }, [staleDay, staleTime, day, time]);
   return (
     <>
       <div className="@container" onFocus={ask}>

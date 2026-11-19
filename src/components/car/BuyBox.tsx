@@ -71,7 +71,7 @@ export function BuyBox({ car }: { car: Car }) {
       {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
       {!sold && (
         <Link href={`/trade-in?car=${car.slug}`} className="-my-2 inline-flex min-h-11 items-center self-start text-body font-semibold underline">
-          Trade in your car against this one
+          Trade In Your Car Against This One
         </Link>
       )}
       {!sold && (

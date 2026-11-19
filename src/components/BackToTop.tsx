@@ -4,7 +4,7 @@
 export function BackToTop({ className }: { className?: string }) {
   return (
     <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })} className={className}>
-      Back to top
+      Back to Top
     </button>
   );
 }

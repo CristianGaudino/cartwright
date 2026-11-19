@@ -11,7 +11,7 @@ import { card } from "@/components/ui";
 const never = () => () => {};
 const grid = "grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3";
 
-const Empty = () => <EmptyCars title="No saved cars yet" text="Tap the heart on any car to save it here." />;
+const Empty = () => <EmptyCars title="No Saved Cars Yet" text="Tap the heart on any car to save it here." />;
 
 // The ids live in this browser, so the cars are fetched by id from /api/saved-cars (the stock stays on the server).
 export function SavedCars() {

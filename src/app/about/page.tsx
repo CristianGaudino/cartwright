@@ -18,7 +18,7 @@ const WHY = [
 ];
 const EXPECT = [
   { title: "Browse", text: "Look through the stock online, save the cars you like and compare them." },
-  { title: "Get in touch", text: "Enquire, book a test drive, or call us. We'll answer your questions." },
+  { title: "Get in Touch", text: "Enquire, book a test drive, or call us. We'll answer your questions." },
   { title: "Come and See It", text: `Visit us in ${DEALER_ADDRESS.town}, see the car and take it for a drive.` },
 ];
 
