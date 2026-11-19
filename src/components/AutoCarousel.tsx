@@ -118,7 +118,7 @@ export function AutoCarousel({
       onPointerDown={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = Infinity; }}
       onPointerUp={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
       onPointerCancel={(e) => { if (e.pointerType !== "mouse") using.current.touchedAt = performance.now(); }}
-      onFocus={() => (using.current.within = true)}
+      onFocus={(e) => (using.current.within = !(e.target as HTMLElement).closest("[data-playpause]"))} // focus left on Play after a press must not hold the drift
       onBlur={() => (using.current.within = false)}
     >
       <ul
@@ -148,7 +148,7 @@ export function AutoCarousel({
             <ChevronRightIcon className="size-5" />
           </button>
           {!reduced && (
-            <button type="button" aria-label={`${paused ? "Play" : "Pause"} ${noun}`} onClick={() => setPaused(!paused)} className={control}>
+            <button type="button" data-playpause aria-label={`${paused ? "Play" : "Pause"} ${noun}`} onClick={() => setPaused(!paused)} className={control}>
               {paused ? <PlayIcon className="size-5" /> : <PauseIcon className="size-5" />}
             </button>
           )}

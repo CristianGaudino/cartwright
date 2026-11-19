@@ -118,7 +118,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
       </AutoCarousel>
       {/* Google requires its review policy to be linked wherever its reviews show. */}
       <a href={POLICY_URI} {...NEW_TAB} className={`${textLink} self-start text-meta`}>
-        Google&apos;s review policy
+        Google&apos;s Review Policy
         <NewTab />
       </a>
     </section>

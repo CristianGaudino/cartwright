@@ -29,6 +29,7 @@ export function HeaderLinks() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   const menuId = useId();
   const stockActive = STOCK.some((s) => within(path, s.href));
 
@@ -36,7 +37,11 @@ export function HeaderLinks() {
   useEffect(() => {
     if (!open) return;
     const away = (e: PointerEvent) => !root.current?.contains(e.target as Node) && setOpen(false);
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (root.current?.contains(document.activeElement)) button.current?.focus(); // focus in the menu would be lost as it unmounts
+      setOpen(false);
+    };
     document.addEventListener("pointerdown", away);
     document.addEventListener("keydown", esc);
     return () => {
@@ -48,9 +53,10 @@ export function HeaderLinks() {
   return (
     <>
       <div className="hidden items-center gap-6 lg:flex">
-        {/* Tab past the last link closes it too: focus left the menu. */}
-        <div ref={root} className="relative" onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
-          <button type="button" aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)} className={`${item} ${stockActive ? bar : ""}`}>
+        {/* Tab past the last link closes it too: focus left the menu. No relatedTarget is a click (Safari blurs a link on mousedown),
+            which the pointerdown listener handles, so a link click still lands. */}
+        <div ref={root} className="relative" onBlur={(e) => e.relatedTarget && !e.currentTarget.contains(e.relatedTarget) && setOpen(false)}>
+          <button ref={button} type="button" aria-current={stockActive ? "true" : undefined} aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(!open)} className={`${item} ${stockActive ? bar : ""}`}>
             Stock
             <ChevronDownIcon className={`size-4 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
           </button>

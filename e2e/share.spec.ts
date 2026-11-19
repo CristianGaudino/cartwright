@@ -38,7 +38,7 @@ test.describe("share a car", () => {
     expect(text).toContain(`${ORIGIN}${href}`);
   });
 
-  test("without a native sheet, Share opens a menu with WhatsApp and Copy link", async ({ page }) => {
+  test("without a native sheet, Share opens a menu with WhatsApp and Copy Link", async ({ page }) => {
     const href = await firstCarHref(page);
     await open(page, href);
     await shareButton(page).click();
@@ -48,18 +48,18 @@ test.describe("share a car", () => {
     const text = decode(await wa.getAttribute("href"));
     expect(text).toMatch(/€[\d,]+/);
     expect(text).toContain(`${ORIGIN}${href}`);
-    await expect(page.getByRole("button", { name: "Copy link" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copy Link" })).toBeVisible();
   });
 
-  test("Copy link puts the canonical URL on the clipboard and says so", async ({ page, context }) => {
+  test("Copy Link puts the canonical URL on the clipboard and says so", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     const href = await firstCarHref(page);
     await open(page, href);
     await shareButton(page).click();
-    await page.getByRole("button", { name: "Copy link" }).click();
-    await expect(page.getByRole("button", { name: "Link copied" })).toBeVisible();
+    await page.getByRole("button", { name: "Copy Link" }).click();
+    await expect(page.getByRole("button", { name: "Link Copied" })).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`${ORIGIN}${href}`);
-    await expect(page.getByRole("button", { name: "Link copied" })).toHaveCount(0, { timeout: 4000 });
+    await expect(page.getByRole("button", { name: "Link Copied" })).toHaveCount(0, { timeout: 4000 });
     await expect(shareButton(page)).toBeFocused();
   });
 
@@ -69,7 +69,7 @@ test.describe("share a car", () => {
     });
     await open(page, await firstCarHref(page));
     await shareButton(page).click();
-    await page.getByRole("button", { name: "Copy link" }).click();
+    await page.getByRole("button", { name: "Copy Link" }).click();
     await expect(page.getByRole("button", { name: "Couldn't copy the link" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Share on WhatsApp" })).toBeVisible();
   });

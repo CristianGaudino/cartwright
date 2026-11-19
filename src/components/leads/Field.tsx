@@ -162,9 +162,10 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
           </select>
           <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
         </span>
+        {/* The full value is what the form sends; the visible input holds only the number. */}
+        <input type="hidden" name={name} value={value} />
         <input
           id={id}
-          name={name}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"

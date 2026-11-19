@@ -68,16 +68,16 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
           <div role="status" aria-live="polite" className="flex flex-col gap-2">
             {q ? (
               <>
-                <p className="text-meta text-text-2">Estimated monthly payment</p>
+                <p className="text-meta text-text-2">Estimated Monthly Payment</p>
                 <p className="text-display font-semibold tabular-nums">
                   About {formatPrice(q.monthlyEur)}<span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
                     [
-                      ["Amount borrowed", q.borrowedEur],
-                      ["Estimated total to repay", q.totalEur],
-                      ["Estimated interest", q.interestEur],
+                      ["Amount Borrowed", q.borrowedEur],
+                      ["Estimated Total to Repay", q.totalEur],
+                      ["Estimated Interest", q.interestEur],
                     ] as const
                   ).map(([label, value]) => (
                     <div key={label} className="flex justify-between gap-4">
