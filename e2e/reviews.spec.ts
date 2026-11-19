@@ -23,7 +23,7 @@ test("the aggregate rating, See all and the review policy link", async ({ page }
   const all = page.getByRole("link", { name: "See all on Google Maps" });
   await expect(all).toHaveAttribute("href", "https://www.google.com/maps/search/?api=1&query=V92%20NT93%2C%20Ireland");
   await expect(all).toHaveAttribute("target", "_blank");
-  await expect(page.getByRole("link", { name: /Google's review policy/ })).toHaveAttribute("href", "https://support.google.com/contributionpolicy/answer/7422880");
+  await expect(page.getByRole("link", { name: /Google's Review Policy/ })).toHaveAttribute("href", "https://support.google.com/contributionpolicy/answer/7422880");
 });
 
 test("at 320px only the review strip scrolls sideways", async ({ page }) => {

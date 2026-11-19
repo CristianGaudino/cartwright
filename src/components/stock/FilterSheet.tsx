@@ -21,7 +21,7 @@ export function FilterSheet() {
   const applied = appliedFilters(query, facets).length;
   const total = summary?.total;
   // summary only changes when a new result lands, so while pending the button keeps the last known count.
-  const label = total === undefined ? "Show cars" : total === 0 ? "No cars match" : total === 1 ? "Show 1 car" : `Show ${total} cars`;
+  const label = total === undefined ? "Show Cars" : total === 0 ? "No Cars Match" : total === 1 ? "Show 1 Car" : `Show ${total} Cars`;
 
   useCloseAtDesktop(() => {
     dialog.current?.close();
@@ -39,7 +39,7 @@ export function FilterSheet() {
           setMounted(true);
           dialog.current?.showModal();
         }}
-        className={`inline-flex h-11 items-center gap-2 rounded-control px-2 text-meta font-semibold ${press}`}
+        className={`inline-flex h-12 items-center gap-2 rounded-control border border-control bg-card px-3 text-body font-semibold ${press}`}
       >
         <SlidersIcon className="h-6 w-6" />
         Filters

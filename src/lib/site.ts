@@ -6,11 +6,11 @@ export const SITE_SLUG = "carright";
 export const DEFAULT_OG_IMAGE = { url: "/brand/og-default.png", width: 1200, height: 630, alt: SITE_NAME };
 export const DEALER_PHONE = "+353 83 133 3154"; // as published on cartwright.ie (083-1333154), written with the country code; confirm with the dealer
 // PLACEHOLDER until carright.ie forwards to the dealer (issue #54).
-export const DEALER_EMAIL = "hello@carright.ie";
+export const DEALER_EMAIL = "contact@carright.ie";
 export const DEALER_TEL = "+353831333154";
-// The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
 // The agency that built the site, credited in the footer.
 export const CHECKWORK_URL = "https://www.checkwork.ie";
+// The same number is the dealer's WhatsApp: the old cartwright.ie footer links it. Confirm with the dealer.
 export const DEALER_WHATSAPP = `https://wa.me/${DEALER_TEL.slice(1)}`;
 // Placeholder until 03-02 onboards the sending domain and records the address; must be on that domain. Swap at handover.
 export const LEAD_FROM_EMAIL = "leads@cgaudino.com";
@@ -35,6 +35,8 @@ export const WARRANTY = { title: "3 Month Warranty", text: "Engine & gearbox cov
 export const DEALER_ADDRESS_LINES = [DEALER_ADDRESS.street, DEALER_ADDRESS.town, DEALER_ADDRESS.county, DEALER_ADDRESS.eircode];
 // "Tralee, Co. Kerry": where the dealer is, as the page descriptions say it.
 export const DEALER_LOCATION = `${DEALER_ADDRESS.town}, ${DEALER_ADDRESS.county}`;
+// schema.org addressRegion: the bare region name, as its own example ("California") has it.
+export const DEALER_REGION = DEALER_ADDRESS.county.replace(/^Co\. /, "");
 // Confirmed by the dealer, 2026-11-07. 24 hour HH:MM; no opens means closed.
 export const OPENING_HOURS: { day: string; opens?: string; closes?: string }[] = [
   { day: "Monday", opens: "09:30", closes: "18:00" },

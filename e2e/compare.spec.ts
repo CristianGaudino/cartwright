@@ -1,10 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { ready } from "./ready";
 
-// A tap before React attaches does nothing.
-async function ready(page: Page) {
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-}
 // The first n car pages from the list, in order. Compare lives on the car page; the cards carry only the heart.
 async function carPaths(page: Page, n: number) {
   await page.goto("/used-cars");
@@ -190,3 +187,19 @@ test.describe("desktop pointer", () => {
     expect(await toast.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(barRadius);
   });
 });
+
+for (const width of [320, 390]) {
+  test(`at ${width}px the compare pill leaves the footer's last link free to tap`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 700 });
+    const [a] = await carPaths(page, 1);
+    await compare(page, a);
+    await page.goto("/about");
+    await expect(page.getByRole("region", { name: "Compare cars" })).toBeVisible();
+    const link = page.getByRole("link", { name: /^Powered by/ });
+    await link.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const box = (await link.boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest("a")?.textContent ?? "", [box.x + box.width / 2, box.y + box.height / 2]);
+    expect(hit).toContain("Powered by");
+  });
+}

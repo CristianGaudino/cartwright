@@ -11,7 +11,7 @@ import { accentButton, card } from "@/components/ui";
 type Option = { slug: string; label: string };
 type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; slug: string; label: string }[] };
 
-const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
+const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center whitespace-nowrap px-2 min-[360px]:px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 const FIND_STEPS = ["Tell Us What You Want", "We Look for It", "We Get in Touch"];
 
@@ -30,7 +30,19 @@ export function HomeSearch({ makes, bodies, models }: Props) {
 
   return (
     <div className={`${card} shadow-lift`}>
-      <div role="tablist" aria-label="How to find a car" className="flex border-b border-hairline sm:px-2">
+      {/* The ARIA tabs pattern: one tab in the Tab order, the arrow keys move between them and show their panel. */}
+      <div
+        role="tablist"
+        aria-label="How to find a car"
+        className="flex border-b border-hairline sm:px-2"
+        onKeyDown={(e) => {
+          if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+          e.preventDefault();
+          const t = tabName === "search" ? "find" : "search"; // two tabs: either arrow goes to the other
+          setTab(t);
+          document.getElementById(`${id}-tab-${t}`)?.focus();
+        }}
+      >
         {(["search", "find"] as const).map((t) => (
           <button
             key={t}
@@ -38,6 +50,7 @@ export function HomeSearch({ makes, bodies, models }: Props) {
             role="tab"
             id={`${id}-tab-${t}`}
             aria-selected={tabName === t}
+            tabIndex={tabName === t ? 0 : -1}
             aria-controls={`${id}-panel-${t}`}
             onClick={() => setTab(t)}
             className={`${tab} ${tabName === t ? `text-text ${bar}` : "text-text-2 hover:text-text"}`}

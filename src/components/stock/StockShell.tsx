@@ -5,6 +5,7 @@ import { StateBlock } from "@/components/StateBlock";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
+import { sourcingHref } from "@/lib/leads/sourcing-prefill";
 import { appliedFilters, clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
@@ -36,11 +37,11 @@ export function useStock(): Stock {
 }
 
 const SORT_LABELS: Record<SortKey, string> = {
-  newest: "Newest listed",
-  "price-asc": "Price: low to high",
-  "price-desc": "Price: high to low",
-  "year-desc": "Year: newest first",
-  "km-asc": "Mileage: lowest first",
+  newest: "Newest Listed",
+  "price-asc": "Price: Low to High",
+  "price-desc": "Price: High to Low",
+  "year-desc": "Year: Newest First",
+  "km-asc": "Mileage: Lowest First",
 };
 
 function SortControl({ className }: { className: string }) {
@@ -159,7 +160,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
           <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
             <div
               data-testid="sticky-bar"
-              className="sticky top-14 z-20 -mx-4 flex h-14 items-center justify-between bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
+              className="sticky top-14 z-20 -mx-4 flex h-14 items-center justify-between gap-3 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
             >
               <FilterSheet />
               <SortControl className="flex" />
@@ -176,7 +177,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
 }
 
 export function EmptyState() {
-  const { query, navigate } = useStock();
+  const { query, navigate, facets } = useStock();
+  const model = query.model[0];
+  const find = sourcingHref({ make: query.make[0], model: model && (facets?.model.find((o) => o.value === model)?.label ?? model), body: query.body[0], budget: query.priceMax });
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
@@ -188,8 +191,8 @@ export function EmptyState() {
     );
   }
   return (
-    <StateBlock title="No cars match these filters" text="Try removing a filter.">
-      <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+    <StateBlock title="No Cars Match These Filters" text="Try removing a filter.">
+      <Link href={find} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>

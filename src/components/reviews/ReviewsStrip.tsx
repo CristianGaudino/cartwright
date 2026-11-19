@@ -109,7 +109,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
         </div>
       )}
       {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
-      <AutoCarousel label="Google reviews" noun="reviews">
+      <AutoCarousel label="Google Reviews" noun="reviews">
         {data.reviews.map((r) => (
           <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
             <ReviewCard review={r} />
@@ -118,7 +118,7 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
       </AutoCarousel>
       {/* Google requires its review policy to be linked wherever its reviews show. */}
       <a href={POLICY_URI} {...NEW_TAB} className={`${textLink} self-start text-meta`}>
-        Google&apos;s review policy
+        Google&apos;s Review Policy
         <NewTab />
       </a>
     </section>

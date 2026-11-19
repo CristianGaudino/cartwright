@@ -22,13 +22,14 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
         <SaveButton id={car.id} label={`Save ${carName(car)}`} variant="card" />
       </div>
       <div data-card-body className="flex flex-col gap-2 p-4">
-        {/* Narrow cards (the desktop stock grid) stack the price under the name, so a long name keeps the full width. */}
+        {/* Narrow cards (the desktop stock grid) stack the price under the name, so a long name keeps the full width. There the name
+            always takes two lines, so the prices in a row line up whether a name wraps or not. */}
         <div className="flex flex-col gap-1 @xs:flex-row @xs:items-start @xs:justify-between @xs:gap-3">
           {/* The make above the model, as in the mockup; both are inside the one link, so its name is still "Make Model Variant". */}
           <h2 className="min-w-0 text-body font-semibold">
             <Link href={href} title={oneLine ? carName(car) : undefined} className="after:absolute after:inset-0">
               <span className="block text-meta font-normal text-text-2">{car.make}</span>
-              <span data-title className={`${oneLine ? "truncate" : "line-clamp-2"} block`}>{[car.model, car.variant].filter(Boolean).join(" ")}</span>
+              <span data-title className={`${oneLine ? "truncate" : "line-clamp-2 @max-xs:min-h-[2lh]"} block`}>{[car.model, car.variant].filter(Boolean).join(" ")}</span>
             </Link>
           </h2>
           <p data-price className={`shrink-0 text-heading font-semibold tabular-nums ${isSold(car) ? "text-text-2" : ""}`}>{isSold(car) ? "Sold" : formatPrice(car.priceEur)}</p>
@@ -43,7 +44,7 @@ export function ListingCard({ car, priority, oneLine = false }: { car: Car; prio
               </li>
             ))}
           </ul>
-          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent">
+          <span aria-hidden="true" className="inline-flex items-center gap-2 text-meta font-semibold text-accent-text">
             View Car
             <ArrowRightIcon className="size-4" />
           </span>

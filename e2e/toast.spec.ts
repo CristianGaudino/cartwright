@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { ready } from "./ready";
 
 // The undo toast: for actions that throw something away.
 const heart = (page: Page) => page.locator("article").first().getByRole("button", { name: /^Save / });
-const ready = (page: Page) => page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
 
 test("un-saving a car shows a toast, and Undo saves it again", async ({ page }) => {
   await page.goto("/used-cars");

@@ -58,13 +58,10 @@ test("a drifting row moves smoothly, not a page at a time, and stops under the p
   await row.scrollIntoViewIfNeeded();
   const at = () => row.evaluate((el) => el.scrollLeft);
   const first = await at();
-  await page.waitForTimeout(700);
+  await expect.poll(at).toBeGreaterThan(first);
   const second = await at();
-  await page.waitForTimeout(700);
-  const third = await at();
-  expect(second).toBeGreaterThan(first);
-  expect(third).toBeGreaterThan(second);
-  expect(third - first).toBeLessThan(120); // a drift, nowhere near a page (about 400px)
+  expect(second - first).toBeLessThan(120); // its first step is a drift, nowhere near a page (about 400px)
+  await expect.poll(at).toBeGreaterThan(second); // and it keeps going
   await row.hover();
   const held = await at();
   await page.waitForTimeout(600);

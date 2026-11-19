@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import type { LeadType } from "@/lib/leads/schema";
 
 export type LeadStatus = "new"; // the admin phase (#20) adds more
@@ -34,4 +34,17 @@ export const leads = sqliteTable(
       .$defaultFn(() => new Date()),
   },
   (t) => [index("leads_created_idx").on(t.createdAt)],
+);
+
+// A test drive request holds its car and start time (#166). The unique index is what stops two requests for one car and time, even at the
+// same moment. No personal data here: the lead id points at the person. Deleted by the dealer's "Free this slot" link, or by the daily
+// purge once the time has passed; the lead itself stays.
+export const driveHolds = sqliteTable(
+  "drive_holds",
+  {
+    leadId: text("lead_id").primaryKey(),
+    carId: text("car_id").notNull(),
+    startsAt: integer("starts_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [uniqueIndex("drive_holds_car_time_unique").on(t.carId, t.startsAt)],
 );

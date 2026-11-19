@@ -1,5 +1,5 @@
 import { formatKm, formatPrice } from "./format";
-import { FUEL_LABELS, FUELS, GEARBOX_LABELS, GEARBOXES, SORT_KEYS } from "./types";
+import { FUEL_LABELS, FUELS, GEARBOX_LABELS, GEARBOXES, SLUG, SORT_KEYS } from "./types";
 import type { FacetOption, Facets, Fuel, Gearbox, SortKey, StockQuery } from "./types";
 
 // The only URL <-> StockQuery translation, shared by server and client (BRW-03).
@@ -11,7 +11,6 @@ export const DEFAULT_QUERY: StockQuery = emptyQuery();
 
 type Params = Record<string, string | string[] | undefined>;
 
-const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const MAX_TEXT = 80;
 const MAX_SLUG = 40;
 const MAX_LIST = 20;

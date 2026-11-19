@@ -17,7 +17,7 @@ import { carName, carSummary } from "@/lib/stock/format";
 import { landingMetadata, landingPath } from "@/lib/stock/landing";
 import { DEFAULT_QUERY } from "@/lib/stock/query";
 import { carJsonLd, carMetadata } from "@/lib/stock/seo";
-import { isSold } from "@/lib/stock/types";
+import { CAR_SLUG, isSold } from "@/lib/stock/types";
 import type { Car } from "@/lib/stock/types";
 
 // Up to 8 cars to buy, for a row that moves along: same make first, then same body type; never the car itself.
@@ -31,7 +31,7 @@ async function similarCars(car: Car) {
 }
 
 // Make first, then body type (both looked up in taxonomy() by resolveLanding), then car (D-06). Resolved once per request for generateMetadata and the page.
-const CAR_SLUG = /-\d+$/; // make and body slugs never end in digits, so a car-shaped slug skips the taxonomy scan
+// A car-shaped slug skips the taxonomy scan; anything else that is no landing still falls through to the car lookup.
 const resolveSlug = cache(async (slug: string) => {
   const landing = CAR_SLUG.test(slug) ? null : await resolveLanding(slug);
   if (landing) return { kind: "landing", landing } as const;

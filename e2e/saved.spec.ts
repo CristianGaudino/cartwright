@@ -2,13 +2,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { SITE_SLUG } from "../src/lib/site";
+import { ready } from "./ready";
 
 type Demo = { id: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const live = cars.find((c) => !c.soldAt)!;
-const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const soldInPeriod = cars.find((c) => inSoldWindow(c, Date.now()));
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 const UNKNOWN = "999999999999";
 const KEY = `${SITE_SLUG}:saved-ids`;
@@ -28,6 +29,7 @@ const firstHeart = (page: Page) => page.locator("article").first().getByRole("bu
 
 test("a heart saves a car without leaving the page and the count survives a reload", async ({ page }) => {
   await page.goto("/used-cars");
+  await ready(page);
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars");
   const url = page.url();
 
@@ -42,6 +44,7 @@ test("a heart saves a car without leaving the page and the count survives a relo
   for (const id of ids) expect(id).toMatch(/^\d{1,12}$/);
 
   await page.reload();
+  await ready(page);
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   await expect(firstHeart(page)).toHaveAttribute("aria-pressed", "true");
 
@@ -58,6 +61,7 @@ test("the Saved link is the same width before hydration and with a count", async
   await noJs.close();
 
   await page.goto("/used-cars");
+  await ready(page);
   await firstHeart(page).click();
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   expect((await savedLink(page).boundingBox())!.width).toBe(before);
@@ -66,7 +70,9 @@ test("the Saved link is the same width before hydration and with a count", async
 test("saving in one tab updates another tab without a reload", async ({ context }) => {
   const [a, b] = [await context.newPage(), await context.newPage()];
   await a.goto("/used-cars");
+  await ready(a);
   await b.goto("/used-cars");
+  await ready(b); // b must be listening before a saves
   await expect(savedLink(b)).toHaveAccessibleName("Saved cars");
 
   await firstHeart(a).click();
@@ -76,6 +82,7 @@ test("saving in one tab updates another tab without a reload", async ({ context 
 
 test("saving is announced by the heart, and removing by the toast", async ({ page }) => {
   await page.goto("/used-cars");
+  await ready(page);
   const live = page.locator("article").first().locator('[aria-live="polite"]');
   await firstHeart(page).click();
   await expect(live).toHaveText("Saved");
@@ -92,6 +99,7 @@ test("with storage blocked a heart still toggles and nothing errors", async ({ p
     };
   });
   await page.goto("/used-cars");
+  await ready(page);
   await firstHeart(page).click();
   await expect(firstHeart(page)).toHaveAttribute("aria-pressed", "true");
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
@@ -104,6 +112,7 @@ const titles = (page: Page) => page.locator("article h2").allTextContents();
 
 test("/saved lists the saved cars newest first, after the browser is closed and reopened, and is noindex", async ({ page, browser }) => {
   await page.goto("/used-cars");
+  await ready(page);
   const [first, second] = await titles(page);
   await firstHeart(page).click();
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
@@ -178,6 +187,7 @@ test("if the cars cannot be loaded, nothing is pruned and Try again loads them",
 test("unsaving on /saved keeps the card until the next visit and drops the count at once", async ({ page }) => {
   await seed(page, [live.id]);
   await page.goto("/saved");
+  await ready(page);
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   await firstHeart(page).click();
   await expect(firstHeart(page)).toHaveAttribute("aria-pressed", "false");
@@ -187,6 +197,8 @@ test("unsaving on /saved keeps the card until the next visit and drops the count
   await firstHeart(page).click();
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   await firstHeart(page).click();
+  await expect(savedLink(page)).toHaveAccessibleName("Saved cars");
+  await expect.poll(() => stored(page)).toEqual([]);
   await page.reload();
   await expect(page.getByRole("heading", { name: "No saved cars yet" })).toBeVisible();
 });
@@ -194,6 +206,7 @@ test("unsaving on /saved keeps the card until the next visit and drops the count
 test("at 320px the header fits without horizontal scroll", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto("/used-cars");
+  await ready(page);
   await firstHeart(page).click();
   await expect(savedLink(page)).toHaveAccessibleName("Saved cars, 1");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);

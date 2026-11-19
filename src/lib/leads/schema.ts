@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { FINANCE } from "@/lib/finance/finance.config";
+import { ID } from "@/lib/saved/ids";
 import { PRICE_STOPS } from "@/lib/stock/types";
-import { BAD_KM, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
+import { BAD_DRIVE_DAY, BAD_DRIVE_TIME, BAD_KM, DRIVE_PHONE_ERROR, driveDays, driveTimes, dublinMs, phoneError, BAD_REG, CONTACT_ERROR, EMPLOYMENT, KM_PATTERN, LIMITS, REG_PATTERN, SOURCING_BODIES, SOURCING_CAR_ERROR } from "./constants";
 
 // The lead validation, run on the server. Client components import ./constants, never this file (it brings zod).
 
@@ -11,22 +12,22 @@ const tooLong = (n: number) => `Use ${n} characters or fewer.`;
 // An empty or blank field counts as not given.
 const given = <T extends z.ZodType>(s: T) => z.preprocess((v) => (typeof v === "string" && v.trim() === "" ? undefined : v), s);
 
+// Loose on purpose (digits, spaces, plus, hyphens and brackets), but a +353 number must be the right length for Ireland.
+const phone = (error?: string) =>
+  z
+    .string({ error })
+    .trim()
+    .max(LIMITS.phone, tooLong(LIMITS.phone))
+    .superRefine((v, ctx) => {
+      const message = phoneError(v);
+      if (message) ctx.addIssue({ code: "custom", message });
+    });
+
 const contact = {
   clientRef: z.uuid(),
   sourcePath: z.string().regex(/^\/[A-Za-z0-9._~\-/]{0,200}$/),
   name: given(oneLine(z.string({ error: "Enter your name." }).trim().max(LIMITS.name, tooLong(LIMITS.name)))),
-  // Loose on purpose (digits, spaces, plus, hyphens and brackets), but a +353 number must be the right length for Ireland.
-  phone: given(
-    z
-      .string()
-      .trim()
-      .max(LIMITS.phone, tooLong(LIMITS.phone))
-      .superRefine((v, ctx) => {
-        const message = phoneError(v);
-        if (message) ctx.addIssue({ code: "custom", message });
-      })
-      .optional(),
-  ),
+  phone: given(phone().optional()),
   email: given(z.email({ error: "Enter an email like name@example.com." }).max(LIMITS.email, tooLong(LIMITS.email)).optional()),
   message: given(z.string().max(LIMITS.message, tooLong(LIMITS.message)).optional()),
   consent: z.literal("yes", { error: "Tick the box to send your request." }),
@@ -37,13 +38,13 @@ const general = {
   message: given(z.string({ error: "Tell us how we can help." }).trim().max(LIMITS.message, tooLong(LIMITS.message))),
 };
 
-const carId = z.string().regex(/^\d{1,12}$/);
+const carId = z.string().regex(ID);
 
 const carText = {
   make: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
   model: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
 };
-// No carId key on the car-less types, so a forged one is dropped and snapshotCar stores no car (T-03-27).
+// No carId key on the car-less types (sourcing, general), so a forged one is dropped and snapshotCar stores no car (T-03-27).
 const sourcing = {
   ...carText,
   bodyType: given(z.enum(SOURCING_BODIES, { error: "Choose a type from the list." }).optional()),
@@ -59,7 +60,9 @@ const sourcing = {
 
 // D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.
 const nextYear = () => new Date().getUTCFullYear() + 1;
+// A trade-in from a car page (/trade-in?car=) carries that car's id; snapshotCar reads the car again and refuses a sold one.
 const tradeIn = {
+  carId: given(carId.optional()),
   reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG)),
   mileage: given(
     z
@@ -95,6 +98,17 @@ const finance = {
   employment: given(z.enum(Object.keys(EMPLOYMENT) as [keyof typeof EMPLOYMENT], { error: "Choose an employment status." })),
 };
 
+// A test drive request (#166): the car, a day and a time on the slot grid, and a phone, since the dealer calls to confirm. The day is
+// checked against yesterday's list too, so a form opened before midnight still sends its "tomorrow"; the time must not have passed.
+const DAY_MS = 86_400_000;
+const testDrive = {
+  carId,
+  phone: given(phone(DRIVE_PHONE_ERROR)),
+  driveDate: given(z.string({ error: BAD_DRIVE_DAY }).refine((v) => driveDays().includes(v) || driveDays(new Date(Date.now() - DAY_MS)).includes(v), BAD_DRIVE_DAY)),
+  driveTime: given(z.string({ error: BAD_DRIVE_TIME })),
+};
+const onTheGrid = (d: { driveDate?: string; driveTime?: string }) => driveTimes(d.driveDate ?? "").includes(d.driveTime ?? "") && dublinMs(d.driveDate!, d.driveTime!) > Date.now();
+
 export const leadSchema = z
   .discriminatedUnion("type", [
     z.object({ type: z.literal("enquiry"), carId, ...contact }),
@@ -105,6 +119,9 @@ export const leadSchema = z
     z.object({ type: z.literal("general"), ...contact, ...general }),
     z.object({ type: z.literal("trade_in"), ...contact, ...tradeIn }),
     z.object({ type: z.literal("finance"), ...contact, ...finance }),
+    z
+      .object({ type: z.literal("test_drive"), ...contact, ...testDrive })
+      .refine(onTheGrid, { path: ["driveTime"], message: BAD_DRIVE_TIME, when: (p) => typeof p.value === "object" && p.value !== null }),
   ])
   // D-12. `when` runs it even if another field failed, so a blank form shows every error at once.
   .refine((d) => Boolean(d.phone || d.email), {
@@ -123,6 +140,7 @@ export const TYPE_LABELS: Record<LeadType, string> = {
   trade_in: "Trade-in valuation", // never the reg: nothing the buyer typed reaches a subject (T-03-29)
   finance: "Finance application",
   general: "Message from the website",
+  test_drive: "Test drive request",
 };
 // Detail key to email label, in the order the email lists them; a new type's fields need only a line here.
 export const DETAIL_LABELS: Record<string, string> = {
@@ -136,4 +154,6 @@ export const DETAIL_LABELS: Record<string, string> = {
   deposit: "Deposit",
   term: "Term (months)",
   employment: "Employment status",
+  driveDate: "Day",
+  driveTime: "Time",
 };

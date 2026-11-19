@@ -1,6 +1,6 @@
 import { lt } from "drizzle-orm";
 import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
-import { leads } from "../db/schema";
+import { driveHolds, leads } from "../db/schema";
 import type * as schema from "../db/schema";
 import { LEAD_RETENTION_MONTHS } from "./constants";
 
@@ -23,4 +23,10 @@ export async function purgeOldLeads(
   // Rows only get newer than the cutoff, so this deletes exactly the rows whose photos were just deleted.
   const gone = await db.delete(leads).where(lt(leads.createdAt, cutoff)).returning({ id: leads.id });
   return gone.length;
+}
+
+// Test drive holds whose time has passed (#166): the slot is over, so nothing is left to hold. The lead stays, on its own retention.
+// Returns how many were deleted, for the caller to log.
+export async function purgePastHolds(db: BaseSQLiteDatabase<"async", unknown, typeof schema>, now = new Date()): Promise<number> {
+  return (await db.delete(driveHolds).where(lt(driveHolds.startsAt, now)).returning({ id: driveHolds.leadId })).length;
 }

@@ -160,7 +160,7 @@ export function SearchBox() {
     <input
       type="search"
       aria-label="Search make or model"
-      placeholder="Search make or model"
+      placeholder="Make or model"
       maxLength={80}
       enterKeyHint="search"
       onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()} // closes the phone keyboard; the debounced search still runs
@@ -253,7 +253,7 @@ export function StockFilters({ showSearch = true }: { showSearch?: boolean }) {
           onChange={(e) => navigate({ ...query, sold: e.target.checked ? "include" : undefined, page: 1 })}
           className="h-5 w-5 shrink-0 accent-accent"
         />
-        <span className="min-w-0 flex-1">Include sold cars</span>
+        <span className="min-w-0 flex-1">Include Sold Cars</span>
       </label>
     </div>
   );

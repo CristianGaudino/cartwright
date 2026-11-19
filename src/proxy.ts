@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { stock } from "@/lib/stock";
+import { CAR_SLUG } from "@/lib/stock/types";
 
 // Next 16 has no gone(); a rewrite with a status is the documented way to answer 410 (D-03).
-// Make and body slugs never end in digits, so only a car-shaped slug reaches the provider.
-const CAR_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*-\d+$/;
+// Only a car-shaped slug reaches the provider.
 
 export async function proxy(req: NextRequest) {
   const slug = req.nextUrl.pathname.split("/")[2] ?? "";

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { CheckIcon, ChevronDownIcon } from "@/components/stock/icons";
 
-export type ComboOption = { value: string; label: string };
+export type ComboOption = { value: string; label: string; disabled?: boolean }; // disabled: shown greyed out, cannot be chosen
 
 // Search ignores case and accents, as the stock search does.
 const fold = (s: string) => s.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
@@ -116,6 +116,7 @@ export function Combobox({
     setTyped(null);
   };
   const choose = (o: ComboOption) => {
+    if (o.disabled) return;
     if (value === undefined) setInner(o.value);
     onChange?.(o.value);
     close();
@@ -210,9 +211,10 @@ export function Combobox({
               id={`${uid}-opt-${i}`}
               role="option"
               aria-selected={o.value === current}
+              aria-disabled={o.disabled || undefined}
               onClick={() => choose(o)}
               onMouseMove={() => setActive(i)}
-              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body active:bg-hairline ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""}`}
+              className={`flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-body active:bg-hairline ${i === active ? "bg-hairline" : ""} ${o.value === current ? "font-semibold" : ""} ${o.disabled ? "cursor-default text-text-2 line-through" : ""}`}
             >
               <span className="min-w-0 truncate">{o.label}</span>
               {o.value === current && <CheckIcon className="size-4 shrink-0" />}

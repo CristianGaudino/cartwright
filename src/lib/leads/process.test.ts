@@ -11,8 +11,9 @@ const live = cars.find((c) => !c.soldAt)!;
 const sold = cars.find((c) => c.soldAt)!;
 
 // Fake deps in the test (deps.ts is server-only). 03-05 extends this file and reuses these helpers.
-function fakeDeps(over: Partial<Deps["store"]> = {}) {
+function fakeDeps(over: Partial<Deps["store"]> = {}, holdOver: Partial<Deps["holds"]> = {}) {
   const rows: LeadRow[] = [];
+  const held = new Map<string, { carId: string; startsAt: Date }>();
   const mail: { subject: string; text: string; replyTo?: string }[] = [];
   const notified: string[] = [];
   const deps: Deps = {
@@ -22,6 +23,17 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
       markNotified: async (id) => void notified.push(id),
       ...over,
     },
+    holds: {
+      take: async (leadId, carId, startsAt) => {
+        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return false;
+        held.set(leadId, { carId, startsAt });
+        return true;
+      },
+      free: async (leadId) => void held.delete(leadId),
+      get: async (leadId) => held.get(leadId) ?? null,
+      times: async () => [],
+      ...holdOver,
+    },
     mailer: { send: async (m) => void mail.push(m) },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
     limiter: { allow: async () => true },
@@ -30,7 +42,7 @@ function fakeDeps(over: Partial<Deps["store"]> = {}) {
     bucket: { put: async () => {}, delete: async () => {} },
     photoLinkSecret: () => "test-secret",
   };
-  return { deps, rows, mail, notified };
+  return { deps, rows, mail, notified, held };
 }
 
 // The FormData exactly as LeadForm sends an enquiry.
@@ -220,6 +232,19 @@ describe("processLead bot checks (D-05)", () => {
     expect(rows).toHaveLength(2);
   });
 
+  it("logs cleanup_failed at error level when the photos of a lost double submit cannot be deleted", async () => {
+    const fd = enquiryForm({ type: "sourcing", sourcePath: "/find-a-car", make: "Audi", message: "Something like this" });
+    fd.delete("carId");
+    fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], "car.jpg"));
+    const { deps } = fakeDeps({ insert: async () => false });
+    deps.bucket.delete = async () => {
+      throw new Error("R2 down");
+    };
+    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(error.mock.calls.map((c: unknown[]) => JSON.parse(String(c[0])).outcome)).toEqual(["cleanup_failed"]);
+    expect(log.mock.calls.map((c: unknown[]) => JSON.parse(String(c[0])).outcome)).toEqual(["duplicate"]);
+  });
+
   it("stores a general message with no car and no details, and emails it", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);
@@ -232,17 +257,30 @@ describe("processLead bot checks (D-05)", () => {
     expect(getCar).not.toHaveBeenCalled();
   });
 
+  const tradeIn = (carId: string) => {
+    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId });
+    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
+    return fd;
+  };
+
   it("stores a trade-in with no car and its reg and mileage in details, and never looks a car up", async () => {
     const { deps, rows, mail } = fakeDeps();
     const getCar = vi.fn(deps.getCar);
     deps.getCar = getCar;
-    const fd = enquiryForm({ type: "trade_in", sourcePath: "/trade-in", reg: "191-ky-1234", mileage: "120,500", year: "", carId: live.id });
-    for (let i = 0; i < PHOTO_MIN_COUNT; i++) fd.append("photos", new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0])], `p${i}.jpg`));
-    expect(await processLead(fd, ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(tradeIn(""), ctx, deps)).toEqual({ status: "ok" });
     expect(rows[0]).toMatchObject({ type: "trade_in", carId: null, carSlug: null, carTitle: null, carPriceEur: null });
     expect(rows[0].details).toEqual({ reg: "191-KY-1234", mileage: 120500 });
     expect(getCar).not.toHaveBeenCalled();
     expect(mail[0].subject).toBe("[DEMO] Trade-in valuation"); // no reg in the subject (T-03-29)
+  });
+
+  it("stores a trade-in from a car page against that car, and keeps one whose car sold meanwhile, with no car", async () => {
+    const { deps, rows } = fakeDeps();
+    expect(await processLead(tradeIn(live.id), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows[0]).toMatchObject({ type: "trade_in", carId: live.id, carSlug: live.slug });
+    expect(await processLead(tradeIn(sold.id), ctx, deps)).toEqual({ status: "ok" }); // six photos in, the valuation is never lost
+    expect(rows[1]).toMatchObject({ type: "trade_in" });
+    expect(rows[1].carId ?? null).toBeNull();
   });
 
   // Confirms the 03-05 snapshotCar rule for finance from /finance: if this fails, fix snapshotCar, never the test.
@@ -274,5 +312,66 @@ describe("processLead bot checks (D-05)", () => {
     deps.limiter.allow = allow;
     expect(await processLead(enquiryForm({ website: "x" }), ctx, deps)).toEqual({ status: "ok" });
     expect(allow).not.toHaveBeenCalled();
+  });
+});
+
+describe("processLead, test drive requests (#166)", () => {
+  // Friday 20 Nov 2026, 10:00 in Ireland. Only Date is faked, so promises still run.
+  beforeEach(() => vi.useFakeTimers({ now: new Date("2026-11-20T10:00:00Z"), toFake: ["Date"] }));
+  afterEach(() => vi.useRealTimers());
+  const drive = (fields: Record<string, string> = {}) => enquiryForm({ type: "test_drive", phone: "087 123 4567", driveDate: "2026-11-24", driveTime: "10:30", ...fields });
+
+  it("holds the car and time, stores the lead and mails the day, time and a signed free-this-slot link", async () => {
+    const { deps, rows, mail, held } = fakeDeps();
+    expect(await processLead(drive(), ctx, deps)).toEqual({ status: "ok" });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ type: "test_drive", carId: live.id, details: { driveDate: "2026-11-24", driveTime: "10:30" } });
+    expect([...held]).toEqual([[rows[0].id, { carId: live.id, startsAt: new Date("2026-11-24T10:30:00Z") }]]);
+    expect(mail[0].subject).toBe(`[DEMO] Test drive request, Tue 24 Nov at 10:30: ${carTitle(live)}`);
+    expect(mail[0].text).toContain("Day: Tuesday 24 November 2026");
+    expect(mail[0].text).toContain("Time: 10:30");
+    expect(mail[0].text).toMatch(new RegExp(`/test-drive-slot/${rows[0].id}\\?exp=${Date.parse("2026-11-24T10:30:00Z") / 1000}&sig=[\\w-]{43}`));
+  });
+
+  it("refuses the same car and time again with the taken answer, and stores nothing", async () => {
+    const { deps, rows, mail } = fakeDeps();
+    await processLead(drive(), ctx, deps);
+    expect(await processLead(drive(), ctx, deps)).toEqual({ status: "failed", kind: "taken" });
+    expect(rows).toHaveLength(1);
+    expect(mail).toHaveLength(1);
+    expect(lines().at(-1)).toEqual({ leadId: expect.any(String), type: "test_drive", outcome: "taken" });
+    // Another time for the same car is fine.
+    expect(await processLead(drive({ driveTime: "11:00" }), ctx, deps)).toEqual({ status: "ok" });
+  });
+
+  it("refuses a closed day and a time off the grid before the bot check, and holds nothing", async () => {
+    const { deps, held } = fakeDeps();
+    const check = vi.spyOn(deps, "verifyTurnstile");
+    expect(await processLead(drive({ driveDate: "2026-11-22" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveDate: [expect.any(String)] } });
+    expect(await processLead(drive({ driveTime: "10:15" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [expect.any(String)] } });
+    expect(check).not.toHaveBeenCalled();
+    expect(held.size).toBe(0);
+  });
+
+  it("refuses a sold car as gone, and holds nothing", async () => {
+    const { deps, held } = fakeDeps();
+    expect(await processLead(drive({ carId: sold.id }), ctx, deps)).toEqual({ status: "failed", kind: "gone" });
+    expect(held.size).toBe(0);
+  });
+
+  it("frees the hold when the lead is not stored, so no hold is left without its lead", async () => {
+    const thrown = fakeDeps({ insert: async () => Promise.reject(new Error("db down")) });
+    expect(await processLead(drive(), ctx, thrown.deps)).toEqual({ status: "failed", kind: "server" });
+    expect(thrown.held.size).toBe(0);
+    const lost = fakeDeps({ exists: async () => false, insert: async () => false });
+    expect(await processLead(drive(), ctx, lost.deps)).toEqual({ status: "ok" });
+    expect(lost.held.size).toBe(0);
+  });
+
+  it("frees the hold when the email fails, so the buyer's retry is not refused as taken", async () => {
+    const { deps, held } = fakeDeps();
+    deps.mailer.send = async () => Promise.reject(new Error("mail down"));
+    expect(await processLead(drive(), ctx, deps)).toEqual({ status: "failed", kind: "server" });
+    expect(held.size).toBe(0);
   });
 });

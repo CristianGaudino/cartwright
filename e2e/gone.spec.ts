@@ -21,6 +21,10 @@ test("the 410 page shows the way on and is noindex", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "This Car Is No Longer Available" })).toBeVisible();
   await expect(page.getByRole("link", { name: `See more ${expired.make}` })).toHaveAttribute("href", `/used-cars/${expired.makeSlug}`);
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveAttribute("href", "/used-cars");
+  // "Here is what else we have" is followed by up to three cars: that make's, or the newest.
+  await expect(page.getByText("Here is what else we have.")).toBeVisible();
+  await expect(page.locator("article").first()).toBeVisible();
+  expect(await page.locator("article").count()).toBeLessThanOrEqual(3);
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
 });
 

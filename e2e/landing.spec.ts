@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { DEALER_ADDRESS, SITE_URL } from "../src/lib/site";
 
 type Demo = { slug: string; make: string; makeSlug: string; modelSlug: string; bodySlug?: string; bodyType?: string; soldAt?: string };
@@ -38,7 +38,7 @@ test("a make page has its own heading, title, intro and cars", async ({ page }) 
   const res = await page.goto(`/used-cars/${topSlug}`);
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Used ${topMake}`);
-  await expect(page.getByText(`We have ${n} used ${topMake} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
+  await expect(page.getByText(`We have ${n} used ${topMake} car${n === 1 ? "" : "s"} in stock in ${DEALER_ADDRESS.town}`)).toBeVisible();
   await expect(page).toHaveTitle(new RegExp(`^Used ${topMake} for sale in ${DEALER_ADDRESS.town}`));
   const links = page.locator("article h2 a");
   await expect(links).toHaveCount(Math.min(12, n));
@@ -92,7 +92,7 @@ test("a make page does not scroll sideways at 320px", async ({ page }) => {
 
 // Empty landing pages (D-08). Makes with no car in stock: the one whose last sale is oldest has expired out of the sold window.
 const production = process.env.APP_ENV === "production";
-const inWindow = (c: Demo) => Date.parse(c.soldAt!) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now();
+const inWindow = (c: Demo) => inSoldWindow(c, Date.now());
 const stockedMakes = new Set(inStock.map((c) => c.makeSlug));
 const unstocked = cars.filter((c) => c.soldAt && !stockedMakes.has(c.makeSlug));
 const expiredOnly = unstocked.filter((c) => !inWindow(c) && !unstocked.some((o) => o.makeSlug === c.makeSlug && inWindow(o)))[0];
@@ -111,7 +111,7 @@ test("a make with nothing in stock and nothing recently sold shows the empty sta
   await expect(page.getByRole("heading", { name: `No ${expiredOnly.make} in Stock Right Now` })).toBeVisible();
   await expect(page.getByText("Have a look at these instead.")).toBeVisible();
   expect((await chipHrefs(page, "Makes in Stock")).length).toBeGreaterThan(0);
-  await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", "/find-a-car");
+  await expect(page.getByRole("link", { name: "Can't find it? Ask us to find it for you." })).toHaveAttribute("href", `/find-a-car?make=${expiredOnly.makeSlug}`);
   await expect(page.getByRole("link", { name: "See all used cars" })).toHaveCount(0); // D-15 replaced it
   await expect(page.getByText(/^Recently sold/)).toHaveCount(0);
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
@@ -124,7 +124,7 @@ test("a make whose only cars sold recently shows them as Sold with no date", asy
   const html = await (await request.get(path)).text();
   for (const c of unstocked.filter((o) => o.makeSlug === recentOnly.makeSlug)) expect(html).not.toContain(c.soldAt!);
   await page.goto(path);
-  await expect(page.getByRole("heading", { name: `No ${recentOnly.make} in stock right now` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: `No ${recentOnly.make} in Stock Right Now` })).toBeVisible();
   await expect(page.getByRole("heading", { name: `Recently sold ${recentOnly.make}` })).toBeVisible();
   const cards = page.locator("article");
   expect(await cards.count()).toBeGreaterThanOrEqual(1);

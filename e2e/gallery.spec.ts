@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 
 type Demo = { slug: string; photos: unknown[]; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
 const car = cars.find((c) => !c.soldAt && c.photos.length >= 3);
-const sold = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const sold = cars.find((c) => inSoldWindow(c, Date.now()));
 const n = car?.photos.length ?? 0;
 
 test.skip(!car, "No in-stock demo car has 3 or more photos");

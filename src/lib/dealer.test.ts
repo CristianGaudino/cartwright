@@ -21,7 +21,7 @@ describe("dealerJsonLd", () => {
       logo: "https://carright.cgaudino.com/brand/logo.png",
       image: "https://carright.cgaudino.com/brand/logo.png",
       telephone: "+353831333154",
-      address: { "@type": "PostalAddress", addressLocality: "Tralee", addressRegion: "Co. Kerry", addressCountry: "IE" },
+      address: { "@type": "PostalAddress", addressLocality: "Tralee", addressRegion: "Kerry", addressCountry: "IE" },
     });
   });
 

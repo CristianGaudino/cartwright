@@ -2,12 +2,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { SOLD_VISIBLE_DAYS } from "../src/lib/stock/types";
+import { inSoldWindow } from "../src/lib/stock/types";
 import { SITE_URL } from "../src/lib/site";
+import { cleanFeatures } from "../src/lib/stock/format";
 
 type Demo = { slug: string; make: string; makeSlug: string; year: number; soldAt?: string; description?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
-const soldInPeriod = cars.find((c) => c.soldAt && Date.parse(c.soldAt) + SOLD_VISIBLE_DAYS * 86_400_000 > Date.now());
+const soldInPeriod = cars.find((c) => inSoldWindow(c, Date.now()));
 const longText = cars.find((c) => !c.soldAt && (c.description?.length ?? 0) > 700); // over the 700 characters CarSections clamps at
 const SKIP = "No demo car is inside the sold window: run npm run stock:redate to refresh the demo dates";
 
@@ -125,6 +126,32 @@ test.describe("on a desktop", () => {
   });
 });
 
+test.describe("the call bar on a phone", () => {
+  test.use({ viewport: { width: 375, height: 700 } });
+
+  test("shows Call, Enquire and Test Drive once the buy box buttons scroll away, above the compare pill", async ({ page }) => {
+    await page.goto(await firstCarHref(page));
+    await page.waitForLoadState("networkidle");
+    const bar = page.locator("[data-sticky-actions]");
+    await expect(bar.getByRole("link", { name: "Call" })).toBeHidden();
+    await buyBox(page).getByRole("button", { name: /^Compare / }).click();
+    await page.mouse.wheel(0, 2000);
+    await expect(bar.getByRole("link", { name: "Call" })).toHaveAttribute("href", "tel:+353831333154");
+    await expect(bar.getByRole("link", { name: "Call" })).toBeVisible();
+    await expect(bar.getByRole("button", { name: "Test Drive" })).toBeVisible();
+    const pill = page.getByRole("region", { name: "Compare cars" });
+    await expect(async () => expect((await pill.boundingBox())!.y + (await pill.boundingBox())!.height).toBeLessThanOrEqual((await bar.boundingBox())!.y)).toPass();
+    await bar.getByRole("button", { name: "Enquire" }).click();
+    await expect(page.getByRole("dialog", { name: "Enquire About This Car" })).toBeVisible();
+  });
+
+  test("is not on a sold car's page", async ({ page }) => {
+    test.skip(!soldInPeriod, SKIP);
+    await page.goto(`/used-cars/${soldInPeriod!.slug}`);
+    await expect(page.locator("[data-sticky-actions]")).toHaveCount(0);
+  });
+});
+
 test.describe("a sold car", () => {
   test.skip(!soldInPeriod, SKIP);
 
@@ -149,14 +176,14 @@ test.describe("a sold car", () => {
 });
 
 type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
-const rich = (cars as Rich[]).find((c) => !c.soldAt && c.features?.length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
-const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max Speed", "0 to 62 mph"];
+const rich = (cars as Rich[]).find((c) => !c.soldAt && cleanFeatures(c.features ?? []).length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "NCT Expired", "Max Speed", "0 to 100 km/h"];
 const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
 
 test.describe("the sections below the buy box", () => {
   test.skip(!rich, "No in-stock demo car has more than 12 features, a max speed and a multi-line description");
 
-  test("Specifications show present rows in order, with no tax row and a max speed in mph", async ({ page }) => {
+  test("Specifications show present rows in order, with no tax row and a max speed in km/h", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
     const spec = section(page, "Specifications");
     const labels = await spec.locator("dt").allTextContents();
@@ -166,12 +193,12 @@ test.describe("the sections below the buy box", () => {
     for (const l of labels) expect(ORDER).toContain(l);
     for (const v of values) expect(v.trim()).not.toMatch(/^$|undefined/);
     expect(labels.some((l) => /tax/i.test(l))).toBe(false);
-    expect(values[labels.indexOf("Max Speed")]).toMatch(/ mph$/);
+    expect(values[labels.indexOf("Max Speed")]).toMatch(/ km\/h$/);
   });
 
   test("Equipment shows 12 items, then all of them behind Show all", async ({ page }) => {
     await page.goto(`/used-cars/${rich!.slug}`);
-    const n = rich!.features.length;
+    const n = cleanFeatures(rich!.features).length; // the page shows the list cleaned
     const items = section(page, "Equipment").locator("li:visible");
     await expect(items).toHaveCount(12);
     await section(page, "Equipment").getByText(`Show all ${n}`).click();

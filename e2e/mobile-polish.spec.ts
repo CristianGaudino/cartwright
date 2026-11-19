@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { SITE_NAME } from "../src/lib/site";
 import { optionLabels } from "./combo";
+import { ready } from "./ready";
 
 // The phone layout fixes from the mobile polish pass (#139 to #146). The default device is a phone.
 
@@ -28,9 +29,10 @@ test("the footer is compact on a phone", async ({ page }) => {
   expect((await page.getByRole("contentinfo").boundingBox())!.height).toBeLessThan(620);
 });
 
-test("Back to top is a footer link on every page on a phone, level with the logo on the right, and there is no button", async ({ page }) => {
+test("Back to top is a footer button on every page on a phone, level with the logo on the right, and there is no floating one", async ({ page }) => {
   await page.goto("/used-cars");
-  await expect(page.getByRole("button", { name: "Back to Top", exact: true })).toHaveCount(0);
+  await ready(page);
+  await expect(page.getByRole("button", { name: /^back to top$/i })).toHaveCount(1); // the footer's only, no floating button
   const footer = page.getByRole("contentinfo");
   const link = footer.getByRole("button", { name: "Back to top" });
   const [logo, to] = await Promise.all([footer.getByRole("link", { name: SITE_NAME }).boundingBox(), link.boundingBox()]);

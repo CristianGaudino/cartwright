@@ -2,7 +2,7 @@
 
 import { Combobox } from "@/components/Combobox";
 import { useState } from "react";
-import { AlertIcon } from "@/components/stock/icons";
+import { AlertIcon, ChevronDownIcon } from "@/components/stock/icons";
 import { CONTACT_ERROR, COUNTRIES, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
@@ -108,8 +108,8 @@ export function FieldError({ id, children }: { id?: string; children: React.Reac
   );
 }
 
-// Name, then phone and email, at least one of which is needed (D-12).
-export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
+// Name, then phone and email, at least one of which is needed (D-12). A test drive needs the phone, since the dealer calls to confirm.
+export function ContactFields({ bind, phoneRequired }: { bind(name: string): FieldBinding; phoneRequired?: boolean }) {
   const email = bind("email");
   const both = email.error === CONTACT_ERROR;
   // Phone and Email sit side by side once the form itself is wide enough (a container query, so a narrow dialog stays in one column).
@@ -118,10 +118,10 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
       <Field {...bind("name")} label="Name" required autoComplete="name" maxLength={LIMITS.name} enterKeyHint="next" />
       {/* The line sits with the pair it explains (tight below it, a larger gap above), not under Name. */}
       <div className="mt-2 flex flex-col gap-2">
-        <p className="text-meta text-text-2">Add a phone number or an email, so we can reply.</p>
+        <p className="text-meta text-text-2">{phoneRequired ? "We'll call you to confirm the time." : "Add a phone number or an email, so we can reply."}</p>
         <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2">
-          <PhoneField {...bind("phone")} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
-          <Field {...email} label="Email" type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
+          <PhoneField {...bind("phone")} required={phoneRequired} invalid={both} describedBy={both ? `${email.id}-error` : undefined} />
+          <Field {...email} label="Email" optional={phoneRequired} type="email" autoComplete="email" maxLength={LIMITS.email} enterKeyHint="next" />
         </div>
       </div>
     </div>
@@ -130,7 +130,7 @@ export function ContactFields({ bind }: { bind(name: string): FieldBinding }) {
 
 // A country code and the number, kept in the form as one value ("+353 87 123 4567"), which is what the server checks and the dealer reads.
 // Ireland is the default. A leading 0 is dropped as it is typed (087 becomes 87), the way the number is dialled from abroad.
-function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: FieldBinding & { invalid?: boolean; describedBy?: string }) {
+function PhoneField({ id, name, value, onChange, error, invalid, required, describedBy }: FieldBinding & { invalid?: boolean; required?: boolean; describedBy?: string }) {
   // Starts from the saved value, so a form that remounts (a step back and forward) keeps the country the buyer chose.
   const [country, setCountry] = useState<(typeof COUNTRIES)[number]>(() => COUNTRIES.find((c) => value.startsWith(`${c.dial} `)) ?? COUNTRIES[0]);
   const number = value.startsWith(`${country.dial} `) ? value.slice(country.dial.length).trim() : value;
@@ -138,29 +138,34 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-meta font-semibold">
+      <label htmlFor={id} className={`text-meta font-semibold ${required ? "required-mark" : ""}`}>
         Phone
       </label>
       <div className="flex gap-2">
-        <select
-          aria-label="Country code"
-          value={country.code}
-          onChange={(e) => {
-            const c = COUNTRIES.find((x) => x.code === e.target.value)!;
-            setCountry(c);
-            set(c, number);
-          }}
-          className={`${control.replace("w-full ", "")} h-12 w-[6.5rem] shrink-0 px-3`}
-        >
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.code} {c.dial}
-            </option>
-          ))}
-        </select>
+        {/* The browser's arrow swapped for the chevron the other selects (Combobox) use. */}
+        <span className="relative shrink-0">
+          <select
+            aria-label="Country code"
+            value={country.code}
+            onChange={(e) => {
+              const c = COUNTRIES.find((x) => x.code === e.target.value)!;
+              setCountry(c);
+              set(c, tidy(number, c.dial)); // a code half typed in the box ("+3") never stacks behind the new one
+            }}
+            className={`${control.replace("w-full ", "")} h-12 w-[7.5rem] cursor-pointer appearance-none pl-3 pr-10`}
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} {c.dial}
+              </option>
+            ))}
+          </select>
+          <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
+        </span>
+        {/* The full value is what the form sends; the visible input holds only the number. */}
+        <input type="hidden" name={name} value={value} />
         <input
           id={id}
-          name={name}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"
@@ -169,8 +174,18 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
           placeholder={country.example}
           value={number}
           aria-invalid={error || invalid ? true : undefined}
+          aria-required={required || undefined}
           aria-describedby={[errorId, describedBy].filter(Boolean).join(" ") || undefined}
-          onChange={(e) => set(country, tidy(e.target.value, country.dial))}
+          onChange={(e) => {
+            // A number typed or pasted with its own code ("+353 87…" while PL is picked) switches the country. A code still being typed
+            // ("+3") is kept as it is; any other "+" (a stray one before a local number) is dropped and the number read under the country picked.
+            const raw = e.target.value.trim().replace(/^00/, "+"); // "00353…" is how much of Europe writes +353
+            const pasted = raw.startsWith("+") ? BY_DIAL.find((x) => raw.startsWith(x.dial)) : undefined;
+            if (raw.startsWith("+") && !pasted && BY_DIAL.some((x) => x.dial.startsWith(raw))) return onChange(raw);
+            const c = pasted ?? country;
+            if (c !== country) setCountry(c);
+            set(c, tidy(raw, c.dial));
+          }}
           className={`${control} h-12 min-w-0 flex-1 px-4`}
         />
       </div>
@@ -178,6 +193,9 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
     </div>
   );
 }
+
+// Longest code first, so +353 is never read as a shorter code that starts the same way.
+const BY_DIAL = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
 
 // What was typed or pasted, as the number alone: no code (a pasted +353 is dropped), only digits, spaces, brackets and hyphens, and no leading 0.
 function tidy(raw: string, dial: string) {

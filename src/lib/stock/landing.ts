@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/site";
+import { DEALER_ADDRESS, DEALER_LOCATION, DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatPrice } from "./format";
-import { carJsonLd } from "./seo";
 import type { Car, StockQuery } from "./types";
 
 // Pure: no provider import. The labels and slugs come from the provider's taxonomy.
@@ -45,10 +44,11 @@ export const landingFilter = (l: Landing): Pick<StockQuery, "make" | "model" | "
 
 const priceText = (f: Facts) => (f.n === 1 || f.min === f.max ? `at ${formatPrice(f.min)}` : `from ${formatPrice(f.min)} to ${formatPrice(f.max)}`);
 
+// "1 used SUV car", "5 used Ford cars", "2 used Audi A4 cars".
+const countNoun = (l: Landing, n: number) => `${n} used ${l.kind === "body" ? l.body : landingName(l)} car${n === 1 ? "" : "s"}`;
+
 export function landingIntro(l: Landing, f: Facts): string {
-  // One body type car reads "1 used SUV car"; makes and models keep their name.
-  const noun = l.kind === "body" ? `${l.body} car${f.n === 1 ? "" : "s"}` : landingName(l);
-  const first = `We have ${f.n} used ${noun} in stock in ${DEALER_ADDRESS.town}, ${priceText(f)}.`;
+  const first = `We have ${countNoun(l, f.n)} in stock in ${DEALER_ADDRESS.town}, ${priceText(f)}.`;
   if (l.kind === "model") return `${first} ${f.oldest === f.newest ? `Year: ${f.oldest}.` : `Years: ${f.oldest} to ${f.newest}.`}`;
   if (f.n === 1) return first;
   return l.kind === "make" ? `${first} Models in stock: ${f.models.join(", ")}.` : `${first} Makes in stock: ${f.makes.join(", ")}.`;
@@ -60,7 +60,7 @@ export function landingMetadata(l: Landing, f: Facts | null, canonical: string):
   const title = `Used ${name} for sale in ${DEALER_ADDRESS.town}`;
   const description = f
     ? [
-        `${f.n} used ${l.kind === "body" ? `${l.body} car${f.n === 1 ? "" : "s"}` : name} in stock at ${SITE_NAME}, ${DEALER_ADDRESS.town}, ${priceText(f)}.`,
+        `${countNoun(l, f.n)} in stock at ${SITE_NAME}, ${DEALER_ADDRESS.town}, ${priceText(f)}.`,
         l.kind === "make" && f.n > 1 && `Models: ${f.models.join(", ")}.`,
         l.kind === "body" && f.n > 1 && `Makes: ${f.makes.join(", ")}.`,
       ]
@@ -76,10 +76,11 @@ export function landingMetadata(l: Landing, f: Facts | null, canonical: string):
   };
 }
 
+// Each item is the car page's URL only: the full Product record lives on that page (Google's summary-page form).
 export function itemListJsonLd(cars: Car[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: cars.map((car, i) => ({ "@type": "ListItem", position: i + 1, item: carJsonLd(car) })),
+    itemListElement: cars.map((car, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE_URL}/used-cars/${car.slug}` })),
   };
 }

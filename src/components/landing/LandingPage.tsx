@@ -3,6 +3,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ListingCard } from "@/components/stock/ListingCard";
 import { card, pageMain, pageTitle, secondaryButton, subTitle } from "@/components/ui";
 import { ChevronRightIcon } from "@/components/stock/icons";
+import { sourcingHref } from "@/lib/leads/sourcing-prefill";
 import { countLabel } from "@/lib/stock/format";
 import { itemListJsonLd, landingFilter, landingIntro, landingName } from "@/lib/stock/landing";
 import type { Landing } from "@/lib/stock/landing";
@@ -69,6 +70,7 @@ const toModel = (o: FacetOption) => `/used-cars/${o.parent}/${o.value}`; // mode
 export function LandingPage({ data }: { data: LandingData }) {
   const { landing, cars, facts, facets, sold } = data;
   const name = landingName(landing);
+  const find = sourcingHref(landing.kind === "body" ? { body: landing.bodySlug } : { make: landing.makeSlug, model: landing.kind === "model" ? landing.model : undefined });
   const shown = cars.slice(0, SHOWN);
   return (
     <main className={pageMain}>
@@ -97,14 +99,14 @@ export function LandingPage({ data }: { data: LandingData }) {
             <div className={`${card} flex flex-col items-start justify-center gap-3 p-6`}>
               <h2 className={subTitle}>Not Quite Right?</h2>
               <p className="text-body text-text-2">Tell us what you&apos;re looking for and we&apos;ll look for it.</p>
-              <Link href="/find-a-car" className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
+              <Link href={find} className={`inline-flex h-12 items-center px-6 ${secondaryButton}`}>
                 Find Me a Car
               </Link>
             </div>
           </div>
           {facts.n > SHOWN && (
             <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 inline-flex h-12 items-center px-6 ${secondaryButton}`}>
-              See all {facts.n} {name}
+              See All {facts.n} {name}
             </Link>
           )}
           {landing.kind === "make" && <LinkChips heading="Body Types" options={facets.body} href={toPage} />}
@@ -130,7 +132,7 @@ export function LandingPage({ data }: { data: LandingData }) {
             </section>
           )}
           {/* D-15: the empty page's call to action, in place of the plain used-cars button (Phase 2 D-08). */}
-          <Link href="/find-a-car" className="mt-8 flex min-h-11 w-fit items-center text-body underline">
+          <Link href={find} className="mt-8 flex min-h-11 w-fit items-center text-body underline">
             Can&apos;t find it? Ask us to find it for you.
           </Link>
         </>

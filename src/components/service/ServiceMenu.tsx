@@ -27,7 +27,7 @@ function Panel({ service }: { service: Service }) {
         <ul className="flex flex-col">
           {service.types.map((t) => (
             <li key={t} className="flex items-center gap-4 border-b border-hairline py-3 text-body last:border-b-0">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-text">
                 <CheckIcon className="size-5" />
               </span>
               {t}
@@ -39,7 +39,7 @@ function Panel({ service }: { service: Service }) {
         </p>
       </div>
       <div data-wells className="flex flex-col gap-4 rounded-card border border-hairline p-4 sm:p-5">
-        <h4 className="text-body font-semibold">Tell us what your car needs</h4>
+        <h3 className="text-body font-semibold">Tell Us What Your Car Needs</h3>
         <LeadPageForm type="general" prefill={prefill} submitLabel="Send Message" success={{ heading: "Thanks, we have your message.", body: "We'll get back to you." }} />
       </div>
     </div>
@@ -94,7 +94,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent"}`}>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent-text"}`}>
                     +
                   </span>
                 </span>

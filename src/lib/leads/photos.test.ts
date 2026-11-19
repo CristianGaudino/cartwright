@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { signPhotoPath, sniffImage, verifyPhotoSig } from "./photos";
+import { signPhotoPath, signSlotPath, sniffImage, verifyLinkSig, verifySlotLink } from "./photos";
 
 const bytes = (...b: number[]) => new Uint8Array([...b, 0, 0, 0, 0]);
 const JPEG = bytes(0xff, 0xd8, 0xff, 0xe0);
@@ -36,13 +36,13 @@ describe("signed photo links", () => {
     expect(path.startsWith(`/lead-photos/${key}?exp=`)).toBe(true);
     const l = parse(path);
     expect(l.key).toBe(key);
-    expect(await verifyPhotoSig(l.key, l.exp, l.sig, "secret-a")).toBe(true);
-    expect(await verifyPhotoSig(key.replace("1.jpg", "2.jpg"), l.exp, l.sig, "secret-a")).toBe(false);
-    expect(await verifyPhotoSig(l.key, String(Number(l.exp) + 1), l.sig, "secret-a")).toBe(false);
+    expect(await verifyLinkSig(l.key, l.exp, l.sig, "secret-a")).toBe(true);
+    expect(await verifyLinkSig(key.replace("1.jpg", "2.jpg"), l.exp, l.sig, "secret-a")).toBe(false);
+    expect(await verifyLinkSig(l.key, String(Number(l.exp) + 1), l.sig, "secret-a")).toBe(false);
     const flipped = (l.sig[0] === "A" ? "B" : "A") + l.sig.slice(1);
-    expect(await verifyPhotoSig(l.key, l.exp, flipped, "secret-a")).toBe(false);
-    expect(await verifyPhotoSig(l.key, l.exp, l.sig, "secret-b")).toBe(false);
-    expect(await verifyPhotoSig(l.key, l.exp, "not a signature", "secret-a")).toBe(false);
+    expect(await verifyLinkSig(l.key, l.exp, flipped, "secret-a")).toBe(false);
+    expect(await verifyLinkSig(l.key, l.exp, l.sig, "secret-b")).toBe(false);
+    expect(await verifyLinkSig(l.key, l.exp, "not a signature", "secret-a")).toBe(false);
   });
 
   it("expires after 7 days by default", async () => {
@@ -50,8 +50,36 @@ describe("signed photo links", () => {
     const l = parse(await signPhotoPath(key, "secret-a"));
     expect(Number(l.exp)).toBe(Date.parse("2026-11-14T12:00:00Z") / 1000);
     vi.setSystemTime(new Date("2026-11-14T11:59:00Z"));
-    expect(await verifyPhotoSig(l.key, l.exp, l.sig, "secret-a")).toBe(true);
+    expect(await verifyLinkSig(l.key, l.exp, l.sig, "secret-a")).toBe(true);
     vi.setSystemTime(new Date("2026-11-14T12:01:00Z"));
-    expect(await verifyPhotoSig(l.key, l.exp, l.sig, "secret-a")).toBe(false);
+    expect(await verifyLinkSig(l.key, l.exp, l.sig, "secret-a")).toBe(false);
+  });
+});
+
+describe("signed free-this-slot links (#166)", () => {
+  const lead = "00000000-0000-4000-8000-000000000001";
+  const startsAt = new Date("2026-11-24T10:30:00Z");
+  const parse = (path: string) => Object.fromEntries(new URL(path, "https://example.test").searchParams);
+  afterEach(() => vi.useRealTimers());
+
+  it("works until the drive's start, for that lead and secret only", async () => {
+    vi.useFakeTimers({ now: new Date("2026-11-20T10:00:00Z") });
+    const path = await signSlotPath(lead, startsAt, "secret-a");
+    expect(path.startsWith(`/test-drive-slot/${lead}?exp=${startsAt.getTime() / 1000}&sig=`)).toBe(true);
+    const { exp, sig } = parse(path);
+    expect(await verifySlotLink(lead, exp, sig, "secret-a")).toBe(true);
+    expect(await verifySlotLink(lead.replace("1", "2"), exp, sig, "secret-a")).toBe(false);
+    expect(await verifySlotLink(lead, exp, sig, "secret-b")).toBe(false);
+    expect(await verifySlotLink(lead, undefined, sig, "secret-a")).toBe(false);
+    expect(await verifySlotLink("../x", exp, sig, "secret-a")).toBe(false);
+    vi.setSystemTime(new Date("2026-11-24T10:31:00Z"));
+    expect(await verifySlotLink(lead, exp, sig, "secret-a")).toBe(false);
+  });
+
+  it("never accepts a photo link's signature, nor opens a photo with its own", async () => {
+    const photo = parse(await signPhotoPath(`trade-in/${lead}/1.jpg`, "secret-a"));
+    expect(await verifySlotLink(lead, photo.exp, photo.sig, "secret-a")).toBe(false);
+    const slot = parse(await signSlotPath(lead, new Date(Date.now() + 86_400_000), "secret-a"));
+    expect(await verifyLinkSig(`trade-in/${lead}/1.jpg`, slot.exp, slot.sig, "secret-a")).toBe(false);
   });
 });

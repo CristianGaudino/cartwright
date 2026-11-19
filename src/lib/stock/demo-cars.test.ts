@@ -6,11 +6,10 @@ import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
 import { stock } from "./index";
 import { DEFAULT_QUERY } from "./query";
-import { FUELS, GEARBOXES, SOLD_VISIBLE_DAYS, TEXT_LIMITS } from "./types";
+import { FUELS, GEARBOXES, SLUG, TEXT_LIMITS, inSoldWindow } from "./types";
 import type { Car } from "./types";
 
 const cars = demoCars as Car[];
-const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const nextYear = new Date().getFullYear() + 1;
 
 function strings(v: unknown): string[] {
@@ -84,8 +83,26 @@ describe("generated demo cars", () => {
       for (const line of (c.description ?? "").split("\n")) expect(line).not.toMatch(CONTACT_LINE);
     });
 
+    // Left in the description, the equipment run reads as one wall of text and the car shows no features.
+    it("keeps the equipment run out of the description", () => {
+      const lines = cars.flatMap((c) => (c.description ?? "").split("\n").map((l) => [c.slug, l] as const));
+      expect(lines.filter(([, l]) => (l.match(/,/g) ?? []).length > 8)).toEqual([]);
+      // Older classics carry a hand-written description and no equipment list.
+      const bare = cars.filter((c) => !c.soldAt && c.year >= 2000 && (c.description?.length ?? 0) > 200 && !c.features);
+      expect(bare.map((c) => c.slug)).toEqual([]);
+    });
+
     it("keeps the line breaks of the dealer's description", () => {
       expect(cars.some((c) => c.description?.includes("\n"))).toBe(true);
+    });
+
+    // A lone trim word ("Amg", "Design") would show as the whole About This Car.
+    it("has no description that is a single word", () => {
+      for (const c of cars) if (c.description !== undefined) expect(c.description, c.slug).toMatch(/\s/);
+    });
+
+    it("has no variant that starts with its model, so the title doesn't say it twice", () => {
+      for (const c of cars) expect(c.variant?.toLowerCase().startsWith(c.model.toLowerCase() + " ") ?? false, c.slug).toBe(false);
     });
 
     it("has no make or body slug that could collide with a car slug or each other (D-06)", () => {
@@ -135,7 +152,7 @@ describe("generated demo cars", () => {
     });
 
     it("keeps in-period sold cars reachable by slug and answers gone for expired ones", async () => {
-      const live = sold.filter((c) => Date.parse(c.soldAt!) + SOLD_VISIBLE_DAYS * DAY > now.getTime());
+      const live = sold.filter((c) => inSoldWindow(c, now.getTime()));
       const gone = sold.filter((c) => !live.includes(c));
       expect(live.length).toBeGreaterThanOrEqual(3);
       expect(gone.length).toBeGreaterThanOrEqual(2);
