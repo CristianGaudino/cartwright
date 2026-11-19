@@ -53,7 +53,7 @@ export function MobileMenu({ links }: { links: { href: string; label: string }[]
                       dialog.current?.setAttribute("data-instant", "");
                       dialog.current?.close();
                     }}
-                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent" : ""}`}
+                    className={`flex min-h-12 items-center text-heading font-semibold ${here(l.href) ? "text-accent-text" : ""}`}
                   >
                     {l.label}
                   </Link>

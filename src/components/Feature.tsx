@@ -3,7 +3,7 @@ import { card, subTitle } from "@/components/ui";
 // The round red-tinted badge that holds an icon or a step number. One look for every "reason" and "step" on the site.
 export function IconBadge({ children, size = "md" }: { children: React.ReactNode; size?: "sm" | "md" }) {
   return (
-    <span className={`flex shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent ring-1 ring-accent/30 ${size === "md" ? "size-12" : "size-10"}`}>{children}</span>
+    <span className={`flex shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent-text ring-1 ring-accent/30 ${size === "md" ? "size-12" : "size-10"}`}>{children}</span>
   );
 }
 

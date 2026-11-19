@@ -28,7 +28,7 @@ export function AboutCar({ car }: { car: Car }) {
             className="flex min-h-11 cursor-pointer items-center font-semibold peer-focus-visible:underline [&>span:last-child]:hidden peer-checked:[&>span:first-child]:hidden peer-checked:[&>span:last-child]:inline"
           >
             <span>Read More</span>
-            <span>Show less</span>
+            <span>Show Less</span>
           </label>
         </>
       ) : (
@@ -78,8 +78,8 @@ export function Equipment({ car }: { car: Car }) {
           // Native <details>: works without JavaScript.
           <details className="group">
             <summary className="flex min-h-11 cursor-pointer list-none items-center font-semibold [&::-webkit-details-marker]:hidden">
-              <span className="group-open:hidden">Show all {all.length}</span>
-              <span className="hidden group-open:inline">Show fewer</span>
+              <span className="group-open:hidden">Show All {all.length}</span>
+              <span className="hidden group-open:inline">Show Fewer</span>
             </summary>
             <List items={rest} />
           </details>

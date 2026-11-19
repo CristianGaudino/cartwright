@@ -104,7 +104,7 @@ export function LandingPage({ data }: { data: LandingData }) {
           </div>
           {facts.n > SHOWN && (
             <Link href={stockHref({ ...DEFAULT_QUERY, ...landingFilter(landing) })} className={`mt-8 inline-flex h-12 items-center px-6 ${secondaryButton}`}>
-              See all {facts.n} {name}
+              See All {facts.n} {name}
             </Link>
           )}
           {landing.kind === "make" && <LinkChips heading="Body Types" options={facets.body} href={toPage} />}

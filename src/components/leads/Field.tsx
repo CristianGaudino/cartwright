@@ -2,7 +2,7 @@
 
 import { Combobox } from "@/components/Combobox";
 import { useState } from "react";
-import { AlertIcon } from "@/components/stock/icons";
+import { AlertIcon, ChevronDownIcon } from "@/components/stock/icons";
 import { CONTACT_ERROR, COUNTRIES, LIMITS } from "@/lib/leads/constants";
 import type { FieldBinding } from "./LeadForm";
 
@@ -142,22 +142,26 @@ function PhoneField({ id, name, value, onChange, error, invalid, describedBy }: 
         Phone
       </label>
       <div className="flex gap-2">
-        <select
-          aria-label="Country code"
-          value={country.code}
-          onChange={(e) => {
-            const c = COUNTRIES.find((x) => x.code === e.target.value)!;
-            setCountry(c);
-            set(c, number);
-          }}
-          className={`${control.replace("w-full ", "")} h-12 w-[6.5rem] shrink-0 px-3`}
-        >
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.code} {c.dial}
-            </option>
-          ))}
-        </select>
+        {/* The browser's arrow swapped for the chevron the other selects (Combobox) use. */}
+        <span className="relative shrink-0">
+          <select
+            aria-label="Country code"
+            value={country.code}
+            onChange={(e) => {
+              const c = COUNTRIES.find((x) => x.code === e.target.value)!;
+              setCountry(c);
+              set(c, number);
+            }}
+            className={`${control.replace("w-full ", "")} h-12 w-[7.5rem] cursor-pointer appearance-none pl-3 pr-10`}
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} {c.dial}
+              </option>
+            ))}
+          </select>
+          <ChevronDownIcon className="pointer-events-none absolute right-3 top-3 h-6 w-6" />
+        </span>
         <input
           id={id}
           name={name}

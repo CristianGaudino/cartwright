@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import localFont from "next/font/local";
 import { CompareBar } from "@/components/compare/CompareBar";
+import { NavProgress } from "@/components/NavProgress";
 import { Toaster } from "@/components/Toaster";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -32,6 +34,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SiteHeader />
         {children}
         <SiteFooter />
+        {/* Suspense: it reads the search params, which a static page only has in the browser. */}
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
         {dev && <dev.Toggle mode={dev.mode} />}
         {/* One stack at the bottom of the screen: the toast above the compare pill. Both take their own pointer events. */}
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">

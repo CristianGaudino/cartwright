@@ -164,3 +164,19 @@ for (const path of PAGES) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   });
 }
+
+test("a slow page shows the bar along the top until it lands", async ({ page }) => {
+  const bar = page.locator(".nav-progress");
+  await page.goto("/used-cars");
+  const card = page.locator("main a[href^='/used-cars/']:visible").filter({ has: page.locator("img") }).first();
+  const href = (await card.getAttribute("href"))!;
+  await page.route((url) => url.pathname === href, async (r) => {
+    await new Promise((ok) => setTimeout(ok, 1500));
+    await r.continue();
+  });
+  await card.click();
+  await expect(bar).toHaveAttribute("data-phase", "loading");
+  await expect(bar).toHaveCSS("opacity", "1");
+  await page.waitForURL(`**${href}`);
+  await expect(bar).toHaveAttribute("data-phase", "idle");
+});

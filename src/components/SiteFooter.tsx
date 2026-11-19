@@ -38,8 +38,8 @@ const GROUPS = [
 const SOCIAL_ICONS = { Facebook: FacebookIcon, Instagram: InstagramIcon, TikTok: TikTokIcon };
 
 const link = "inline-flex min-h-11 items-center transition-colors hover:text-text-2";
-// Footer links on a phone sit closer than the 44px rule: they are a list, and the footer was far too tall.
-const tight = "inline-flex min-h-9 items-center transition-colors hover:text-text-2 lg:min-h-11";
+// Footer links are 44px tall for a finger; from 1024px, where a mouse points, the list sits closer.
+const tight = "inline-flex min-h-11 items-center transition-colors hover:text-text-2 lg:min-h-9";
 
 // No top margin of its own: pages already end with 64px padding (03-10). No year in the copyright, so a cached page
 // never goes stale.
