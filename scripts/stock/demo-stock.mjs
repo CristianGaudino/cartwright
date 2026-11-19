@@ -262,7 +262,8 @@ function describe(blurb) {
     .map((f) => f.trim())
     .filter((f) => f && !seen.has(f.toLowerCase()) && seen.add(f.toLowerCase()));
   const cut = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
-  return { description: description ? cut(description, LIMITS.description) : undefined, features: features.length ? features.map((f) => cut(f, LIMITS.feature)) : undefined };
+  // A single word ("Amg", "Design") is a trim name, not a description; "7 SEATER" stays.
+  return { description: /\s/.test(description) ? cut(description, LIMITS.description) : undefined, features: features.length ? features.map((f) => cut(f, LIMITS.feature)) : undefined };
 }
 
 // The detail page's label/value list. Only Seats, Max Speed and 0-62 mph are read from it; the rest is on the listing.
@@ -319,7 +320,9 @@ async function buildCmd() {
     const fuel = fuelRaw ? mapFuel(fuelRaw) : undefined;
     if (fuel === "other") unmappedFuel.push(fuelRaw);
     const bodyType = clean(s.body) || undefined;
-    const variant = clean(l.highlights).slice(0, LIMITS.variant).replace(new RegExp(`^${(make + " " + model).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*`, "i"), "") || undefined;
+    // Drops a leading "make model", a bare "model" and a repeated one ("Kia EV6 EV6 GT-Line" is GT-Line), so the title doesn't say it twice.
+    const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const variant = clean(l.highlights).slice(0, LIMITS.variant).replace(new RegExp(`^(${esc(make)}\\s+)?(${esc(model)}(\\s+|$))+`, "i"), "") || undefined;
 
     const photoState = join(CACHE, "cars", l.id, "photos.json");
     const kept = (existsSync(photoState) ? JSON.parse(readFileSync(photoState, "utf8")) : []).filter((p) => p.n).sort((a, b) => a.n - b.n);

@@ -6,11 +6,10 @@ import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
 import { stock } from "./index";
 import { DEFAULT_QUERY } from "./query";
-import { FUELS, GEARBOXES, TEXT_LIMITS, inSoldWindow } from "./types";
+import { FUELS, GEARBOXES, SLUG, TEXT_LIMITS, inSoldWindow } from "./types";
 import type { Car } from "./types";
 
 const cars = demoCars as Car[];
-const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const nextYear = new Date().getFullYear() + 1;
 
 function strings(v: unknown): string[] {
@@ -95,6 +94,15 @@ describe("generated demo cars", () => {
 
     it("keeps the line breaks of the dealer's description", () => {
       expect(cars.some((c) => c.description?.includes("\n"))).toBe(true);
+    });
+
+    // A lone trim word ("Amg", "Design") would show as the whole About This Car.
+    it("has no description that is a single word", () => {
+      for (const c of cars) if (c.description !== undefined) expect(c.description, c.slug).toMatch(/\s/);
+    });
+
+    it("has no variant that starts with its model, so the title doesn't say it twice", () => {
+      for (const c of cars) expect(c.variant?.toLowerCase().startsWith(c.model.toLowerCase() + " ") ?? false, c.slug).toBe(false);
     });
 
     it("has no make or body slug that could collide with a car slug or each other (D-06)", () => {

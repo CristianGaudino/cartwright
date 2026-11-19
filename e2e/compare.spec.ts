@@ -1,10 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { ready } from "./ready";
 
-// A tap before React attaches does nothing.
-async function ready(page: Page) {
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-}
 // The first n car pages from the list, in order. Compare lives on the car page; the cards carry only the heart.
 async function carPaths(page: Page, n: number) {
   await page.goto("/used-cars");

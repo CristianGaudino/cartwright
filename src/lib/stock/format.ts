@@ -32,7 +32,9 @@ const nctLabel = (s: string) => {
 };
 
 // Every spec the car has, in the order the page shows them. Rows with no value are left out (D-10); road tax is dropped on purpose (stale due dates).
-export function specRows(car: Car): { label: string; value: string }[] {
+export function specRows(car: Car, now = Date.now()): { label: string; value: string }[] {
+  // An NCT runs to the end of its month, so only a month before this one has expired. "YYYY-MM" strings sort as dates.
+  const nctPast = !!car.nctExpiry && car.nctExpiry < new Date(now).toISOString().slice(0, 7);
   const rows: [string, string | undefined][] = [
     ["Year", String(car.year)],
     ["Mileage", car.mileageKm === undefined ? undefined : formatKm(car.mileageKm)],
@@ -44,7 +46,7 @@ export function specRows(car: Car): { label: string; value: string }[] {
     ["Doors", car.doors === undefined ? undefined : String(car.doors)],
     ["Seats", car.seats === undefined ? undefined : String(car.seats)],
     ["Owners", car.owners ? String(car.owners) : undefined], // 0 owners (a new car) is no row
-    ["NCT Expires", car.nctExpiry && nctLabel(car.nctExpiry)],
+    [nctPast ? "NCT Expired" : "NCT Expires", car.nctExpiry && nctLabel(car.nctExpiry)],
     // Published in mph; an Irish site reads km/h. 62 mph is 100 km/h, so the sprint time stands as it is.
     ["Max Speed", car.maxSpeedMph === undefined ? undefined : `${Math.round(car.maxSpeedMph * KM_PER_MILE)} km/h`],
     ["0 to 100 km/h", car.zeroTo62Secs === undefined ? undefined : `${car.zeroTo62Secs} s`],

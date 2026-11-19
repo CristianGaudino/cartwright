@@ -58,7 +58,7 @@ const full: Car = {
 
 describe("specRows", () => {
   it("lists every present spec in order with exact formats", () => {
-    expect(specRows(full)).toEqual([
+    expect(specRows(full, Date.UTC(2026, 10, 19))).toEqual([
       { label: "Year", value: "2019" },
       { label: "Mileage", value: "84,000 km" },
       { label: "Fuel", value: "Diesel" },
@@ -82,6 +82,13 @@ describe("specRows", () => {
     expect(specRows(bare)).toEqual([{ label: "Year", value: "2020" }]);
     for (const r of specRows({ ...full, nctExpiry: "soon" })) expect(r.value).not.toMatch(/undefined|^$/);
     expect(specRows({ ...full, nctExpiry: "soon" }).some((r) => r.label === "NCT Expires")).toBe(false);
+  });
+
+  it("says Expired for an NCT month already past, and Expires up to the end of its month", () => {
+    const nct = (nctExpiry: string) => specRows({ ...full, nctExpiry }, Date.UTC(2026, 10, 19)).find((r) => r.label.startsWith("NCT"));
+    expect(nct("2026-10")).toEqual({ label: "NCT Expired", value: "Oct 2026" });
+    expect(nct("2026-11")).toEqual({ label: "NCT Expires", value: "Nov 2026" });
+    expect(nct("2027-01")).toEqual({ label: "NCT Expires", value: "Jan 2027" });
   });
 
   it("has no Owners row for a car with no owners", () => {

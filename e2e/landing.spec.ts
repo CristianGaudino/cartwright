@@ -124,7 +124,7 @@ test("a make whose only cars sold recently shows them as Sold with no date", asy
   const html = await (await request.get(path)).text();
   for (const c of unstocked.filter((o) => o.makeSlug === recentOnly.makeSlug)) expect(html).not.toContain(c.soldAt!);
   await page.goto(path);
-  await expect(page.getByRole("heading", { name: `No ${recentOnly.make} in stock right now` })).toBeVisible();
+  await expect(page.getByRole("heading", { name: `No ${recentOnly.make} in Stock Right Now` })).toBeVisible();
   await expect(page.getByRole("heading", { name: `Recently sold ${recentOnly.make}` })).toBeVisible();
   const cards = page.locator("article");
   expect(await cards.count()).toBeGreaterThanOrEqual(1);

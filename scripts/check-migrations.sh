@@ -12,8 +12,8 @@ git fetch --no-tags $depth origin "$base" >/dev/null
 git rev-parse --verify "origin/$base" >/dev/null
 added=$(git diff --name-only --diff-filter=A "origin/$base" HEAD -- 'drizzle/*.sql')
 bad=0
-# A migration that already ran in production isn't run again, so editing it only makes new databases differ from it
-edited=$(git diff --name-only --diff-filter=M "origin/$base" HEAD -- 'drizzle/*.sql')
+# A migration that already ran in production isn't run again, so editing it only makes new databases differ from it (a renamed one counts as edited)
+edited=$(git diff --name-only --diff-filter=MR "origin/$base" HEAD -- 'drizzle/*.sql')
 for file in $edited; do
     echo "::error file=$file::This migration is already applied: leave it as it is and add a new one"
     bad=1

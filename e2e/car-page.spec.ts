@@ -177,7 +177,7 @@ test.describe("a sold car", () => {
 
 type Rich = Demo & { features: string[]; maxSpeedMph?: number; description: string };
 const rich = (cars as Rich[]).find((c) => !c.soldAt && cleanFeatures(c.features ?? []).length > 12 && c.maxSpeedMph && c.description?.includes("\n"));
-const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "Max Speed", "0 to 100 km/h"];
+const ORDER = ["Year", "Mileage", "Fuel", "Transmission", "Body Type", "Engine", "Colour", "Doors", "Seats", "Owners", "NCT Expires", "NCT Expired", "Max Speed", "0 to 100 km/h"];
 const section = (page: Page, name: string) => page.locator("section").filter({ has: page.getByRole("heading", { level: 2, name, exact: true }) });
 
 test.describe("the sections below the buy box", () => {

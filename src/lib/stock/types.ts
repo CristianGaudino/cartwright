@@ -97,6 +97,8 @@ export interface StockResult {
   pageCount: number;
   facets: Facets;
 }
+// A plain slug: lower-case words and digits joined by single hyphens.
+export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // A car's slug: make-model-year-id. Make and body slugs never end in digits, so this never matches a landing page.
 export const CAR_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*-\d+$/;
 // Days a sold car stays visible after its sale date (D-02). One setting: confirm with the dealer.
