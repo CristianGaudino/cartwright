@@ -5,18 +5,18 @@ import type { Car } from "@/lib/stock/types";
 import { carTitle } from "@/lib/stock/format";
 import { buildLeadEmail } from "./email";
 import type { PhotoBucket } from "./bindings";
-import { CONSENT, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
-import { signPhotoPath, sniffImage } from "./photos";
+import { CONSENT, dublinMs, PHOTO_LIMITS, PHOTO_MIN_ERROR, PHOTO_STORED_MAX_BYTES, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES, photoCountError, photoError } from "./constants";
+import { signPhotoPath, signSlotPath, sniffImage } from "./photos";
 import { DETAIL_LABELS, TYPE_LABELS, leadSchema } from "./schema";
 import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "error";
+export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
-  | { status: "failed"; kind: "captcha" | "rate" | "gone" | "server" };
+  | { status: "failed"; kind: "captcha" | "rate" | "gone" | "taken" | "server" };
 
 export interface LeadRow {
   id: string;
@@ -43,18 +43,26 @@ export interface LeadStore {
   insert(row: LeadRow): Promise<boolean>; // false when the clientRef is already stored
   markNotified(id: string): Promise<void>;
 }
+// Test drive holds (#166): one row per request, unique on car and start time (drive_holds).
+export interface HoldStore {
+  take(leadId: string, carId: string, startsAt: Date): Promise<boolean>; // false when that car and time are already held
+  free(leadId: string): Promise<void>;
+  get(leadId: string): Promise<{ carId: string; startsAt: Date } | null>;
+  times(carId: string, from: Date): Promise<Date[]>; // held start times from `from` on, for the picker
+}
 export interface Mailer {
   send(m: { subject: string; text: string; replyTo?: string }): Promise<void>; // to and from are bound in deps
 }
 export interface Deps {
   store: LeadStore;
+  holds: HoldStore;
   mailer: Mailer;
   getCar(id: string): Promise<Car | null>;
   limiter: { allow(key: string): Promise<boolean> };
   verifyTurnstile(token: string, ip: string): Promise<boolean>;
   demo: boolean;
   bucket: Pick<PhotoBucket, "put" | "delete">; // LEAD_PHOTOS, private EU R2 (D-13); only the signed route reads it
-  photoLinkSecret(): string; // read only when a lead has photos, so other leads never need it
+  photoLinkSecret(): string; // read only when a lead has photos or is a test drive, so other leads never need it
 }
 
 const OK: LeadResult = { status: "ok" };
@@ -158,6 +166,17 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     };
     leadId = row.id;
 
+    // A test drive holds its car and time before the lead is stored, so no lead is ever left without its hold; the unique index refuses a
+    // second request for the same car and time, even one sent at the same moment. Every failure after this frees the hold again.
+    const startsAt = input.type === "test_drive" ? new Date(dublinMs(input.driveDate, input.driveTime)) : undefined;
+    if (startsAt && !(await deps.holds.take(row.id, row.carId!, startsAt))) { // a test drive always has its car (snapshotCar)
+      logLead({ leadId, type: input.type, outcome: "taken" });
+      return { status: "failed", kind: "taken" };
+    }
+    const release = async () => {
+      if (startsAt) await deps.holds.free(row.id).catch(() => {});
+    };
+
     // Photos go in before the row, under the lead's random id; the row keeps keys, never URLs (D-13). A failure from here to
     // the insert deletes what this request put, so no orphan photo is left (T-03-35).
     const keys = row.photoKeys;
@@ -174,6 +193,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       inserted = await deps.store.insert(row);
     } catch (e) {
       await cleanup();
+      await release();
       throw e;
     }
 
@@ -181,6 +201,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     // the same moment (T-03-16). The stored lead keeps the other request's photos, so this one's are deleted.
     if (!inserted) {
       await cleanup();
+      await release();
       logLead({ leadId, type: input.type, outcome: "duplicate" });
       return OK;
     }
@@ -188,11 +209,14 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
     // Awaited inline, not deferred: after() work can be cut off on Workers (research Anti-Patterns).
     try {
       const photoPaths = await Promise.all(keys.map(async (k) => signPhotoPath(k, deps.photoLinkSecret())));
-      await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo, photoPaths }), replyTo: row.email ?? undefined });
+      const slotPath = startsAt && (await signSlotPath(row.id, startsAt, deps.photoLinkSecret()));
+      await deps.mailer.send({ ...buildLeadEmail(row, { demo: deps.demo, photoPaths, slotPath }), replyTo: row.email ?? undefined });
     } catch {
       // The dealer was not told, so the buyer is not told "thanks": they see "we could not send this, call us" and their details
       // stay in the form. The row stays (notified_at empty, for the owner to find, 03-06 runbook); the form sends a fresh
       // clientRef on the retry, so it is stored and emailed again rather than answered as a duplicate.
+      // A test drive's hold goes too: the buyer is told to try again, and their retry must not find their own time taken.
+      await release();
       logLead({ leadId, type: input.type, outcome: "notify_failed" });
       return SERVER;
     }

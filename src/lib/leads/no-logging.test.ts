@@ -51,6 +51,7 @@ function drizzleError() {
 function deps(over: Partial<Deps> = {}): Deps {
   return {
     store: { exists: async () => false, insert: async () => true, markNotified: async () => {} },
+    holds: { take: async () => true, free: async () => {}, get: async () => null, times: async () => [] },
     mailer: { send: async () => {} },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
     limiter: { allow: async () => true },

@@ -131,33 +131,54 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await expect(privacy).toHaveAttribute("target", "_blank");
 });
 
-test("Book a Test Drive opens the same enquiry dialog with the note filled in, and there is no Reserve", async ({ page }) => {
-  await open(page, live.slug);
-  await expect(page.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
-  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
-  const d = page.getByRole("dialog");
-  await expect(d).toHaveAccessibleName("Book a Test Drive");
-  await expect(d.getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
-  await expect(d.getByRole("radio")).toHaveCount(0); // no more choosing a kind of request
-  await d.getByLabel("Name").fill("Test Driver");
-  await d.getByLabel("Phone").fill("087 123 4567");
-  await d.getByRole("checkbox").check();
-  await d.getByRole("button", { name: "Send Enquiry" }).click();
-  await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+test("Book a Test Drive asks for a day and a time, says we'll call to confirm, and the same time again is refused", async ({ page }) => {
+  // Two buyers on the same car pick the same time before either sends: the first gets it, the second is told it was just taken.
+  const other = await page.context().newPage(); // its own tab, so its own form and draft
+  await stubTurnstile(other);
+  const pick = async (p: Page, time?: string) => {
+    await open(p, live.slug);
+    await expect(p.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
+    await p.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+    const d = p.getByRole("dialog", { name: "Book a Test Drive" });
+    await expect(d).toBeVisible();
+    await d.getByRole("combobox", { name: "Day" }).click();
+    await p.getByRole("option").nth(1).click(); // the first day after "Choose a Day"
+    await d.getByRole("combobox", { name: "Time" }).click();
+    const slot = time ? p.getByRole("option", { name: time, exact: true }) : p.getByRole("option", { disabled: false }).nth(1); // a free time, past the hint
+    const chosen = (await slot.textContent())!;
+    await slot.click();
+    await d.getByLabel("Name").fill("Test Driver");
+    await d.getByLabel("Phone").fill("087 123 4567");
+    await d.getByRole("checkbox").check();
+    return { d, chosen };
+  };
+  const first = await pick(page);
+  const second = await pick(other, first.chosen);
+
+  await first.d.getByRole("button", { name: "Send Request" }).click();
+  await expect(first.d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+  await expect(first.d.getByText(/We'll call you to confirm your test drive/)).toBeVisible();
+
+  await second.d.getByRole("button", { name: "Send Request" }).click();
+  await expect(second.d.getByRole("alert")).toHaveText("That time was just taken. Choose another.");
+  // Back in the picker, the time shows as taken.
+  await second.d.getByRole("combobox", { name: "Time" }).click();
+  await expect(other.getByRole("option", { name: first.chosen, exact: true })).toHaveAttribute("aria-disabled", "true");
+  await other.close();
 });
 
-test("Enquire opened after Book a Test Drive does not keep the test drive note, but keeps a message typed in Enquire", async ({ page }) => {
+test("Enquire and Book a Test Drive keep their own forms", async ({ page }) => {
   await open(page, live.slug);
-  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
-  await expect(page.getByRole("dialog").getByLabel("Message")).toHaveValue("I'd like to book a test drive.");
-  await page.keyboard.press("Escape");
   await enquire(page).click();
-  await expect(dialog(page)).toHaveAccessibleName("Enquire About This Car");
-  await expect(dialog(page).getByLabel("Message")).toHaveValue("");
   await dialog(page).getByLabel("Message").fill("Is it taxed?");
   await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+  const d = page.getByRole("dialog", { name: "Book a Test Drive" });
+  await expect(d.getByRole("combobox", { name: "Day" })).toBeVisible();
+  await expect(d.getByLabel("Anything we should know?")).toHaveValue("");
+  await page.keyboard.press("Escape");
   await enquire(page).click();
-  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?"); // closing and reopening keeps what was typed
+  await expect(dialog(page).getByLabel("Message")).toHaveValue("Is it taxed?");
 });
 
 test("the enquiry dialog always shows the phone number with +353, as a link that dials", async ({ page }) => {

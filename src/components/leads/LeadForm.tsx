@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
-import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { DRIVE_TAKEN_ERROR, PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
@@ -276,6 +276,8 @@ export function LeadForm({
             <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
               {failure === "rate" ? (
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
+              ) : failure === "taken" ? (
+                <p className="font-semibold text-destructive">{DRIVE_TAKEN_ERROR}</p>
               ) : failure === "gone" ? (
                 <>
                   <p className="font-semibold text-destructive">This car is no longer available.</p>

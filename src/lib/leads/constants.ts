@@ -1,4 +1,4 @@
-import { SITE_NAME } from "../site";
+import { OPENING_HOURS, SITE_NAME } from "../site";
 
 // What the lead forms and the server share. No zod here: client components import this file, and pulling in
 // schema.ts would ship zod to every car page.
@@ -75,3 +75,58 @@ export const PHOTO_MIN_ERROR = `Add at least ${PHOTO_MIN_COUNT} photos so we can
 // cars the buyer likes, and none is fine. Read by the form and by the server, so they never differ.
 export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_COUNT }, sourcing: { min: 0, max: 6 } } as const;
 export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];
+
+// Test drives (#166): a request for a day and a time, which the dealer calls to confirm. The days and hours come from OPENING_HOURS, so they
+// never disagree with the hours on the site. Slots start when we open and stop an hour before we close; days run from tomorrow (the dealer
+// needs notice) for daysAhead days. Times are Irish time wherever the buyer is.
+export const TEST_DRIVE = { daysAhead: 14, stepMinutes: 30 } as const;
+export const BAD_DRIVE_DAY = "Choose a day from the list.";
+export const BAD_DRIVE_TIME = "Choose a time from the list.";
+export const DRIVE_PHONE_ERROR = "Add a phone number so we can call to confirm.";
+export const DRIVE_TAKEN_ERROR = "That time was just taken. Choose another.";
+
+const TZ = "Europe/Dublin";
+const DAY_MS = 86_400_000;
+const mins = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+const noonUtc = (iso: string) => new Date(`${iso}T12:00:00Z`); // a day read at noon UTC, so no time zone moves it
+const addDays = (iso: string, n: number) => new Date(noonUtc(iso).getTime() + n * DAY_MS).toISOString().slice(0, 10);
+
+/** An instant as Irish wall time, "2026-11-25 10:30". */
+export function dublinSlot(ms: number): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(ms)
+      .map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
+}
+/** Irish wall time as an instant. NaN for a time the clocks skip. */
+export function dublinMs(date: string, time: string): number {
+  // shortcut: Ireland is only ever UTC+1 or UTC+0; a site in another zone needs a real offset lookup.
+  for (const h of [1, 0]) {
+    const ms = Date.parse(`${date}T${time}:00Z`) - h * 3_600_000;
+    if (dublinSlot(ms) === `${date} ${time}`) return ms;
+  }
+  return NaN;
+}
+
+/** The times a test drive can start on a day: every slot from opening until an hour before closing. Empty on a closed day. */
+export function driveTimes(iso: string): string[] {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || Number.isNaN(noonUtc(iso).getTime())) return [];
+  const h = OPENING_HOURS[(noonUtc(iso).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
+  if (!h?.opens || !h.closes) return [];
+  const out: string[] = [];
+  for (let m = mins(h.opens); m <= mins(h.closes) - 60; m += TEST_DRIVE.stepMinutes) out.push(hhmm(m));
+  return out;
+}
+/** The open days the form offers: from tomorrow, Irish date, for daysAhead days. */
+export function driveDays(now = new Date()): string[] {
+  const today = dublinSlot(now.getTime()).slice(0, 10);
+  const out: string[] = [];
+  for (let i = 1; i <= TEST_DRIVE.daysAhead; i++) if (driveTimes(addDays(today, i)).length) out.push(addDays(today, i));
+  return out;
+}
+/** "Tue 25 Nov", for the day list and the email subject. */
+export const driveDayLabel = (iso: string, long = false) =>
+  noonUtc(iso).toLocaleDateString("en-IE", { weekday: long ? "long" : "short", day: "numeric", month: long ? "long" : "short", ...(long && { year: "numeric" }), timeZone: "UTC" }).replace(",", "");

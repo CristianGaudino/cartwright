@@ -4,15 +4,17 @@ import { requireEnv } from "@/lib/env";
 import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
-import type { Deps, LeadStore, Mailer } from "./process";
-import { createDrizzleStore } from "./store";
+import type { Deps, HoldStore, LeadStore, Mailer } from "./process";
+import { createDrizzleHolds, createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
 const getCar = (id: string) => stock.getById(id);
 
-// In-memory stand-ins for E2E. They keep no personal data: the store remembers client refs only, the mailer drops the message.
+// In-memory stand-ins for E2E. They keep no personal data: the store remembers client refs only, the holds a car and a time, the
+// mailer drops the message.
 function fakeDeps(): Deps {
   const refs = new Set<string>();
+  const held = new Map<string, { carId: string; startsAt: Date }>(); // by lead id
   return {
     store: {
       exists: async (ref) => refs.has(ref),
@@ -22,6 +24,16 @@ function fakeDeps(): Deps {
         return true;
       },
       markNotified: async () => {},
+    },
+    holds: {
+      take: async (leadId, carId, startsAt) => {
+        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return false;
+        held.set(leadId, { carId, startsAt });
+        return true;
+      },
+      free: async (leadId) => void held.delete(leadId),
+      get: async (leadId) => held.get(leadId) ?? null,
+      times: async (carId, from) => [...held.values()].filter((h) => h.carId === carId && h.startsAt >= from).map((h) => h.startsAt),
     },
     mailer: { send: async () => {} },
     getCar,
@@ -35,6 +47,13 @@ function fakeDeps(): Deps {
 
 // D1 through Drizzle. Built per call, so a missing DB binding throws inside processLead, which logs it as an error line.
 const db = () => createDrizzleStore(getDb());
+const holdsDb = () => createDrizzleHolds(getDb());
+const holds: HoldStore = {
+  take: (...a) => holdsDb().take(...a),
+  free: (id) => holdsDb().free(id),
+  get: (id) => holdsDb().get(id),
+  times: (...a) => holdsDb().times(...a),
+};
 const store: LeadStore = {
   exists: (ref) => db().exists(ref),
   // A lead nobody is told about is worse than a refused one: with no address to email, refuse before storing, so the buyer is
@@ -55,6 +74,7 @@ export function getDeps(): Deps {
   // Real dependencies never fall back to a fake (research Pitfall 4): a missing binding or secret fails the lead loudly.
   return {
     store,
+    holds,
     mailer,
     getCar,
     limiter,

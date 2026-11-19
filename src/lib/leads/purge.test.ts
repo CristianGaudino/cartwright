@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { leads } from "@/lib/db/schema";
+import { driveHolds, leads } from "@/lib/db/schema";
 import { getDb, truncate } from "@/test/sqlite-db";
 import { CONSENT, LEAD_RETENTION_MONTHS } from "./constants";
-import { purgeOldLeads } from "./purge";
+import { purgeOldLeads, purgePastHolds } from "./purge";
 
 const NOW = new Date("2026-11-09T12:00:00Z");
 const monthsAgo = (n: number, extraDays = 0) => {
@@ -54,5 +54,19 @@ describe("purgeOldLeads", () => {
     const bucket = { delete: vi.fn(async () => {}) };
     expect(await purgeOldLeads(getDb(), bucket, NOW)).toBe(0);
     expect(bucket.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe("purgePastHolds (#166)", () => {
+  beforeEach(() => truncate("drive_holds"));
+
+  it("deletes the holds whose time has passed and keeps the rest", async () => {
+    await getDb().insert(driveHolds).values([
+      { leadId: "past", carId: "1", startsAt: new Date(NOW.getTime() - 60_000) },
+      { leadId: "now", carId: "1", startsAt: NOW },
+      { leadId: "later", carId: "2", startsAt: new Date(NOW.getTime() + 86_400_000) },
+    ]);
+    expect(await purgePastHolds(getDb(), NOW)).toBe(1);
+    expect((await getDb().select({ id: driveHolds.leadId }).from(driveHolds)).map((r) => r.id).sort()).toEqual(["later", "now"]);
   });
 });

@@ -8,7 +8,7 @@ import { truncate } from "@/test/sqlite-db";
 import { processLead } from "./process";
 import type { Deps } from "./process";
 import { CONSENT, PHOTO_MIN_COUNT, PHOTO_MIN_ERROR } from "./constants";
-import { createDrizzleStore } from "./store";
+import { createDrizzleHolds, createDrizzleStore } from "./store";
 
 vi.mock("@/lib/db", () => import("@/test/sqlite-db"));
 
@@ -32,6 +32,7 @@ function deps(send: Deps["mailer"]["send"] = async () => {}) {
   const { bucket, objects } = fakeBucket();
   const d: Deps = {
     store: createDrizzleStore(getDb()),
+    holds: createDrizzleHolds(getDb()),
     mailer: { send: mail },
     getCar: async (id) => cars.find((c) => c.id === id) ?? null,
     limiter: { allow: async () => true },
@@ -72,7 +73,7 @@ const OK = { status: "ok" };
 const rows = () => getDb().select().from(leads);
 
 beforeEach(async () => {
-  await truncate("leads");
+  await truncate("leads", "drive_holds");
   vi.spyOn(console, "log").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -249,5 +250,34 @@ describe("trade-in photos on SQLite (D-13)", () => {
     expect(stored).toHaveLength(1);
     expect(stored[0].photoKeys).toEqual(first.photoKeys);
     expect([...objects.keys()]).toEqual(first.photoKeys);
+  });
+});
+
+describe("test drive holds on SQLite (#166)", () => {
+  beforeEach(() => vi.useFakeTimers({ now: new Date("2026-11-20T10:00:00Z"), toFake: ["Date"] }));
+  afterEach(() => vi.useRealTimers());
+  const drive = () => enquiryForm({ type: "test_drive", phone: "087 123 4567", driveDate: "2026-11-24", driveTime: "10:30" });
+
+  it("lets exactly one of two requests for the same car and time in, even at the same moment", async () => {
+    const { deps: d, mail } = deps();
+    const results = await Promise.all([processLead(drive(), ctx, d), processLead(drive(), ctx, d)]);
+    expect(results).toContainEqual(OK);
+    expect(results).toContainEqual({ status: "failed", kind: "taken" });
+    expect(await rows()).toHaveLength(1);
+    expect(mail).toHaveBeenCalledTimes(1);
+    const [lead] = await rows();
+    expect(await createDrizzleHolds(getDb()).get(lead.id)).toEqual({ carId: live.id, startsAt: new Date("2026-11-24T10:30:00Z") });
+  });
+
+  it("offers the time again once the hold is freed, and keeps the lead", async () => {
+    const { deps: d } = deps();
+    await processLead(drive(), ctx, d);
+    const [lead] = await rows();
+    const holds = createDrizzleHolds(getDb());
+    expect(await holds.times(live.id, new Date())).toEqual([new Date("2026-11-24T10:30:00Z")]);
+    await holds.free(lead.id);
+    expect(await holds.times(live.id, new Date())).toEqual([]);
+    expect(await rows()).toHaveLength(1);
+    expect(await processLead(drive(), ctx, d)).toEqual(OK);
   });
 });

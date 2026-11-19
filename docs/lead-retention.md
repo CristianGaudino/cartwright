@@ -8,7 +8,7 @@ Leads are kept for **12 months** from when they were sent, then deleted. The per
 
 ## Automatic purge
 
-A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. Each run logs one line, `{"job":"purge-leads","deleted":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
+A Cloudflare cron trigger (wrangler.jsonc `triggers`, daily at 03:17 UTC) runs `purgeOldLeads` (src/lib/leads/purge.ts) from `worker.mjs`. It deletes the trade-in photos of every lead older than `LEAD_RETENTION_MONTHS` from R2, then deletes those lead rows. Photos go first: if R2 fails, the rows stay and the next run tries again. The same run deletes test drive holds (`drive_holds`, #166) whose time has passed; the lead itself stays. Each run logs one line, `{"job":"purge-leads","deleted":<count>,"holds":<count>}`, and nothing else. A run that throws shows as a failed cron in the Cloudflare dashboard (Workers, the Worker, Cron Triggers) and in Workers Logs.
 
 Check it once after the first deploy, then when Workers Logs show a failed run: Workers Logs should show one `purge-leads` line a day. To run it by hand, or if the cron ever stops, the same deletion as SQL (photos first, see "Erasing one person's photos"):
 
@@ -79,6 +79,7 @@ The admin inbox (#20) replaces this with fresh links.
 
 ## What deletes what
 
+- Test drive holds (car and time, no personal data): the dealer's signed "Free this slot" link in the request email, or the daily purge once the time has passed. A hold never deletes its lead.
 - Lead rows and their photos: the daily purge (`worker.mjs`), once a lead is older than `LEAD_RETENTION_MONTHS` (12 months).
 - Trade-in photos with no lead row (an upload whose insert failed and whose cleanup also failed): the R2 lifecycle rule on `trade-in/`, 365 days after upload. If the dealer changes `LEAD_RETENTION_MONTHS`, change the lifecycle rule's days in the same PR.
 
