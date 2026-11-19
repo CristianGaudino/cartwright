@@ -150,7 +150,7 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
             onChange={(e) => {
               const c = COUNTRIES.find((x) => x.code === e.target.value)!;
               setCountry(c);
-              set(c, number);
+              set(c, tidy(number, c.dial)); // a code half typed in the box ("+3") never stacks behind the new one
             }}
             className={`${control.replace("w-full ", "")} h-12 w-[7.5rem] cursor-pointer appearance-none pl-3 pr-10`}
           >
@@ -177,11 +177,11 @@ function PhoneField({ id, name, value, onChange, error, invalid, required, descr
           aria-required={required || undefined}
           aria-describedby={[errorId, describedBy].filter(Boolean).join(" ") || undefined}
           onChange={(e) => {
-            // A number pasted with its own code ("+353 87…" while PL is picked) switches the country; an unknown code is kept as typed,
-            // so the server refuses it instead of the dealer getting it under the wrong country.
+            // A number typed or pasted with its own code ("+353 87…" while PL is picked) switches the country. A code still being typed
+            // ("+3") is kept as it is; any other "+" (a stray one before a local number) is dropped and the number read under the country picked.
             const raw = e.target.value.trim();
             const pasted = raw.startsWith("+") ? BY_DIAL.find((x) => raw.startsWith(x.dial)) : undefined;
-            if (raw.startsWith("+") && !pasted) return onChange(raw);
+            if (raw.startsWith("+") && !pasted && BY_DIAL.some((x) => x.dial.startsWith(raw))) return onChange(raw);
             const c = pasted ?? country;
             if (c !== country) setCountry(c);
             set(c, tidy(raw, c.dial));
