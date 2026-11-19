@@ -6,7 +6,9 @@
 set -euo pipefail
 base="${1:-main}"
 # Fails closed: a fetch or diff that fails stops the check rather than passing it with nothing to look at.
-git fetch --no-tags --depth=1 origin "$base" >/dev/null
+# --depth=1 only where the clone is already shallow (CI): on a full local clone it would make the whole repo shallow.
+depth=$([ "$(git rev-parse --is-shallow-repository)" = true ] && echo --depth=1 || true)
+git fetch --no-tags $depth origin "$base" >/dev/null
 git rev-parse --verify "origin/$base" >/dev/null
 added=$(git diff --name-only --diff-filter=A "origin/$base" HEAD -- 'drizzle/*.sql')
 bad=0
