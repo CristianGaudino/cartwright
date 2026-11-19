@@ -16,10 +16,10 @@ test("the phone is sent with its country code", async ({ page }) => {
   await form.getByLabel("Phone", { exact: true }).fill("7700 900123");
   await form.getByRole("checkbox").check();
 
-  // The send is a server action posting the form as multipart; React may prefix each field name with a reference id.
-  const sent = page.waitForRequest((r) => r.method() === "POST" && /name="(?:\d+_)?phone"/.test(r.postDataBuffer()?.toString() ?? ""));
+  // The send is a server action posting the form as multipart; React prefixes each field name with a reference id ("_1_phone").
+  const sent = page.waitForRequest((r) => r.method() === "POST" && /name="[^"]*phone"/.test(r.postDataBuffer()?.toString() ?? ""));
   await form.getByRole("button", { name: "Send Message" }).click();
   const body = (await sent).postDataBuffer()!.toString();
-  expect(body.match(/name="(?:\d+_)?phone"\r\n\r\n([^\r]*)/)?.[1]).toBe("+44 7700 900123");
+  expect(body.match(/name="[^"]*phone"\r\n\r\n([^\r]*)/)?.[1]).toBe("+44 7700 900123");
   await expect(page.getByRole("heading", { name: "Thanks, we have your message." })).toBeVisible();
 });
