@@ -247,6 +247,7 @@ function describe(blurb) {
     .filter((l) => !CONTACT.test(l.replace(/[\s,.;]+$/, "")))
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
+    .replace(/\bCartwright\b/g, "Carright") // the dealer's sign-off ("Buy with Cartwright") in the pitch site's name
     .trim();
   const seen = new Set();
   const features = (at < 0 ? [] : text.slice(at + MARKER.length).split(/,(?![^(]*\))|\n/))

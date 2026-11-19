@@ -9,7 +9,8 @@ import { EmptyState } from "./StockShell";
 // One segment of the pager: a hairline-divided button, the current page filled.
 const seg = "flex min-h-11 min-w-11 items-center justify-center gap-1 px-3 text-meta font-semibold tabular-nums transition-colors";
 const segLink = `${seg} hover:bg-hairline active:bg-hairline`;
-const segOff = `${seg} pointer-events-none text-text-2 opacity-40`;
+// Off: the label stays readable (AA), only the chevron dims, and nothing reacts to a tap.
+const segOff = `${seg} pointer-events-none text-text-2 [&>svg]:opacity-40`;
 
 // The pages to show: the first, the last, and the ones either side of this one, with a gap marked by null.
 function pagesToShow(page: number, count: number): (number | null)[] {
