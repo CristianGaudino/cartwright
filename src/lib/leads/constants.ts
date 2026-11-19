@@ -108,13 +108,11 @@ const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${St
 const noonUtc = (iso: string) => new Date(`${iso}T12:00:00Z`); // a day read at noon UTC, so no time zone moves it
 const addDays = (iso: string, n: number) => new Date(noonUtc(iso).getTime() + n * DAY_MS).toISOString().slice(0, 10);
 
+// Built once: the day and time lists call dublinSlot hundreds of times a render, and a new formatter each time is slow.
+const DUBLIN = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 /** An instant as Irish wall time, "2026-11-25 10:30". */
 export function dublinSlot(ms: number): string {
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
-      .formatToParts(ms)
-      .map((x) => [x.type, x.value]),
-  );
+  const p = Object.fromEntries(DUBLIN.formatToParts(ms).map((x) => [x.type, x.value]));
   return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
 }
 /** Irish wall time as an instant. NaN for a time the clocks skip. */
