@@ -1,7 +1,7 @@
 // A half-filled lead form kept for this tab only (sessionStorage), so a reload or a wrong tap does not lose what was typed. Never the
 // contact details or the consent: the browser fills the details again by itself, and keeping less personal data is the rule. Gone when
 // the form is sent, or when the tab closes.
-const NEVER = new Set(["name", "phone", "email", "consent"]);
+const NEVER = new Set(["name", "phone", "email", "consent", "reg"]); // a reg points at its owner too
 
 type Fields = Record<string, string>;
 const strings = (v: unknown): Fields =>

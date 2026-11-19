@@ -10,6 +10,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("lead form drafts", () => {
   it("never keeps the contact details or the consent, nor blanks or what the page filled in", () => {
+    expect(draftOf({ reg: "191-D-1234" }, undefined)).toEqual({}); // a reg points at its owner
     expect(draftOf({ name: "Ann", phone: "087", email: "a@b.ie", consent: "yes", message: "Hi", model: " ", make: "Audi", alertKind: "price-drop" }, { alertKind: "price-drop" })).toEqual({ message: "Hi", make: "Audi" });
   });
 

@@ -2,7 +2,8 @@ name: Deploy (Cloudflare Workers)
 
 # Production deploys a release, never a merge: release.yml calls this with its new tag, and merging to main deploys nothing.
 # The weekly run (and Run workflow with the ref left empty) redeploys the latest published release (not a pre-release), so the demo's sold cars keep their dates.
-# To roll back, run it from the Actions tab with an older tag, like v1.0.0. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
+# To roll back, run it from the Actions tab with an older tag, like v1.0.0, and mark that release Latest (gh release edit v1.0.0 --latest)
+# so the weekly run does not put the newer one back. Needs the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repo secrets.
 on:
   workflow_call:
     inputs:

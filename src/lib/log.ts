@@ -5,6 +5,6 @@ import type { LeadType } from "@/lib/leads/schema";
 // else can reach Workers Logs (D-08). Unsent and failed leads go out at error level so they stand out.
 export function logLead({ leadId, type, outcome }: { leadId?: string; type: LeadType | "n/a"; outcome: Outcome }): void {
   const line = JSON.stringify({ leadId, type, outcome });
-  if (outcome === "error" || outcome === "notify_failed") console.error(line);
+  if (outcome === "error" || outcome === "notify_failed" || outcome === "release_failed") console.error(line);
   else console.log(line);
 }

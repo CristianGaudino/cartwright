@@ -145,6 +145,7 @@ Bluetooth Connectivity - Automatic Lights & Wipers - ISOFIX Mounts`);
 Bluetooth Phone Connectivity,
 Fully Serviced,`);
     expect(withoutSelling("One owner from new.\nJust serviced.")).toBe("One owner from new.\nJust serviced.");
+    expect(withoutSelling("Irish car, delivered new by Ford Ireland. Nationwide delivery available.")).toBe("Irish car, delivered new by Ford Ireland."); // a fact, not an offer
   });
 });
 

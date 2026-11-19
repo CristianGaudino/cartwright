@@ -75,7 +75,7 @@ export const plainText = (s: string) =>
 
 // A sold car's text without the selling: each sentence or line that offers finance, trade-ins, delivery, a warranty or a viewing, or
 // asks the reader to buy, goes; the facts about the car stay.
-const SELLING = /\b(?:financ\w*|trade[- ]?ins?|part exchange|deliver\w*|warrant\w*|viewings?|walk ?through|online sales|purchase|buy (?:with|in) \w+)\b/i;
+const SELLING = /\b(?:financ\w*|trade[- ]?ins?|part exchange|deliver(?:y|ies)|warrant\w*|viewings?|walk ?through|online sales|purchase|buy (?:with|in) \w+)\b/i;
 export const withoutSelling = (s: string) =>
   s
     .split("\n")

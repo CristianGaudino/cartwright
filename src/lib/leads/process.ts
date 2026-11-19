@@ -12,7 +12,7 @@ import type { LeadType } from "./schema";
 
 // The whole lead pipeline, framework-free (research Pattern 1): the server action only builds Deps and calls processLead.
 
-export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "error";
+export type Outcome = "stored" | "notify_failed" | "duplicate" | "invalid" | "captcha" | "rate" | "honeypot" | "taken" | "release_failed" | "error";
 export type LeadResult =
   | { status: "ok" }
   | { status: "invalid"; fieldErrors: Record<string, string[]> }
@@ -174,7 +174,7 @@ export async function processLead(fd: FormData, ctx: { ip: string }, deps: Deps)
       return { status: "failed", kind: "taken" };
     }
     const release = async () => {
-      if (startsAt) await deps.holds.free(row.id).catch(() => {});
+      if (startsAt) await deps.holds.free(row.id).catch(() => logLead({ leadId, type: input.type, outcome: "release_failed" })); // the time stays held until it passes
     };
 
     // Photos go in before the row, under the lead's random id; the row keeps keys, never URLs (D-13). A failure from here to

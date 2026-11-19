@@ -182,6 +182,7 @@ export function LeadForm({
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
     start(async () => {
       let r: LeadResult;
+      let unanswered = false;
       try {
         // The server's own field rules first, so a form with a mistake answers at once instead of waiting for the bot check.
         const found = await check(values);
@@ -191,6 +192,7 @@ export function LeadForm({
           r = await submitLead(fd);
         }
       } catch {
+        unanswered = true;
         r = { status: "failed", kind: "server" }; // network, a new deploy, a body the server refused
       }
       // A field error or the rate limit is answered before the token is checked, so only the other answers spend it.
@@ -218,7 +220,9 @@ export function LeadForm({
         setErrors({});
         setFailure(r.kind);
         // A server failure may be an email that did not go out: a retry must be stored and sent again, not answered as a duplicate.
-        if (r.kind === "server") clientRef.current = undefined;
+        // With no answer at all the request may have been stored: the retry keeps its ref, so it is answered as a duplicate, never as
+        // its own test drive time "taken".
+        if (r.kind === "server" && !unanswered) clientRef.current = undefined;
       }
     });
   }
