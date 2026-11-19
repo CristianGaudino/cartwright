@@ -7,12 +7,12 @@ afterEach(() => vi.useRealTimers());
 const at = (iso: string) => vi.useFakeTimers({ now: new Date(iso), toFake: ["Date"] });
 
 describe("driveTimes, the slot grid", () => {
-  it("runs from opening until an hour before closing, every half hour", () => {
+  it("runs from opening until an hour before closing, an hour apart, so one car's drives never overlap", () => {
     const tue = driveTimes("2026-11-24"); // Tuesday: 09:30 to 18:00
-    expect([tue[0], tue[1], tue.at(-1), tue.length]).toEqual(["09:30", "10:00", "17:00", 16]);
+    expect([tue[0], tue[1], tue.at(-1), tue.length]).toEqual(["09:30", "10:30", "16:30", 8]);
     const sat = driveTimes("2026-11-28"); // Saturday: 10:00 to 16:00
     expect([sat[0], sat.at(-1)]).toEqual(["10:00", "15:00"]);
-    expect(TEST_DRIVE.stepMinutes).toBe(30);
+    expect(TEST_DRIVE.stepMinutes).toBe(60);
   });
   it("is empty on a closed day and for anything that is not a date", () => {
     expect(driveTimes("2026-11-29")).toEqual([]); // Sunday
@@ -76,7 +76,7 @@ describe("leadSchema for a test drive", () => {
   });
   it("takes tomorrow from a form opened yesterday, but never a time that has passed", () => {
     at("2026-11-24T14:00:00Z"); // Tuesday, 14:00 in Ireland: the form opened on Monday offered today
-    expect(errors({ ...base, driveDate: "2026-11-24", driveTime: "15:00" })).toEqual({});
+    expect(errors({ ...base, driveDate: "2026-11-24", driveTime: "15:30" })).toEqual({});
     expect(errors({ ...base, driveDate: "2026-11-24", driveTime: "13:30" }).driveTime).toEqual([BAD_DRIVE_TIME]);
     expect(errors({ ...base, driveDate: "2026-11-23", driveTime: "15:00" }).driveDate).toEqual([BAD_DRIVE_DAY]);
   });

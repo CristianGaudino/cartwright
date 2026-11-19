@@ -341,7 +341,7 @@ describe("processLead, test drive requests (#166)", () => {
     expect(mail).toHaveLength(1);
     expect(lines().at(-1)).toEqual({ leadId: expect.any(String), type: "test_drive", outcome: "taken" });
     // Another time for the same car is fine.
-    expect(await processLead(drive({ driveTime: "11:00" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(drive({ driveTime: "11:30" }), ctx, deps)).toEqual({ status: "ok" });
   });
 
   it("refuses a closed day and a time off the grid before the bot check, and holds nothing", async () => {
@@ -349,6 +349,7 @@ describe("processLead, test drive requests (#166)", () => {
     const check = vi.spyOn(deps, "verifyTurnstile");
     expect(await processLead(drive({ driveDate: "2026-11-22" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveDate: [expect.any(String)] } });
     expect(await processLead(drive({ driveTime: "10:15" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [expect.any(String)] } });
+    expect(await processLead(drive({ driveTime: "11:00" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [expect.any(String)] } }); // half past is the grid: never within an hour of a neighbour
     expect(check).not.toHaveBeenCalled();
     expect(held.size).toBe(0);
   });

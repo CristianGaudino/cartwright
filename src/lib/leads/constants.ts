@@ -78,8 +78,9 @@ export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side"
 
 // Test drives (#166): a request for a day and a time, which the dealer calls to confirm. The days and hours come from OPENING_HOURS, so they
 // never disagree with the hours on the site. Slots start when we open and stop an hour before we close; days run from tomorrow (the dealer
-// needs notice) for daysAhead days. Times are Irish time wherever the buyer is.
-export const TEST_DRIVE = { daysAhead: 14, stepMinutes: 30 } as const;
+// needs notice) for daysAhead days. Times are Irish time wherever the buyer is. Slots are an hour apart, so the unique (car, start) index
+// alone keeps two drives on one car at least an hour apart: no check-then-insert race.
+export const TEST_DRIVE = { daysAhead: 14, stepMinutes: 60 } as const;
 export const BAD_DRIVE_DAY = "Choose a day from the list.";
 export const BAD_DRIVE_TIME = "Choose a time from the list.";
 export const DRIVE_PHONE_ERROR = "Add a phone number so we can call to confirm.";
