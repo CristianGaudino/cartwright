@@ -34,7 +34,7 @@ export function DriveFields({ bind, carId }: { bind(name: string): FieldBinding;
               if (!free(v).includes(time.value)) time.onChange("");
             }}
           />
-          <Field {...time} label="Time" required options={[{ value: "", label: day.value ? "Choose a Time" : "Choose a day first" }, ...times]} />
+          <Field {...time} label="Time" required options={[{ value: "", label: day.value ? "Choose a Time" : "Choose a Day First" }, ...times]} />
         </div>
       </div>
       <ContactFields bind={bind} phoneRequired />

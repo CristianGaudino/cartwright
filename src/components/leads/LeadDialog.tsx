@@ -78,11 +78,11 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           Enquire About This Car
         </button>
         <button type="button" onClick={(e) => show(e.currentTarget, "drive")} className={`col-span-2 sm:col-span-1 ${secondary}`}>
-          <CalendarIcon className="size-5 text-accent" />
+          <CalendarIcon className="size-5 text-accent-text" />
           Book a Test Drive
         </button>
         <a href={`tel:${DEALER_TEL}`} className={secondary}>
-          <PhoneIcon className="size-5 text-accent" />
+          <PhoneIcon className="size-5 text-accent-text" />
           Call Us
         </a>
         <WhatsAppButton href={whatsapp} sizing="px-3" />
