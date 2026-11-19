@@ -43,7 +43,7 @@ const carText = {
   make: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
   model: given(oneLine(z.string().trim().max(60, tooLong(60))).optional()),
 };
-// No carId key on the car-less types, so a forged one is dropped and snapshotCar stores no car (T-03-27).
+// No carId key on the car-less types (sourcing, general), so a forged one is dropped and snapshotCar stores no car (T-03-27).
 const sourcing = {
   ...carText,
   bodyType: given(z.enum(SOURCING_BODIES, { error: "Choose a type from the list." }).optional()),
@@ -59,7 +59,9 @@ const sourcing = {
 
 // D-14: plain fields, no reg lookup. Commas in the mileage are stripped; the year is the car's, so up to next year.
 const nextYear = () => new Date().getUTCFullYear() + 1;
+// A trade-in from a car page (/trade-in?car=) carries that car's id; snapshotCar reads the car again and refuses a sold one.
 const tradeIn = {
+  carId: given(carId.optional()),
   reg: given(z.string({ error: BAD_REG }).trim().toUpperCase().regex(REG_PATTERN, BAD_REG)),
   mileage: given(
     z

@@ -3,13 +3,23 @@ import { DEALER_LOCATION, SITE_NAME } from "@/lib/site";
 import { LeadPage } from "@/components/leads/LeadPage";
 import { LeadPageForm } from "@/components/leads/LeadPageForm";
 import { PHOTO_MIN_COUNT, PHOTO_SLOTS } from "@/lib/leads/constants";
+import { stock } from "@/lib/stock";
+import { carSummary } from "@/lib/stock/format";
+import { isSold } from "@/lib/stock/types";
 
 export const metadata: Metadata = {
   title: "Trade-In Valuation",
   description: `Trading in your car? Tell us about it, send some photos and we'll come back with a valuation towards your next one. ${SITE_NAME}, ${DEALER_LOCATION}.`,
 };
 
-export default function TradeInPage() {
+// From a car page (?car=its-slug) the trade-in is against that car. Only a slug-shaped value is looked up, and only a car still for sale is
+// chosen: anything else is a plain trade-in. The server reads the car again by id when the form is sent.
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+export default async function TradeInPage({ searchParams }: PageProps<"/trade-in">) {
+  const { car: slug } = await searchParams;
+  const found = typeof slug === "string" && slug.length <= 120 && SLUG.test(slug) ? await stock.getBySlug(slug).catch(() => null) : null;
+  const car = found && !isSold(found) ? carSummary(found) : undefined;
   return (
     <LeadPage
       title="Trade-In Valuation"
@@ -34,6 +44,7 @@ export default function TradeInPage() {
     >
       <LeadPageForm
         type="trade_in"
+        car={car}
         submitLabel="Get My Valuation"
         success={{ heading: "Thanks, we have your car details.", body: "We'll contact you with a valuation. It's an estimate until we've seen the car." }}
       />

@@ -70,6 +70,11 @@ export function BuyBox({ car }: { car: Car }) {
       {/* Under the facts, full width, so the buttons and facts stay in view on a phone. */}
       {!sold && <CompareButton id={car.id} label={`Compare ${carName(car)}`} sizing="flex h-12 w-full px-4" />}
       {!sold && (
+        <Link href={`/trade-in?car=${car.slug}`} className="-my-2 inline-flex min-h-11 items-center self-start text-body font-semibold underline">
+          Trade in your car against this one
+        </Link>
+      )}
+      {!sold && (
         <div className={`flex items-start gap-3 ${card} p-4`}>
           <ShieldCheckIcon className="mt-0.5 size-8 shrink-0 text-accent" />
           <div className="flex min-w-0 flex-col gap-1">

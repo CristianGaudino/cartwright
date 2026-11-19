@@ -201,11 +201,29 @@ test("the footer links the privacy page, which states the retention period", asy
   await expect(page.getByRole("main").getByRole("link", { name: "+353 83 133 3154" })).toHaveCount(0);
 });
 
+test("a car page offers a trade-in against it, with the car chosen; anything else in ?car= is a plain trade-in", async ({ page }) => {
+  await open(page, live.slug);
+  await page.getByRole("link", { name: "Trade in your car against this one" }).click();
+  await expect(page).toHaveURL(new RegExp(`/trade-in\\?car=${live.slug}$`));
+  const form = page.getByRole("main").locator("form");
+  await expect(form.getByText(/€/)).toBeVisible(); // the chosen car's card, with its price
+  for (const car of ["no-such-car-1", "../used-cars", "<b>", ...(sold ? [sold.slug] : [])]) {
+    await page.goto(`/trade-in?car=${encodeURIComponent(car)}`);
+    await expect(page.getByRole("heading", { name: /^Step 1 of 4/ })).toBeVisible();
+    await expect(form.getByText(/€/)).toHaveCount(0);
+  }
+});
+
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
   test("a car page still offers Call Us", async ({ page }) => {
     await page.goto(`/used-cars/${live.slug}`);
     await expect(page.getByRole("link", { name: /^Call Us/ })).toHaveAttribute("href", /^tel:/);
+  });
+
+  test("a lead form posts, so a send before the script loads never puts the details in the address", async ({ page }) => {
+    await page.goto("/contact");
+    await expect(page.getByRole("main").locator("form")).toHaveAttribute("method", "post");
   });
 });

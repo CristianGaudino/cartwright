@@ -6,6 +6,8 @@ import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
 import { PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { readDraft, saveDraft } from "@/lib/leads/draft";
+import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
 import type { LeadResult } from "@/lib/leads/process";
 import { ConsentRow } from "./ConsentRow";
@@ -115,6 +117,20 @@ export function LeadForm({
     if (done) heading.current?.focus();
   }, [done]);
 
+  // A half-filled form comes back after a reload in this tab (draft.ts says what is kept, and never the contact details). Read after
+  // mount, since the server has no sessionStorage; what was typed wins, unless the page now fills that field differently.
+  const draftKey = useRef<string>(undefined);
+  useEffect(() => {
+    draftKey.current = `${SITE_SLUG}:draft:${type}:${car?.id ?? ""}:${location.pathname}`;
+    const kept = readDraft(draftKey.current, prefill);
+    if (Object.keys(kept).length) setValues((s) => ({ ...s, ...kept }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- read once per form; a later prefill change is handled where prefill is applied
+  }, [type, car?.id]);
+  // After a send the values go back to the prefill, which keeps nothing, so the draft goes with it.
+  useEffect(() => {
+    if (draftKey.current) saveDraft(draftKey.current, values, prefill);
+  }, [values, prefill]);
+
   // On a failed send the first field to fix takes focus (a screen reader reads its error with it).
   useEffect(() => {
     if (invalid) document.getElementById(invalid.first)?.focus();
@@ -164,11 +180,16 @@ export function LeadForm({
     if (car) fd.set("carId", car.id);
     fd.set("sourcePath", location.pathname);
     fd.set("clientRef", (clientRef.current ??= crypto.randomUUID()));
-    fd.set("cf-turnstile-response", turnstile.token);
     start(async () => {
       let r: LeadResult;
       try {
-        r = await submitLead(fd);
+        // The server's own field rules first, so a form with a mistake answers at once instead of waiting for the bot check.
+        const found = await check(values);
+        if (Object.keys(found).length) r = { status: "invalid", fieldErrors: found };
+        else {
+          fd.set("cf-turnstile-response", await turnstile.ready());
+          r = await submitLead(fd);
+        }
       } catch {
         r = { status: "failed", kind: "server" }; // network, a new deploy, a body the server refused
       }
@@ -176,7 +197,7 @@ export function LeadForm({
       if (r.status !== "invalid" && !(r.status === "failed" && r.kind === "rate")) turnstile.reset();
       setInvalid(undefined);
       if (r.status === "ok") {
-        setValues({});
+        setValues(prefill ?? {}); // back to how it started, which the draft never keeps, so the draft goes too
         setStep(0);
         setPhotos([]);
         setErrors({});
@@ -214,6 +235,7 @@ export function LeadForm({
   return (
     <form
       ref={form}
+      method="post" // a send before the script loads never puts the buyer's details in the address
       noValidate
       onSubmit={onSubmit}
       // With no submit button on a step, Enter in a field would do nothing at all: it moves to the next step instead.
@@ -256,7 +278,7 @@ export function LeadForm({
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
               ) : failure === "gone" ? (
                 <>
-                  <p className="font-semibold text-destructive">This car has just been sold.</p>
+                  <p className="font-semibold text-destructive">This car is no longer available.</p>
                   <p className="text-meta">
                     <Link href="/used-cars" className="font-semibold underline">
                       See the Cars We Have

@@ -5,6 +5,7 @@ import { StateBlock } from "@/components/StateBlock";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
+import { sourcingHref } from "@/lib/leads/sourcing-prefill";
 import { appliedFilters, clearFilters, stockHref } from "@/lib/stock/query";
 import { SORT_KEYS } from "@/lib/stock/types";
 import type { Facets, SortKey, StockQuery } from "@/lib/stock/types";
@@ -176,7 +177,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
 }
 
 export function EmptyState() {
-  const { query, navigate } = useStock();
+  const { query, navigate, facets } = useStock();
+  const model = query.model[0];
+  const find = sourcingHref({ make: query.make[0], model: model && (facets?.model.find((o) => o.value === model)?.label ?? model), body: query.body[0], budget: query.priceMax });
   // With nothing applied there is no filter to remove: the stock itself is empty.
   if (appliedFilters(query, null).length === 0) {
     return (
@@ -189,7 +192,7 @@ export function EmptyState() {
   }
   return (
     <StateBlock title="No cars match these filters" text="Try removing a filter.">
-      <Link href="/find-a-car" className="mx-auto flex min-h-11 w-fit items-center text-body underline">
+      <Link href={find} className="mx-auto flex min-h-11 w-fit items-center text-body underline">
         Can&apos;t find it? Ask us to find it for you.
       </Link>
       <button type="button" onClick={() => navigate(clearFilters(query))} className={stateButton}>
