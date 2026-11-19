@@ -190,3 +190,19 @@ test.describe("desktop pointer", () => {
     expect(await toast.evaluate((el) => getComputedStyle(el).borderRadius)).toBe(barRadius);
   });
 });
+
+for (const width of [320, 390]) {
+  test(`at ${width}px the compare pill leaves the footer's last link free to tap`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 700 });
+    const [a] = await carPaths(page, 1);
+    await compare(page, a);
+    await page.goto("/about");
+    await expect(page.getByRole("region", { name: "Compare cars" })).toBeVisible();
+    const link = page.getByRole("link", { name: /^Powered by/ });
+    await link.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const box = (await link.boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest("a")?.textContent ?? "", [box.x + box.width / 2, box.y + box.height / 2]);
+    expect(hit).toContain("Powered by");
+  });
+}

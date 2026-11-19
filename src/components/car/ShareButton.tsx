@@ -109,7 +109,7 @@ export function ShareButton({ title, text, url, iconOnly = false }: { title: str
             Share on WhatsApp
           </a>
           <button type="button" onClick={copyLink} className={item}>
-            <span aria-live="polite">{copy === "copied" ? "Link copied" : copy === "failed" ? "Couldn't copy the link" : "Copy link"}</span>
+            <span aria-live="polite">{copy === "copied" ? "Link Copied" : copy === "failed" ? "Couldn't copy the link" : "Copy Link"}</span>
           </button>
         </div>
       )}

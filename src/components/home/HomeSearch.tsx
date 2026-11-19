@@ -11,7 +11,7 @@ import { accentButton, card } from "@/components/ui";
 type Option = { slug: string; label: string };
 type Props = { makes: Option[]; bodies: Option[]; models: { makeSlug: string; slug: string; label: string }[] };
 
-const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
+const tab = "relative inline-flex min-h-11 flex-1 items-center justify-center whitespace-nowrap px-2 min-[360px]:px-4 sm:flex-none sm:justify-start text-body font-semibold transition-colors";
 const bar = "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent";
 const FIND_STEPS = ["Tell Us What You Want", "We Look for It", "We Get in Touch"];
 

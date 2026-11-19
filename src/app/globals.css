@@ -614,4 +614,11 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   body:has([data-sticky-actions]:not(.invisible)) [data-bottom-stack] {
     bottom: calc(5rem + env(safe-area-inset-bottom));
   }
+  /* The compare pill likewise needs room under the footer, so its last line ("Powered by") can still be tapped; more above a call bar. */
+  body:has([data-bottom-stack] [role="region"]) {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  body:has([data-sticky-actions]):has([data-bottom-stack] [role="region"]) {
+    padding-bottom: calc(9rem + env(safe-area-inset-bottom));
+  }
 }
