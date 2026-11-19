@@ -194,13 +194,15 @@ test("the same phone asking twice for the same car is told it already has a requ
 });
 
 test("a chosen time that becomes too soon stays chosen, and the send says why", async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-24T10:00:00Z") }); // a Tuesday, 10:00 Irish time: 11:30 is the first time offered
+  // A Tuesday in the past, 10:00 Irish time: 11:30 is the first time offered, and no real booking from the other specs (the server holds
+  // from the real now on) can ever grey it out.
+  await page.clock.install({ time: new Date("2025-11-25T10:00:00Z") });
   await open(page, live.slug);
   await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
   const d = page.getByRole("dialog", { name: "Book a Test Drive" });
   const time = d.getByRole("combobox", { name: "Time" });
   await d.getByRole("combobox", { name: "Day" }).click();
-  await page.getByRole("option", { name: "Tue 24 Nov" }).click();
+  await page.getByRole("option", { name: "Tue 25 Nov" }).click();
   await time.click();
   await page.getByRole("option", { name: "11:30", exact: true }).click();
   await d.getByLabel("Name").fill("Test Driver");
