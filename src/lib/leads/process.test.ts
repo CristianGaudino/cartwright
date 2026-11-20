@@ -3,8 +3,8 @@ import demoCars from "@/lib/stock/demo-cars.json";
 import { carTitle } from "@/lib/stock/format";
 import type { Car } from "@/lib/stock/types";
 import { processLead, snapshotCar } from "./process";
-import type { Deps, LeadRow } from "./process";
-import { CONSENT, PHOTO_MIN_COUNT } from "./constants";
+import type { Asker, Deps, LeadRow } from "./process";
+import { CONSENT, DRIVE_NOTICE_ERROR, PHOTO_MIN_COUNT } from "./constants";
 
 const cars = demoCars as Car[];
 const live = cars.find((c) => !c.soldAt)!;
@@ -13,7 +13,8 @@ const sold = cars.find((c) => c.soldAt)!;
 // Fake deps in the test (deps.ts is server-only). 03-05 extends this file and reuses these helpers.
 function fakeDeps(over: Partial<Deps["store"]> = {}, holdOver: Partial<Deps["holds"]> = {}) {
   const rows: LeadRow[] = [];
-  const held = new Map<string, { carId: string; startsAt: Date }>();
+  const held = new Map<string, { carId: string; startsAt: Date; who?: Asker }>();
+  const same = (a: Asker, b?: Asker) => a.phoneKey === b?.phoneKey || (a.emailKey !== null && a.emailKey === b?.emailKey);
   const mail: { subject: string; text: string; replyTo?: string }[] = [];
   const notified: string[] = [];
   const deps: Deps = {
@@ -24,11 +25,12 @@ function fakeDeps(over: Partial<Deps["store"]> = {}, holdOver: Partial<Deps["hol
       ...over,
     },
     holds: {
-      take: async (leadId, carId, startsAt) => {
-        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return false;
-        held.set(leadId, { carId, startsAt });
-        return true;
+      take: async (leadId, carId, startsAt, who) => {
+        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return "taken";
+        held.set(leadId, { carId, startsAt, who });
+        return "ok";
       },
+      pending: async (who, from) => [...held.values()].filter((h) => same(who, h.who) && h.startsAt > from).map((h) => h.carId),
       free: async (leadId) => void held.delete(leadId),
       get: async (leadId) => held.get(leadId) ?? null,
       times: async () => [],
@@ -326,7 +328,7 @@ describe("processLead, test drive requests (#166)", () => {
     expect(await processLead(drive(), ctx, deps)).toEqual({ status: "ok" });
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ type: "test_drive", carId: live.id, details: { driveDate: "2026-11-24", driveTime: "10:30" } });
-    expect([...held]).toEqual([[rows[0].id, { carId: live.id, startsAt: new Date("2026-11-24T10:30:00Z") }]]);
+    expect([...held]).toEqual([[rows[0].id, { carId: live.id, startsAt: new Date("2026-11-24T10:30:00Z"), who: { phoneKey: "353871234567", emailKey: "buyer@example.com" } }]]);
     expect(mail[0].subject).toBe(`[DEMO] Test drive request, Tue 24 Nov at 10:30: ${carTitle(live)}`);
     expect(mail[0].text).toContain("Day: Tuesday 24 November 2026");
     expect(mail[0].text).toContain("Time: 10:30");
@@ -336,12 +338,12 @@ describe("processLead, test drive requests (#166)", () => {
   it("refuses the same car and time again with the taken answer, and stores nothing", async () => {
     const { deps, rows, mail } = fakeDeps();
     await processLead(drive(), ctx, deps);
-    expect(await processLead(drive(), ctx, deps)).toEqual({ status: "failed", kind: "taken" });
+    expect(await processLead(drive({ phone: "+353 86 000 0001", email: "other@example.com" }), ctx, deps)).toEqual({ status: "failed", kind: "taken" });
     expect(rows).toHaveLength(1);
     expect(mail).toHaveLength(1);
     expect(lines().at(-1)).toEqual({ leadId: expect.any(String), type: "test_drive", outcome: "taken" });
-    // Another time for the same car is fine.
-    expect(await processLead(drive({ driveTime: "11:00" }), ctx, deps)).toEqual({ status: "ok" });
+    // Another time for the same car is fine from another phone.
+    expect(await processLead(drive({ driveTime: "11:30", phone: "+353 86 000 0000", email: "other@example.com" }), ctx, deps)).toEqual({ status: "ok" });
   });
 
   it("refuses a closed day and a time off the grid before the bot check, and holds nothing", async () => {
@@ -349,6 +351,7 @@ describe("processLead, test drive requests (#166)", () => {
     const check = vi.spyOn(deps, "verifyTurnstile");
     expect(await processLead(drive({ driveDate: "2026-11-22" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveDate: [expect.any(String)] } });
     expect(await processLead(drive({ driveTime: "10:15" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [expect.any(String)] } });
+    expect(await processLead(drive({ driveTime: "11:00" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [expect.any(String)] } }); // half past is the grid: never within an hour of a neighbour
     expect(check).not.toHaveBeenCalled();
     expect(held.size).toBe(0);
   });
@@ -366,6 +369,60 @@ describe("processLead, test drive requests (#166)", () => {
     const lost = fakeDeps({ exists: async () => false, insert: async () => false });
     expect(await processLead(drive(), ctx, lost.deps)).toEqual({ status: "ok" });
     expect(lost.held.size).toBe(0);
+  });
+
+  it("refuses a second request from the same phone for the same car, however the number is written, and keeps nothing of it", async () => {
+    // No email here, so only the phone matches.
+    const { deps, rows, mail, held } = fakeDeps();
+    expect(await processLead(drive({ email: "" }), ctx, deps)).toEqual({ status: "ok" });
+    for (const phone of ["+353 87 123 4567", "+353 871234567", "087-123-4567"]) {
+      expect(await processLead(drive({ phone, email: "", driveTime: "14:30" }), ctx, deps)).toEqual({ status: "failed", kind: "again" });
+    }
+    expect([rows.length, mail.length, held.size]).toEqual([1, 1, 1]);
+    expect(lines().at(-1)).toEqual({ leadId: expect.any(String), type: "test_drive", outcome: "again" });
+    // Another phone for the same car, and the same phone for another car, are fine.
+    expect(await processLead(drive({ phone: "+44 7400 123456", driveTime: "14:30" }), ctx, deps)).toEqual({ status: "ok" }); // and its own email
+    const other = cars.find((c) => !c.soldAt && c.id !== live.id)!;
+    expect(await processLead(drive({ carId: other.id, email: "" }), ctx, deps)).toEqual({ status: "ok" });
+  });
+
+  it("refuses a second request for the same car from the same email with another phone; another phone and email both pass", async () => {
+    const { deps, rows, held } = fakeDeps();
+    expect(await processLead(drive({ email: "ann@example.com" }), ctx, deps)).toEqual({ status: "ok" });
+    const again = drive({ phone: "+353 86 000 0000", email: "Ann@Example.COM", driveTime: "14:30" });
+    expect(await processLead(again, ctx, deps)).toEqual({ status: "failed", kind: "again" });
+    expect(await processLead(drive({ phone: "+353 86 000 0000", driveTime: "14:30" }), ctx, deps)).toEqual({ status: "ok" }); // buyer@example.com
+    expect([rows.length, held.size]).toEqual([2, 2]);
+  });
+
+  it("allows three pending requests per phone across cars, refuses a fourth, and frees the allowance with a freed slot or a passed time", async () => {
+    const { deps, rows, held } = fakeDeps();
+    const [a, b, c, d] = cars.filter((x) => !x.soldAt);
+    for (const car of [a, b, c]) expect(await processLead(drive({ carId: car.id }), ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(drive({ carId: d.id }), ctx, deps)).toEqual({ status: "failed", kind: "full" });
+    expect(await processLead(drive({ carId: d.id, phone: "+353 86 000 0000" }), ctx, deps)).toEqual({ status: "failed", kind: "full" }); // same email
+    expect(await processLead(drive({ carId: d.id, phone: "+353 86 000 0000", email: "other@example.com" }), ctx, deps)).toEqual({ status: "ok" });
+    expect([rows.length, held.size]).toEqual([4, 4]);
+    expect(lines().at(-2)).toEqual({ leadId: expect.any(String), type: "test_drive", outcome: "full" });
+    // A fourth for a car already asked about is told it already has one.
+    expect(await processLead(drive({ carId: a.id, driveTime: "14:30" }), ctx, deps)).toEqual({ status: "failed", kind: "again" });
+
+    await deps.holds.free(rows[0].id); // the dealer's "Free this slot"
+    expect(await processLead(drive({ carId: d.id, driveTime: "14:30" }), ctx, deps)).toEqual({ status: "ok" });
+    expect(await processLead(drive({ carId: a.id, driveTime: "15:30" }), ctx, deps)).toEqual({ status: "failed", kind: "full" });
+    // Once the times have passed, they no longer count.
+    vi.setSystemTime(new Date("2026-11-24T12:00:00Z"));
+    expect(await processLead(drive({ carId: a.id, driveTime: "15:30" }), ctx, deps)).toEqual({ status: "ok" });
+  });
+
+  it("refuses a time less than an hour away before the bot check", async () => {
+    vi.setSystemTime(new Date("2026-11-24T10:00:00Z")); // Tuesday 10:00
+    const { deps, held } = fakeDeps();
+    const check = vi.spyOn(deps, "verifyTurnstile");
+    expect(await processLead(drive({ driveTime: "10:30" }), ctx, deps)).toMatchObject({ status: "invalid", fieldErrors: { driveTime: [DRIVE_NOTICE_ERROR] } });
+    expect(check).not.toHaveBeenCalled();
+    expect(held.size).toBe(0);
+    expect(await processLead(drive({ driveTime: "11:30" }), ctx, deps)).toEqual({ status: "ok" }); // same day, an hour and a half on
   });
 
   it("frees the hold when the email fails, so the buyer's retry is not refused as taken", async () => {

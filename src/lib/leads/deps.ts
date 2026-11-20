@@ -4,17 +4,18 @@ import { requireEnv } from "@/lib/env";
 import { LEAD_FROM_EMAIL, isProduction } from "@/lib/site";
 import { stock } from "@/lib/stock";
 import { getBindings } from "./bindings";
-import type { Deps, HoldStore, LeadStore, Mailer } from "./process";
+import type { Asker, Deps, HoldStore, LeadStore, Mailer } from "./process";
 import { createDrizzleHolds, createDrizzleStore } from "./store";
 import { verifyTurnstile } from "./turnstile";
 
 const getCar = (id: string) => stock.getById(id);
 
-// In-memory stand-ins for E2E. They keep no personal data: the store remembers client refs only, the holds a car and a time, the
-// mailer drops the message.
+// In-memory stand-ins for E2E. They keep little personal data: the store remembers client refs only, the holds a car, a time and the phone
+// and email keys (as drive_holds does), the mailer drops the message.
 function fakeDeps(): Deps {
   const refs = new Set<string>();
-  const held = new Map<string, { carId: string; startsAt: Date }>(); // by lead id
+  const held = new Map<string, { carId: string; startsAt: Date; who: Asker }>(); // by lead id
+  const same = (a: Asker, b: Asker) => a.phoneKey === b.phoneKey || (a.emailKey !== null && a.emailKey === b.emailKey);
   return {
     store: {
       exists: async (ref) => refs.has(ref),
@@ -26,13 +27,18 @@ function fakeDeps(): Deps {
       markNotified: async () => {},
     },
     holds: {
-      take: async (leadId, carId, startsAt) => {
-        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return false;
-        held.set(leadId, { carId, startsAt });
-        return true;
+      take: async (leadId, carId, startsAt, who) => {
+        if ([...held.values()].some((h) => h.carId === carId && same(h.who, who) && +h.startsAt > Date.now())) return "again";
+        if ([...held.values()].some((h) => h.carId === carId && +h.startsAt === +startsAt)) return "taken";
+        held.set(leadId, { carId, startsAt, who });
+        return "ok";
       },
+      pending: async (who, from) => [...held.values()].filter((h) => same(h.who, who) && h.startsAt > from).map((h) => h.carId),
       free: async (leadId) => void held.delete(leadId),
-      get: async (leadId) => held.get(leadId) ?? null,
+      get: async (leadId) => {
+        const h = held.get(leadId);
+        return h ? { carId: h.carId, startsAt: h.startsAt } : null;
+      },
       times: async (carId, from) => [...held.values()].filter((h) => h.carId === carId && h.startsAt >= from).map((h) => h.startsAt),
     },
     mailer: { send: async () => {} },
@@ -50,6 +56,7 @@ const db = () => createDrizzleStore(getDb());
 const holdsDb = () => createDrizzleHolds(getDb());
 const holds: HoldStore = {
   take: (...a) => holdsDb().take(...a),
+  pending: (...a) => holdsDb().pending(...a),
   free: (id) => holdsDb().free(id),
   get: (id) => holdsDb().get(id),
   times: (...a) => holdsDb().times(...a),

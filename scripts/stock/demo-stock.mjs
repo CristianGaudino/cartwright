@@ -41,6 +41,27 @@ const SOLD_DAYS_AGO = {
   4396311: 45, // Hyundai, lowest id: expired, make still has stock
 };
 
+// The dealer's feed contradicts itself on some cars (a DSG gearbox listed Manual, a G-Class listed Pickup). id -> only the fields
+// to correct, applied after the feed is mapped, each checked against the car's own title, variant or photos. Every id must be built.
+export const CORRECTIONS = {
+  4359693: { bodyType: "SUV" }, // G-Class listed as Pickup
+  4359694: { bodyType: "SUV" }, // Sportage listed as MPV
+  4359727: { bodyType: "SUV" }, // Qashqai listed as MPV
+  4359735: { bodyType: "SUV" }, // Tiguan listed as Estate
+  4359744: { engineLitres: 1.2 }, // title says "1.2 16V", feed says 1.1 L
+  4474493: { bodyType: "MPV" }, // listed as Estate; the photos show a Golf SV (Sportsvan)
+  4486577: { bodyType: "SUV" }, // iX1 listed as Estate
+  4491477: { bodyType: "SUV" }, // Puma listed as MPV
+  4508172: { bodyType: "Hatchback" }, // Golf listed as Estate; the photos show the hatchback
+  4508176: { bodyType: "Hatchback", gearbox: "automatic" }, // Golf listed as Estate (photos show the hatchback) and Manual with "DSG" in its title
+  4532457: { bodyType: "SUV" }, // Qashqai listed as Hatchback
+  4549696: { bodyType: "SUV" }, // EV6 listed as MPV
+  4551314: { doors: 4 }, // a saloon (feed and photos) listed with 5 doors
+  4560180: { bodyType: "SUV" }, // 3008 listed as MPV
+  4574696: { bodyType: "SUV", gearbox: "automatic" }, // Tucson listed as MPV, and Manual with "DCT" in its title
+  // Not 4578723: its title says "COUPE", but its photos are a 4-door W212 saloon, so the feed's Saloon stands.
+};
+
 const soldDate = (id, today) => (id in SOLD_DAYS_AGO ? new Date(today.getTime() - SOLD_DAYS_AGO[id] * 86_400_000).toISOString().slice(0, 10) : undefined);
 
 const USAGE = "Usage: demo-stock.mjs fetch|build [--limit N] [--no-photos|--report] | redate";
@@ -322,7 +343,13 @@ async function buildCmd() {
     const bodyType = clean(s.body) || undefined;
     // Drops a leading "make model", a bare "model" and a repeated one ("Kia EV6 EV6 GT-Line" is GT-Line), so the title doesn't say it twice.
     const esc = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const variant = clean(l.highlights).slice(0, LIMITS.variant).replace(new RegExp(`^(${esc(make)}\\s+)?(${esc(model)}(\\s+|$))+`, "i"), "") || undefined;
+    // Then a make prefix ("Mercedes-AMG E 63 S" is AMG E 63 S) and the model anywhere else ("MWB Proace Verso" is MWB Verso).
+    const variant = clean(l.highlights).slice(0, LIMITS.variant)
+      .replace(new RegExp(`^(${esc(make)}\\s+)?(${esc(model)}(\\s+|$))+`, "i"), "")
+      .replace(new RegExp(`^${esc(make.split(/[\s-]/)[0])}-(?=\\w)`, "i"), "")
+      .replace(new RegExp(`(?<![\\w-])${esc(model)}(?![\\w-])`, "gi"), "")
+      .replace(/\s+/g, " ")
+      .trim() || undefined;
 
     const photoState = join(CACHE, "cars", l.id, "photos.json");
     const kept = (existsSync(photoState) ? JSON.parse(readFileSync(photoState, "utf8")) : []).filter((p) => p.n).sort((a, b) => a.n - b.n);
@@ -356,6 +383,11 @@ async function buildCmd() {
   }
 
   for (const id of Object.keys(SOLD_DAYS_AGO)) if (!cars.some((c) => c.id === id)) throw new Error(`SOLD_DAYS_AGO names ${id}, which is not among the built cars`);
+  for (const [id, fix] of Object.entries(CORRECTIONS)) {
+    const car = cars.find((c) => c.id === id);
+    if (!car) throw new Error(`CORRECTIONS names ${id}, which is not among the built cars`);
+    Object.assign(car, fix, fix.bodyType ? { bodySlug: slugify(fix.bodyType) } : {});
+  }
   cars.sort((a, b) => Number(a.id) - Number(b.id));
   rmSync(OUT_PHOTOS, { recursive: true, force: true }); // no stale file survives (Pitfall 5)
   for (const [p, buf] of files) writeCache(p, buf);
@@ -371,7 +403,9 @@ async function buildCmd() {
   }
 }
 
-if (cmd === "fetch") {
+if (!import.meta.main) {
+  // Imported (demo-cars.test.ts reads CORRECTIONS): run nothing.
+} else if (cmd === "fetch") {
   await fetchCmd().catch((e) => {
     console.error(e.message);
     process.exit(1);

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { submitLead } from "@/app/actions/lead";
 import { CheckIcon } from "@/components/stock/icons";
-import { DRIVE_TAKEN_ERROR, PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
+import { DRIVE_AGAIN_ERROR, DRIVE_FULL_ERROR, DRIVE_TAKEN_ERROR, PHOTO_LIMITS, PHOTO_TOTAL_ERROR, PHOTO_TOTAL_MAX_BYTES } from "@/lib/leads/constants";
 import { readDraft, saveDraft } from "@/lib/leads/draft";
 import { SITE_SLUG } from "@/lib/site";
 import type { LeadType } from "@/lib/leads/schema";
@@ -71,12 +71,14 @@ export function LeadForm({
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   // Which field to look at first: a new object on each failed send, so focus moves each time. How many is read from `errors`.
   const [invalid, setInvalid] = useState<{ first: string }>();
-  const [failure, setFailure] = useState<Failure>();
+  // A new object on each failed send too, so the alert takes focus again when the same failure repeats.
+  const [failure, setFailure] = useState<{ kind: Failure }>();
   const [done, setDone] = useState(false);
   const [pending, start] = useTransition();
   const clientRef = useRef<string>(undefined); // one per form instance, renewed after a success
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const alertBox = useRef<HTMLDivElement>(null);
   const slot = useRef<HTMLDivElement>(null);
   const turnstile = useTurnstile(slot);
   const { load } = turnstile;
@@ -131,7 +133,12 @@ export function LeadForm({
     if (draftKey.current) saveDraft(draftKey.current, values, prefill);
   }, [values, prefill]);
 
-  // On a failed send the first field to fix takes focus (a screen reader reads its error with it).
+  // A failed send: the alert at the top takes focus, so a phone scrolls up to it and a screen reader reads it, every time.
+  // The Send button was disabled while sending, so focus would otherwise be left on the page itself.
+  useEffect(() => {
+    if (failure) alertBox.current?.focus();
+  }, [failure]);
+  // A field to fix wins over the alert (this runs second): the first field to fix takes focus (a screen reader reads its error with it).
   useEffect(() => {
     if (invalid) document.getElementById(invalid.first)?.focus();
   }, [invalid]);
@@ -209,7 +216,7 @@ export function LeadForm({
       } else if (r.status === "invalid") {
         const fe = r.fieldErrors;
         setErrors(fe);
-        setFailure(Object.keys(fe).some((k) => HIDDEN.includes(k)) ? "server" : undefined);
+        setFailure(Object.keys(fe).some((k) => HIDDEN.includes(k)) ? { kind: "server" } : undefined);
         // One link per invalid field, in the order the fields sit in the form.
         const names = [...new Set(Array.from(form.current?.elements ?? [], (el) => (el as HTMLInputElement).name))].filter((n) => fe[n]?.[0]);
         if (names.length) setInvalid({ first: `${uid}-${names[0]}` });
@@ -218,7 +225,7 @@ export function LeadForm({
         if (at >= 0) setStep(at);
       } else {
         setErrors({});
-        setFailure(r.kind);
+        setFailure({ kind: r.kind });
         // A server failure may be an email that did not go out: a retry must be stored and sent again, not answered as a duplicate.
         // With no answer at all the request may have been stored: the retry keeps its ref, so it is answered as a duplicate, never as
         // its own test drive time "taken".
@@ -278,12 +285,16 @@ export function LeadForm({
           )}
           {/* Fixed copy and our own field messages only: nothing from a thrown error ever shows (T-03-45). */}
           {failure && (
-            <div role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4">
-              {failure === "rate" ? (
+            <div ref={alertBox} tabIndex={-1} role="alert" className="flex flex-col gap-1 rounded-card border border-hairline p-4 outline-none">
+              {failure.kind === "rate" ? (
                 <p className="font-semibold text-destructive">Too many requests. Wait a minute and try again.</p>
-              ) : failure === "taken" ? (
+              ) : failure.kind === "taken" ? (
                 <p className="font-semibold text-destructive">{DRIVE_TAKEN_ERROR}</p>
-              ) : failure === "gone" ? (
+              ) : failure.kind === "again" || failure.kind === "full" ? (
+                <p className="font-semibold text-destructive">
+                  {failure.kind === "again" ? DRIVE_AGAIN_ERROR : DRIVE_FULL_ERROR} Or call us on <PhoneLink />.
+                </p>
+              ) : failure.kind === "gone" ? (
                 <>
                   <p className="font-semibold text-destructive">This car is no longer available.</p>
                   <p className="text-meta">
@@ -294,7 +305,7 @@ export function LeadForm({
                 </>
               ) : (
                 <>
-                  <p className="font-semibold text-destructive">{failure === "captcha" ? "We couldn't check this request." : "We couldn't send this."}</p>
+                  <p className="font-semibold text-destructive">{failure.kind === "captcha" ? "We couldn't check this request." : "We couldn't send this."}</p>
                   <p className="text-meta">
                     Your details are still here. Try again, or call us on{" "}
                     <PhoneLink />.

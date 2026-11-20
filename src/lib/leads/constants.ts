@@ -77,13 +77,29 @@ export const PHOTO_LIMITS = { trade_in: { min: PHOTO_MIN_COUNT, max: PHOTO_MAX_C
 export const PHOTO_SLOTS = ["Front", "Back", "Driver's Side", "Passenger's Side", "Interior Front", "Interior Back", "Dashboard and Mileage", "Any Damage"];
 
 // Test drives (#166): a request for a day and a time, which the dealer calls to confirm. The days and hours come from OPENING_HOURS, so they
-// never disagree with the hours on the site. Slots start when we open and stop an hour before we close; days run from tomorrow (the dealer
-// needs notice) for daysAhead days. Times are Irish time wherever the buyer is.
-export const TEST_DRIVE = { daysAhead: 14, stepMinutes: 30 } as const;
+// never disagree with the hours on the site. Slots start an hour after we open, an hour apart, and none starts later than an hour before we
+// close. Days run from today for daysAhead days, but a slot must start at least an hour from now (noticeMs). Times are Irish time wherever
+// the buyer is. Slots are an hour apart, so the unique (car, start) index alone keeps two drives on one car at least an hour apart: no
+// check-then-insert race. One person (the same phone or the same email) holds at most one pending request per car and maxPending in all.
+export const TEST_DRIVE = { daysAhead: 14, stepMinutes: 60, noticeMs: 3_600_000, maxPending: 3 } as const;
 export const BAD_DRIVE_DAY = "Choose a day from the list.";
 export const BAD_DRIVE_TIME = "Choose a time from the list.";
+export const DRIVE_NOTICE_ERROR = "Choose a time at least an hour from now.";
 export const DRIVE_PHONE_ERROR = "Add a phone number so we can call to confirm.";
 export const DRIVE_TAKEN_ERROR = "That time was just taken. Choose another.";
+export const DRIVE_AGAIN_ERROR = "This phone number or email already has a test drive request for this car. We'll call you to confirm it.";
+export const DRIVE_FULL_ERROR = `This phone number or email has ${TEST_DRIVE.maxPending} test drive requests waiting. We'll call you about those first.`;
+
+/** A phone number as digits with its country code, so "+353 87 123 4567", "087 123 4567" and "00353871234567" match. A national leading 0
+ * is read as Irish. Only for comparing (drive_holds.phone_key): never shown or logged. */
+export function phoneKey(v: string): string {
+  const d = v.replace(/\D/g, "");
+  if (v.trim().startsWith("+")) return d.replace(/^3530/, "353"); // "+353 (0)87" is still 87
+  if (d.startsWith("00")) return phoneKey(`+${d.slice(2)}`);
+  return d.startsWith("0") ? `353${d.slice(1)}` : d;
+}
+/** An email as compared for the same caps (drive_holds.email_key): trimmed and lowercased. Null when there is none. */
+export const emailKey = (v?: string | null) => v?.trim().toLowerCase() || null;
 
 const TZ = "Europe/Dublin";
 const DAY_MS = 86_400_000;
@@ -92,13 +108,11 @@ const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${St
 const noonUtc = (iso: string) => new Date(`${iso}T12:00:00Z`); // a day read at noon UTC, so no time zone moves it
 const addDays = (iso: string, n: number) => new Date(noonUtc(iso).getTime() + n * DAY_MS).toISOString().slice(0, 10);
 
+// Built once: the day and time lists call dublinSlot hundreds of times a render, and a new formatter each time is slow.
+const DUBLIN = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 /** An instant as Irish wall time, "2026-11-25 10:30". */
 export function dublinSlot(ms: number): string {
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-GB", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
-      .formatToParts(ms)
-      .map((x) => [x.type, x.value]),
-  );
+  const p = Object.fromEntries(DUBLIN.formatToParts(ms).map((x) => [x.type, x.value]));
   return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
 }
 /** Irish wall time as an instant. NaN for a time the clocks skip. */
@@ -111,20 +125,27 @@ export function dublinMs(date: string, time: string): number {
   return NaN;
 }
 
-/** The times a test drive can start on a day: every slot from opening until an hour before closing. Empty on a closed day. */
+/** The times a test drive can start on a day: hourly from an hour after opening, none later than an hour before closing. Empty on a closed day. */
 export function driveTimes(iso: string): string[] {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || Number.isNaN(noonUtc(iso).getTime())) return [];
   const h = OPENING_HOURS[(noonUtc(iso).getUTCDay() + 6) % 7]; // OPENING_HOURS starts on Monday
   if (!h?.opens || !h.closes) return [];
   const out: string[] = [];
-  for (let m = mins(h.opens); m <= mins(h.closes) - 60; m += TEST_DRIVE.stepMinutes) out.push(hhmm(m));
+  for (let m = mins(h.opens) + 60; m <= mins(h.closes) - 60; m += TEST_DRIVE.stepMinutes) out.push(hhmm(m));
   return out;
 }
-/** The open days the form offers: from tomorrow, Irish date, for daysAhead days. */
+/** The times on a day that still give an hour's notice. */
+export const openDriveTimes = (iso: string, now = Date.now()) => driveTimes(iso).filter((t) => dublinMs(iso, t) >= now + TEST_DRIVE.noticeMs);
+/** Whether a day is open and from today (Irish date) to daysAhead days on. Whether its time gives notice is checked with the time. */
+export function isDriveDay(iso: string, now = new Date()): boolean {
+  const today = dublinSlot(now.getTime()).slice(0, 10);
+  return iso >= today && iso <= addDays(today, TEST_DRIVE.daysAhead) && driveTimes(iso).length > 0;
+}
+/** The days the form offers: from today, if it still has a time an hour away, to daysAhead days on. */
 export function driveDays(now = new Date()): string[] {
   const today = dublinSlot(now.getTime()).slice(0, 10);
   const out: string[] = [];
-  for (let i = 1; i <= TEST_DRIVE.daysAhead; i++) if (driveTimes(addDays(today, i)).length) out.push(addDays(today, i));
+  for (let i = 0; i <= TEST_DRIVE.daysAhead; i++) if (openDriveTimes(addDays(today, i), now.getTime()).length) out.push(addDays(today, i));
   return out;
 }
 /** "Tue 25 Nov", for the day list and the email subject. */

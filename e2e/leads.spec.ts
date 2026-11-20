@@ -131,29 +131,34 @@ test("a field error keeps what was typed, and consent is needed to send", async 
   await expect(privacy).toHaveAttribute("target", "_blank");
 });
 
+// The fake backends live as long as the server, and a phone or email may hold one request per car: each request gets its own number.
+const newPhone = () => `087 ${String(Math.floor(Math.random() * 1e7)).padStart(7, "0")}`;
+// Opens the test drive form on a car and fills it: the second day offered, and the given time or the first free one.
+async function pickDrive(p: Page, { time, phone = newPhone() }: { time?: string; phone?: string } = {}) {
+  await open(p, live.slug);
+  await expect(p.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
+  await p.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+  const d = p.getByRole("dialog", { name: "Book a Test Drive" });
+  await expect(d).toBeVisible();
+  await d.getByRole("combobox", { name: "Day" }).click();
+  // Never today, whose first time can pass its hour's notice mid-run: the 15-day horizon always offers at least two later days.
+  await p.getByRole("option").nth(2).click();
+  await d.getByRole("combobox", { name: "Time" }).click();
+  const slot = time ? p.getByRole("option", { name: time, exact: true }) : p.getByRole("option", { disabled: false }).nth(1); // a free time, past the hint
+  const chosen = (await slot.textContent())!;
+  await slot.click();
+  await d.getByLabel("Name").fill("Test Driver");
+  await d.getByLabel("Phone").fill(phone);
+  await d.getByRole("checkbox").check();
+  return { d, chosen };
+}
+
 test("Book a Test Drive asks for a day and a time, says we'll call to confirm, and the same time again is refused", async ({ page }) => {
   // Two buyers on the same car pick the same time before either sends: the first gets it, the second is told it was just taken.
   const other = await page.context().newPage(); // its own tab, so its own form and draft
   await stubTurnstile(other);
-  const pick = async (p: Page, time?: string) => {
-    await open(p, live.slug);
-    await expect(p.getByRole("button", { name: /Reserve/ })).toHaveCount(0);
-    await p.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
-    const d = p.getByRole("dialog", { name: "Book a Test Drive" });
-    await expect(d).toBeVisible();
-    await d.getByRole("combobox", { name: "Day" }).click();
-    await p.getByRole("option").nth(1).click(); // the first day after "Choose a Day"
-    await d.getByRole("combobox", { name: "Time" }).click();
-    const slot = time ? p.getByRole("option", { name: time, exact: true }) : p.getByRole("option", { disabled: false }).nth(1); // a free time, past the hint
-    const chosen = (await slot.textContent())!;
-    await slot.click();
-    await d.getByLabel("Name").fill("Test Driver");
-    await d.getByLabel("Phone").fill("087 123 4567");
-    await d.getByRole("checkbox").check();
-    return { d, chosen };
-  };
-  const first = await pick(page);
-  const second = await pick(other, first.chosen);
+  const first = await pickDrive(page);
+  const second = await pickDrive(other, { time: first.chosen });
 
   await first.d.getByRole("button", { name: "Send Request" }).click();
   await expect(first.d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
@@ -161,10 +166,57 @@ test("Book a Test Drive asks for a day and a time, says we'll call to confirm, a
 
   await second.d.getByRole("button", { name: "Send Request" }).click();
   await expect(second.d.getByRole("alert")).toHaveText("That time was just taken. Choose another.");
+  // On a phone the alert sits above the fold: it takes focus, so it scrolls into view and is read out.
+  await expect(second.d.getByRole("alert")).toBeInViewport();
+  await expect(second.d.getByRole("alert")).toBeFocused();
   // Back in the picker, the time shows as taken.
   await second.d.getByRole("combobox", { name: "Time" }).click();
   await expect(other.getByRole("option", { name: first.chosen, exact: true })).toHaveAttribute("aria-disabled", "true");
   await other.close();
+});
+
+test("the same phone asking twice for the same car is told it already has a request, and keeps what it typed", async ({ page }) => {
+  const phone = newPhone();
+  const first = await pickDrive(page, { phone });
+  await first.d.getByRole("button", { name: "Send Request" }).click();
+  await expect(first.d.getByRole("heading", { name: "Thanks, we have your request." })).toBeFocused();
+
+  const other = await page.context().newPage();
+  await stubTurnstile(other);
+  const second = await pickDrive(other, { phone: phone.replace(/^0/, "+353 ") }); // the same number, written another way
+  await second.d.getByRole("button", { name: "Send Request" }).click();
+  await expect(second.d.getByRole("alert")).toHaveText("This phone number or email already has a test drive request for this car. We'll call you to confirm it. Or call us on +353 83 133 3154.");
+  await expect(second.d.getByRole("alert")).toBeInViewport();
+  await expect(second.d.getByRole("alert")).toBeFocused();
+  await expect(second.d.getByRole("alert").getByRole("link", { name: "+353 83 133 3154" })).toHaveAttribute("href", "tel:+353831333154");
+  await expect(second.d.getByLabel("Name")).toHaveValue("Test Driver");
+  await other.close();
+});
+
+test("a chosen time that becomes too soon stays chosen, and the send says why", async ({ page }) => {
+  // A Tuesday in the past, 10:00 Irish time: 11:30 is the first time offered, and no real booking from the other specs (the server holds
+  // from the real now on) can ever grey it out.
+  await page.clock.install({ time: new Date("2025-11-25T10:00:00Z") });
+  await open(page, live.slug);
+  await page.getByRole("button", { name: "Book a Test Drive", exact: true }).click();
+  const d = page.getByRole("dialog", { name: "Book a Test Drive" });
+  const time = d.getByRole("combobox", { name: "Time" });
+  await d.getByRole("combobox", { name: "Day" }).click();
+  await page.getByRole("option", { name: "Tue 25 Nov" }).click();
+  await time.click();
+  await page.getByRole("option", { name: "11:30", exact: true }).click();
+  await d.getByLabel("Name").fill("Test Driver");
+  await d.getByLabel("Phone").fill(newPhone());
+  await d.getByRole("checkbox").check();
+
+  await page.clock.fastForward("31:00"); // 10:31: 11:30 is now less than an hour away
+  await time.click(); // a focus in the picker re-renders the lists
+  await expect(page.getByRole("option", { name: "11:30", exact: true })).toHaveAttribute("aria-disabled", "true");
+  await page.keyboard.press("Escape");
+  await expect(time).toHaveValue("11:30");
+  await d.getByRole("button", { name: "Send Request" }).click();
+  await expect(d.getByText("Choose a time at least an hour from now.")).toBeVisible();
+  await expect(time).toBeFocused();
 });
 
 test("Enquire and Book a Test Drive keep their own forms", async ({ page }) => {

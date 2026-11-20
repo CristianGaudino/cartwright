@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
+import { CORRECTIONS } from "../../../scripts/stock/demo-stock.mjs";
 import demoCars from "./demo-cars.json";
 import { createFileProvider } from "./file-provider";
 import { stock } from "./index";
@@ -103,6 +104,58 @@ describe("generated demo cars", () => {
 
     it("has no variant that starts with its model, so the title doesn't say it twice", () => {
       for (const c of cars) expect(c.variant?.toLowerCase().startsWith(c.model.toLowerCase() + " ") ?? false, c.slug).toBe(false);
+    });
+
+    // The dealer's feed contradicts itself on some cars; CORRECTIONS in the build script fixes them. These catch the next one.
+    describe("facts agree with the car's own title", () => {
+      const has = (c: Car, re: RegExp) => re.test(c.variant ?? "");
+
+      it("lists a DSG, DCT, auto or A/T gearbox as Automatic", () => {
+        const wrong = cars.filter((c) => has(c, /(?<![a-z])(dsg|dct|auto|automatic|a\/t|\d+at)(?![a-z])/i) && c.gearbox !== "automatic");
+        expect(wrong.map((c) => c.slug)).toEqual([]);
+      });
+
+      it("lists a TDI, TDCi, CDTi, CRDi, dCi, BlueHDi or BlueTEC engine as diesel", () => {
+        const wrong = cars.filter((c) => has(c, /(?<![a-z])(tdi|tdci|cdti|crdi|dci|bluehdi|bluetec|d-4d|dsl)(?![a-z])/i) && c.fuel !== "diesel");
+        expect(wrong.map((c) => c.slug)).toEqual([]);
+      });
+
+      it("never lists a TSI, TFSI, TCe or EcoBoost engine as diesel or electric", () => {
+        const wrong = cars.filter((c) => has(c, /(?<![a-z])(tsi|tfsi|tce|ecoboost)(?![a-z])/i) && (c.fuel === "diesel" || c.fuel === "electric"));
+        expect(wrong.map((c) => c.slug)).toEqual([]);
+      });
+
+      it("gives the engine size the title gives", () => {
+        const size = (c: Car) => c.variant?.match(/(?<![\d.])(\d\.\d)(?![\d.])/)?.[1];
+        const wrong = cars.filter((c) => size(c) !== undefined && Number(size(c)) !== c.engineLitres);
+        expect(wrong.map((c) => [c.slug, size(c), c.engineLitres])).toEqual([]);
+      });
+
+      it("has no variant that repeats the make or the model", () => {
+        const word = (t: string) => new RegExp(`(?<![\\w-])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?!\\w)`, "i");
+        const wrong = cars.filter((c) => c.variant && (word(c.model).test(c.variant) || word(c.make.split(/[\s-]/)[0]).test(c.variant)));
+        expect(wrong.map((c) => [c.slug, c.variant])).toEqual([]);
+      });
+
+      it("lists known SUV models as SUV, never MPV, Estate or Pickup", () => {
+        const SUVS = ["G Class", "Sportage", "Qashqai", "Tiguan", "iX1", "Puma", "EV6", "3008", "Tucson", "Cayenne", "Q2", "Q3", "Kodiaq", "T-Roc", "Mokka", "Edge", "X-Trail", "CX-5", "Sorento", "Range Rover"];
+        const wrong = cars.filter((c) => SUVS.includes(c.model) && c.bodyType !== "SUV");
+        expect(wrong.map((c) => [c.slug, c.bodyType])).toEqual([]);
+      });
+
+      it("gives a coupe two doors and a saloon never five", () => {
+        expect(cars.filter((c) => c.bodySlug === "coupe" && c.doors !== 2).map((c) => c.slug)).toEqual([]);
+        expect(cars.filter((c) => c.bodySlug === "saloon" && c.doors === 5).map((c) => c.slug)).toEqual([]);
+        // Not "the word COUPE in a title means a coupe": the CLA "Coupé" and the E350 "COUPE" (photos: a W212 saloon) are four-door saloons.
+      });
+
+      it("corrects only built cars, and every correction is in the data", () => {
+        for (const [id, fix] of Object.entries(CORRECTIONS)) {
+          const car = cars.find((c) => c.id === id);
+          expect(car, id).toBeDefined();
+          expect(car, id).toMatchObject(fix);
+        }
+      });
     });
 
     it("has no make or body slug that could collide with a car slug or each other (D-06)", () => {
