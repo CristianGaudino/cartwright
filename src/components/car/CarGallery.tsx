@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { arrow, arrowEnd, counterPill, settle } from "@/components/stock/photo-load";
 import type { Photo } from "@/lib/stock/types";
+import { scrollBehavior } from "@/components/motion";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { useSlideIndex } from "./useSlideIndex";
 
@@ -38,7 +39,8 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
       </div>
     );
   }
-  const show = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth });
+  // A jump of more than one photo (a thumbnail) is instant: a glide past every photo between takes a long beat. The arrows keep the glide.
+  const show = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth, behavior: Math.abs(i - index) > 1 ? "instant" : scrollBehavior() });
   // showModal() first: a closed dialog has no width, so the scroller can only be positioned once it is open (RESEARCH Pitfall 10).
   const openLightbox = (i: number, from: HTMLElement) => {
     opener.current = from;
