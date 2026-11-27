@@ -21,6 +21,7 @@ async function open(page: Page, path: string) {
 }
 const calc = (page: Page) => page.locator("[data-wells]");
 const result = (page: Page) => calc(page).getByRole("status");
+const shown = (page: Page) => result(page).locator("> div"); // the figures, dimmed while the typed ones are not right
 
 test("/finance estimates a monthly payment at the dealer's fixed rate as the buyer types", async ({ page }) => {
   await open(page, "/finance");
@@ -52,18 +53,58 @@ test("/finance is the estimator only: no car picker, no application, a button to
   await expect(page.getByText(/Send your details/)).toHaveCount(0);
 });
 
-test("/finance shows what to fix, never NaN or a stale figure", async ({ page }) => {
+test("/finance shows what to fix, never NaN, and dims the last good figure until the figures are right again", async ({ page }) => {
   await open(page, "/finance");
   await calc(page).getByLabel("Price").fill("15000");
+  await calc(page).getByLabel("Deposit").fill("3000");
+  const good = quote(15000, 3000, FINANCE.defaults.termMonths, FINANCE.defaults.aprPct)!;
+  await expect(result(page)).toContainText(`About ${price(good.monthlyEur)} a month`);
+  await expect(shown(page)).toHaveCSS("opacity", "1");
+
   await calc(page).getByLabel("Deposit").fill("15000");
   await expect(page.getByText("Deposit must be less than the price.")).toBeVisible();
-  await expect(result(page)).toHaveText("Check the figures you entered.");
+  await expect(shown(page)).toHaveCSS("opacity", "0.6");
+  await expect(result(page)).toContainText(`About ${price(good.monthlyEur)} a month`);
+  // Only the eye gets the stale figure: a screen reader hears what to do instead.
+  await expect(shown(page)).toHaveAttribute("aria-hidden", "true");
+  await expect(result(page).locator("p.sr-only", { hasText: "Check the figures you entered." })).toBeAttached();
 
   await calc(page).getByLabel("Deposit").fill("3000");
   await calc(page).getByLabel("Price").fill("999");
   await expect(page.getByText("Enter a price between €1,000 and €250,000.")).toBeVisible();
-  await expect(result(page)).toHaveText("Check the figures you entered.");
+  await expect(shown(page)).toHaveCSS("opacity", "0.6");
   expect(await page.locator("body").innerText()).not.toContain("NaN");
+
+  await calc(page).getByLabel("Price").fill("15000");
+  await expect(shown(page)).toHaveCSS("opacity", "1");
+  await expect(shown(page)).not.toHaveAttribute("aria-hidden");
+  await expect(result(page).locator("p.sr-only")).toHaveCount(0);
+});
+
+test("/finance typing a new price one key at a time never flips the result to an error or changes its height", async ({ page }) => {
+  await open(page, "/finance");
+  const box = calc(page).locator("> div").nth(1); // the result card
+  const before = (await box.boundingBox())!.height;
+  await box.evaluate((el) => {
+    const w = window as unknown as { sawError: boolean; heights: Set<number> };
+    w.sawError = false;
+    w.heights = new Set();
+    new MutationObserver(() => {
+      if ([...el.querySelectorAll("p:not(.sr-only)")].some((p) => p.textContent?.includes("Check the figures you entered."))) w.sawError = true; // the screen reader hint is fine
+      w.heights.add(Math.round(el.getBoundingClientRect().height));
+    }).observe(el, { subtree: true, childList: true, characterData: true, attributes: true });
+  });
+  const field = calc(page).getByLabel("Price");
+  await field.fill("");
+  await field.pressSequentially("25000", { delay: 50 });
+  const q = quote(25000, FINANCE.defaults.depositEur, FINANCE.defaults.termMonths, FINANCE.defaults.aprPct)!;
+  await expect(result(page)).toContainText(`About ${price(q.monthlyEur)} a month`);
+  const seen = await page.evaluate(() => {
+    const w = window as unknown as { sawError: boolean; heights: Set<number> };
+    return { sawError: w.sawError, heights: [...w.heights] };
+  });
+  expect(seen.sawError).toBe(false);
+  for (const h of seen.heights) expect(h).toBe(Math.round(before));
 });
 
 test("the header links /finance from 1024px, the footer always, and the header still fits 320px", async ({ page }) => {

@@ -72,6 +72,28 @@ async function encodeTo(page: Page, bytes: number, ms = 0) {
   );
 }
 
+// 3 of the 8 slots, and all 8 at once: then no slot is left, so the Add Photos tile comes with the pick, as it will be there after.
+for (const [n, ms] of [
+  [3, 400],
+  [8, 200],
+]) {
+  test(`${n} photos being shrunk show placeholder tiles, then the photos take their place, and the grid keeps its size`, async ({ page }) => {
+    await encodeTo(page, 1000, ms); // each photo takes this long to shrink
+    await open(page);
+    await toStep(page, 3);
+    const adding = page.locator("li", { hasText: /^Adding$/ });
+    const grid = page.locator("fieldset ul > li:not(.sr-only)"); // every tile the buyer sees: photos, placeholders, free slots, Add Photos
+    const before = await grid.count();
+    await picker(page).setInputFiles(files(await jpeg(page), n));
+    await expect(adding).toHaveCount(n);
+    const during = n < 8 ? before : before + 1; // the placeholders take free slots' places; only the Add tile can come, with the pick
+    await expect(grid).toHaveCount(during);
+    await expect(tiles(page)).toHaveCount(n);
+    await expect(adding).toHaveCount(0);
+    await expect(grid).toHaveCount(during); // nothing below moves once the photos land
+  });
+}
+
 test("it is a trade-in valuation page that explains itself, in four steps, with the lookup joined to the registration", async ({ page }) => {
   await open(page);
   await expect(page.getByRole("heading", { level: 1, name: "Trade-In Valuation" })).toBeVisible();

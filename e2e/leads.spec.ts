@@ -48,6 +48,61 @@ test("an enquiry from a car page ends on the thanks, and the next one starts emp
   await expect(d.getByRole("checkbox")).not.toBeChecked();
 });
 
+// A server action is a POST to the page with a Next-Action header.
+async function slowSend(page: Page, ms: number) {
+  await page.route("**/*", async (route) => {
+    const r = route.request();
+    if (r.method() === "POST" && r.headers()["next-action"]) await new Promise((done) => setTimeout(done, ms));
+    await route.fallback();
+  });
+}
+async function sendEnquiry(page: Page) {
+  await open(page, live.slug);
+  await enquire(page).click();
+  const d = dialog(page);
+  await d.getByLabel("Name").fill("Test Buyer");
+  await d.getByLabel("Email").fill("buyer@example.com");
+  await d.getByRole("checkbox").check();
+  await d.getByRole("button", { name: "Send enquiry" }).click();
+  return d;
+}
+
+test("a slow send shows a spinner and Sending, then the thanks takes focus", async ({ page }) => {
+  await slowSend(page, 1500);
+  const d = await sendEnquiry(page);
+  const button = d.getByRole("button", { name: "Sending" });
+  await expect(button).toBeVisible();
+  await expect(button).toHaveAttribute("aria-busy", "true");
+  await expect(button.locator("[data-spinner]")).toBeVisible();
+  expect(await button.locator("[data-spinner]").evaluate((el) => el.getAnimations().length)).toBeGreaterThan(0);
+  await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+});
+
+test.describe("with reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("the send spinner stays still", async ({ page }) => {
+    await slowSend(page, 1500);
+    const d = await sendEnquiry(page);
+    const spinner = d.getByRole("button", { name: "Sending" }).locator("[data-spinner]");
+    await expect(spinner).toBeVisible();
+    expect(await spinner.evaluate((el) => el.getAnimations().length)).toBe(0);
+    await expect(d.getByRole("heading", { name: "Thanks, we have your enquiry." })).toBeFocused();
+  });
+
+  test("a service panel that is closed unmounts its form", async ({ page }) => {
+    await page.goto("/service");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const main = page.getByRole("main");
+    const card = main.getByRole("button", { name: /^Tyres/ });
+    await card.click();
+    await expect(main.locator("form")).toHaveCount(1);
+    await card.click();
+    await expect(card).toHaveAttribute("aria-expanded", "false");
+    await expect(main.locator("form")).toHaveCount(0);
+  });
+});
+
 test("closing the dialog keeps what was typed", async ({ page }) => {
   await open(page, live.slug);
   await enquire(page).click();
