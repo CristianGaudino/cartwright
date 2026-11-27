@@ -40,3 +40,41 @@ test("at 1280px four reviews show across", async ({ page }) => {
   const visible = await strip(page).locator("article").evaluateAll((els) => els.filter((e) => e.checkVisibility()).length);
   expect(visible).toBeGreaterThan(3); // more than three show at once
 });
+
+test.describe("desktop pointer", () => {
+  test.use({ viewport: { width: 900, height: 900 }, isMobile: false, hasTouch: false }); // two across, so three pages
+
+  test("the dots and arrows move the reviews row", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" }); // no drift, so only the controls move it
+    await page.goto("/");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const row = strip(page).locator(":scope > ul");
+    const at = () => row.evaluate((el) => el.scrollLeft);
+    await strip(page).scrollIntoViewIfNeeded();
+    const dot = strip(page).getByRole("button", { name: /^Go to page 2 of / });
+    await dot.click();
+    await expect.poll(at).toBeGreaterThan(0);
+    await expect(dot).toHaveAttribute("aria-current", "true");
+    await strip(page).getByRole("button", { name: "Previous reviews" }).click();
+    await expect.poll(at).toBe(0);
+    await strip(page).getByRole("button", { name: "Next reviews" }).click();
+    await expect.poll(at).toBeGreaterThan(0);
+  });
+});
+
+// Five reviews four across overflow by a quarter of a screen: still a row with Pause, and Next reaches the fifth.
+test.describe("at 1280px", () => {
+  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+
+  test("the reviews row has Pause, and Next reaches the fifth review", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    await strip(page).scrollIntoViewIfNeeded();
+    await expect(strip(page).getByRole("button", { name: "Pause reviews" })).toBeVisible();
+    await strip(page).getByRole("button", { name: "Pause reviews" }).click();
+    await strip(page).getByRole("button", { name: "Next reviews" }).click();
+    await expect(strip(page).locator("article").nth(4)).toBeInViewport({ ratio: 1 });
+    await expect(strip(page).getByRole("button", { name: "Go to page 2 of 2" })).toHaveAttribute("aria-current", "true");
+  });
+});

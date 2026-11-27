@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { RetryButton } from "@/components/ErrorScreen";
 import { StateBlock } from "@/components/StateBlock";
 import { accentButton } from "@/components/ui";
 
@@ -23,12 +23,9 @@ export function EmptyCars({ title, text }: { title: string; text: string }) {
 // retry: what Try again does when the cars came from the browser (/saved) rather than the server render.
 export function StockError({ retry }: { retry?: () => void }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
   return (
     <StateBlock title="We Couldn't Load the Cars" text="Check your connection and try again.">
-      <button type="button" disabled={pending} onClick={() => (retry ? retry() : startTransition(() => router.refresh()))} className={stateButton}>
-        Try Loading Cars Again
-      </button>
+      <RetryButton label="Try Loading Cars Again" retry={retry ?? (() => router.refresh())} />
     </StateBlock>
   );
 }

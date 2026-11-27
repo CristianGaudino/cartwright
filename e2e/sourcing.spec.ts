@@ -50,6 +50,19 @@ test("a find-a-car request needs a message, then ends on the thanks", async ({ p
   await expect(page.getByRole("link", { name: "Back to used cars" })).toHaveAttribute("href", "/used-cars");
 });
 
+test("the next step comes in with a fade, and the first one is there at load without one", async ({ page }) => {
+  await open(page, "/find-a-car");
+  const step = (title: string) => page.locator("form div", { has: page.getByText(title) }).last(); // the step block: the innermost div with its text
+  // Step 1 is the first screen: a fade there would hold back the largest paint.
+  expect(await step("Add at least one of make, model or type of car.").evaluate((el) => getComputedStyle(el).transitionProperty)).not.toContain("opacity");
+  await choose(page.getByLabel("Make"), "Toyota");
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /^Step 2 of 4/ })).toBeVisible();
+  const second = step("The more we know, the better the match.");
+  await expect(second).toBeVisible();
+  expect(await second.evaluate((el) => getComputedStyle(el).transitionProperty)).toContain("opacity");
+});
+
 test("a search with no cars fills in what Find a car accepts, and nothing else", async ({ page }) => {
   await open(page, "/find-a-car?make=volkswagen&model=Golf&body=spaceship&budget=20000");
   await expect(page.locator('input[name="make"]')).toHaveValue("Volkswagen");

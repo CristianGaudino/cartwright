@@ -76,9 +76,13 @@ export function CompareCards() {
   if (ids?.length === 0 || (ids && live.length === 0)) return <Empty />;
   if (loaded === "error") return <StockError retry={retry} />;
   if (!loaded) {
+    // The shape of what arrives: the count and Clear All row, then compare cards with their figure rows.
     return (
-      <div aria-hidden className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} />
+      <div aria-hidden>
+        <div className="mb-4 h-11" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <SkeletonCards count={ids ? Math.min(ids.length, MAX_COMPARE) : 1} boxed figures={ROWS.length} />
+        </div>
       </div>
     );
   }

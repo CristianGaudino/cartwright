@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/stock/icons";
 import { arrow, arrowEnd, counterPill, settle } from "@/components/stock/photo-load";
 import type { Photo } from "@/lib/stock/types";
+import { scrollBehavior } from "@/components/motion";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { useSlideIndex } from "./useSlideIndex";
 
@@ -38,7 +39,8 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
       </div>
     );
   }
-  const show = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth });
+  // A jump of more than one photo (a thumbnail) is instant: a glide past every photo between takes a long beat. The arrows keep the glide.
+  const show = (i: number) => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth, behavior: Math.abs(i - index) > 1 ? "instant" : scrollBehavior() });
   // showModal() first: a closed dialog has no width, so the scroller can only be positioned once it is open (RESEARCH Pitfall 10).
   const openLightbox = (i: number, from: HTMLElement) => {
     opener.current = from;
@@ -64,7 +66,7 @@ export function CarGallery({ photos, name }: { photos: Photo[]; name: string }) 
           {photos.map((photo, i) => (
             <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="group/slide relative h-full w-full flex-none snap-start">
               {/* A photo that fails to load leaves the same words as a car with no photos. */}
-              <span aria-hidden="true" className="absolute inset-0 hidden items-center justify-center text-meta text-text-2 group-has-[img[data-failed]]/slide:flex">No photo yet</span>
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 hidden items-center justify-center text-meta text-text-2 group-has-[img[data-failed]]/slide:flex">No photo yet</span>
               <button type="button" aria-label={`View photo ${i + 1} of ${n} larger`} onClick={(e) => openLightbox(i, e.currentTarget)} className="block size-full focus-visible:-outline-offset-2">
                 <Image
                   ref={settle}

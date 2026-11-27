@@ -46,10 +46,11 @@ function Panel({ service }: { service: Service }) {
   );
 }
 
-// Slides open and shut: a grid row that goes from 0fr to 1fr, so the height needs no measuring.
+// Slides open and shut: a grid row that goes from 0fr to 1fr, so the height needs no measuring. With reduced motion it only fades, so the
+// transition still ends and onClosed still unmounts the shut panel.
 function Slide({ id, open, onClosed, children }: { id: string; open: boolean; onClosed(): void; children: React.ReactNode }) {
   return (
-    <div id={id} className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`} inert={!open} onTransitionEnd={(e) => e.target === e.currentTarget && !open && onClosed()}>
+    <div id={id} className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-[opacity] motion-reduce:duration-150 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`} inert={!open} onTransitionEnd={(e) => e.target === e.currentTarget && !open && onClosed()}>
       <div className="min-h-0 overflow-hidden">{children}</div>
     </div>
   );
@@ -72,7 +73,7 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
       const card = document.getElementById(`service-card-${services.findIndex((s) => s.name === open)}`);
       const top = card?.getBoundingClientRect().top ?? 0;
       if (card && (top < 56 || top > window.innerHeight * 0.4)) card.scrollIntoView({ block: "start", behavior: reduced ? "instant" : "smooth" });
-    }, reduced ? 0 : 320);
+    }, reduced ? 0 : 220);
     return () => clearTimeout(t);
   }, [open, wide, services]);
   const current = services.find((s) => s.name === (open ?? last));
@@ -90,11 +91,11 @@ export function ServiceMenu({ services }: { services: readonly Service[] }) {
                 aria-expanded={on}
                 aria-controls={id}
                 onClick={() => toggle(s.name)}
-                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left transition-[background-color,border-color,transform] duration-200 active:scale-[0.99] motion-reduce:transition-none ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
+                className={`flex h-full w-full flex-col items-start gap-2 rounded-card border p-5 text-left active:scale-[0.99] motion-reduce:active:scale-100 ${on ? "border-accent bg-card" : "border-hairline bg-card hover:bg-hairline/50"}`}
               >
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className={subTitle}>{s.name}</span>
-                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[transform,background-color] duration-300 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent-text"}`}>
+                  <span aria-hidden="true" className={`flex size-8 items-center justify-center rounded-full text-heading transition-[rotate,background-color] duration-200 motion-reduce:transition-none ${on ? "rotate-45 bg-accent text-white" : "bg-accent/15 text-accent-text"}`}>
                     +
                   </span>
                 </span>

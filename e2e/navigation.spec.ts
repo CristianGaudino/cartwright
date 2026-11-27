@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { SITE_NAME } from "../src/lib/site";
+import { choose } from "./combo";
+import { ready } from "./ready";
 
 type Demo = { slug: string; soldAt?: string };
 const cars: Demo[] = JSON.parse(readFileSync(join(process.cwd(), "src/lib/stock/demo-cars.json"), "utf8"));
@@ -179,4 +181,64 @@ test("a slow page shows the bar along the top until it lands", async ({ page }) 
   await expect(bar).toHaveCSS("opacity", "1");
   await page.waitForURL(`**${href}`);
   await expect(bar).toHaveAttribute("data-phase", "idle");
+});
+
+// The home search is next/form: a client navigation, so the page is not reloaded (the marker survives) and the bar runs.
+// Every phase the bar goes through is recorded, so a quick page cannot slip between two looks.
+const phases = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __phases: string[] };
+    w.__phases = [];
+    const bar = document.querySelector(".nav-progress")!;
+    new MutationObserver(() => w.__phases.push(bar.getAttribute("data-phase")!)).observe(bar, { attributes: true });
+  });
+const seen = (page: import("@playwright/test").Page) => page.evaluate(() => (window as unknown as { __phases: string[] }).__phases);
+
+test("the home search moves to the stock without a reload, with the bar along the top", async ({ page }) => {
+  const bar = page.locator(".nav-progress");
+  await page.goto("/");
+  await ready(page);
+  await page.evaluate(() => ((window as unknown as { __marker: number }).__marker = 1));
+  await page.route((url) => url.pathname === "/used-cars", async (r) => {
+    await new Promise((ok) => setTimeout(ok, 1500));
+    await r.continue();
+  });
+  await phases(page);
+  await choose(page.getByLabel("Make", { exact: true }), 1); // the first make after Any
+  await page.getByRole("button", { name: "Search cars" }).click();
+  await expect(bar).toHaveAttribute("data-phase", "loading");
+  await page.waitForURL(/\/used-cars\?/);
+  expect(await seen(page)).toContain("loading");
+  expect(new URL(page.url()).searchParams.get("make")).toBeTruthy();
+  expect(await page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBe(1);
+  await expect(bar).toHaveAttribute("data-phase", "idle");
+});
+
+test("without scripts the home search sends the same plain GET", async ({ page, browser, baseURL }) => {
+  await page.goto("/");
+  await ready(page);
+  await page.getByRole("button", { name: "Search cars" }).click();
+  await page.waitForURL(/\/used-cars\?/);
+  const scripted = new URL(page.url());
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false });
+  const plain = await context.newPage();
+  await plain.goto("/");
+  await plain.getByRole("button", { name: "Search cars" }).click();
+  await plain.waitForURL(/\/used-cars\?/);
+  const sent = new URL(plain.url());
+  expect(sent.pathname).toBe(scripted.pathname);
+  expect(sent.search).toBe(scripted.search);
+  await context.close();
+});
+
+test("a lead form never starts the bar", async ({ page }) => {
+  await page.goto("/contact");
+  await ready(page);
+  await phases(page);
+  await page.evaluate(() => {
+    document.querySelector("form[method='post']")!.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+  });
+  await page.waitForTimeout(200); // time for a wrong start to render
+  expect(await seen(page)).not.toContain("loading");
+  expect(new URL(page.url()).pathname).toBe("/contact");
 });

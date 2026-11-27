@@ -61,7 +61,7 @@ export function HeaderLinks() {
             <ChevronDownIcon className={`size-4 transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
           </button>
           {open && (
-            <ul id={menuId} className={`absolute left-0 top-full z-30 mt-1 min-w-48 ${card} p-2 shadow-lift`}>
+            <ul id={menuId} className={`absolute left-0 top-full z-30 mt-1 min-w-48 ${card} p-2 shadow-lift transition-[opacity,translate] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0`}>
               {STOCK.map((s) => (
                 <li key={s.href}>
                   <Link href={s.href} onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-control px-3 text-meta font-semibold hover:bg-hairline">

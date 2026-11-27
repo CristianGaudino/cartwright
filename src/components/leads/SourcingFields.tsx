@@ -37,7 +37,7 @@ export function SourcingFields({ bind, photos, step }: { bind(name: string): Fie
         </div>
       </div>
 
-      <div hidden={step !== 1} className="flex flex-col gap-4">
+      <div hidden={step !== 1} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">The more we know, the better the match.</p>
         <Field {...bind("message")} label="What are you looking for?" required multiline maxLength={LIMITS.message} />
         <ul className="flex flex-col gap-1 text-meta text-text-2">
@@ -50,12 +50,12 @@ export function SourcingFields({ bind, photos, step }: { bind(name: string): Fie
         </ul>
       </div>
 
-      <div hidden={step !== 2} className="flex flex-col gap-4">
+      <div hidden={step !== 2} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">Got a car in mind? Add photos of it, or of one like it.</p>
         <PhotoPicker {...photos} max={PHOTO_LIMITS.sourcing.max} />
       </div>
 
-      <div hidden={step !== 3} className="flex flex-col gap-4">
+      <div hidden={step !== 3} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">If we find a match, we&apos;ll get in touch. No obligation.</p>
         <ContactFields bind={bind} />
       </div>

@@ -177,7 +177,7 @@ Reuses the Phase 1 carousel pattern (native scroll-snap, `overscroll-behavior-x:
 | Loading | Slide 1 is eager with `fetchpriority="high"` (it is the page's LCP). Others lazy with `decoding="async"`. 900 by 675 dimensions on every image. Image fades in over 150ms once loaded (Phase 1 ref-callback `settle` approach, not `onLoad`/`onError` props) |
 | Counter | Pill at bottom right, 16px inset: `{i} / {n}` in Label, white on scrim 60 with `backdrop-filter: blur(20px)`. **No dots** (a real car can have 20+ photos). Hidden with one photo. `aria-hidden="true"` (the slide labels already announce position) |
 | Arrows | Same as Phase 1 card arrows: 44px circle, white 85% with blur, hover-capable devices only, 8px from each edge, shown on gallery hover and `:focus-within`, `aria-disabled` and invisible at the ends but kept mounted. Labels "Previous photo" and "Next photo" |
-| Thumbnail strip | From 1024px only, below the frame, 8px gap above. 80 by 60 buttons, 8px gap, 12px radius, one row that scrolls sideways inside its own box with snap (hidden scrollbar). Inactive thumb at 100% opacity with no ring; **active thumb has a 2px `#F5F5F7` ring with 2px offset** (not colour alone: also `aria-current="true"`). `aria-label="Show photo {i}"`. Click scrolls the main frame to that slide (`scrollTo`, smooth; instant under reduced motion). The active thumb is scrolled into view as the main frame moves. Thumbs are lazy and reuse the same files as the slides, so they hit the cache |
+| Thumbnail strip | From 1024px only, below the frame, 8px gap above. 80 by 60 buttons, 8px gap, 12px radius, one row that scrolls sideways inside its own box with snap (hidden scrollbar). Inactive thumb at 100% opacity with no ring; **active thumb has a 2px `#F5F5F7` ring with 2px offset** (not colour alone: also `aria-current="true"`). `aria-label="Show photo {i}"`. Click scrolls the main frame to that slide (`scrollTo`, smooth to the next or previous photo; a jump of more than one photo is instant, so the photos between are not fetched; instant under reduced motion). The active thumb is scrolled into view as the main frame moves. Thumbs are lazy and reuse the same files as the slides, so they hit the cache |
 | Sold | Sold badge at top left, 16px inset (see Sold badge). Photos stay full colour |
 | No photos | The 4:3 `#26262B` box with "No photo yet" (Meta, centred). No counter, arrows, thumbs or lightbox |
 | One photo | No counter, no arrows, no thumbs. Tap still opens the lightbox (without arrows) |
@@ -382,9 +382,10 @@ Phase 1 table and rules apply (press scale 0.97 over 100ms, native scroll-snap, 
 | Interaction | Behaviour | Values |
 |-------------|-----------|--------|
 | Gallery swipe | Native scroll-snap, 1:1 tracking | no custom animation |
-| Thumbnail click, arrows | `scrollTo` / `scrollBy` smooth | `auto` under reduced motion |
+| Thumbnail click, arrows | `scrollTo` / `scrollBy` smooth to a neighbour; a jump of more than one photo is instant | `auto` under reduced motion |
 | Active thumb change | Ring appears with the scroll | instant (no transition) |
 | Lightbox open and close | Opacity fade | 200ms `ease-out`, interruptible. Reduced motion: 150ms linear |
+| Lightbox zoom | The photo eases from fit to zoomed and back from the point the buyer tapped, which stays under their finger | 220ms `--ease-out`, `transform` only. Reduced motion: instant |
 | Share menu open and close | Opacity plus 4px move up | 150ms `ease-out`. Reduced motion: opacity only |
 | Photo appearing | Opacity 0 to 1 once loaded | 150ms (Phase 1) |
 | Card tile | none | behaves as a slide |

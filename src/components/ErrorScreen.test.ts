@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { ErrorScreen } from "./ErrorScreen";
+import { ErrorScreen, RetryButton } from "./ErrorScreen";
 
 describe("ErrorScreen", () => {
   it("shows the default title and button, and the line about the connection", () => {
@@ -18,11 +18,10 @@ describe("ErrorScreen", () => {
     expect(html.match(/<h1/g)).toHaveLength(1);
   });
 
-  it("the button calls retry", () => {
+  it("the button is given retry", () => {
     const retry = vi.fn();
-    const main = ErrorScreen({ retry }) as { props: { children: { type: string; props: { onClick(): void } }[] } };
-    const button = main.props.children.find((c) => c.type === "button")!;
-    button.props.onClick();
-    expect(retry).toHaveBeenCalledOnce();
+    const main = ErrorScreen({ retry }) as { props: { children: { type: unknown; props: { retry?: () => void } }[] } };
+    const button = main.props.children.find((c) => c.type === RetryButton)!;
+    expect(button.props.retry).toBe(retry);
   });
 });

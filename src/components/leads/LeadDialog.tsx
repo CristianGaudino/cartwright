@@ -118,7 +118,7 @@ export function LeadActions({ car, whatsapp }: { car: CarSummary; whatsapp: stri
           are shorter than the buy box's, so each name on the page still means one button. */}
       <div
         data-sticky-actions
-        className={`fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:transition-none lg:hidden ${gone ? "" : "invisible translate-y-full"}`}
+        className={`fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-surface/90 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl transition-[translate,opacity,visibility] duration-200 reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none motion-reduce:translate-y-0 motion-reduce:transition-[opacity,visibility] lg:hidden ${gone ? "" : "invisible translate-y-full opacity-0"}`}
       >
         <div className="flex gap-2 whitespace-nowrap">
           <a href={`tel:${DEALER_TEL}`} className={`${bar} text-text ${secondaryButton}`}>

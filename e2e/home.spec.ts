@@ -286,7 +286,7 @@ test("a drifting row starts again when the pointer leaves", async ({ page }) => 
   await expect.poll(at).toBeGreaterThan(held + 5);
 });
 
-test("on a phone a touch stops the row for good, and there is no pause button", async ({ page }) => {
+test("on a phone the row has a pause button, and a finger held on it stops it", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
@@ -295,10 +295,55 @@ test("on a phone a touch stops the row for good, and there is no pause button", 
   await row.scrollIntoViewIfNeeded();
   const at = () => row.evaluate((el) => el.scrollLeft);
   await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
-  await expect(group.getByRole("button", { name: /moving the cars along/ })).toHaveCount(0);
+  await expect(group.getByRole("button", { name: "Pause cars" })).toBeVisible();
   await group.dispatchEvent("pointerdown", { pointerType: "touch" });
   await page.waitForTimeout(100);
   const held = await at();
   await page.waitForTimeout(5000); // longer than the old 4 second resume
   expect(Math.abs((await at()) - held)).toBeLessThan(2);
 });
+
+test("the drifting rows do not read their sizes every frame", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  // Counts getComputedStyle calls on a carousel row: the drift moves scrollLeft every frame, and sizes read after that force a layout.
+  await page.addInitScript(() => {
+    const w = window as unknown as { __reads: number };
+    w.__reads = 0;
+    const real = window.getComputedStyle;
+    window.getComputedStyle = function (el, pseudo) {
+      if (el instanceof HTMLUListElement && el.closest("[aria-roledescription=carousel]")) w.__reads++;
+      return real.call(window, el, pseudo);
+    };
+  });
+  await page.goto("/");
+  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
+  await row.scrollIntoViewIfNeeded();
+  await page.mouse.move(0, 0);
+  const start = await row.evaluate((el) => el.scrollLeft);
+  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).not.toBe(start); // it drifts
+  const before = await page.evaluate(() => (window as unknown as { __reads: number }).__reads);
+  await page.waitForTimeout(1000);
+  expect((await page.evaluate(() => (window as unknown as { __reads: number }).__reads)) - before).toBeLessThan(5);
+});
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) {
+  test(`a buyer who scrolls to the featured row before the scripts run sees nothing move (${reducedMotion})`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion });
+    // The scripts are held, so the row is surely on screen, as the server drew it, before React measures it.
+    await page.route("**/_next/static/chunks/**", async (r) => {
+      await new Promise((ok) => setTimeout(ok, 1000));
+      await r.continue();
+    });
+    await page.addInitScript(() => {
+      const w = window as unknown as { __cls: number };
+      w.__cls = 0;
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => (w.__cls += (e as unknown as { value: number }).value))).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => document.querySelector("[aria-roledescription=carousel]")!.scrollIntoView({ block: "center" }));
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    await page.waitForTimeout(1000);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.01);
+  });
+}
