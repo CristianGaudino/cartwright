@@ -240,7 +240,7 @@ One `FinanceCalculator` component in two places:
 | Inputs | In a 2 by 2 grid from 640px, one column below. **Deposit** (`€` prefix inside the field, `inputmode="numeric"`, default from config, capped at the price), **Term** (select: `12 months`, `24 months`, `36 months`, `48 months`, `60 months`; default from config), **APR** (`%` suffix, `inputmode="decimal"`, 0 to 30, one decimal, default from config). Price shows as text on the car page and as the first input on /finance. All defaults come from one config file marked `PLACEHOLDER` (D-16) |
 | Result | A block under the inputs, inside an `aria-live="polite"` `role="status"` region: label `Representative monthly payment` (Meta, secondary), then the figure `€412 a month` (Display, tabular numbers), then three Meta lines: `Amount borrowed`, `Total to repay`, `Interest` with their values right aligned. It recomputes on every keystroke (pure sum, no request). Values are rounded to whole euros for display |
 | Maths | Standard repayment: monthly rate = APR / 12, payments = term; APR 0 divides the amount borrowed by the term. This is the contract for all figures; the planner adds a unit test |
-| Invalid input | Deposit at or above the price: error under Deposit `Deposit must be less than the price.` APR or price out of range: `Enter an APR between 0 and 30.` / `Enter a price between €1,000 and €250,000.`. While any input is invalid the result block shows `Check the figures above.` in place of the figures (never a stale or `NaN` number) |
+| Invalid input | Deposit at or above the price: error under Deposit `Deposit must be less than the price.` APR or price out of range: `Enter an APR between 0 and 30.` / `Enter a price between €1,000 and €250,000.`. While a figure is half typed or invalid the result keeps the last good estimate, dimmed to 60% and hidden from screen readers, with the field's error and a screen reader hint `Check the figures you entered.` in the status region; then it counts to the new estimate (owner's decision, carried from the demo). Before there has ever been a good estimate the block shows that message in place of the figures. Never `NaN` |
 | Notice | Under the result, Meta, secondary: the **dealer's required wording**, from one config string. Until supplied it holds the placeholder `Representative only. Not an offer of credit. Rates and terms depend on your circumstances and are confirmed by the dealer.` with the badge above making clear this is a stand-in. No other claims (no "from", no "low rate", no "approved") appear anywhere |
 | Apply | `Apply for finance` button, 48px. Secondary on the car page, accent on /finance. Opens the finance dialog with Deposit and Term pre-filled from the calculator |
 
@@ -307,10 +307,10 @@ Phase 1 and 2 tables and rules apply (`transform` and `opacity` only, press scal
 | Lead and finance dialog, below 640px | Slides up and back the same path, scrim fades | 320ms `--ease-sheet` (the existing `dialog.sheet` rules) |
 | Lead and finance dialog, from 640px | Fade plus scale 0.97 to 1, interruptible | 200ms `ease-out`; reduced motion: 150ms opacity only |
 | Type picker change | Fields below swap instantly; no height animation | none |
-| Heart toggle | Fill appears with an opacity change on the filled layer | 150ms `ease-out`; no bounce (it did not start from a flick); reduced motion: instant |
-| Header count | Number fades in | 150ms; reduced motion: instant |
-| Success and error summary | Appear instantly, focus moves | none |
-| Calculator result | Figures update in place | none (no counting animation) |
+| Heart toggle | Fill appears with an opacity change on the filled layer | 150ms `ease-out`; no bounce (it did not start from a flick); reduced motion keeps the fade (a fade is not movement) |
+| Header count | Number fades in | 150ms; reduced motion keeps the fade |
+| Success and error summary | The thanks eases in (`.enter`) while focus moves to it at once; the error summary appears instantly | thanks 200ms opacity and a 6px rise; reduced motion: 150ms opacity only |
+| Calculator result | Figures count from the old value to the new one (`Tween`), never on first paint. While a figure is half typed the last good estimate stays, dimmed (owner's decision, carried from the demo) | 300ms ease-out count; the dim is 150ms opacity. Reduced motion: figures swap, the dim stays |
 
 Reduced transparency: the card heart circle becomes solid `#0E0E10` and the photo remove-button circle likewise. `prefers-contrast: more`: dialogs take the Phase 1 1px `#F5F5F7` border; inputs and the Add photos tile get a 1px `#F5F5F7` border.
 
@@ -416,7 +416,7 @@ Applicable state considerations resolved: 30 covered, 4 backstop, 1 dismissed, 0
 | error | photo too big, wrong type, over the total | ✅ covered | Wrong type or too big gives the per-file message at pick time; the rest of the batch stays; a request the server refuses for size shows the send-failure copy |
 | loading | photos sending with the form | ✅ covered | Local preview shows at once; photos go with the form on submit; while sending, the submit button reads Sending |
 | overflow | trade-in photo filenames in errors | ✅ covered | The filename in the error wraps (`break-words`), never widens the layout |
-| error | finance, invalid inputs | ✅ covered | Inline messages; the result shows Check the figures above, never `NaN` or a stale figure |
+| error | finance, invalid inputs | ✅ covered | Inline messages; the result keeps the last good estimate dimmed, with a screen reader hint to check the figures, and shows the message only when there has never been a good estimate (owner's decision, carried from the demo). Never `NaN` |
 | partial | finance, APR 0 | ✅ covered | Divides amount borrowed by the term; no division by zero |
 | partial | finance, price edge cases | ✅ covered | Deposit capped at the price; deposit equal to the price gives the deposit error (nothing to borrow) |
 | populated | finance placeholder state | ✅ covered | Badge `Placeholder figures` and the placeholder notice show while the config flag is true; removing them is a one-line config change, and a test fails if the flag is true in production (default) |

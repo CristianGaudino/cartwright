@@ -60,7 +60,7 @@ const HEART = "M12 20.5s-7.6-4.6-9.3-9.5C1.5 7.6 3.8 4.5 7.2 4.5c2 0 3.7 1.1 4.8
 // Saved is the filled shape, not only the colour; the outline stays on top for contrast over any photo.
 export const HeartIcon = ({ filled, ...p }: Props & { filled?: boolean }) => (
   <Icon {...p}>
-    <path d={HEART} stroke="none" className={`fill-accent transition-opacity duration-150 ease-out motion-reduce:transition-none ${filled ? "opacity-100" : "opacity-0"}`} />
+    <path d={HEART} stroke="none" className={`fill-accent transition-opacity duration-150 ease-out ${filled ? "opacity-100" : "opacity-0"}`} />
     <path d={HEART} />
   </Icon>
 );
