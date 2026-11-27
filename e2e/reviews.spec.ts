@@ -40,3 +40,24 @@ test("at 1280px four reviews show across", async ({ page }) => {
   const visible = await strip(page).locator("article").evaluateAll((els) => els.filter((e) => e.checkVisibility()).length);
   expect(visible).toBeGreaterThan(3); // more than three show at once
 });
+
+test.describe("desktop pointer", () => {
+  test.use({ viewport: { width: 900, height: 900 }, isMobile: false, hasTouch: false }); // two across: at 1280 all five nearly fit, one page
+
+  test("the dots and arrows move the reviews row", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" }); // no drift, so only the controls move it
+    await page.goto("/");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const row = strip(page).locator(":scope > ul");
+    const at = () => row.evaluate((el) => el.scrollLeft);
+    await strip(page).scrollIntoViewIfNeeded();
+    const dot = strip(page).getByRole("button", { name: /^Go to page 2 of / });
+    await dot.click();
+    await expect.poll(at).toBeGreaterThan(0);
+    await expect(dot).toHaveAttribute("aria-current", "true");
+    await strip(page).getByRole("button", { name: "Previous reviews" }).click();
+    await expect.poll(at).toBe(0);
+    await strip(page).getByRole("button", { name: "Next reviews" }).click();
+    await expect.poll(at).toBeGreaterThan(0);
+  });
+});

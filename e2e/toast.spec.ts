@@ -90,3 +90,61 @@ test("Undo puts back the car that was removed and keeps a car saved since", asyn
   await expect(heart(page)).toHaveAttribute("aria-pressed", "true");
   await expect(second).toHaveAttribute("aria-pressed", "true");
 });
+
+test("Dismiss fades the toast out in under 200ms, then it is gone", async ({ page }) => {
+  await page.goto("/used-cars");
+  await ready(page);
+  await heart(page).click();
+  await heart(page).click();
+  const toast = page.getByTestId("toast");
+  await expect(toast).toContainText("Removed from saved");
+  await expect.poll(() => toast.evaluate((el) => el.getAnimations().length)).toBe(0); // the rise in is over
+  const running = await toast.evaluate((el) => {
+    (el.querySelector("button[aria-label='Dismiss']") as HTMLButtonElement).click();
+    const a = el.getAnimations().find((x) => x.playState === "running");
+    return a ? Number(a.effect?.getComputedTiming().duration) : 0;
+  });
+  expect(running).toBeGreaterThan(0); // still on screen, fading
+  expect(running).toBeLessThan(200);
+  await expect(toast).toHaveCount(0);
+});
+
+test("a new toast that comes while the old one fades out stays up", async ({ page }) => {
+  await page.goto("/used-cars");
+  await ready(page);
+  await page.goto((await page.locator("article h2 a").first().getAttribute("href"))!);
+  await ready(page);
+  const box = page.getByTestId("buy-box");
+  const compare = box.getByRole("button", { name: /^Compare / });
+  await compare.click();
+  await compare.click(); // off again: the first toast
+  const toast = page.getByTestId("toast");
+  await expect(toast).toContainText("Removed from compare");
+  // In one task, so the first toast's 150ms fade is surely still running when the next one comes.
+  await box.evaluate((el) => {
+    (document.querySelector("[data-testid=toast] button[aria-label='Dismiss']") as HTMLButtonElement).click();
+    const save = el.querySelector("button[aria-label='Save This Car']") as HTMLButtonElement;
+    save.click();
+    save.click(); // saved and removed: a different toast
+  });
+  await page.waitForTimeout(400); // well past the old fade, which must not take the new toast with it
+  await expect(toast).toHaveCount(1);
+  await expect(toast).toContainText("Removed from saved");
+});
+
+test("with reduced motion the toast and the compare pill still fade in", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/used-cars");
+  await ready(page);
+  await page.goto((await page.locator("article h2 a").first().getAttribute("href"))!);
+  await ready(page);
+  const button = page.getByTestId("buy-box").getByRole("button", { name: /^Compare / });
+  await button.click();
+  await button.click(); // off again: a toast
+  await button.click(); // on again: the pill is back, and the toast is still up
+  const bar = page.getByRole("region", { name: "Compare cars" });
+  const toast = page.getByTestId("toast");
+  await expect(bar).toBeVisible();
+  await expect(toast).toBeVisible();
+  for (const el of [toast, bar]) expect(await el.evaluate((e) => getComputedStyle(e).transitionProperty)).toContain("opacity");
+});

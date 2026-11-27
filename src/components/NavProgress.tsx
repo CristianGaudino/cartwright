@@ -12,21 +12,35 @@ export function NavProgress() {
   const url = `${usePathname()}?${useSearchParams()}`;
   const [phase, setPhase] = useState<Phase>("idle");
 
-  // Starts on a plain left click on a link to another page of this site, the clicks Next turns into a client navigation.
+  // Starts on a plain left click on a link to another page of this site, the clicks Next turns into a client navigation, and on a
+  // search form sent to another page of this site.
   useEffect(() => {
+    const go = (to: URL) => {
+      if (to.origin !== location.origin || (to.pathname === location.pathname && to.search === location.search)) return;
+      setPhase("loading");
+    };
     const start = (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
       if (!(a instanceof HTMLAnchorElement) || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
-      const to = new URL(a.href);
-      if (to.origin !== location.origin || (to.pathname === location.pathname && to.search === location.search)) return;
-      setPhase("loading");
+      go(new URL(a.href));
+    };
+    // GET forms only (a lead form posts). next/form cancels the submit to navigate itself, so a cancelled submit still counts.
+    // On window, so it runs after React's handlers.
+    const send = (e: SubmitEvent) => {
+      const f = e.target;
+      if (!(f instanceof HTMLFormElement) || f.method !== "get" || (f.target && f.target !== "_self")) return;
+      const to = new URL(f.action);
+      to.search = new URLSearchParams([...new FormData(f, e.submitter)].map(([k, v]) => [k, String(v)])).toString();
+      go(to);
     };
     const stop = () => setPhase("idle"); // back and forward have no tap to finish
     document.addEventListener("click", start);
+    window.addEventListener("submit", send);
     window.addEventListener("popstate", stop);
     return () => {
       document.removeEventListener("click", start);
+      window.removeEventListener("submit", send);
       window.removeEventListener("popstate", stop);
     };
   }, []);
