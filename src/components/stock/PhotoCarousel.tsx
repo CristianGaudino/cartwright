@@ -113,7 +113,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
                 onClick={() => scroller.current?.scrollTo({ left: i * scroller.current.clientWidth })}
                 className="group/dot pointer-events-auto flex size-6 items-center justify-center"
               >
-                <span className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] group-data-[active]/dot:bg-white" />
+                <span className="size-2 rounded-full bg-white/55 shadow-[0_0_2px_rgb(0_0_0/0.5)] transition-colors duration-150 group-data-[active]/dot:bg-white" />
               </button>
             ))}
           </div>

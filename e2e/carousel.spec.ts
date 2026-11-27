@@ -135,6 +135,21 @@ test.describe("desktop pointer", () => {
     await expect(next).toHaveCSS("opacity", "0");
   });
 
+  test("a hovered card lifts, and with reduced motion keeps only its shadow", async ({ page }) => {
+    await page.goto("/used-cars");
+    const card = page.locator("article").first();
+    // Read once the card's transitions are over, so a lift on its way is not taken for none.
+    const settled = () => card.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)).then(() => getComputedStyle(el).translate));
+    await card.locator("[data-card-body]").hover();
+    expect(await settled()).toBe("0px -2px");
+    await page.mouse.move(0, 0);
+    await settled();
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await card.locator("[data-card-body]").hover();
+    expect(await settled()).toBe("none");
+    await expect(card).not.toHaveCSS("box-shadow", "none");
+  });
+
   test("arrows appearing and disappearing move nothing", async ({ page }) => {
     await page.goto("/used-cars");
     const card = page.locator("article").first();
