@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Children, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { REDUCED_MOTION, scrollBehavior } from "@/components/motion";
 import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from "@/components/stock/icons";
 
 // A row of cards that drifts along by itself, smoothly. A mouse over it holds it still until the mouse leaves; a finger holds it while it is down and for a
@@ -24,9 +25,8 @@ function geometry(el: HTMLUListElement) {
   };
 }
 
-const REDUCED = "(prefers-reduced-motion: reduce)";
 function watchReducedMotion(onChange: () => void) {
-  const q = window.matchMedia(REDUCED);
+  const q = window.matchMedia(REDUCED_MOTION);
   q.addEventListener("change", onChange);
   return () => q.removeEventListener("change", onChange);
 }
@@ -42,19 +42,35 @@ export function AutoCarousel({
 }) {
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLUListElement>(null);
-  const [state, setState] = useState({ page: 0, pages: 1 });
-  const reduced = useSyncExternalStore(watchReducedMotion, () => window.matchMedia(REDUCED).matches, () => true); // true until read: no moving
+  const [state, setState] = useState({ page: 0, pages: 0 }); // pages 0: not measured yet
+  const reduced = useSyncExternalStore<boolean | null>(watchReducedMotion, () => window.matchMedia(REDUCED_MOTION).matches, () => null); // null until read: no moving
+  // The controls row is drawn from the server for a row of more than one card, so it never arrives after the page and pushes it down.
+  // shortcut: a row whose cards all fit drops its row once measured, a small shift up; measure on the server if that ever shows.
+  const controls = state.pages > 1 || (state.pages === 0 && Children.count(children) > 1);
   const [paused, setPaused] = useState(false);
   const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
-  // Measured on scroll, and whenever the row is resized (the observer also fires once when it starts watching).
+  const unit = useRef(1);
+  // Measured whenever the row is resized (the observer also fires once when it starts watching). Not on scroll: scroll fires every frame
+  // of a drift, and reading sizes right after the drift writes scrollLeft would force a layout each frame.
   const measure = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
-    const { unit, pages } = geometry(el);
-    const page = Math.min(pages - 1, Math.round(el.scrollLeft / unit));
-    setState((s) => (s.pages === pages && s.page === page ? s : { pages, page })); // the same answer is no render: scroll fires every frame of a drift
+    const g = geometry(el);
+    unit.current = g.unit;
+    const page = Math.min(g.pages - 1, Math.round(el.scrollLeft / g.unit));
+    setState((s) => (s.pages === g.pages && s.page === page ? s : { pages: g.pages, page }));
   }, []);
+  // On scroll only the page is worked out, from the measured unit. The same answer is no render.
+  const onScroll = () => {
+    const el = scroller.current;
+    if (!el) return;
+    const at = Math.round(el.scrollLeft / unit.current);
+    setState((s) => {
+      const page = Math.max(0, Math.min(s.pages - 1, at));
+      return page === s.page ? s : { ...s, page };
+    });
+  };
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
@@ -68,7 +84,7 @@ export function AutoCarousel({
   useEffect(() => {
     const el = scroller.current;
     const box = root.current;
-    if (!el || !box || reduced || paused) return;
+    if (!el || !box || reduced !== false || paused) return;
     let pos = el.scrollLeft;
     let dir = 1;
     let last = 0;
@@ -100,11 +116,8 @@ export function AutoCarousel({
     };
   }, [reduced, paused]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: reduced ? "instant" : "smooth" });
-  const goTo = (i: number) => {
-    const el = scroller.current;
-    if (el) el.scrollTo({ left: i * geometry(el).unit, behavior: reduced ? "instant" : "smooth" });
-  };
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: scrollBehavior() });
+  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * unit.current, behavior: scrollBehavior() });
 
   return (
     <div
@@ -123,13 +136,13 @@ export function AutoCarousel({
     >
       <ul
         ref={scroller}
-        onScroll={measure}
+        onScroll={onScroll}
         className="relative flex gap-4 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </ul>
-      {state.pages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-3">
+      {controls && (
+        <div className="mt-4 flex min-h-11 items-center justify-center gap-3">
           <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} max-md:hidden ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronLeftIcon className="size-5" />
           </button>
@@ -137,7 +150,7 @@ export function AutoCarousel({
           <div className={`items-center max-md:hidden ${state.pages <= 4 ? "flex" : state.pages <= 16 ? "hidden md:flex" : "hidden"}`}>
             {Array.from({ length: state.pages }, (_, i) => (
               <button key={i} type="button" aria-label={`Go to page ${i + 1} of ${state.pages}`} aria-current={i === state.page ? "true" : undefined} onClick={() => goTo(i)} className="group/dot flex size-6 items-center justify-center">
-                <span className={`rounded-full transition-all duration-200 motion-reduce:transition-none ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-control group-hover/dot:bg-text-2"}`} />
+                <span className={`rounded-full transition-[width,background-color] duration-200 motion-reduce:transition-colors ${i === state.page ? "h-2 w-5 bg-accent" : "size-2 bg-control group-hover/dot:bg-text-2"}`} />
               </button>
             ))}
           </div>
@@ -147,8 +160,9 @@ export function AutoCarousel({
           <button type="button" aria-label={`Next ${noun}`} onClick={() => go(1)} className={`${control} max-md:hidden ${state.page >= state.pages - 1 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronRightIcon className="size-5" />
           </button>
-          {!reduced && (
-            <button type="button" data-playpause aria-label={`${paused ? "Play" : "Pause"} ${noun}`} onClick={() => setPaused(!paused)} className={control}>
+          {/* Held in place, unseen, until reduced motion is read; then gone if it is on. */}
+          {reduced !== true && (
+            <button type="button" data-playpause aria-label={`${paused ? "Play" : "Pause"} ${noun}`} onClick={() => setPaused(!paused)} className={`${control} ${reduced === null ? "invisible" : ""}`}>
               {paused ? <PlayIcon className="size-5" /> : <PauseIcon className="size-5" />}
             </button>
           )}
