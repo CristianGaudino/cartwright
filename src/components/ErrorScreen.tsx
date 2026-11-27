@@ -12,7 +12,8 @@ export function ErrorScreen({ title = "Something Went Wrong", button = "Try Agai
   );
 }
 
-// retry() refetches inside a transition, so the button shows it is working until the page lands, as StockError's does.
+// retry() refetches inside a transition, so the button shows it is working until the page lands. StockError uses it too. Its class is
+// stateButton's (StockError.tsx), written out to keep the two modules from importing each other.
 export function RetryButton({ label, retry }: { label: string; retry: () => void }) {
   const [pending, startTransition] = useTransition();
   return (
