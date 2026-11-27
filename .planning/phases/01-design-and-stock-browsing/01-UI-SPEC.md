@@ -232,7 +232,7 @@ Principles from apple-design: respond on press, never lock input, animate from t
 
 | Interaction | Behaviour | Values |
 |-------------|-----------|--------|
-| Press feedback (buttons, chips, cards) | Instant on pointer-down, release on pointer-up | `:active { transform: scale(0.97); transition: transform 100ms ease-out }` |
+| Press feedback (buttons, chips, cards) | Instant on pointer-down, release on pointer-up. One shared rule in `globals.css` animates every pressable (`press` in `ui.ts`): the press, the hover lift, colour changes, the dim while disabled or busy. A pressable carries no transition utility of its own, which would replace the rule and make the press snap | `active:scale-[0.97]`; `scale` and `filter` 100ms, `opacity` 150ms, `color`, `background-color` and `border-color` 150ms `ease`, `box-shadow` 200ms. Every ease-out is the one strong `--ease-out`, `cubic-bezier(0.23, 1, 0.32, 1)` |
 | Card hover (pointer devices only) | Soft lift, no scale | `box-shadow: 0 8px 24px rgba(17,17,20,.08)`, 200ms ease-out |
 | Carousel swipe | Native scroll-snap, 1:1 tracking, native momentum | No custom animation |
 | Carousel arrow | `scrollBy` smooth | `scroll-behavior: smooth`, `auto` under reduced motion |
@@ -244,7 +244,7 @@ Principles from apple-design: respond on press, never lock input, animate from t
 
 No bounce on anything that did not start from a flick. No full-viewport or looping animation. Skeletons are static (no shimmer).
 
-Reduced motion (`prefers-reduced-motion: reduce`): sheet becomes a 150ms opacity cross-fade with no transform, press scale is removed, smooth scrolling is off, card hover shadow stays. Reduced transparency (`prefers-reduced-transparency: reduce`): the sticky bar and arrow buttons become solid (`#F5F5F7` and `#FFFFFF`) with no blur. `prefers-contrast: more`: add a 1px `#111114` border to cards, inputs and the sticky bar.
+Reduced motion (`prefers-reduced-motion: reduce`): movement and scale are off, short opacity fades stay (a fade is not movement). The sheet becomes a 150ms opacity cross-fade with no transform, press scale is removed, smooth scrolling is off, card hover shadow stays, a `<details>` still fades its contents open, and an `.enter` entrance is a 150ms opacity fade with no rise. Reduced transparency (`prefers-reduced-transparency: reduce`): the sticky bar and arrow buttons become solid (`#F5F5F7` and `#FFFFFF`) with no blur. `prefers-contrast: more`: add a 1px `#111114` border to cards, inputs and the sticky bar.
 
 ---
 
@@ -297,7 +297,7 @@ Applicable state considerations resolved: 23 covered, 3 backstop, 1 dismissed, 0
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
 | empty | results grid | ✅ covered | Zero matches renders the empty state from the Copywriting Contract with a Clear all filters button, never a blank grid |
-| loading | results grid | ✅ covered | First load streams in 6 static skeleton cards with the same 4:3 photo box and text block as a real card; a filter change keeps the previous results at 60% opacity instead |
+| loading | results grid | ✅ covered | No first-load skeleton: the bar along the top (NavProgress) is the loading state while a tapped page loads, and the page arrives whole. A filter change keeps the previous results at 60% opacity |
 | error | results grid | ✅ covered | A provider failure renders the error state from the Copywriting Contract with Try loading cars again; the filters stay usable |
 | populated | results grid | ✅ covered | 12 cards per page in 1, 2 or 3 columns by breakpoint, 24px gaps |
 | zero-one-many | result count and grid | ✅ covered | Count copy is singular at 1 and "No cars" at 0; one result renders one card at normal column width, not stretched; pagination is hidden at one page |
