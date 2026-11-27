@@ -125,21 +125,20 @@ test("the featured and similar cars rows have no arrows, count or dots on a phon
   await expect(page.getByRole("button", { name: /^(Previous|Next) / })).toBeHidden();
 });
 
-test("a phone carousel drifts, holds while a finger is on it and for a few seconds after, then drifts on", async ({ page }) => {
+test("a phone row stays still: a swipe moves it and it stays where it is left", async ({ page }) => {
   await page.goto("/");
   const ul = page.getByRole("group", { name: "Featured stock" }).locator("ul").first();
   await ul.scrollIntoViewIfNeeded();
   const left = () => ul.evaluate((e) => e.scrollLeft);
-  const touch = (type: string) => ul.evaluate((e, t) => e.dispatchEvent(new PointerEvent(t, { pointerType: "touch", bubbles: true })), type);
-  await expect.poll(left).toBeGreaterThan(20); // it drifts by itself
-  await touch("pointerdown");
-  const held = await left();
-  await page.waitForTimeout(1200);
-  expect(Math.abs((await left()) - held)).toBeLessThan(3); // held while the finger is down
-  await touch("pointerup");
-  await page.waitForTimeout(1500);
-  expect(Math.abs((await left()) - held)).toBeLessThan(3); // and for a few seconds after
-  await expect.poll(left, { timeout: 8000 }).toBeGreaterThan(held + 10); // then it goes on, instead of stopping for good
+  await page.waitForTimeout(2000);
+  expect(await left()).toBe(0); // nothing moves it by itself
+  expect(await ul.evaluate((e) => getComputedStyle(e).scrollSnapType)).toBe("x mandatory"); // a swipe settles on a card
+  expect(new Set(await ul.locator(":scope > li").evaluateAll((lis) => lis.map((li) => getComputedStyle(li).scrollSnapAlign)))).toEqual(new Set(["start"]));
+  await ul.evaluate((e) => e.scrollBy({ left: e.clientWidth, behavior: "instant" }));
+  const swiped = await left();
+  expect(swiped).toBeGreaterThan(0);
+  await page.waitForTimeout(2000);
+  expect(await left()).toBe(swiped);
 });
 
 test.describe("desktop", () => {

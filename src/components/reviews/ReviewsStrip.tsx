@@ -1,4 +1,4 @@
-import { AutoCarousel } from "@/components/AutoCarousel";
+import { CardRow } from "@/components/CardRow";
 import { StarIcon } from "@/components/stock/icons";
 import type { Review, Reviews } from "@/lib/reviews";
 import { formatCount } from "@/lib/stock/format";
@@ -108,14 +108,14 @@ export function ReviewsStrip({ data }: { data: Reviews | null }) {
           </div>
         </div>
       )}
-      {/* Moves along by itself and stops under the pointer: one card on a phone, two, then four across (more than three shows). */}
-      <AutoCarousel label="Google Reviews" noun="reviews">
+      {/* One card and a peek of the next on a phone, two, then four across (more than three shows). */}
+      <CardRow label="Google Reviews" noun="reviews">
         {data.reviews.map((r) => (
           <li key={r.id} className="w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3rem)/4)]">
             <ReviewCard review={r} />
           </li>
         ))}
-      </AutoCarousel>
+      </CardRow>
       {/* Google requires its review policy to be linked wherever its reviews show. */}
       <a href={POLICY_URI} {...NEW_TAB} className={`${textLink} self-start text-meta`}>
         Google&apos;s Review Policy

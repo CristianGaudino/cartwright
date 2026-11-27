@@ -50,24 +50,6 @@ test("the Find me a car tab fits inside the Search Stock box and the page does n
   }
 });
 
-test("a drifting row moves smoothly, not a page at a time, and stops under the pointer", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  const first = await at();
-  await expect.poll(at).toBeGreaterThan(first);
-  const second = await at();
-  expect(second - first).toBeLessThan(120); // its first step is a drift, nowhere near a page (about 400px)
-  await expect.poll(at).toBeGreaterThan(second); // and it keeps going
-  await row.hover();
-  const held = await at();
-  await page.waitForTimeout(600);
-  expect(Math.abs((await at()) - held)).toBeLessThan(2);
-});
-
 test("on a phone the featured row has no count, arrows or dots", async ({ page }) => {
   await page.goto("/");
   const row = page.getByRole("group", { name: "Featured stock" });
@@ -201,6 +183,27 @@ test.describe("desktop pointer", () => {
   });
 });
 
+for (const width of [900, 1280]) {
+  test.describe(`at ${width}px`, () => {
+    test.use({ viewport: { width, height: 900 }, isMobile: false, hasTouch: false });
+
+    test("Next on the featured row reaches its last card", async ({ page }) => {
+      await page.goto("/");
+      await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+      const row = page.getByRole("group", { name: "Featured stock" });
+      await row.scrollIntoViewIfNeeded();
+      const next = row.getByRole("button", { name: "Next cars" });
+      const pages = await row.getByRole("button", { name: /^Go to page / }).count();
+      for (let i = 1; i < pages; i++) {
+        await next.click();
+        await expect(row.getByRole("button", { name: `Go to page ${i + 1} of ${pages}` })).toHaveAttribute("aria-current", "true");
+      }
+      await expect(row.locator("article").last()).toBeInViewport({ ratio: 1 });
+      await expect(next).toHaveCSS("opacity", "0.3");
+    });
+  });
+}
+
 // Tailwind's active:scale-* sets the scale property; a transition that only lists transform makes the press snap (#45).
 test("press feedback eases scale, and header links are 44px tall", async ({ page }) => {
   await page.goto("/");
@@ -273,40 +276,113 @@ test.describe("without JavaScript", () => {
   });
 });
 
-test("a drifting row starts again when the pointer leaves", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
+// Every animate() on a card of a row is the nudge: kept per row, with its length, so a test can count them.
+const recordNudges = (page: import("@playwright/test").Page) =>
+  page.addInitScript(() => {
+    const w = window as unknown as { __nudges: { row: string; ms: number }[] };
+    w.__nudges = [];
+    const real = Element.prototype.animate;
+    Element.prototype.animate = function (keys, options) {
+      const a = real.call(this, keys, options);
+      const row = this.parentElement?.parentElement;
+      if (this.tagName === "LI" && row?.getAttribute("aria-roledescription") === "carousel")
+        w.__nudges.push({ row: row.getAttribute("aria-label")!, ms: Number(a.effect!.getTiming().duration) });
+      return a;
+    };
+  });
+const nudges = (page: import("@playwright/test").Page, row: string) =>
+  page.evaluate((r) => (window as unknown as { __nudges: { row: string; ms: number }[] }).__nudges.filter((n) => n.row === r), row);
+// Animations running on the row's own cards (not the photo fades inside them).
+const moving = (row: import("@playwright/test").Locator) =>
+  row.evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => (a.effect as KeyframeEffect | null)?.target?.parentElement === el).length);
+const hydrated = (page: import("@playwright/test").Page) =>
+  page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+
+for (const width of [360, 412, 900, 1280]) {
+  test(`no row has a Pause or Play button at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+    await hydrated(page);
+    await expect(page.getByRole("group", { name: "Featured stock" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^(Pause|Play) / })).toHaveCount(0);
+  });
+}
+
+test("on a phone a row takes no room below its cards: no controls row and no gap", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
-  const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  await row.hover();
-  const held = await at();
-  await page.mouse.move(5, 5);
-  await expect.poll(at).toBeGreaterThan(held + 5);
+  await hydrated(page);
+  for (const name of ["Featured stock", "Google reviews"]) {
+    const group = page.getByRole("group", { name });
+    const [box, row] = [(await group.boundingBox())!, (await group.locator(":scope > ul").boundingBox())!];
+    expect(Math.abs(box.height - row.height)).toBeLessThan(1);
+  }
 });
 
-test("on a phone the row has a pause button, and a finger held on it stops it", async ({ page }) => {
+for (const width of [360, 430]) {
+  test(`at ${width}px the next card peeks in, so the row plainly scrolls`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/");
+    for (const name of ["Featured stock", "Google reviews"]) {
+      const second = (await page.getByRole("group", { name }).locator(":scope > ul > li").nth(1).boundingBox())!;
+      expect(width - second.x).toBeGreaterThan(24); // a good part of the next card shows
+      expect(second.x).toBeGreaterThan(width / 2); // but the first card is the one being read
+    }
+  });
+}
+
+test("a row nudges once when it first comes into view, back to its start, and never moves the page", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await recordNudges(page);
+  await page.goto("/");
+  await hydrated(page);
+  const row = page.getByRole("group", { name: "Google reviews" }).locator(":scope > ul");
+  await row.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  const y = await page.evaluate(() => window.scrollY);
+  await expect.poll(() => nudges(page, "Google Reviews").then((n) => n.length)).toBeGreaterThan(0);
+  const first = await nudges(page, "Google Reviews");
+  expect(first).toHaveLength(await row.locator(":scope > li").count()); // the cards move together, once
+  for (const n of first) expect(n.ms).toBeLessThan(1500); // short enough that WCAG 2.2.2 asks for no Pause
+  await expect.poll(() => moving(row)).toBe(0);
+  expect(await row.evaluate((el) => el.scrollLeft)).toBe(0);
+  expect(await row.locator(":scope > li").evaluateAll((lis) => lis.map((li) => getComputedStyle(li).translate))).toEqual(first.map(() => "none"));
+  expect(await page.evaluate(() => window.scrollY)).toBe(y);
+  // Away and back again: no second nudge.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(300);
+  await row.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await page.waitForTimeout(1500);
+  expect(await nudges(page, "Google Reviews")).toHaveLength(first.length);
+});
+
+test("with reduced motion no row nudges", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await recordNudges(page);
+  await page.goto("/");
+  await hydrated(page);
+  for (const name of ["Featured stock", "Google reviews"]) {
+    await page.getByRole("group", { name }).evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(1500);
+  }
+  expect(await page.evaluate(() => (window as unknown as { __nudges: unknown[] }).__nudges)).toHaveLength(0);
+});
+
+test("a touch on a row stops the nudge at once, with the cards back in place", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
-  await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-  const group = page.getByRole("group", { name: "Featured stock" });
-  const row = group.locator(":scope > ul");
-  await row.scrollIntoViewIfNeeded();
-  const at = () => row.evaluate((el) => el.scrollLeft);
-  await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
-  await expect(group.getByRole("button", { name: "Pause cars" })).toBeVisible();
-  await group.dispatchEvent("pointerdown", { pointerType: "touch" });
-  await page.waitForTimeout(100);
-  const held = await at();
-  await page.waitForTimeout(5000); // longer than the old 4 second resume
-  expect(Math.abs((await at()) - held)).toBeLessThan(2);
+  await hydrated(page);
+  const row = page.getByRole("group", { name: "Google reviews" }).locator(":scope > ul");
+  await row.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await expect.poll(() => moving(row), { intervals: [20] }).toBeGreaterThan(0);
+  const card = (await row.locator("article").first().boundingBox())!;
+  await page.touchscreen.tap(card.x + card.width / 2, card.y + 12);
+  expect(await moving(row)).toBe(0);
+  expect(await row.locator(":scope > li").first().evaluate((li) => getComputedStyle(li).translate)).toBe("none");
 });
 
-test("the drifting rows do not read their sizes every frame", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  // Counts getComputedStyle calls on a carousel row: the drift moves scrollLeft every frame, and sizes read after that force a layout.
+test("scrolling a row does not read its sizes on every scroll event", async ({ page }) => {
+  // Counts getComputedStyle calls on a row: sizes are read when the row is resized, never per scroll, which fires every frame of a swipe.
   await page.addInitScript(() => {
     const w = window as unknown as { __reads: number };
     w.__reads = 0;
@@ -317,14 +393,23 @@ test("the drifting rows do not read their sizes every frame", async ({ page }) =
     };
   });
   await page.goto("/");
+  await hydrated(page);
   const row = page.getByRole("group", { name: "Featured stock" }).locator(":scope > ul");
   await row.scrollIntoViewIfNeeded();
-  await page.mouse.move(0, 0);
-  const start = await row.evaluate((el) => el.scrollLeft);
-  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).not.toBe(start); // it drifts
   const before = await page.evaluate(() => (window as unknown as { __reads: number }).__reads);
-  await page.waitForTimeout(1000);
-  expect((await page.evaluate(() => (window as unknown as { __reads: number }).__reads)) - before).toBeLessThan(5);
+  const events = await row.evaluate(async (el) => {
+    let n = 0;
+    el.addEventListener("scroll", () => n++);
+    el.style.scrollSnapType = "none"; // so each step stays where it is put
+    for (let i = 1; i <= 20; i++) {
+      el.scrollLeft = i * 10;
+      await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+    }
+    el.style.scrollSnapType = "";
+    return n;
+  });
+  expect(events).toBeGreaterThan(10);
+  expect((await page.evaluate(() => (window as unknown as { __reads: number }).__reads)) - before).toBeLessThan(3);
 });
 
 for (const reducedMotion of ["no-preference", "reduce"] as const) {
