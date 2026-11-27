@@ -165,9 +165,14 @@ test.describe("the lightbox", () => {
   });
 
   test("the open photo fades in once it has loaded", async ({ page }) => {
+    let release!: () => void;
+    const held = new Promise<void>((r) => (release = r));
+    await page.route((url) => url.pathname === car!.photos[1].src, async (r) => (await held, r.continue()));
     await open(page, car!.slug);
     await whole(page).getByRole("button", { name: `View photo 2 of ${n} larger` }).click();
     const img = page.getByRole("dialog", { name: /^Photos of/ }).getByRole("img", { name: new RegExp(`photo 2 of ${n}$`) });
+    await expect(img).toHaveCSS("opacity", "0"); // hidden while it loads
+    release();
     await expect(img).toHaveAttribute("data-loaded", "");
     await expect(img).toHaveCSS("opacity", "1");
   });
@@ -176,9 +181,8 @@ test.describe("the lightbox", () => {
     const src = car!.photos[1].src;
     await page.route((url) => url.pathname === src, (r) => r.abort());
     await open(page, car!.slug);
-    // Opened on photo 1: in the gallery, the failed photo's own "No photo yet" covers its open button.
-    await whole(page).getByRole("button", { name: `View photo 1 of ${n} larger` }).click();
-    await page.keyboard.press("ArrowRight");
+    // The failed photo's "No photo yet" must not take the click from its open button.
+    await whole(page).getByRole("button", { name: `View photo 2 of ${n} larger` }).click();
     await expect(dialogCounter(page)).toHaveText(`2 / ${n}`);
     const slide = page.getByRole("dialog", { name: /^Photos of/ }).getByRole("group", { name: `Photo 2 of ${n}` });
     await expect(slide.locator("img")).toHaveAttribute("data-failed", "");

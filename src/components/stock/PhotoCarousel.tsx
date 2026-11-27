@@ -79,7 +79,7 @@ export function PhotoCarousel({ photos: allPhotos, href, label, priority }: { ph
         {visible.map((photo, i) => (
           <div key={photo.src} role="group" aria-roledescription="slide" aria-label={`Photo ${i + 1} of ${n}`} className="group/slide relative h-full w-full flex-none snap-start">
             {/* A photo that fails to load leaves the same words as a car with no photos. */}
-            <span aria-hidden="true" className="absolute inset-0 hidden items-center justify-center text-meta text-text-2 group-has-[img[data-failed]]/slide:flex">No photo yet</span>
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0 hidden items-center justify-center text-meta text-text-2 group-has-[img[data-failed]]/slide:flex">No photo yet</span>
             {/* Out of the tab order (the card title is the keyboard link) but not hidden, so the photo and its alt stay readable. */}
             <Link href={href} tabIndex={-1}>
               <Image

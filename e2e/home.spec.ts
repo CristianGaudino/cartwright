@@ -286,7 +286,7 @@ test("a drifting row starts again when the pointer leaves", async ({ page }) => 
   await expect.poll(at).toBeGreaterThan(held + 5);
 });
 
-test("on a phone a touch stops the row for good, and there is no pause button", async ({ page }) => {
+test("on a phone the row has a pause button, and a finger held on it stops it", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
@@ -295,7 +295,7 @@ test("on a phone a touch stops the row for good, and there is no pause button", 
   await row.scrollIntoViewIfNeeded();
   const at = () => row.evaluate((el) => el.scrollLeft);
   await expect.poll(at).toBeGreaterThan(5); // it drifts on its own first
-  await expect(group.getByRole("button", { name: /moving the cars along/ })).toHaveCount(0);
+  await expect(group.getByRole("button", { name: "Pause cars" })).toBeVisible();
   await group.dispatchEvent("pointerdown", { pointerType: "touch" });
   await page.waitForTimeout(100);
   const held = await at();

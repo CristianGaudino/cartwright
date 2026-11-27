@@ -5,7 +5,7 @@ import { StateBlock } from "@/components/StateBlock";
 import { Tween } from "@/components/Tween";
 import { EASE_OUT } from "@/components/motion";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
+import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
 import { sourcingHref } from "@/lib/leads/sourcing-prefill";
 import { appliedFilters, clearFilters, stockHref } from "@/lib/stock/query";
@@ -71,6 +71,7 @@ function SortControl({ className }: { className: string }) {
 // Before hydration, on a desktop with List chosen: the results take the list layout before the cards are parsed, not after (the CSS is
 // behind 1024px, so a phone is unaffected). Inline, which the CSP allows.
 const VIEW_SCRIPT = `try{if(localStorage.getItem(${JSON.stringify(VIEW_KEY)})==="list")document.currentScript.parentElement.dataset.view="list"}catch{}`;
+const never = () => () => {};
 
 // Two icon buttons, the active one red, as in the mockup. From 1024px only, with the sidebar: below that the cards are always a grid.
 // onSwitch fades the results back in after the layout swap, so it does not snap; opacity only, so it runs with reduced motion too.
@@ -103,6 +104,8 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const view = useView();
+  // The script is drawn by the server and kept while hydrating, then dropped: a client render never makes one (React warns, and it would not run).
+  const hydrated = useSyncExternalStore(never, () => true, () => false);
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(query);
   const [held, setHeld] = useState(summary?.facets ?? null);
   if (summary && summary.facets !== held) setHeld(summary.facets); // adjusting state during render, not an effect
@@ -192,7 +195,7 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <AppliedFilters />
             {/* suppressHydrationWarning: the script may have set data-view to list before React reads the grid the server sent. */}
             <div data-view={view} aria-busy={pending} suppressHydrationWarning className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
-              <script dangerouslySetInnerHTML={{ __html: VIEW_SCRIPT }} />
+              {!hydrated && <script dangerouslySetInnerHTML={{ __html: VIEW_SCRIPT }} />}
               {children}
             </div>
           </div>

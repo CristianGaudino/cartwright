@@ -13,16 +13,17 @@ const RESUME = 4000; // ms of quiet after a finger lifts before the drift starts
 const control = "flex size-11 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-text transition-[opacity,background-color] duration-150 hover:bg-hairline";
 
 // Where more than one card fits, a dot is a page, which is what the arrows move by. Where one card fits (a phone), a dot is a card.
-// `unit` is how far one dot moves the row. Read from the row's own sizes, not copied (the gap is the row's gap-4).
+// `unit` is how far one dot moves the row: a screen and the gap after it, so the next page starts on a card. Read from the row's
+// own sizes, not copied (the gap is the row's gap-4). Any overflow is a page (five reviews four across are two), and the end of
+// the row is always the last page. `end`: the scrollLeft from there on, less a pixel for rounding.
 function geometry(el: HTMLUListElement) {
   const first = el.firstElementChild as HTMLElement | null;
   const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
   const step = first ? first.offsetWidth + gap : el.clientWidth;
   const perCard = Math.floor((el.clientWidth + gap) / step) <= 1;
-  return {
-    unit: perCard ? step : el.clientWidth,
-    pages: perCard ? el.children.length : Math.max(1, Math.round(el.scrollWidth / el.clientWidth)),
-  };
+  const unit = perCard ? step : el.clientWidth + gap;
+  const end = el.scrollWidth - el.clientWidth - 1;
+  return { unit, end, pages: perCard ? el.children.length : 1 + Math.max(0, Math.ceil(end / unit)) };
 }
 
 function watchReducedMotion(onChange: () => void) {
@@ -50,24 +51,27 @@ export function AutoCarousel({
   const [paused, setPaused] = useState(false);
   const using = useRef({ over: false, within: false, touchedAt: -Infinity }); // touchedAt: Infinity while a finger is down, else when it lifted
 
-  const unit = useRef(1);
+  const size = useRef({ unit: 1, end: 0 });
+  // The last page only at the end of the row, so Next stays live until the last card is in full view.
+  const pageAt = (left: number, pages: number) =>
+    left >= size.current.end ? pages - 1 : Math.max(0, Math.min(pages - 2, Math.round(left / size.current.unit)));
   // Measured whenever the row is resized (the observer also fires once when it starts watching). Not on scroll: scroll fires every frame
   // of a drift, and reading sizes right after the drift writes scrollLeft would force a layout each frame.
   const measure = useCallback(() => {
     const el = scroller.current;
     if (!el) return;
     const g = geometry(el);
-    unit.current = g.unit;
-    const page = Math.min(g.pages - 1, Math.round(el.scrollLeft / g.unit));
+    size.current = g;
+    const page = pageAt(el.scrollLeft, g.pages);
     setState((s) => (s.pages === g.pages && s.page === page ? s : { pages: g.pages, page }));
   }, []);
-  // On scroll only the page is worked out, from the measured unit. The same answer is no render.
+  // On scroll only the page is worked out, from the measured sizes. The same answer is no render.
   const onScroll = () => {
     const el = scroller.current;
     if (!el) return;
-    const at = Math.round(el.scrollLeft / unit.current);
+    const left = el.scrollLeft;
     setState((s) => {
-      const page = Math.max(0, Math.min(s.pages - 1, at));
+      const page = pageAt(left, s.pages);
       return page === s.page ? s : { ...s, page };
     });
   };
@@ -116,8 +120,8 @@ export function AutoCarousel({
     };
   }, [reduced, paused]);
 
-  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth, behavior: scrollBehavior() });
-  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * unit.current, behavior: scrollBehavior() });
+  const go = (dir: 1 | -1) => scroller.current?.scrollBy({ left: dir * size.current.unit, behavior: scrollBehavior() });
+  const goTo = (i: number) => scroller.current?.scrollTo({ left: i * size.current.unit, behavior: scrollBehavior() });
 
   return (
     <div
@@ -142,7 +146,7 @@ export function AutoCarousel({
         {children}
       </ul>
       {controls && (
-        <div className="mt-4 flex min-h-11 items-center justify-center gap-3">
+        <div className="mt-4 flex min-h-11 items-center justify-center gap-3 max-md:motion-reduce:hidden">
           <button type="button" aria-label={`Previous ${noun}`} onClick={() => go(-1)} className={`${control} max-md:hidden ${state.page <= 0 ? "pointer-events-none opacity-30" : ""}`}>
             <ChevronLeftIcon className="size-5" />
           </button>
