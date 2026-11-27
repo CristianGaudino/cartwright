@@ -7,6 +7,7 @@ import { FinanceFields, TERM_OPTIONS } from "@/components/leads/FinanceFields";
 import { LeadDialog } from "@/components/leads/LeadDialog";
 import type { CarSummary } from "@/components/leads/LeadDialog";
 import { LeadForm } from "@/components/leads/LeadForm";
+import { Tween } from "@/components/Tween";
 import { FINANCE } from "@/lib/finance/finance.config";
 import { financeable, quote } from "@/lib/finance/payment";
 import { formatPrice } from "@/lib/stock/format";
@@ -42,6 +43,12 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
   const priceError = !car && !(price !== "" && financeable(priceEur)) ? "Enter a price between €1,000 and €250,000." : undefined;
   const depositError = !priceError && depositEur >= priceEur ? "Deposit must be less than the price." : undefined;
   const q = quote(priceEur, depositEur, Number(term), d.aprPct);
+  // The last good quote stays on screen (dimmed) while a figure is half typed ("2" on the way to "25000"), so the card keeps its height and
+  // the figures count to the new quote instead of flipping to an error and back. The field's error does the talking. No row here uses the
+  // deposit, so the quote alone is kept.
+  const [last, setLast] = useState(q);
+  if (q && JSON.stringify(q) !== JSON.stringify(last)) setLast(q); // adjusting state during render, not an effect
+  const shown = q ?? last;
 
   const field = (name: string, value: string, onChange: (v: string) => void, error?: string) => ({ id: `${uid}-${name}`, name, value, onChange, error });
 
@@ -66,27 +73,31 @@ export function FinanceCalculator({ car }: { car?: FinanceCar }) {
         </div>
         <div className={`flex flex-col gap-4 ${card} p-4 sm:p-6`}>
           <div role="status" aria-live="polite" className="flex flex-col gap-2">
-            {q ? (
-              <>
+            {/* A stale quote is only there to hold the card's shape: hidden from screen readers, which hear the hint instead. */}
+            {shown && !q && <p className="sr-only">Check the figures you entered.</p>}
+            {shown ? (
+              <div aria-hidden={q ? undefined : true} className={`flex flex-col gap-2 transition-opacity duration-150${q ? "" : " opacity-60"}`}>
                 <p className="text-meta text-text-2">Estimated Monthly Payment</p>
                 <p className="text-display font-semibold tabular-nums">
-                  About {formatPrice(q.monthlyEur)}<span className="text-body font-normal text-text-2"> a month</span>
+                  About <Tween value={formatPrice(shown.monthlyEur)} /><span className="text-body font-normal text-text-2"> a month</span>
                 </p>
                 <dl className="flex flex-col gap-1 text-meta">
                   {(
                     [
-                      ["Amount Borrowed", q.borrowedEur],
-                      ["Estimated Total to Repay", q.totalEur],
-                      ["Estimated Interest", q.interestEur],
+                      ["Amount Borrowed", shown.borrowedEur],
+                      ["Estimated Total to Repay", shown.totalEur],
+                      ["Estimated Interest", shown.interestEur],
                     ] as const
                   ).map(([label, value]) => (
                     <div key={label} className="flex justify-between gap-4">
                       <dt className="text-text-2">{label}</dt>
-                      <dd className="text-right tabular-nums">{formatPrice(value)}</dd>
+                      <dd className="text-right tabular-nums">
+                        <Tween value={formatPrice(value)} />
+                      </dd>
                     </div>
                   ))}
                 </dl>
-              </>
+              </div>
             ) : (
               <p className="font-semibold">Check the figures you entered.</p>
             )}

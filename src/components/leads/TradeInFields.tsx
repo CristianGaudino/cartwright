@@ -57,7 +57,7 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
         </div>
       </div>
 
-      <div hidden={step !== 1} className="flex flex-col gap-4">
+      <div hidden={step !== 1} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">Tell us how the car really is. A valuation can change when we see it.</p>
         <ul className="flex flex-col gap-1 text-meta">
           {GUIDE_NOTES.map((n) => (
@@ -70,14 +70,14 @@ export function TradeInFields({ bind, photos, step }: { bind(name: string): Fiel
         <Field {...bind("message")} label="Known issues or anything we should know" optional multiline maxLength={LIMITS.message} />
       </div>
 
-      <div hidden={step !== 2} className="flex flex-col gap-4">
+      <div hidden={step !== 2} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">
           Add at least {PHOTO_MIN_COUNT} photos. More is better: every angle, and every mark or dent, even a small one. Tap a slot to add its photo.
         </p>
         <PhotoPicker {...photos} slots={PHOTO_SLOTS} min={PHOTO_MIN_COUNT} />
       </div>
 
-      <div hidden={step !== 3} className="flex flex-col gap-4">
+      <div hidden={step !== 3} className="enter flex flex-col gap-4">
         <p className="text-body text-text-2">We&apos;ll contact you with a valuation. It&apos;s an estimate until we&apos;ve seen the car.</p>
         <ContactFields bind={bind} />
       </div>

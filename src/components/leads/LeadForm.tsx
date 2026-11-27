@@ -260,8 +260,8 @@ export function LeadForm({
       className="flex min-h-0 flex-1 flex-col"
     >
       {done ? (
-        <div aria-live="polite" className={`flex flex-col items-start gap-4 py-6 ${pad}`}>
-          <span className={doneBadge}>
+        <div aria-live="polite" className={`enter flex flex-col items-start gap-4 py-6 ${pad}`}>
+          <span className={`${doneBadge} transition-[scale] duration-200 ease-out motion-safe:starting:scale-90`}>
             <CheckIcon />
           </span>
           <h2 ref={heading} tabIndex={-1} className="text-heading font-semibold outline-none">
@@ -350,7 +350,9 @@ export function LeadForm({
           {/* Keyed, so React never turns the Next button into the submit one while the click that moved on is still being handled: that sent
               the form on arriving at the last step. */}
           {last ? (
-            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} disabled:opacity-60`}>
+            <button key="send" type="submit" disabled={pending || shrinking} aria-busy={pending || shrinking} className={`${accentButton} ${button} flex items-center justify-center gap-2 disabled:opacity-60`}>
+              {/* Turns on the compositor; with reduced motion it stays still and the word still changes. */}
+              {pending && <span data-spinner aria-hidden="true" className="size-4 shrink-0 rounded-full border-2 border-current border-r-transparent motion-safe:animate-spin" />}
               {pending ? "Sending" : submitLabel}
             </button>
           ) : (

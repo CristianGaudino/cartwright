@@ -8,11 +8,11 @@ export function Stepper({ titles, step, headingRef }: { titles: string[]; step: 
       <ol aria-label="Progress" className="flex items-center gap-2">
         {titles.map((title, i) => (
           <li key={title} aria-current={i === step ? "step" : undefined} className="flex flex-1 items-center gap-2 last:flex-none">
-            <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold ${i < step ? "bg-accent text-white" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
+            <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-meta font-semibold transition-colors duration-200 ${i < step ? "bg-accent text-white" : i === step ? "bg-text text-ink" : "bg-hairline text-text-2"}`}>
               {i < step ? <CheckIcon className="size-4" /> : i + 1}
             </span>
             <span className={`hidden text-meta sm:block ${i === step ? "font-semibold" : "text-text-2"}`}>{title}</span>
-            {i < titles.length - 1 && <span aria-hidden="true" className={`h-px flex-1 ${i < step ? "bg-accent" : "bg-hairline"}`} />}
+            {i < titles.length - 1 && <span aria-hidden="true" className={`h-px flex-1 transition-colors duration-200 ${i < step ? "bg-accent" : "bg-hairline"}`} />}
           </li>
         ))}
       </ol>
