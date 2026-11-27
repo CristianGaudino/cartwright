@@ -30,7 +30,7 @@ export function StockResults({ result, query }: { result: StockResult; query: St
         ))}
       </div>
       {pageCount > 1 && (
-        <nav aria-label="Pagination" className="mt-10 flex flex-col items-center gap-3">
+        <nav aria-label="Pagination" data-pager className="mt-10 flex flex-col items-center gap-3">
           <ul className="inline-flex divide-x divide-control overflow-hidden rounded-control border border-control bg-card">
             <li>
               {page > 1 ? (

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { choose } from "./combo";
 import { SITE_NAME } from "../src/lib/site";
+import { VIEW_KEY } from "../src/components/stock/view";
 
 const PER_PAGE = 12;
 const digits = (s: string | null) => Number((s ?? "").replace(/\D/g, ""));
@@ -104,7 +105,7 @@ declare global {
 test("sort replaces the URL and dims the old results, never a skeleton", async ({ page }) => {
   await page.goto("/used-cars");
   await page.waitForLoadState("load");
-  await expect(page.locator("[data-skeleton]")).toHaveCount(0); // the first-load skeleton lingers briefly after load; only a change must never show it
+  await expect(page.locator("[data-skeleton]")).toHaveCount(0);
   const historyBefore = await page.evaluate(() => history.length);
   // Sample the whole change: a check after it would miss the pending state.
   await page.evaluate(() => {
@@ -206,6 +207,11 @@ test("a page past the end lands on the last page", async ({ page }) => {
   await expect(page.locator("article").first()).toBeVisible();
 });
 
+// A route loading.tsx would stream the page, so the redirect would answer 200 and move in the browser instead.
+test("a page past the end is a real redirect", async ({ request }) => {
+  expect([307, 308]).toContain((await request.get("/used-cars?page=999", { maxRedirects: 0 })).status());
+});
+
 test("zero matches show the empty state and Clear all filters brings the cars back", async ({ page }) => {
   await page.goto("/used-cars?make=zzzz");
   await expect(page.getByRole("heading", { name: "No cars match these filters" })).toBeVisible();
@@ -233,6 +239,50 @@ test.describe("list and grid, on a desktop", () => {
     await expect(page.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "Grid view" }).click();
     await expect.poll(async () => (await card.boundingBox())!.width).toBeLessThan(grid!.width + 2);
+  });
+
+  // The choice is in localStorage, so without the inline script the server's grid would draw first and then jump to the list.
+  test("a remembered list view is there from the first paint, with no layout shift", async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, "list");
+      const w = window as unknown as { __firstCard: string; __shift: number };
+      w.__shift = 0;
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => (w.__shift += (e as unknown as { value: number }).value))).observe({ type: "layout-shift", buffered: true });
+      // The first card's display as the parser adds it, before any app script runs.
+      const seen = new MutationObserver(() => {
+        const card = document.querySelector("[data-card]");
+        if (!card) return;
+        w.__firstCard = getComputedStyle(card).display;
+        seen.disconnect();
+      });
+      seen.observe(document, { childList: true, subtree: true });
+    }, VIEW_KEY);
+    await page.goto("/used-cars");
+    await page.waitForLoadState("load");
+    await expect(page.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    expect(await page.evaluate(() => (window as unknown as { __firstCard: string }).__firstCard)).toBe("flex");
+    await page.waitForTimeout(500); // let a late shift land
+    expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.01);
+  });
+
+  test("a page link dims the old cars as sort does", async ({ page }) => {
+    await page.goto("/used-cars");
+    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+    const pager = page.getByRole("navigation", { name: "Pagination" });
+    const next = pager.getByRole("link", { name: "Next page" });
+    test.skip(!(await next.count()), "Fewer cars than one page");
+    const historyBefore = await page.evaluate(() => history.length);
+    await page.evaluate(() => {
+      window.__busySeen = false;
+      new MutationObserver(() => {
+        if (document.querySelector('[aria-busy="true"].opacity-60')) window.__busySeen = true;
+      }).observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+    });
+    await next.click();
+    await expect(page).toHaveURL(/page=2$/);
+    await expect(pager.locator("[aria-current=page]")).toHaveText("2");
+    expect(await page.evaluate(() => window.__busySeen)).toBe(true);
+    expect(await page.evaluate(() => history.length)).toBe(historyBefore);
   });
 
   test("the filter panel has a heading and Clear all, which empties the filters", async ({ page }) => {

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { StateBlock } from "@/components/StateBlock";
+import { Tween } from "@/components/Tween";
+import { EASE_OUT } from "@/components/motion";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useId, useOptimistic, useRef, useState, useTransition } from "react";
 import { countLabel } from "@/lib/stock/format";
@@ -16,7 +18,7 @@ import { Combobox } from "@/components/Combobox";
 import { GridIcon, ListIcon } from "./icons";
 import { SearchBox, StockFilters } from "./StockFilters";
 import { stateButton } from "./StockError";
-import { setView, useView } from "./view";
+import { VIEW_KEY, setView, useView } from "./view";
 import { pageMain, slash, subTitle } from "@/components/ui";
 
 type Summary = { total: number; facets: Facets } | null;
@@ -66,15 +68,24 @@ function SortControl({ className }: { className: string }) {
   );
 }
 
+// Before hydration, on a desktop with List chosen: the results take the list layout before the cards are parsed, not after (the CSS is
+// behind 1024px, so a phone is unaffected). Inline, which the CSP allows.
+const VIEW_SCRIPT = `try{if(localStorage.getItem(${JSON.stringify(VIEW_KEY)})==="list")document.currentScript.parentElement.dataset.view="list"}catch{}`;
+
 // Two icon buttons, the active one red, as in the mockup. From 1024px only, with the sidebar: below that the cards are always a grid.
-function ViewToggle() {
+// onSwitch fades the results back in after the layout swap, so it does not snap; opacity only, so it runs with reduced motion too.
+function ViewToggle({ onSwitch }: { onSwitch: () => void }) {
   const view = useView();
   const btn = (v: "grid" | "list", label: string, Icon: typeof GridIcon) => (
     <button
       type="button"
       aria-label={label}
       aria-pressed={view === v}
-      onClick={() => setView(v)}
+      onClick={() => {
+        if (v === view) return;
+        setView(v);
+        onSwitch();
+      }}
       className={`flex size-12 items-center justify-center transition-colors ${view === v ? "bg-accent text-white" : "hover:bg-hairline"}`}
     >
       <Icon className="size-6" />
@@ -137,12 +148,12 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 lg:mt-0 lg:justify-end lg:gap-6">
-            <p aria-live="polite" data-testid="count" className="text-heading font-semibold">
-              {summary && countLabel(summary.total)}
+            <p aria-live="polite" data-testid="count" className="text-heading font-semibold tabular-nums">
+              {summary && <Tween value={countLabel(summary.total)} />}
             </p>
             <div className="hidden items-center gap-3 lg:flex">
               <SortControl className="flex" />
-              <ViewToggle />
+              <ViewToggle onSwitch={() => results.current?.animate([{ opacity: 0.4 }, { opacity: 1 }], { duration: 150, easing: EASE_OUT })} />
             </div>
           </div>
         </div>
@@ -157,7 +168,20 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
             <StockFilters />
           </aside>
           {/* A minimum height, so a filter that leaves few cars does not shrink the page: the page would jump and the sticky panel move. */}
-          <div ref={results} onClickCapture={(e) => e.target instanceof Element && e.target.closest("a[href^='/used-cars/']") && rememberScroll(query)} className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6">
+          <div
+            ref={results}
+            onClickCapture={(e) => {
+              const a = e.target instanceof Element ? e.target.closest("a[href]") : null;
+              if (!a) return;
+              if (a.matches("a[href^='/used-cars/']")) rememberScroll(query);
+              // A page link dims the old cars as sort and filters do. A plain click only, so a new tab or window still opens one.
+              else if (a.closest("[data-pager]") && e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+                e.preventDefault();
+                startTransition(() => router.replace(a.getAttribute("href")!, { scroll: true }));
+              }
+            }}
+            className="min-w-0 scroll-mt-16 lg:min-h-[100dvh] lg:scroll-mt-6"
+          >
             <div
               data-testid="sticky-bar"
               className="sticky top-14 z-20 -mx-4 flex h-14 items-center justify-between gap-3 bg-surface/80 px-4 backdrop-blur-[20px] backdrop-saturate-[1.8] sm:-mx-6 sm:px-6 lg:hidden reduce-transparency:bg-surface reduce-transparency:backdrop-blur-none reduce-transparency:backdrop-saturate-100"
@@ -166,7 +190,9 @@ export function StockShell({ query, summary, children }: { query: StockQuery; su
               <SortControl className="flex" />
             </div>
             <AppliedFilters />
-            <div data-view={view} aria-busy={pending} className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
+            {/* suppressHydrationWarning: the script may have set data-view to list before React reads the grid the server sent. */}
+            <div data-view={view} aria-busy={pending} suppressHydrationWarning className={`transition-opacity duration-150 ease-out ${pending ? "opacity-60" : ""}`}>
+              <script dangerouslySetInnerHTML={{ __html: VIEW_SCRIPT }} />
               {children}
             </div>
           </div>

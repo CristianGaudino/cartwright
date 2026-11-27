@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { appliedFilters, clearFilters } from "@/lib/stock/query";
 import { CloseIcon, SlidersIcon } from "./icons";
 import { StockFilters } from "./StockFilters";
+import { Tween } from "@/components/Tween";
 import { useStock } from "./StockShell";
 import { accentButton, closeButton, press } from "@/components/ui";
 
@@ -82,9 +83,10 @@ export function FilterSheet() {
             disabled={total === 0}
             aria-busy={pending}
             onClick={() => dialog.current?.close()}
-            className={`${accentButton} flex-1 disabled:bg-hairline disabled:text-text-2`}
+            // Dims while the next count loads; the press rule in globals.css eases the dim.
+            className={`${accentButton} flex-1 tabular-nums aria-busy:opacity-70 disabled:bg-hairline disabled:text-text-2`}
           >
-            {label}
+            <Tween value={label} />
           </button>
         </div>
       </dialog>

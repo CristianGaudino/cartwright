@@ -175,6 +175,22 @@ test.describe("desktop pointer", () => {
     expect(Math.max(...photos) - Math.min(...photos)).toBeLessThan(2); // the same size, give or take a rounded pixel
   });
 
+  test("the skeleton holds the place and height of the cards it stands for", async ({ page }) => {
+    const paths = await carPaths(page, 2);
+    for (const p of paths) await compare(page, p);
+    await page.route("**/api/saved-cars**", async (route) => {
+      await new Promise((r) => setTimeout(r, 800));
+      await route.continue();
+    });
+    await page.goto("/compare");
+    await expect(page.locator("[data-skeleton]")).toHaveCount(2); // hydrated: one per car picked
+    const skeleton = (await page.locator("[data-skeleton]").first().boundingBox())!;
+    await expect(cards(page)).toHaveCount(2);
+    const card = (await cards(page).first().boundingBox())!;
+    expect(Math.abs(card.y - skeleton.y)).toBeLessThan(8);
+    expect(Math.abs(card.height - skeleton.height)).toBeLessThan(8);
+  });
+
   test("the compare pill and the undo toast share one shape", async ({ page }) => {
     const [a] = await carPaths(page, 1);
     await compare(page, a);
