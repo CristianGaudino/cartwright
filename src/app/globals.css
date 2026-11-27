@@ -48,6 +48,9 @@
   --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.5);
 
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  /* The one ease-out: strong, so a thing starts fast and settles. It also replaces Tailwind's weak `ease-out` utility curve.
+     EASE_OUT in src/components/motion.ts is the same curve for script animations: keep the two the same. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* No scrollbar at all, for the swipe rows and strips (photos, featured cars): Firefox's way, beside the ::-webkit-scrollbar rule the
@@ -101,12 +104,18 @@
     outline-offset: 2px;
   }
 
-  /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps.
-     Zero specificity, so an element with its own transition utility must list scale itself. */
+  /* Press feedback (UI-SPEC Motion): active:scale-* sets the `scale` property, so it needs this 100ms ease-out or it snaps. It also
+     carries the colour and shadow changes a pressable has on hover or when checked, and the dim while it is disabled or busy. Zero
+     specificity, so any transition utility on the element replaces all of it: a pressable must not have one. */
   :where([class*="active:scale-"]) {
     transition:
-      scale 100ms ease-out,
-      filter 100ms ease-out;
+      scale 100ms var(--ease-out),
+      filter 100ms var(--ease-out),
+      opacity 150ms var(--ease-out),
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 200ms var(--ease-out);
   }
 
   /* Hover lift for every pressable (buttons, chips, links). Cards have their own shadow, so they are left out. */
@@ -254,8 +263,8 @@ dialog.sheet[open]::backdrop {
     opacity: 0;
     transform: scale(0.97);
     transition:
-      opacity 200ms ease-out,
-      transform 200ms ease-out,
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out),
       overlay 200ms allow-discrete,
       display 200ms allow-discrete;
   }
@@ -318,7 +327,7 @@ dialog.lightbox {
   overflow: hidden;
   opacity: 0;
   transition:
-    opacity 200ms ease-out,
+    opacity 200ms var(--ease-out),
     overlay 200ms allow-discrete,
     display 200ms allow-discrete;
 }
@@ -370,8 +379,8 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
    No offset outline, which floated a white box around the field. The transparent outline still shows in forced colors. */
 :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea) {
   transition:
-    border-color 120ms ease-out,
-    box-shadow 120ms ease-out;
+    border-color 120ms var(--ease-out),
+    box-shadow 120ms var(--ease-out);
 }
 
 @media (hover: hover) {
@@ -480,7 +489,7 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   }
 }
 
-/* Subtle motion. Everything here stands still for anyone who asks for reduced motion. */
+/* Subtle motion. Everything in this block stands still for anyone who asks for reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
   /* A block fades and rises a little as it scrolls into view, where the browser can tie an animation to scrolling. */
   @supports (animation-timeline: view()) {
@@ -490,15 +499,37 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
       animation-range: entry 0% entry 40%;
     }
   }
-  /* The filter groups open with a fade, not a snap (Chrome and Safari; others just open). */
-  details::details-content {
-    opacity: 0;
+}
+/* The filter groups, the footer and the equipment list open with a fade, not a snap (Chrome and Safari; others just open). A fade is not
+   movement, so it stays with reduced motion. */
+details::details-content {
+  opacity: 0;
+  transition:
+    opacity 200ms var(--ease-out),
+    content-visibility 200ms allow-discrete;
+}
+details[open]::details-content {
+  opacity: 1;
+}
+/* One-shot entrance for content that appears in place (a new form step, the thanks after a send, a photo tile), also when it goes from
+   `hidden` to shown. Never on anything in the first screen at load: it would hold back the largest paint by its duration. */
+@media (prefers-reduced-motion: no-preference) {
+  .enter {
     transition:
-      opacity 200ms ease-out,
-      content-visibility 200ms allow-discrete;
+      opacity 200ms var(--ease-out),
+      translate 200ms var(--ease-out);
+    @starting-style {
+      opacity: 0;
+      translate: 0 6px;
+    }
   }
-  details[open]::details-content {
-    opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    transition: opacity 150ms linear;
+    @starting-style {
+      opacity: 0;
+    }
   }
 }
 @keyframes reveal-in {
@@ -589,15 +620,15 @@ input:is([type="checkbox"], [type="radio"], [type="file"]):not(:disabled) {
   opacity: 1;
   transform: scaleX(0.9);
   transition:
-    opacity 150ms ease-out 150ms,
-    transform 8s cubic-bezier(0.23, 1, 0.32, 1) 150ms;
+    opacity 150ms var(--ease-out) 150ms,
+    transform 8s var(--ease-out) 150ms;
 }
 .nav-progress[data-phase="done"] {
   opacity: 0;
   transform: scaleX(1);
   transition:
-    transform 200ms ease-out,
-    opacity 200ms ease-out 100ms;
+    transform 200ms var(--ease-out),
+    opacity 200ms var(--ease-out) 100ms;
 }
 @media (prefers-reduced-motion: reduce) {
   .nav-progress[data-phase] {

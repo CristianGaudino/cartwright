@@ -4,7 +4,7 @@ import { useState } from "react";
 import { HeartIcon } from "@/components/stock/icons";
 import { showToast } from "@/components/toast";
 import { restoreSaved, toggleSaved, useSavedIds } from "@/lib/saved/store";
-import { glass } from "@/components/ui";
+import { glass, press } from "@/components/ui";
 
 const looks = {
   // Over a photo: a frosted scrim circle, solid ink when the buyer asks for less transparency.
@@ -32,7 +32,7 @@ export function SaveButton({ id, label, variant }: { id: string; label: string; 
           if (result === "removed") showToast("Removed from saved", () => restoreSaved([id]));
           setSaid(result === "saved" ? "Saved" : result === "removed" ? "" : "Your saved list is full. Remove a car to save another.");
         }}
-        className={`inline-flex size-11 items-center justify-center text-text transition-transform duration-100 ease-out active:scale-[0.97] motion-reduce:active:scale-100 ${looks[variant]}`}
+        className={`inline-flex size-11 items-center justify-center text-text ${press} ${looks[variant]}`}
       >
         <HeartIcon filled={saved} />
       </button>
