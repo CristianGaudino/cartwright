@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { IconBadge, TitleText } from "@/components/Feature";
-import { AutoCarousel } from "@/components/AutoCarousel";
+import { CardRow } from "@/components/CardRow";
 import { HomeSearch } from "@/components/home/HomeSearch";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { JsonLd } from "@/components/JsonLd";
@@ -85,13 +85,13 @@ export default async function Home() {
                   <ArrowRightIcon className="size-5" />
                 </Link>
               </div>
-              <AutoCarousel label="Featured Stock">
+              <CardRow label="Featured Stock">
                 {result.cars.map((car) => (
                   <li key={car.id} className={carSlide}>
                     <ListingCard car={car} priority={false} oneLine />
                   </li>
                 ))}
-              </AutoCarousel>
+              </CardRow>
             </>
           )}
         </section>

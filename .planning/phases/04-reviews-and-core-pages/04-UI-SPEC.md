@@ -187,7 +187,7 @@ Phase 1 to 3 tables apply (`transform` and `opacity` only, press scale 0.97 over
 
 | Interaction | Behaviour |
 |-------------|-----------|
-| Reviews strip | Native scroll and snap; no JavaScript animation, no auto-advance, no arrows |
+| Reviews strip | A card row as Phase 1 (`CardRow`): still, native swipe and snap with the next card peeking on a phone, arrows and dots from 768px, one short nudge when it first comes into view. No auto-advance and no Pause |
 | Link cards, search button, Call buttons | Press scale as Phase 1; reduced motion removes the scale |
 | Show map | Box content swaps instantly; no transition |
 | Page load | No entrance animation on any new page |

@@ -1,4 +1,4 @@
-import { AutoCarousel } from "@/components/AutoCarousel";
+import { CardRow } from "@/components/CardRow";
 import Link from "next/link";
 import { CheckIcon } from "@/components/stock/icons";
 import { card, carSlide, slash } from "@/components/ui";
@@ -112,13 +112,13 @@ export function SimilarCars({ car, cars }: { car: Car; cars: Car[] }) {
         </div>
       </div>
       <div className="mt-4">
-        <AutoCarousel label="Similar Cars">
+        <CardRow label="Similar Cars">
           {cars.map((c) => (
             <li key={c.id} className={carSlide}>
               <ListingCard car={c} priority={false} oneLine />
             </li>
           ))}
-        </AutoCarousel>
+        </CardRow>
       </div>
     </section>
   );

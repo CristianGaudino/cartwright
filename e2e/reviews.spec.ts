@@ -45,7 +45,6 @@ test.describe("desktop pointer", () => {
   test.use({ viewport: { width: 900, height: 900 }, isMobile: false, hasTouch: false }); // two across, so three pages
 
   test("the dots and arrows move the reviews row", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "reduce" }); // no drift, so only the controls move it
     await page.goto("/");
     await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
     const row = strip(page).locator(":scope > ul");
@@ -62,19 +61,25 @@ test.describe("desktop pointer", () => {
   });
 });
 
-// Five reviews four across overflow by a quarter of a screen: still a row with Pause, and Next reaches the fifth.
-test.describe("at 1280px", () => {
-  test.use({ viewport: { width: 1280, height: 900 }, isMobile: false, hasTouch: false });
+// Next reaches the last card at every width with arrows: five reviews four across overflow by a quarter of a screen, and are two pages.
+for (const width of [900, 1280]) {
+  test.describe(`at ${width}px`, () => {
+    test.use({ viewport: { width, height: 900 }, isMobile: false, hasTouch: false });
 
-  test("the reviews row has Pause, and Next reaches the fifth review", async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    await page.goto("/");
-    await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
-    await strip(page).scrollIntoViewIfNeeded();
-    await expect(strip(page).getByRole("button", { name: "Pause reviews" })).toBeVisible();
-    await strip(page).getByRole("button", { name: "Pause reviews" }).click();
-    await strip(page).getByRole("button", { name: "Next reviews" }).click();
-    await expect(strip(page).locator("article").nth(4)).toBeInViewport({ ratio: 1 });
-    await expect(strip(page).getByRole("button", { name: "Go to page 2 of 2" })).toHaveAttribute("aria-current", "true");
+    test("the reviews row has no Pause, and Next reaches the fifth review", async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      await page.goto("/");
+      await page.waitForFunction(() => Object.keys(document.querySelector("main")!).some((k) => k.startsWith("__reactFiber")));
+      await strip(page).scrollIntoViewIfNeeded();
+      await expect(strip(page).getByRole("button", { name: /^(Pause|Play) / })).toHaveCount(0);
+      const next = strip(page).getByRole("button", { name: "Next reviews" });
+      const pages = await strip(page).getByRole("button", { name: /^Go to page / }).count();
+      for (let i = 1; i < pages; i++) {
+        await next.click();
+        await expect(strip(page).getByRole("button", { name: `Go to page ${i + 1} of ${pages}` })).toHaveAttribute("aria-current", "true");
+      }
+      await expect(strip(page).locator("article").nth(4)).toBeInViewport({ ratio: 1 });
+      await expect(next).toHaveCSS("opacity", "0.3");
+    });
   });
-});
+}

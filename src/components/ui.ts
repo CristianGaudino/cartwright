@@ -31,7 +31,7 @@ export const closeButton = `-mr-2 inline-flex h-11 w-11 items-center justify-cen
 export const swipeRow = "flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain scrollbar-none motion-safe:scroll-smooth [&::-webkit-scrollbar]:hidden";
 // The solid round badge that holds a tick or an arrow.
 export const doneBadge = "flex size-11 items-center justify-center rounded-full bg-text text-ink";
-// A car card in an AutoCarousel: one and a bit on a phone, two, then three across.
+// A car card in a CardRow: one and a bit on a phone, two, then three across.
 export const carSlide = "w-[85%] shrink-0 sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]";
 // A whole-page message (not found, something broke): centred in the space between header and footer.
 export const messagePage = `${pageMain} flex flex-1 flex-col items-center justify-center text-center`;

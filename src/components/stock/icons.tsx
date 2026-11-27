@@ -36,16 +36,6 @@ export const ChevronRightIcon = (p: Props) => (
     <path d="m9.5 5 7 7-7 7" />
   </Icon>
 );
-export const PauseIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M9 6v12M15 6v12" />
-  </Icon>
-);
-export const PlayIcon = (p: Props) => (
-  <Icon {...p}>
-    <path d="M8 5.5v13l10.5-6.5z" />
-  </Icon>
-);
 export const ChevronDownIcon = (p: Props) => (
   <Icon {...p}>
     <path d="m5 9.5 7 7 7-7" />
